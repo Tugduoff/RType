@@ -61,7 +61,7 @@ jobs:
   #       run: make tests_run
 
   push_to_mirror:
-    needs: [run_tests]
+    # needs: [run_tests]
 
     runs-on: ubuntu-latest
 
