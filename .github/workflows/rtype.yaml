@@ -19,9 +19,9 @@ jobs:
     container:
       image: epitechcontent/epitest-docker
     # container:
-    #   image: ghcr.io/bhuvanarn/custom-epitest:latest
+    #   image: ghcr.io/ClementBaziret/custom-epitest:latest
     #   credentials:
-    #       username: BhuvanArn
+    #       username: ClementBaziret
     #       password: ${{ secrets.GIT_AUTH_TOKEN }}
 
     steps:
