@@ -1,0 +1,77 @@
+name: RType
+
+on:
+  push:
+    branches-ignore:
+      - 'ga-ignore-*'
+  pull_request:
+    branches-ignore:
+      - 'ga-ignore-*'
+env:
+  MIRROR_URL: "git@github.com:EpitechPromo2027/B-CPP-500-NAN-5-1-rtype-thomas.cluseau.git"
+  EXECUTABLES: "r-type_server, r-type_server"
+
+jobs:
+  check_program_compilation:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: epitechcontent/epitest-docker
+    # container:
+    #   image: ghcr.io/bhuvanarn/custom-epitest:latest
+    #   credentials:
+    #       username: BhuvanArn
+    #       password: ${{ secrets.GIT_AUTH_TOKEN }}
+
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+      - name: make
+        timeout-minutes: 3
+        run: make
+      - name: make clean
+        run: make clean
+      - name: check execs
+        run: |
+          for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
+            if [ ! -x "${executables}" ]; then
+              echo "Executable ${executables} doesn't exist or isn't excutable."
+              exit 1
+            fi
+          done
+
+  run_tests:
+    needs: [check_program_compilation]
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: epitechcontent/epitest-docker
+
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+      - name: make tests_run
+        timeout-minutes: 2
+        run: make tests_run
+
+  push_to_mirror:
+    needs: [run_tests]
+
+    runs-on: ubuntu-latest
+
+    if: ${{ github.event_name == 'push' }}
+
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            ${{ env.MIRROR_URL}}
+          ssh_private_key:
+            ${{ secrets.GIT_SSH_PRIVATE_KEY }}
