@@ -9,7 +9,7 @@ on:
       - 'ga-ignore-*'
 env:
   MIRROR_URL: "git@github.com:EpitechPromo2027/B-CPP-500-NAN-5-1-rtype-thomas.cluseau.git"
-  EXECUTABLES: "r-type_server, r-type_server"
+  EXECUTABLES: "bin/r-type_server, bin/r-type_client"
 
 jobs:
   check_program_compilation:
@@ -27,11 +27,13 @@ jobs:
     steps:
       - name: Checkout fetch
         uses: actions/checkout@v4
-      - name: make
+      - name: Create build directory
+        run: mkdir build
+      - name: Compilation
         timeout-minutes: 3
-        run: make
-      - name: make clean
-        run: make clean
+        run: cmake --build ./build/ --target all
+      - name: Clean build
+        run: cmake --build ./build/ --target clean
       - name: check execs
         run: |
           for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
@@ -41,20 +43,22 @@ jobs:
             fi
           done
 
-  run_tests:
-    needs: [check_program_compilation]
+  ## PLEASE ADD SOME UNITS TESTS !
 
-    runs-on: ubuntu-latest
+  # run_tests:
+  #   needs: [check_program_compilation]
 
-    container:
-      image: epitechcontent/epitest-docker
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout fetch
-        uses: actions/checkout@v4
-      - name: make tests_run
-        timeout-minutes: 2
-        run: make tests_run
+  #   container:
+  #     image: epitechcontent/epitest-docker
+
+  #   steps:
+  #     - name: Checkout fetch
+  #       uses: actions/checkout@v4
+  #     - name: make tests_run
+  #       timeout-minutes: 2
+  #       run: make tests_run
 
   push_to_mirror:
     needs: [run_tests]
