@@ -34,8 +34,6 @@ jobs:
       - name: Compilation
         timeout-minutes: 3
         run: cmake --build ./build/ --target all
-      - name: Clean build
-        run: cmake --build ./build/ --target clean
       - name: check execs
         run: |
           for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
