@@ -2,7 +2,7 @@
 
 This document describes the communication protocol between the R-Type server and the R-Type client.
 
-The protocol is heavily [ECS](https://en.wikipedia.org/wiki/Entity_component_system)-oriented in the sense that all info sent by the server on the client are entity creation/deletion, components being attached to entities, and components' internal state being updated. It is true that on the other hand, client-to-server communication is not as much ECS-oriented as its counterpart, that is because the client doesn't decide anything about the ECS. It does, however, communicate player input to the server.
+The protocol is heavily [ECS](https://en.wikipedia.org/wiki/Entity_component_system)-oriented in the sense that all info sent by the server to the client are entity creation/deletion, components being attached to entities, and components' internal state being updated. It is true that on the other hand, client-to-server communication is not as much ECS-oriented as its counterpart, that is because the client doesn't decide anything about the ECS. It does, however, communicate player input to the server.
 
 ## General information
 
@@ -22,7 +22,7 @@ When establishing connection between the client and the server, some initialisat
 
 #### Description
 
-When the client connects to the server, the server will send to the client the names of all components that may be used during the game. Before that, the server informs the client of the number of used components on 2 bytes and the maximum length of a component's name on 1 byte. Once all the names are transmitted, a special end indicator will be sent so that the client can make sure it received correct data.
+When the client connects to the server, the server will send to the client the names of all components that may be used during the game. Before that, the server informs the client of the number of used components on 2 bytes and the maximum length of a component's name on 1 byte. Once all the names are transmitted, a special 2-bytes end indicator (`0xffff`) will be sent so that the client can make sure it received correct data.
 
 > *Note*: The server may send a maximum length that is actually greater than the length of the longest component name (to align with a power of 2 for example)
 
@@ -57,9 +57,9 @@ This initialisation process's main purpose is to allow the client to make sure i
 
 This purpose is achievable in many different ways; this specific protocol aims at optimising the communication after the initialisation is done, and allowing the client to make sure it received everything properly.
 
-For example, one way of sending component names would have been to send them concatenated with spaces or line breaks without specifying the count of name sent nor the length of the names. The main advantage of proceeding this way is that it is the most bandwidth-efficient way of communicating names (excluding methods which involve compression algorithms). On the other hand, it provides no ways for the client to check if any network errors occured. Plus, processing the names can be more CPU-expensive since they are not aligned in any but rather separated by a delimiter character.
+For example, one way of sending component names would have been to send them concatenated with spaces or line breaks without specifying the count of names sent nor the length of the names. The main advantage of proceeding this way is that it is the most bandwidth-efficient way of communicating names (excluding methods which involve compression algorithms). On the other hand, it provides no ways for the client to check if any network errors occured. Plus, processing the names can be more CPU-expensive since they are not aligned in any way but rather separated by a delimiter character.
 
-In contrary, our R-Type protocol gives the client many ways to make sure they received everythin properly: since the number and size of the names are sent first, the client can then read `size * count` from the server, then read the end of initialisation sequence to make sure the correct number of bytes have been received. On top of that, the fact that the names are aligned allows the client to use a more performant algorithm to read names than if they were delimiter-separated.
+In contrary, our R-Type protocol gives the client many ways to make sure they received everything properly: since the number and size of the names are sent first, the client can then read `size * count` bytes from the server, then read the end of initialisation sequence to make sure the correct number of bytes have been received. On top of that, the fact that the names are aligned allows the client to use a more performant algorithm to read names than if they were delimiter-separated.
 
 ### Server-to-client protocol
 
@@ -85,14 +85,14 @@ The protocol is designed in a way that allows the client to know for sure the nu
 
 ##### Instruction table
 
-| Instruction       | Opcode | Operands                                | Instruction size |
-|-------------------|--------|-----------------------------------------|------------------|
-| Create entity     | 0x0    | entity_id                               | 3                |
-| Delete entity     | 0x1    | entity_id                               | 3                |
-|                   |        |                                         |                  |
-| Attach component  | 0x2    | entity_id, component_id                 | 5                |
-| Update component  | 0x3    | entity_id, component_id, component_data | 5 + data_size    |
-| Detach component  | 0x4    | entity_id, component_id                 | 5                |
+| Instruction       | Opcode | Operands                                      | Instruction size |
+|-------------------|--------|-----------------------------------------------|------------------|
+| Create entity     | 0x0    | `entity_id`                                   | 3                |
+| Delete entity     | 0x1    | `entity_id`                                   | 3                |
+|                   |        |                                               |                  |
+| Attach component  | 0x2    | `entity_id`, `component_id`                   | 5                |
+| Update component  | 0x3    | `entity_id`, `component_id`, `component_data` | 5 + `data_size`  |
+| Detach component  | 0x4    | `entity_id`, `component_id`                   | 5                |
 
 ##### Operand sizes and format
 
@@ -156,4 +156,4 @@ The client informs the server about all user input, in the form of key up / key 
 
 ## Version
 
-R-Typeuh network protocol version 0.0.1, 20/09/2024, written by Florent Charpentier
+R-Typeuh network protocol version 0.0.2, 20/09/2024, written by Florent Charpentier
