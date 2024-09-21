@@ -14,3 +14,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 # Include the subdirectories for client and server
 add_subdirectory(client)
 add_subdirectory(server)
+
+# add dependencies
+include(cmake/CPM.cmake)
+
+# import SFML
+CPMAddPackage("gh:SFML/SFML#2.6.1")
+
