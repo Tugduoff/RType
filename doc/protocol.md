@@ -156,4 +156,4 @@ The client informs the server about all user input, in the form of key up / key 
 
 ## Version
 
-R-Typeuh network protocol version 0.0.3, 21/09/2024, written by Florent Charpentier
+R-Typeuh network protocol version 0.1.0, 21/09/2024, written by Florent Charpentier, reviewed by the R-Typeuh team
