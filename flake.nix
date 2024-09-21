@@ -22,6 +22,7 @@
 
           valgrind
           cmake
+          sfml
         ];
 
         shellHook = ''
