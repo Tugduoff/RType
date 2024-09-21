@@ -8,7 +8,7 @@ The protocol is heavily [ECS](https://en.wikipedia.org/wiki/Entity_component_sys
 
 No matter the platform, communication is always made through UDP sockets, for faster data transfer than TCP.
 
-The protocol is binary, meaning that -- contrary to text protocols -- the data sent is not human-readable, it some form of bytecode. This specific bytecode's styntax is detailed in this document.
+The protocol is binary, meaning that -- contrary to text protocols -- the data sent is not human-readable, it is some form of bytecode. This specific bytecode's styntax is detailed in this document.
 
 Integers types are sent as in network byte order, i.e. big endian. See [`man 3 endian`](https://linux.die.net/man/3/endian) or [`man 3 byteorder`](https://linux.die.net/man/3/byteorder) if you have no idea what the previous sentence is about.
 
@@ -22,11 +22,11 @@ When establishing connection between the client and the server, some initialisat
 
 #### Description
 
-When the client connects to the server, the server will send to the client the names of all components that may be used during the game. Before that, the server informs the client of the number of used components on 2 bytes and the maximum length of a component's name on 1 byte. Once all the names are transmitted, a special 2-bytes end indicator (`0xffff`) will be sent so that the client can make sure it received correct data.
+When the client connects to the server, the server will first send to the client the number of components that can be used during the game on 2 bytes (big endian `uint16_t`) and the maximum length of a component's name on 1 byte. Then, the names of all components that may be used during the game are transmitted one by one, as described below. Once all the names are transmitted, a special 2-bytes end indicator (`0xffff`) will be sent so that the client can make sure it received correct data.
 
 > *Note*: The server may send a maximum length that is actually greater than the length of the longest component name (to align with a power of 2 for example)
 
-After the number and size of names, the names of components are sent one after the other, zero-padded to fit the maximum length of a component's name, without any separator.
+The names of components are sent one after the other, zero-padded to fit the maximum length of a component's name, without any separator. [See the example below](#example).
 
 The names may only be composed of one or more of the following ascii characters:
 
@@ -156,4 +156,4 @@ The client informs the server about all user input, in the form of key up / key 
 
 ## Version
 
-R-Typeuh network protocol version 0.0.2, 20/09/2024, written by Florent Charpentier
+R-Typeuh network protocol version 0.0.3, 21/09/2024, written by Florent Charpentier
