@@ -22,6 +22,14 @@
 
           valgrind
           cmake
+          sfml
+
+          xorg.libX11
+          libGLU
+          libudev-zero
+          openal
+          libvorbis
+          flac
         ];
 
         shellHook = ''
