@@ -18,6 +18,9 @@ add_subdirectory(server)
 # add dependencies
 include(cmake/CPM.cmake)
 
+# import SFML Dependencies
+CPMAddPackage("gh:xiph/flac#1.4.3")
+
 # import SFML
 CPMAddPackage("gh:SFML/SFML#2.6.1")
 
