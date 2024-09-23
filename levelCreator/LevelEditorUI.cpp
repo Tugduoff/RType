@@ -35,6 +35,21 @@ void LevelEditorUI::initUI()
             button.setColor(sf::Color(125, 125, 125, 255));
         }),
         2));
+    addElement(std::make_shared<UIButton>(
+        sf::Vector2f(50, 150),
+        sf::Vector2f(200, 50),
+        "Preview",
+        sf::Color(150, 150, 150, 255),
+        std::function<void(IUIElement &)>([this](IUIElement &element) {
+            UIButton &button = dynamic_cast<UIButton &>(element);
+            button.setColor(sf::Color(100, 100, 100, 255));
+            __preview = true;
+        }),
+        std::function<void(IUIElement &)>([](IUIElement &element) {
+            UIButton &button = dynamic_cast<UIButton &>(element);
+            button.setColor(sf::Color(125, 125, 125, 255));
+        }),
+        2));
 }
 
 int LevelEditorUI::handleEvents(sf::Event &event, sf::Vector2f &worldMousePosition)
@@ -48,5 +63,7 @@ int LevelEditorUI::handleEvents(sf::Event &event, sf::Vector2f &worldMousePositi
     }
     if (__menu)
         return 4;
+    if (__preview)
+        return 5;
     return 0;
 }

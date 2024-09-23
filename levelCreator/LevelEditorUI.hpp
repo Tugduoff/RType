@@ -20,7 +20,8 @@ class LevelEditorUI : public AUI {
             __mapSizeX(mapSizeX),
             __mapSizeY(mapSizeY),
             __startingZoom(startingZoom),
-            __menu(false) {};
+            __menu(false),
+            __preview(false) {};
         void initUI() override;
 
         int handleEvents(sf::Event &event, sf::Vector2f &worldMousePosition) override;
@@ -32,6 +33,7 @@ class LevelEditorUI : public AUI {
         int __mapSizeY;
         int __startingZoom;
         bool __menu;
+        bool __preview;
 };
 
 #endif // LEVELEDITORUI_HPP
