@@ -34,19 +34,23 @@ bool Game::changeScene()
         case Scene::MAIN_MENU:
             mainMenuUI = dynamic_cast<MainMenuUI *>(__ui.get());
             if (mainMenuUI) {
+                int cellSize = mainMenuUI->getCellSize();
+                int mapSizeX = mainMenuUI->getMapSizeX();
+                int mapSizeY = mainMenuUI->getMapSizeY();
+                int startingZoom = mainMenuUI->getStartingZoom();
                 __scene = Scene::LEVEL_EDITOR;
                 __ui = std::make_shared<LevelEditorUI>(
-                    mainMenuUI->getCellSize(),
-                    mainMenuUI->getMapSizeX(),
-                    mainMenuUI->getMapSizeY(),
-                    mainMenuUI->getStartingZoom()
+                    cellSize,
+                    mapSizeX,
+                    mapSizeY,
+                    startingZoom
                 );
                 __ui->initUI();
                 __levelEditorScene = std::make_unique<LevelEditorScene>(
-                    mainMenuUI->getCellSize(),
-                    mainMenuUI->getMapSizeX(),
-                    mainMenuUI->getMapSizeY(),
-                    mainMenuUI->getStartingZoom()
+                    cellSize,
+                    mapSizeX,
+                    mapSizeY,
+                    startingZoom
                 );
             }
             break;
@@ -73,6 +77,8 @@ bool Game::checkUIEventsStatus(int status)
         __scene = Scene::MAIN_MENU;
         __ui = std::make_shared<MainMenuUI>();
         __ui->initUI();
+    }
+    if (status == 5) {
     }
     return true;
 }
