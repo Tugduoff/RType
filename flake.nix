@@ -24,15 +24,15 @@
           cmake
           sfml
 
-          xorg.libXrandr
-          xorg.libXcursor
-          xorg.libX11
-          libGLU
-          libudev-zero
-          openal
-          flac
-          libvorbis
-          freetype
+          # xorg.libXrandr
+          # xorg.libXcursor
+          # xorg.libX11
+          # libGLU
+          # libudev-zero
+          # openal
+          # flac
+          # libvorbis
+          # freetype
         ];
 
         shellHook = ''
