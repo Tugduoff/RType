@@ -15,7 +15,13 @@
 
 class MainMenuUI : public AUI {
     public:
-        MainMenuUI() = default;
+        MainMenuUI() :
+            AUI(),
+            __cellSize(50),
+            __mapSizeX(100),
+            __mapSizeY(10),
+            __startingZoom(1),
+            __start(false) {};
         void initUI() override;
 
         int handleEvents(sf::Event &event, sf::Vector2f &worldMousePosition) override;
@@ -28,10 +34,10 @@ class MainMenuUI : public AUI {
 
     private:
 
-        int __cellSize;
-        int __mapSizeX;
-        int __mapSizeY;
-        int __startingZoom;
+        int __cellSize = 50;
+        int __mapSizeX = 100;
+        int __mapSizeY = 10;
+        int __startingZoom = 1;
         bool __start;
 };
 

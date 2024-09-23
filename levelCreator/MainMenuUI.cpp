@@ -15,16 +15,11 @@
 
 void MainMenuUI::initUI()
 {
-    __cellSize = 10;
-    __mapSizeX = 100;
-    __mapSizeY = 10;
-    __startingZoom = 1;
-
     addElement(std::make_shared<UISlider>(
         sf::Vector2f(200, 450),
         sf::Vector2f(640, 10),
         2,
-        10,
+        50,
         100,
         sf::Color(150, 150, 150, 255),
         std::function<void(IUIElement &)>([this](IUIElement &element) {
