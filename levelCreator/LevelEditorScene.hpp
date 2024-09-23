@@ -12,7 +12,7 @@
 
 class LevelEditorScene {
     public:
-        LevelEditorScene(int cellSize, int mapSizeX, int mapSizeY, int startingZoom);
+        LevelEditorScene(int cellSize = 50, int mapSizeX = 100, int mapSizeY = 10, int startingZoom = 1);
         ~LevelEditorScene() = default;
 
         void update(sf::RenderWindow &window);
@@ -25,6 +25,7 @@ class LevelEditorScene {
     private:
 
         void createGrid();
+        void createWindowGrid(int minHeight, int maxHeight);
 
         bool __isDragging;
         sf::Vector2f __lastMousePosition;
@@ -36,7 +37,11 @@ class LevelEditorScene {
         const int __gridWidth;
         const int __gridHeight;
         sf::VertexArray __grid;
-
+        sf::VertexArray __gridBig;
+        sf::Sprite __playerSprite;
+        sf::Texture __playerTexture;
+        sf::VertexArray __windowOutline;
+        sf::VertexArray __windowGrid;
 };
 
 #endif // LEVELEDITORSCENE_HPP
