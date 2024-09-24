@@ -14,10 +14,19 @@
 
 class DLLoader {
     public:
+        /**
+        * @brief Constructs a DLLoader object and opens the specified library.
+        * @param libName The name of the shared library to open.
+        * @throw DLLExceptions If the library cannot be opened.
+        */
         DLLoader(const std::string &libName) : __library(dlopen(libName.c_str(), RTLD_LAZY)) {
             if (!__library) throw DLLExceptions(dlerror());
         };
 
+        /**
+        * @brief Destroys the DLLoader object and closes the currently opened library.
+        * @throw std::exception If an error occurs during closing the library.
+        */
         ~DLLoader() {
             if (__library) {
                 if (dlclose(__library) != 0) {
@@ -27,6 +36,11 @@ class DLLoader {
             }
         };
 
+        /**
+        * @brief Closes the currently opened library and opens a new library.
+        * @param libName The name of the new shared library to open.
+        * @throw DLLExceptions If the new library cannot be opened.
+        */
         void loadNew(const std::string &libName) {
             if (__library) {
                 if (dlclose(__library) != 0) throw DLLExceptions(dlerror());
@@ -35,6 +49,15 @@ class DLLoader {
             if (!__library) throw DLLExceptions(dlerror());
         };
 
+        /**
+        * @brief Retrieves a function pointer from the library and calls it to create and return a new instance of type T.
+        * @tparam T The type of the object to create.
+        * @tparam Args The types of the arguments to pass to the function.
+        * @param entryPointName The name of the function to retrieve from the library (default: "entryPoint").
+        * @param args The arguments to pass to the function.
+        * @return A pointer to a new instance of type T.
+        * @throw DLLExceptions If the function pointer cannot be retrieved.
+        */
         template<typename T, typename... Args>
         T *getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
             using EntryPointFunc = T* (*)(Args...);
@@ -45,6 +68,10 @@ class DLLoader {
             return entryPoint(std::forward<Args>(args)...);
         };
 
+        /**
+        * @class DLLExceptions
+        * @brief A custom exception class for errors related to dynamic library loading.
+        */
         class DLLExceptions : public std::exception {
             public:
                 DLLExceptions(const std::string &error) : _errMsg(error) {}
