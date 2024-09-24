@@ -7,7 +7,7 @@
 
 #include "Position.hpp"
 
-extern "C" IComponent<8> *entryPoint()
+extern "C" IComponent *entryPoint(uint32_t x, uint32_t y)
 {
-    return new Position();
+    return new Position(x, y);
 }
