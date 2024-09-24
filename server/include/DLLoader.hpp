@@ -1,49 +1,62 @@
-#ifndef DLL_LOADER_HPP
-    #define DLL_LOADER_HPP
+/*
+** EPITECH PROJECT, 2024
+** B-CPP-500-NAN-5-1-rtype-thomas.cluseau
+** File description:
+** DLLoader
+*/
 
-    #include <dlfcn.h>
+#ifndef DLLOADER_HPP
+    #define DLLOADER_HPP
+
     #include <memory>
-    #include <stdexcept>
+    #include <dlfcn.h>
+    #include <iostream>
 
-template<typename T>
 class DLLoader {
-    class DLLoaderException : public std::exception {
-        std::string message;
-
-        public:
-            DLLoaderException(const char* error) : message(error) {}
-            const char* what() const noexcept override { return message.c_str(); }
-    };
-
     public:
-        /// @brief Loads the dynamic library specified by `PluginPath`.
-        /// @param PluginPath The path to the library to load.
-        /// @throws DLLoaderException If the library cannot be loaded.
-        DLLoader(const std::string& PluginPath) : handle(nullptr) {
-            handle = dlopen(PluginPath.c_str(), RTLD_LAZY);
-            if (!handle) throw DLLoaderException(dlerror());
-        }
+        DLLoader(const std::string &libName) : __library(dlopen(libName.c_str(), RTLD_LAZY)) {
+            if (!__library) throw DLLExceptions(dlerror());
+        };
 
-        /// @brief Unloads the dynamic library if it has been loaded.   
-        ~DLLoader() { if (handle) dlclose(handle); }
+        ~DLLoader() {
+            if (__library) {
+                if (dlclose(__library) != 0) {
+                    std::cerr << dlerror() << std::endl;
+                    exit(84);
+                }
+            }
+        };
 
-        /// @brief Gets an instance of the specified function in the library.
-        /// Finds the symbol corresponding to `functionName` in the loaded library.
-        /// @param functionName The name of the function to search for.
-        /// @return A pointer to the function found.
-        /// @throws DLLoaderException If the library is not loaded or if the function is not found.
-        T* getInstance(const std::string& functionName) {
-            if (!handle) throw DLLoaderException("Library not loaded");
+        void loadNew(const std::string &libName) {
+            if (__library) {
+                if (dlclose(__library) != 0) throw DLLExceptions(dlerror());
+            }
+            __library = dlopen(libName.c_str(), RTLD_LAZY);
+            if (!__library) throw DLLExceptions(dlerror());
+        };
 
-            void* symbol = dlsym(handle, functionName.c_str());
-            if (!symbol) throw DLLoaderException(dlerror());
+        template<typename T, typename... Args>
+        T *getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
+            using EntryPointFunc = T* (*)(Args...);
+            EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(dlsym(__library, entryPointName.c_str()));
 
-            T* (*createFunction)() = reinterpret_cast<T* (*)()>(symbol);
-            return createFunction();
-        }
+            if (!entryPoint) throw DLLExceptions(dlerror());
+
+            return entryPoint(std::forward<Args>(args)...);
+        };
+
+        class DLLExceptions : public std::exception {
+            public:
+                DLLExceptions(const std::string &error) : _errMsg(error) {}
+
+                const char *what() const noexcept override { return _errMsg.c_str(); }
+
+            private:
+                std::string _errMsg = "Unexpected error occurred";
+        };
 
     private:
-        void* handle;
+        void *__library;
 };
 
-#endif /* !DLL_LOADER_HPP_ */
+#endif /* !DLLOADER_HPP_ */
