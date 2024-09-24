@@ -14,7 +14,7 @@
 class Position : public AComponent<8> {
     public:
         Position() : x(0), y(0) {};
-        Position(float x, float y) : x(x), y(y) {};
+        Position(uint32_t x, uint32_t y) : x(x), y(y) {};
         ~Position() = default;
 
         std::span<uint8_t, 8> serialize() override {
