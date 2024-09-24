@@ -38,7 +38,7 @@ class IComponent {
          * 
          * @return size_t : The size of the component
          */
-        static size_t getSize() { return Size; };
+        static constexpr size_t getSize() { return Size; };
     private:
 };
 
