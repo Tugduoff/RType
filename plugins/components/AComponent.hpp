@@ -10,8 +10,7 @@
 
     #include "IComponent.hpp"
 
-template <size_t Size>
-class AComponent : public IComponent<Size> {
+class AComponent : public IComponent {
     public:
         AComponent() = default;
     private:
