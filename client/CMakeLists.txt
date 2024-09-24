@@ -4,7 +4,21 @@ add_executable(client Main.cpp)
 # Set the output name for the server binary
 set_target_properties(client PROPERTIES OUTPUT_NAME "r-type_client")
 
+include(../cmake/CPM.cmake)
 
+CPMAddPackage(
+    NAME flac 
+    GIT_REPOSITORY "https://github.com/xiph/flac.git"
+    GIT_TAG "1.4.3"
+    OPTIONS
+    "INSTALL_MANPAGES OFF"
+)
+
+CPMAddPackage(
+    NAME SFML 
+    GIT_REPOSITORY "https://github.com/SFML/SFML.git"
+    GIT_TAG "2.6.1"
+)
 
 find_library(SFML_SYSTEM sfml-system)
 find_library(SFML_WINDOW sfml-window)
@@ -21,7 +35,6 @@ target_link_libraries(client
 # Link libraries or add dependencies here, if any
 # target_link_libraries(client ...)
 # add dependencies
-# include(../cmake/CPM.cmake)
 
 # Initialize variables for distro detection
 # set(DISTRO "Unknown")
