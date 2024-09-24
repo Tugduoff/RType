@@ -29,6 +29,7 @@ class IComponent {
          * 
          * @param data : The data to deserialize
          * @note The size of the span should be equal to the size of the component (getSize())
+         * @throw std::runtime_error : If the size of the data is invalid
          */
         virtual void deserialize(std::vector<uint8_t> &data) = 0;
 

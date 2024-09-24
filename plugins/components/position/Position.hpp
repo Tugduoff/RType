@@ -27,7 +27,7 @@ class Position : public AComponent {
 
         void deserialize(std::vector<uint8_t> &data) override {
             if (data.size() != sizeof(__data))
-                throw std::runtime_error("Invalid data size for position component caca viande ...");
+                throw std::runtime_error("Invalid data size for position component");
             x = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
             y = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
         };
