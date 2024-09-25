@@ -8,9 +8,7 @@
 #ifndef DLLOADER_HPP
     #define DLLOADER_HPP
 
-    #include <memory>
     #include <dlfcn.h>
-    #include <iostream>
 
 class DLLoader {
     public:

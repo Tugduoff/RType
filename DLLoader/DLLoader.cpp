@@ -5,6 +5,8 @@
 ** DLLoader
 */
 
+#include <iostream>
+#include <memory>
 #include "DLLoader.hpp"
 
 DLLoader::DLLoader(const std::string &libName) : __library(dlopen(libName.c_str(), RTLD_LAZY)) {
