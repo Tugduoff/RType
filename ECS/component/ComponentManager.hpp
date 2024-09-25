@@ -41,7 +41,7 @@ namespace ECS {
              * 
              * @note This function is needed for loading an instance
              * @note of a specific component from type passed as template parameter.
-             * @note It takes a variadic list of args to pass to the constructor of the component.
+             * @note It takes a parameter pack to pass to the constructor of the component.
              */
             template <class Component, typename... Args>
             IComponent *loadComponent(Args&&... args)
@@ -51,7 +51,7 @@ namespace ECS {
                 if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
                 
-                DLLoader loader = __components[typeIndex].loader;
+                DLLoader &loader = __components[typeIndex].loader;
 
                 try {
                     return loader.getInstance<IComponent>("entryPoint", std::forward<Args>(args)...);
