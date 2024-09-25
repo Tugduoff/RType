@@ -41,7 +41,7 @@ namespace ECS {
              * 
              * @note This function is needed for loading an instance
              * @note of a specific component from type passed as template parameter.
-             * @note it takes a variadic list of args to pass to the constructor of the component.
+             * @note It takes a variadic list of args to pass to the constructor of the component.
              */
             template <class Component, typename... Args>
             IComponent *loadComponent(Args&&... args)
