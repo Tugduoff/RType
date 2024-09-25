@@ -7,6 +7,7 @@
 
 COMPONENTS = position \
 			 velocity \
+			 sprite \
 
 all:
 	@for component in $(COMPONENTS); do \
