@@ -13,6 +13,7 @@
     #include <stdexcept>
     #include <arpa/inet.h>
     #include <vector>
+    #include <unordered_map>
 
 class Sprite : public AComponent {
 public:
@@ -56,16 +57,8 @@ public:
     uint32_t textureID;
 private:
 
-    std::string getTextureFile(uint32_t id) const {
-        switch (id) {
-            case 0:
-                return "assets/sprite0.png";
-            case 1:
-                return "assets/sprite1.png";
-            default:
-                return "assets/default.png";
-        }
-    }
+    std::string getTextureFile(uint32_t id) const;
+
     union {
         struct {
             uint32_t textureID;
