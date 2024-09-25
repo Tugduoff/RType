@@ -19,35 +19,20 @@ class DLLoader {
         * @param libName The name of the shared library to open.
         * @throw DLLExceptions If the library cannot be opened.
         */
-        DLLoader(const std::string &libName) : __library(dlopen(libName.c_str(), RTLD_LAZY)) {
-            if (!__library) throw DLLExceptions(dlerror());
-        };
+        DLLoader(const std::string &libName);
 
         /**
         * @brief Destroys the DLLoader object and closes the currently opened library.
         * @throw std::exception If an error occurs during closing the library.
         */
-        ~DLLoader() {
-            if (__library) {
-                if (dlclose(__library) != 0) {
-                    std::cerr << dlerror() << std::endl;
-                    exit(84);
-                }
-            }
-        };
+        ~DLLoader();
 
         /**
         * @brief Closes the currently opened library and opens a new library.
         * @param libName The name of the new shared library to open.
         * @throw DLLExceptions If the new library cannot be opened.
         */
-        void loadNew(const std::string &libName) {
-            if (__library) {
-                if (dlclose(__library) != 0) throw DLLExceptions(dlerror());
-            }
-            __library = dlopen(libName.c_str(), RTLD_LAZY);
-            if (!__library) throw DLLExceptions(dlerror());
-        };
+        void loadNew(const std::string &libName);
 
         /**
         * @brief Retrieves a function pointer from the library and calls it to create and return a new instance of type T.
