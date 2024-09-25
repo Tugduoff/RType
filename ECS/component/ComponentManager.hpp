@@ -10,7 +10,7 @@
 
     #include "ECS/entity/Entity.hpp"
     #include "ECS/utilities/SparseArray.hpp"
-    #include "IComponent.hpp"
+    #include "plugins/components/IComponent.hpp"
     #include "DLLoader.hpp"
     #include <unordered_map>
     #include <typeindex>
@@ -25,25 +25,36 @@ namespace ECS {
     class ComponentManager {
         public:
 
-            typedef struct component_s {
+            struct component {
                 std::any sparseArray;
-                DLLoader *loader;
-            } component_t;
+                DLLoader loader;
+            };
 
             /**
-             * @brief Load a component from a DLLoader
+             * @brief Load a new component instance
              * 
-             * @tparam Args
-             * @param loader
-             * @param args
+             * @tparam Args : the arguments to be given to the ctor of the component. Can be empty
+             * @tparam Component : the component to load
+             * @param args : the arguments to be given to the ctor of the component
              * 
-             * @return IComponent* : the loaded component
+             * @return IComponent* : the new instance of the component
+             * 
+             * @note This function is needed for loading an instance
+             * @note of a specific component from type passed as template parameter.
+             * @note it takes a variadic list of args to pass to the constructor of the component.
              */
-            template <typename... Args>
-            IComponent *loadComponent(DLLoader *loader, Args&&... args)
+            template <class Component, typename... Args>
+            IComponent *loadComponent(Args&&... args)
             {
+                std::type_index typeIndex = std::type_index(typeid(Component));
+
+                if (!__components.contains(typeIndex))
+                    throw std::runtime_error("Component type not registered");
+                
+                DLLoader loader = __components[typeIndex].loader;
+
                 try {
-                    return loader->getInstance<IComponent>("entryPoint", std::forward<Args>(args)...);
+                    return loader.getInstance<IComponent>("entryPoint", std::forward<Args>(args)...);
                 } catch (DLLoader::DLLExceptions &e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                     return nullptr;
@@ -53,101 +64,97 @@ namespace ECS {
             /**
              * @brief Register a component
              * 
-             * @tparam Component
+             * @tparam Component : the component to register
+             * @param filepath : the filepath to the component library
              * 
-             * @return SparseArray<Component>& : the registered component
+             * @note This function must be called when loading a component library.
+             * @note It will register the component type in the component manager and
+             * @note allow for instances of this type to be created.
              */
             template <class Component>
-            SparseArray<Component> &registerComponent()
+            void registerComponent(std::string &libName)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (__components.find(typeIndex) != __components.end())
-                    throw std::runtime_error("Component already registered");
-                __components[typeIndex] = SparseArray<Component>();
-                return std::any_cast<SparseArray<Component> &>(__components[typeIndex]);
+                if (__components.contains(typeIndex))
+                    return;
+
+                component comp = {
+                    SparseArray<Component>(),
+                    DLLoader(libName)
+                };
+
+                __components[typeIndex] = comp;
             }
 
             /**
              * @brief Get components
              * 
-             * @tparam Component
+             * @tparam Component : the component type
              * 
-             * @return SparseArray<Component>& : the components
+             * @return SparseArray<Component>& : the components sparseArray containing all instances
+             * 
+             * @note This function will retrieve all components from the same type given as template parameter.
+             * @note Mostly used in systems to iterate over all components of a specific type.
              */
             template <class Component>
             SparseArray<Component> &getComponents()
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                try {
-                    return std::any_cast<SparseArray<Component> &>(__components.at(typeIndex));
-                } catch (const std::out_of_range&) {
+                if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
-                }
-            }
 
-            /**
-             * @brief Get components
-             * 
-             * @tparam Component
-             * 
-             * @return SparseArray<Component> const& : the components
-             */
-            template <class Component>
-            SparseArray<Component> const &getComponents() const
-            {
-                std::type_index typeIndex = std::type_index(typeid(Component));
-
-                try {
-                    return std::any_cast<SparseArray<Component> const &>(__components.at(typeIndex));
-                } catch (const std::out_of_range&) {
-                    throw std::runtime_error("Component type not registered");
-                }
+                return std::any_cast<SparseArray<Component> &>(__components.at(typeIndex).sparseArray);
             }
 
             /**
              * @brief Add a component to an entity
              * 
-             * @tparam Component
+             * @tparam Component : the component type
              * @param to : the entity
              * @param c : the component
              * 
              * @return typename SparseArray<Component>::reference_type : the added component
+             * 
+             * @note This function will add a component to an entity.
+             * @note It's a major function in the ECS as it allows for entities to have components.
              */
             template <typename Component>
             typename SparseArray<Component>::reference_type addComponent(Entity const &to, Component &&c)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                try {
-                    return std::any_cast<SparseArray<Component> &>(__components.at(typeIndex)).insert_at(to, std::move(c));
-                } catch (const std::out_of_range &) {
+                if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
-                }
+
+                SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(__components.at(typeIndex).sparseArray);
+
+                return sparseArray.insertAt(to, std::forward<Component>(c));            
             }
 
             /**
              * @brief Remove a component from an entity
              * 
-             * @tparam Component
-             * @param from : the entity
+             * @tparam Component : the component type
+             * @param from : the entity to remove the component from
+             * 
+             * @note This function will remove a component from an entity.
              */
             template <typename Component>
             void removeComponent(Entity const &from)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                try {
-                    std::any_cast<SparseArray<Component> &>(__components.at(typeIndex)).erase(from);
-                } catch (const std::out_of_range &) {
+                if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
-                }
+
+                std::any_cast<SparseArray<Component>&>(__components.at(typeIndex).sparseArray).erase(from);
             }
 
         private:
 
-            std::unordered_map<std::type_index, component_t> __components;
+            std::unordered_map<std::type_index, component> __components;
 
     };
 };

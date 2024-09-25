@@ -6,6 +6,8 @@
 */
 
 #include "EntityManager.hpp"
+#include <algorithm>
+#include <stdexcept>
 
 ECS::Entity ECS::EntityManager::spawnEntity()
 {

@@ -8,7 +8,7 @@
 #ifndef SYSTEM_MANAGER_HPP
     #define SYSTEM_MANAGER_HPP
 
-    #include "ISystem.hpp"
+    #include "plugins/systems/ISystem.hpp"
     #include <vector>
 
 namespace ECS {

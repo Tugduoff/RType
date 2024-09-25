@@ -13,8 +13,6 @@
     #include <optional>
     #include <algorithm>
     #include <memory>
-    #include <typeindex>
-    #include <typeinfo>
 
 template <typename Component>
 class SparseArray {
@@ -70,7 +68,7 @@ class SparseArray {
 
         sizeType size() const { return __data.size(); };
 
-        referenceType insertAt(sizeType pos, Component const &)
+        referenceType insertAt(sizeType pos, Component const &value)
         {
             if (pos >= __data.size())
                 __data.resize(pos + 1);
@@ -78,7 +76,7 @@ class SparseArray {
             return __data[pos];
         };
 
-        referenceType insertAt(sizeType pos, Component &&)
+        referenceType insertAt(sizeType pos, Component &&value)
         {
             if (pos >= __data.size())
                 __data.resize(pos + 1);
@@ -87,7 +85,7 @@ class SparseArray {
         };
 
         template <class... Params>
-        referenceType emplaceAt(sizeType pos, Params &&...)
+        referenceType emplaceAt(sizeType pos, Params&&... params)
         {
             if (pos > __data.size())
                 __data.resize(pos + 1);
@@ -112,7 +110,7 @@ class SparseArray {
             }
         };
 
-        sizeType getIndex(valueType const &) const
+        sizeType getIndex(valueType const &value) const
         {
             auto it = std::find_if(__data.begin(), __data.end(), [&](const valueType &elem) {
                 return std::addressof(elem) == std::addressof(value);

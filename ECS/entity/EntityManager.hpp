@@ -9,8 +9,6 @@
     #define ENTITY_MANAGER_HPP
 
     #include "Entity.hpp"
-    #include <algorithm>
-    #include <stdexcept>
     #include <vector>
 
 namespace ECS {
