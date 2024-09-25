@@ -6,6 +6,7 @@
 ##
 
 COMPONENTS = position \
+			 velocity \
 
 all:
 	@for component in $(COMPONENTS); do \
