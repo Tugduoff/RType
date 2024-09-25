@@ -7,30 +7,33 @@ set_target_properties(client PROPERTIES OUTPUT_NAME "r-type_client")
 include(../cmake/CPM.cmake)
 
 CPMAddPackage(
-    NAME flac 
-    GIT_REPOSITORY "https://github.com/xiph/flac.git"
-    GIT_TAG "1.4.3"
-    OPTIONS
-    "INSTALL_MANPAGES OFF"
-)
-
-CPMAddPackage(
     NAME SFML 
     GIT_REPOSITORY "https://github.com/SFML/SFML.git"
     GIT_TAG "2.6.1"
+    # OPTIONS
+    # "BUILD_SHARED_LIBS OFF"
 )
 
-find_library(SFML_SYSTEM sfml-system)
-find_library(SFML_WINDOW sfml-window)
-find_library(SFML_GRAPHICS sfml-graphics)
-find_library(SFML_NETWORK sfml-network)
+target_link_libraries(client sfml-graphics sfml-window sfml-graphics sfml-network)
 
-target_link_libraries(client
-    ${SFML_SYSTEM}
-    ${SFML_WINDOW}
-    ${SFML_GRAPHICS}
-    ${SFML_NETWORK}
-)
+
+# if(SFML_ADDED)
+#     message("in the if")
+#     add_library(SFML INTERFACE IMPORTED)
+#     target_include_directories(SFML INTERFACE "${SFML_SOURCE_DIR}/include")
+# endif()
+
+# find_library(SFML_SYSTEM sfml-system)
+# find_library(SFML_WINDOW sfml-window)
+# find_library(SFML_GRAPHICS sfml-graphics)
+# find_library(SFML_NETWORK sfml-network)
+
+# target_link_libraries(client
+#     ${SFML_SYSTEM}
+#     ${SFML_WINDOW}
+#     ${SFML_GRAPHICS}
+#     ${SFML_NETWORK}
+# )
 
 # Link libraries or add dependencies here, if any
 # target_link_libraries(client ...)
