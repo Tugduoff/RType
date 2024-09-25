@@ -1,0 +1,17 @@
+FROM fedora:latest
+
+WORKDIR /app
+
+RUN dnf update -y && dnf install -y \
+    libX11 \
+    libXcursor \
+    libXrandr \
+    mesa-libGL \
+    libgudev
+
+COPY ./fedora_build.tar .
+
+RUN tar -xf ./fedora_build.tar
+
+RUN chmod +x ./bin/*
+RUN cd ./bin/ && echo $LD_LIBRARY_PATH && ./launch_client.sh
