@@ -12,12 +12,8 @@ DLLoader(const std::string &libName) : __library(dlopen(libName.c_str(), RTLD_LA
 }
 
 ~DLLoader() {
-    if (__library) {
-        if (dlclose(__library) != 0) {
-            std::cerr << dlerror() << std::endl;
-            exit(84);
-        }
-    }
+    if (__library)
+        if (dlclose(__library) != 0) std::cerr << dlerror() << std::endl;
 }
 
 void loadNew(const std::string &libName) {
