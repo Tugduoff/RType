@@ -2,16 +2,34 @@ FROM fedora:latest
 
 WORKDIR /app
 
-RUN dnf update -y && dnf install -y \
-    libX11 \
-    libXcursor \
-    libXrandr \
-    mesa-libGL \
-    libgudev
+# Update fedora
+RUN dnf update -y
 
-COPY ./fedora_build.tar .
+# Install all sfml compilation libraries
+RUN dnf install -y          \
+    g++                     \
+    git                     \
+    tree                    \
+    cmake                   \
+    mesa-libGL-devel        \
+    mesa-libGLU-devel       \
+    openal-soft-devel       \
+    libgudev-devel          \
+    flac-devel              \
+    libvorbis-devel         \
+    freetype-devel          \
+    libX11-devel            \
+    libXcursor-devel        \
+    libXrandr-devel
 
-RUN tar -xf ./fedora_build.tar
+# Copy all necessaries dependencies
+COPY ./CMakeLists.txt .
+COPY ./cmake/ ./cmake/
+COPY ./server/ ./server/
+COPY ./client/ ./client/
+COPY ./build_scripts/build_binary_archive.sh .
+COPY ./build_scripts/launch_client.sh .
+COPY ./build_scripts/launch_server.sh .
 
-RUN chmod +x ./bin/*
-RUN cd ./bin/ && echo $LD_LIBRARY_PATH && ./launch_client.sh
+# Run build script
+RUN ./build_binary_archive.sh

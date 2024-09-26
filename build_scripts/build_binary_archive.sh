@@ -32,9 +32,9 @@ mkdir -p $BUILD_DIR
 cd $BUILD_DIR && cmake .. && cd ..
 cmake --build $BUILD_DIR
 
-# Check if the destination directory exists, create it if not
-if [ ! -d $BINARY_DIR ]; then
-  echo "bin directory not created, compilation must have failed"
+if [ $? -ne 0 ]; then
+  echo "Compilation failed"
+  tree -L 2 
   exit 84
 fi
 
