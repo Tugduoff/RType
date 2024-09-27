@@ -15,13 +15,11 @@ SO_FILES=(
   "libX11.so.6"
   "libXrandr.so.2"
   "libXcursor.so.1"
+  "libXrender.so.1"
   "libGL.so.1"
   "libudev.so.1"
   "libfreetype.so.6"
   "libpng16.so.16"
-  "libharfbuzz.so.0"
-  "libgraphite2.so.3"
-#   "libstdc++.so.6"
 )
 
 
@@ -34,7 +32,6 @@ cmake --build $BUILD_DIR
 
 if [ $? -ne 0 ]; then
   echo "Compilation failed"
-  tree -L 2 
   exit 84
 fi
 
@@ -56,14 +53,19 @@ done
 echo "Symbolic links of SFML .so created."
 
 
+# apt-file update
 # Find all sfml dependencies .so files and copy them to the binary directory
 for SO_FILE in "${SO_FILES[@]}"; do
   # Check if the file exists in /usr/lib64
-  if [ -f "/usr/lib64/$SO_FILE" ]; then
+  # SO_PATH=`apt-file search $SO_FILE | sed -E ':a;N;$!ba;s/^[^ ]+ ([^ ]+).*/\1/'`
+  SO_PATH=`apt-file search $SO_FILE | tr '\n' ' ' | sed -E 's/^[^ ]+ ([^ ]+).*/\1/'`
+  if [ -f $SO_PATH ]; then
     echo "Copying $SO_FILE to $BINARY_DIR"
-    cp "/usr/lib64/$SO_FILE" "$BINARY_DIR"
+    cp "$SO_PATH" "$BINARY_DIR"
   else
-    echo "$SO_FILE not found in /usr/lib64"
+    echo "$SO_FILE not found"
+    echo "SO_PATH : '$SO_PATH'"
+    echo "apt-file search $SO_FILE : `apt-file search $SO_FILE`"
   fi
 done
 
@@ -72,8 +74,8 @@ cp ./launch_client.sh $BINARY_DIR
 chmod +x $BINARY_DIR/launch_server.sh
 chmod +x $BINARY_DIR/launch_client.sh
 
-echo "Creating archive fedora_build.tar which will contain the application"
-tar -cf fedora_build.tar $BINARY_DIR
+echo "Creating archive ubuntu_build.tar which will contain the application"
+tar -cf ubuntu_build.tar $BINARY_DIR
 
 # libsfml-graphics.so.2.6
 # libsfml-network.so.2.6
