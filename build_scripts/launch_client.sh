@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 PWD=`pwd`
 
 export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH
