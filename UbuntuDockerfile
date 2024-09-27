@@ -1,42 +1,43 @@
 # Use an official Ubuntu as the base image
 FROM ubuntu:20.04
 
-# Set environment variables for non-interactive installs
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update the package list and install dependencies for CMake, build tools, and SFML
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    libsfml-dev \
-    libudev-dev \
-    libopenal-dev \
-    libvorbis-dev \
-    libflac-dev \
-    libxrandr-dev \
-    libxcursor-dev \
-    libfreetype-dev \
-    libfreetype6-dev \
-    libftgl2 libxft2 libxft-dev freetype2-doc freetype2-demos \
-    && apt-get clean
-
-# Create a working directory inside the container
 WORKDIR /app
+# Update fedora
+RUN apt-get update -y
 
-# Clone your project repository (replace with your own repo URL)
-# For example, if your sources are in GitHub, you would use:
-# RUN git clone https://github.com/username/project-name.git .
-# But for this example, I'll assume the sources are in a local context
-COPY . .
+# Install all sfml compilation libraries
+RUN apt-get install -y  \
+    apt-file            \
+    g++                 \
+    git                 \
+    cmake               \
+    x11-common          \
+    libxrandr-dev       \
+    libxcursor-dev      \
+    libgl-dev           \
+    libudev-dev         \
+    libflac-dev         \
+    libopenal-dev       \
+    libvorbis-dev       \
+    libfreetype-dev     \
+    libfreetype6
 
-RUN rm ./build -rf
+RUN apt-file update
 
-# Create a build directory and navigate to it
-RUN mkdir -p build && cd build && cmake ..
+# Copy all necessaries dependencies
+COPY ./CMakeLists.txt .
+COPY ./cmake/ ./cmake/
+COPY ./server/ ./server/
+COPY ./client/ ./client/
+COPY ./build_scripts/build_ubuntu_binary.sh .
+COPY ./build_scripts/launch_client.sh .
+COPY ./build_scripts/launch_server.sh .
 
-RUN cmake --build ./build/ --target all
+COPY ./test.sh .
 
-# Set the default command to run after the container starts
-# (Replace 'r-type_server' with your executable name if necessary)
-# CMD ["/app/bin/r-type_client"]
+# Run build script
+RUN ./build_ubuntu_binary.sh
+
+# CMD [ "./test.sh" ]
