@@ -29,8 +29,12 @@ DLLoader::~DLLoader()
 
 void DLLoader::loadNew(const std::string &libName)
 {
-    if (!__library)
+    if (!__library) {
+        __library = dlopen(libName.c_str(), RTLD_LAZY);
+        if (!__library)
+            throw DLLExceptions(dlerror());
         return;
+    }
     if (dlclose(__library) != 0)
         throw DLLExceptions(dlerror());
     __library = dlopen(libName.c_str(), RTLD_LAZY);
