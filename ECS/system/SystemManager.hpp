@@ -30,14 +30,14 @@ namespace ECS {
              * 
              * @param system : the system
              */
-            void addSystem(ISystem *system);
+            void addSystem(Systems::ISystem *system);
 
             /**
              * @brief Add a system to the manager
              * 
              * @param system : the system
              */
-            void addSystem(const ISystem *system);
+            void addSystem(const Systems::ISystem *system);
 
             /**
              * @brief Run all the systems
@@ -46,7 +46,7 @@ namespace ECS {
 
         private:
 
-            std::vector<ISystem *> __systems;
+            std::vector<Systems::ISystem *> __systems;
     };
 }
 
