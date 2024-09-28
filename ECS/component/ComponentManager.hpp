@@ -47,7 +47,7 @@ namespace ECS {
              * @note It takes a parameter pack to pass to the constructor of the component.
              */
             template <class Component, typename... Args>
-            IComponent *loadComponent(Args&&... args)
+            std::unique_ptr<Component> loadComponent(Args&&... args)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
@@ -57,7 +57,7 @@ namespace ECS {
                 DLLoader &loader = __components[typeIndex].loader;
 
                 try {
-                    return loader.getInstance<IComponent>("entryPoint", std::forward<Args>(args)...);
+                    return loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
                 } catch (DLLoader::DLLExceptions &e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                     return nullptr;
@@ -123,17 +123,19 @@ namespace ECS {
              * @note This function will add a component to an entity.
              * @note It's a major function in the ECS as it allows for entities to have components.
              */
-            template <typename Component>
-            typename SparseArray<Component>::reference_type addComponent(Entity const &to, Component &&c)
+            template <class Component>
+            void addComponent(Entity const &to, std::unique_ptr<Component> &&c)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
                 if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
 
-                SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(__components.at(typeIndex).sparseArray);
+                SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(
+                    __components.at(typeIndex).sparseArray
+                );
 
-                return sparseArray.insertAt(to, std::forward<Component>(c));            
+                return sparseArray.insertAt(to, std::move(c));
             }
 
             /**
