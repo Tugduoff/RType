@@ -10,10 +10,12 @@
 
     #include "ISystem.hpp"
 
-class ASystem : public ISystem {
-    public:
-        ASystem() = default;
-    private:
+namespace Systems {
+    class ASystem : public ISystem {
+        public:
+            ASystem() = default;
+        private:
+    };
 };
 
 #endif // ASYSTEM_HPP

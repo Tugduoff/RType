@@ -9,7 +9,7 @@
 #include "plugins/components/position/Position.hpp"
 #include "ECS/registry/Registry.hpp"
 
-void MoveSystem::func(Registry &reg)
+void Systems::MoveSystem::func(ECS::Registry &reg)
 {
     auto &posComponents = reg.get_components<Position>();
     
@@ -19,7 +19,7 @@ void MoveSystem::func(Registry &reg)
     }
 }
 
-extern "C" ISystem *entryPoint()
+extern "C" Systems::ISystem *entryPoint()
 {
-    return new MoveSystem();
+    return new Systems::MoveSystem();
 }
