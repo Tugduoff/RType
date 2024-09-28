@@ -15,6 +15,8 @@ namespace Systems {
 };
 
 namespace ECS {
+    class Registry;
+
     /**
      * @class SystemManager
      * 
