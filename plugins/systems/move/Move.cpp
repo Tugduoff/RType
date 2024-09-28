@@ -11,11 +11,15 @@
 
 void Systems::MoveSystem::func(ECS::Registry &reg)
 {
-    auto &posComponents = reg.componentManager().getComponents<Components::Position>();
+    try {
+        auto &posComponents = reg.componentManager().getComponents<Components::Position>();
 
-    for (auto &pos : posComponents) {
-        pos->x += 1;
-        pos->y += 1;
+        for (auto &pos : posComponents) {
+            pos->x += 1;
+            pos->y += 1;
+        }
+    } catch (std::runtime_error &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 }
 
