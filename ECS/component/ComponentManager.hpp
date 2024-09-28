@@ -115,8 +115,6 @@ namespace ECS {
              * @param to : the entity
              * @param c : the component
              * 
-             * @return typename SparseArray<Component>::reference_type : the added component
-             * 
              * @note This function will add a component to an entity.
              * @note It's a major function in the ECS as it allows for entities to have components.
              */
