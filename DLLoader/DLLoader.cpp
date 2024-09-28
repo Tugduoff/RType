@@ -14,9 +14,9 @@ DLLoader::DLLoader(const std::string &libName) : __library(dlopen(libName.c_str(
         throw DLLExceptions(dlerror());
 }
 
-DLLoader::~DLLoader() {
-    if (__library)
-        if (dlclose(__library) != 0) std::cerr << dlerror() << std::endl;
+DLLoader::DLLoader(DLLoader &&loader) : __library(loader.__library)
+{
+    loader.__library = nullptr;
 }
 
 DLLoader::~DLLoader()

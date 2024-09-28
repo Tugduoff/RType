@@ -22,6 +22,15 @@ class DLLoader {
         DLLoader(const std::string &libName);
 
         /**
+         * @brief Move constructor.
+         * 
+         * @param loader The DLLoader object to move.
+         * 
+         * @note The moved object will have its __library pointer set to nullptr.
+         */
+        DLLoader(DLLoader &&loader);
+
+        /**
         * @brief Destroys the DLLoader object and closes the currently opened library.
         *
         * @throw std::exception If an error occurs during closing the library.
