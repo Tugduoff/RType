@@ -21,6 +21,6 @@ void ECS::SystemManager::addSystem(const Systems::ISystem *system)
 void ECS::SystemManager::run(Registry &reg)
 {
     for (Systems::ISystem *system : __systems) {
-        system->func(reg);
+        system->run(reg);
     }
 }

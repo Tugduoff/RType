@@ -9,7 +9,7 @@
 #include "plugins/components/position/Position.hpp"
 #include "ECS/registry/Registry.hpp"
 
-void Systems::MoveSystem::func(ECS::Registry &reg)
+void Systems::MoveSystem::run(ECS::Registry &reg)
 {
     try {
         auto &posComponents = reg.componentManager().getComponents<Components::Position>();
