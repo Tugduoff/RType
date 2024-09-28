@@ -141,7 +141,7 @@ namespace ECS {
              * 
              * @note This function will remove a component from an entity.
              */
-            template <typename Component>
+            template <class Component>
             void removeComponent(Entity const &from)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
