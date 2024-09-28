@@ -149,7 +149,11 @@ namespace ECS {
                 if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
 
-                std::any_cast<SparseArray<Component>&>(__components.at(typeIndex).sparseArray).erase(from);
+                SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(
+                    __components.at(typeIndex).sparseArray
+                );
+
+                sparseArray.erase(from);
             }
 
         private:
