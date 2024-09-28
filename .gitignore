@@ -1,3 +1,9 @@
 bin/
 build/
 .vscode/
+*.o
+*.a
+*.so
+*.so.*
+r-type_server
+r-type_client
