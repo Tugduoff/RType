@@ -54,7 +54,7 @@ namespace ECS {
                 if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
                 
-                DLLoader &loader = __components[typeIndex].loader;
+                DLLoader &loader = __components.at(typeIndex).loader;
 
                 try {
                     return loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
