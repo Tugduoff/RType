@@ -7,7 +7,7 @@
 
 #include "Velocity.hpp"
 
-extern "C" IComponent *entryPoint(uint32_t x, uint32_t y)
+extern "C" Components::IComponent *entryPoint(uint32_t x, uint32_t y)
 {
-    return new Velocity(x, y);
+    return new Components::Velocity(x, y);
 }
