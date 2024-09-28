@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2024
-** B-CPP-500-NAN-5-1-rtype-thomas.cluseau
+** RType
 ** File description:
 ** DLLoader
 */
