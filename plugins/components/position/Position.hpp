@@ -8,7 +8,7 @@
 #ifndef POSITION_HPP
     #define POSITION_HPP
 
-    #include "AComponent.hpp"
+    #include "plugins/components/AComponent.hpp"
     #include <arpa/inet.h>
     #include <vector>
     #include <stdexcept>
