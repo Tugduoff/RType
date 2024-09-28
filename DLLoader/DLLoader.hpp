@@ -9,6 +9,9 @@
     #define DLLOADER_HPP
 
     #include <dlfcn.h>
+    #include <string>
+    #include <utility>
+    #include <memory>
 
 class DLLoader {
     public:
@@ -60,13 +63,14 @@ class DLLoader {
         * @throw DLLExceptions If the function pointer cannot be retrieved.
         */
         template<typename T, typename... Args>
-        T *getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
+        std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
             using EntryPointFunc = T* (*)(Args...);
             EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(dlsym(__library, entryPointName.c_str()));
 
-            if (!entryPoint) throw DLLExceptions(dlerror());
+            if (!entryPoint)
+                throw DLLExceptions(dlerror());
 
-            return entryPoint(std::forward<Args>(args)...);
+            return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
         };
 
         /**
