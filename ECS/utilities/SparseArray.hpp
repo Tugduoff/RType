@@ -12,7 +12,6 @@
     #include <stdexcept>
     #include <algorithm>
     #include <memory>
-    #include <iostream>
 
 template <class Component>
 class SparseArray {
