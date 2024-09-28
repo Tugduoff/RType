@@ -6,6 +6,7 @@
 */
 
 #include "SystemManager.hpp"
+#include "plugins/systems/ISystem.hpp"
 
 void ECS::SystemManager::addSystem(ISystem *system)
 {
