@@ -26,8 +26,9 @@ namespace ECS {
         public:
 
             struct component {
-                std::any sparseArray;
+                component(std::any sparseArray, DLLoader loader) : loader(std::move(loader)), sparseArray(std::move(sparseArray)) {};
                 DLLoader loader;
+                std::any sparseArray;
             };
 
             /**
