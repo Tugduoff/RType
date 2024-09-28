@@ -12,6 +12,7 @@
     #include <stdexcept>
     #include <algorithm>
     #include <memory>
+    #include <iostream>
 
 template <class Component>
 class SparseArray {
@@ -67,7 +68,7 @@ class SparseArray {
         void erase(std::size_t index) {
             if (index >= __data.size())
                 throw std::out_of_range("Index out of range");
-            __data.erase(__data.begin() + index);
+            __data.at(index).reset();
         }
 
         void insertAt(std::size_t index, std::unique_ptr<Component> &&component) {
