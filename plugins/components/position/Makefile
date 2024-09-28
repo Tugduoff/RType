@@ -11,7 +11,7 @@ OBJ	=	$(SRC:.cpp=.o)
 
 NAME	=	Position.so
 
-INCLUDES	= 	-I ./ -I ../
+INCLUDES	= 	-I../../../
 CPP			= 	g++
 CPPFLAGS	=	-Wall -Wextra -Werror -fpic $(INCLUDES) -std=c++20
 
