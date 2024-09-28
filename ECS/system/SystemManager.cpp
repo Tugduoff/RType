@@ -6,20 +6,21 @@
 */
 
 #include "SystemManager.hpp"
+#include "plugins/systems/ISystem.hpp"
 
-void ECS::SystemManager::addSystem(ISystem *system)
+void ECS::SystemManager::addSystem(Systems::ISystem *system)
 {
     __systems.push_back(system);
 }
 
-void ECS::SystemManager::addSystem(const ISystem *system)
+void ECS::SystemManager::addSystem(const Systems::ISystem *system)
 {
-    __systems.push_back(const_cast<ISystem *>(system));
+    __systems.push_back(const_cast<Systems::ISystem *>(system));
 }
 
 void ECS::SystemManager::run(Registry &reg)
 {
-    for (ISystem *system : __systems) {
+    for (Systems::ISystem *system : __systems) {
         system->func(reg);
     }
 }

@@ -8,10 +8,15 @@
 #ifndef SYSTEM_MANAGER_HPP
     #define SYSTEM_MANAGER_HPP
 
-    #include "plugins/systems/ISystem.hpp"
     #include <vector>
 
+namespace Systems {
+    class ISystem;
+};
+
 namespace ECS {
+    class Registry;
+
     /**
      * @class SystemManager
      * 
@@ -25,14 +30,14 @@ namespace ECS {
              * 
              * @param system : the system
              */
-            void addSystem(ISystem *system);
+            void addSystem(Systems::ISystem *system);
 
             /**
              * @brief Add a system to the manager
              * 
              * @param system : the system
              */
-            void addSystem(const ISystem *system);
+            void addSystem(const Systems::ISystem *system);
 
             /**
              * @brief Run all the systems
@@ -41,7 +46,7 @@ namespace ECS {
 
         private:
 
-            std::vector<ISystem *> __systems;
+            std::vector<Systems::ISystem *> __systems;
     };
 }
 
