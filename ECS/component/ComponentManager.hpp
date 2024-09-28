@@ -82,12 +82,9 @@ namespace ECS {
                 if (__components.contains(typeIndex))
                     return;
 
-                component comp = {
-                    SparseArray<Component>(),
-                    DLLoader(libName)
-                };
+                component comp((std::make_any<SparseArray<Component>>()), DLLoader(libName));
 
-                __components[typeIndex] = comp;
+                __components.emplace(typeIndex, std::move(comp));
             }
 
             /**
