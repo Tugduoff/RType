@@ -8,8 +8,7 @@
 #ifndef MOVESYSTEM_HPP
     #define MOVESYSTEM_HPP
 
-    #include "ASystem.hpp"
-    #include "Registry.hpp"
+    #include "plugins/systems/ASystem.hpp"
 
 class MoveSystem : public ASystem {
     public:

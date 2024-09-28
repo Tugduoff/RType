@@ -6,7 +6,8 @@
 */
 
 #include "Move.hpp"
-#include "Position.hpp"
+#include "plugins/components/position/Position.hpp"
+#include "ECS/registry/Registry.hpp"
 
 void MoveSystem::func(Registry &reg)
 {
