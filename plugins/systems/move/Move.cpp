@@ -9,7 +9,7 @@
 #include "plugins/components/position/Position.hpp"
 #include "ECS/registry/Registry.hpp"
 
-void Systems::MoveSystem::func(ECS::Registry &reg)
+void Systems::MoveSystem::run(ECS::Registry &reg)
 {
     try {
         auto &posComponents = reg.componentManager().getComponents<Components::Position>();
@@ -23,7 +23,7 @@ void Systems::MoveSystem::func(ECS::Registry &reg)
     }
 }
 
-extern "C" Systems::ISystem *entryPoint()
+extern "C" std::unique_ptr<Systems::ISystem> entryPoint()
 {
-    return new Systems::MoveSystem();
+    return std::make_unique<Systems::MoveSystem>();
 }

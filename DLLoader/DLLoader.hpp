@@ -64,13 +64,13 @@ class DLLoader {
         */
         template<typename T, typename... Args>
         std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
-            using EntryPointFunc = T* (*)(Args...);
+            using EntryPointFunc = std::unique_ptr<T> (*)(Args...);
             EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(dlsym(__library, entryPointName.c_str()));
 
             if (!entryPoint)
                 throw DLLExceptions(dlerror());
 
-            return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
+            return entryPoint(std::forward<Args>(args)...);
         };
 
         /**

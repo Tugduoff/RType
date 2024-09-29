@@ -16,7 +16,7 @@ namespace Systems {
             MoveSystem() = default;
             ~MoveSystem() = default;
 
-            void func(ECS::Registry &reg) override;
+            void run(ECS::Registry &reg) override;
         private:
     };
 };

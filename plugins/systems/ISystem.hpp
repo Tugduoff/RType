@@ -23,7 +23,7 @@ namespace Systems {
              * @param reg : The registry of the ECS
              * @note This function should contain the logic of the system
              */
-            virtual void func(ECS::Registry &) = 0;
+            virtual void run(ECS::Registry &) = 0;
         private:
     };
 };
