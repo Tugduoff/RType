@@ -24,7 +24,8 @@ void Engine::GameEngine::loadSystems(const std::string &systemsFolderPath, const
                 std::string systemPath = systemsFolderPath + systemName + ".so";
                 DLLoader loader(systemPath);
                 std::unique_ptr<Systems::ISystem> system = loader.getInstance<Systems::ISystem>("entryPoint", loader);
-                __registry.systemManager().addSystem(system);
+                __registry.systemManager().addSystem(std::move(system));
+                __systemLoaders.push_back(std::move(loader));
                 std::cout << "System loaded: " << systemPath << std::endl;
             }
         }
