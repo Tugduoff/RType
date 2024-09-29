@@ -1,0 +1,18 @@
+# Use an official Ubuntu as the base image
+FROM fedora:latest
+
+WORKDIR /app
+
+RUN dnf update -y
+
+# Update the package list and install dependencies for CMake, build tools, and SFML
+RUN dnf install -y  \
+    libX11          \
+    mesa-libGL
+
+COPY ./fedora_build.tar .
+
+RUN tar -xf fedora_build.tar 
+
+RUN cd ./bin && ./launch_client.sh
+

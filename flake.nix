@@ -1,5 +1,5 @@
 {
-  description = ''
+  description = '':
     R-Type Flake
   '';
 
@@ -22,6 +22,16 @@
 
           valgrind
           cmake
+
+          xorg.libXrandr
+          xorg.libXcursor
+          xorg.libX11
+          libGLU
+          libudev-zero
+          openal
+          flac
+          libvorbis
+          freetype
         ];
 
         shellHook = ''

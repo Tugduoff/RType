@@ -1,6 +1,6 @@
 bin/
 build/
-.vscode/
+*.tar
 *.o
 *.a
 *.so
