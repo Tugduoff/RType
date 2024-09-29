@@ -32,6 +32,9 @@
           flac
           libvorbis
           freetype
+          criterion
+          sfml
+          libconfig
         ];
 
         shellHook = ''
