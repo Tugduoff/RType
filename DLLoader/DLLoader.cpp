@@ -5,11 +5,11 @@
 ** DLLoader
 */
 
-#include <iostream>
-#include "DLLoader.hpp"
 #ifdef _WIN32
     #include <stringapiset.h>
 #endif
+#include <iostream>
+#include "DLLoader.hpp"
 
 DLLoader::DLLoader(const std::string &libName) {
     #ifdef _WIN32
@@ -24,15 +24,11 @@ DLLoader::DLLoader(const std::string &libName) {
 DLLoader::~DLLoader() {
     if (__library) {
         #ifdef _WIN32
-            if (!FreeLibrary((HMODULE)__library)) {
+            if (!FreeLibrary((HMODULE)__library))
                 std::cerr << "Error while closing the library." << std::endl;
-                exit(84);
-            }
         #else
-            if (dlclose(__library) != 0) {
+            if (dlclose(__library) != 0)
                 std::cerr << dlerror() << std::endl;
-                exit(84);
-            }
         #endif
     }
 }
@@ -47,7 +43,7 @@ void DLLoader::loadNew(const std::string &libName) {
     }
 
     #ifdef _WIN32
-        __library = LoadLibraryA(libName.c_str()); // Use LoadLibraryA for ANSI strings
+        __library = LoadLibraryA(libName.c_str());
         if (!__library) throw DLLExceptions("Failed to load library: " + libName);
     #else
         __library = dlopen(libName.c_str(), RTLD_LAZY);
