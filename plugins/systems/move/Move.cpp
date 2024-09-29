@@ -23,7 +23,7 @@ void Systems::MoveSystem::run(ECS::Registry &reg)
     }
 }
 
-extern "C" Systems::ISystem *entryPoint()
+extern "C" std::unique_ptr<Systems::ISystem> entryPoint()
 {
-    return new Systems::MoveSystem();
+    return std::make_unique<Systems::MoveSystem>();
 }

@@ -5,9 +5,10 @@
 ** Position.cpp file
 */
 
+#include <memory>
 #include "Position.hpp"
 
-extern "C" Components::IComponent *entryPoint(uint32_t x, uint32_t y)
+extern "C" std::unique_ptr<Components::IComponent> entryPoint(uint32_t x, uint32_t y)
 {
-    return new Components::Position(x, y);
+    return std::make_unique<Components::Position>(x, y);
 }
