@@ -35,9 +35,5 @@ COPY ./build_scripts/build_ubuntu_binary.sh .
 COPY ./build_scripts/launch_client.sh .
 COPY ./build_scripts/launch_server.sh .
 
-COPY ./test.sh .
-
 # Run build script
 RUN ./build_ubuntu_binary.sh
-
-# CMD [ "./test.sh" ]
