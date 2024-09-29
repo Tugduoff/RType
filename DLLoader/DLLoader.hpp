@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2024
-** B-CPP-500-NAN-5-1-rtype-thomas.cluseau
+** RType
 ** File description:
 ** DLLoader
 */
@@ -8,7 +8,14 @@
 #ifndef DLLOADER_HPP
     #define DLLOADER_HPP
 
-    #include <dlfcn.h>
+    #ifdef _WIN32
+        #include <windows.h>
+    #else
+        #include <dlfcn.h>
+    #endif
+    #include <string>
+    #include <utility>
+    #include <memory>
 
 class DLLoader {
     public:
@@ -20,6 +27,15 @@ class DLLoader {
         * @throw DLLExceptions If the library cannot be opened.
         */
         DLLoader(const std::string &libName);
+
+        /**
+         * @brief Move constructor.
+         * 
+         * @param loader The DLLoader object to move.
+         * 
+         * @note The moved object will have its __library pointer set to nullptr.
+         */
+        DLLoader(DLLoader &&loader);
 
         /**
         * @brief Destroys the DLLoader object and closes the currently opened library.
@@ -51,13 +67,22 @@ class DLLoader {
         * @throw DLLExceptions If the function pointer cannot be retrieved.
         */
         template<typename T, typename... Args>
-        T *getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
+        std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
             using EntryPointFunc = T* (*)(Args...);
-            EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(dlsym(__library, entryPointName.c_str()));
+            #ifdef _WIN32
+                EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
+            #else
+                EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(dlsym(__library, entryPointName.c_str()));
+            #endif
 
-            if (!entryPoint) throw DLLExceptions(dlerror());
+            if (!entryPoint)
+            #ifdef _WIN32
+                throw DLLExceptions("Failed to load library");
+            #else
+                throw DLLExceptions(dlerror());
+            #endif
 
-            return entryPoint(std::forward<Args>(args)...);
+            return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
         };
 
         /**
@@ -76,7 +101,11 @@ class DLLoader {
         };
 
     private:
+    #ifdef _WIN32
+        HMODULE __library;
+    #else
         void *__library;
+    #endif
 };
 
 #endif /* !DLLOADER_HPP_ */
