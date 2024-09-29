@@ -10,10 +10,12 @@
 
     #include "IComponent.hpp"
 
-class AComponent : public IComponent {
-    public:
-        AComponent() = default;
-    private:
-};
+namespace Components {
+    class AComponent : public IComponent {
+        public:
+            AComponent() = default;
+        private:
+    };
+}
 
 #endif // ACOMPONENT_HPP

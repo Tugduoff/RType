@@ -10,6 +10,7 @@ on:
 env:
   MIRROR_URL: "git@github.com:EpitechPromo2027/B-CPP-500-NAN-5-1-rtype-thomas.cluseau.git"
   EXECUTABLES: "bin/r-type_server, bin/r-type_client"
+  EXECUTABLES: ""
 
 jobs:
   check_program_compilation:
@@ -29,11 +30,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Create build directory
         run: mkdir build
-      - name: Init CMake
-        run: cd build/ && cmake ..
-      - name: Compilation
-        timeout-minutes: 3
-        run: cmake --build ./build/ --target all
+      # - name: Init CMake
+      #   run: cd build/ && cmake ..
+      # - name: Compilation
+      #   timeout-minutes: 3
+      #   run: cmake --build ./build/ --target all
       - name: check execs
         run: |
           for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do

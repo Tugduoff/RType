@@ -1,15 +1,15 @@
 ##
 ## EPITECH PROJECT, 2024
-## RType Systems : Move
+## RType components : Velocity
 ## File description:
-## Move System Makefile
+## Velocity Component Makefile
 ##
 
-SRC	= 	./Move.cpp	\
+SRC	= 	./Velocity.cpp	\
 
 OBJ	=	$(SRC:.cpp=.o)
 
-NAME	=	Move.so
+NAME	=	Velocity.so
 
 INCLUDES	= 	-I../../../
 CPP			= 	g++
@@ -18,9 +18,9 @@ CPPFLAGS	=	-Wall -Wextra -Werror -fpic $(INCLUDES) -std=c++20
 all: $(NAME)
 
 $(NAME):	$(OBJ)
-	@echo -e "\e[1;33m[RType Systems] Building $(NAME)...\e[0m"
+	@echo -e "\e[1;33m[RType Components] Building $(NAME)...\e[0m"
 	$(CPP) -shared -o $(NAME) $(OBJ) $(CPPFLAGS)
-	@mv $(NAME) ../../bin/systems/
+	@mv $(NAME) ../../bin/components/
 	@echo -e "\e[1;32m[SUCCESS] $(NAME) built\e[0m"
 
 clean:

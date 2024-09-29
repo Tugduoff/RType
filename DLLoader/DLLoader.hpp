@@ -1,6 +1,7 @@
 /*
 ** EPITECH PROJECT, 2024
 ** RType
+** RType
 ** File description:
 ** DLLoader
 */
@@ -27,6 +28,15 @@ class DLLoader {
         * @throw DLLExceptions If the library cannot be opened.
         */
         DLLoader(const std::string &libName);
+
+        /**
+         * @brief Move constructor.
+         * 
+         * @param loader The DLLoader object to move.
+         * 
+         * @note The moved object will have its __library pointer set to nullptr.
+         */
+        DLLoader(DLLoader &&loader);
 
         /**
          * @brief Move constructor.

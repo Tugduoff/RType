@@ -6,19 +6,24 @@
 */
 
 #include "Move.hpp"
-#include "Position.hpp"
+#include "plugins/components/position/Position.hpp"
+#include "ECS/registry/Registry.hpp"
 
-void MoveSystem::func(Registry &reg)
+void Systems::MoveSystem::run(ECS::Registry &reg)
 {
-    auto &posComponents = reg.get_components<Position>();
-    
-    for (auto &pos : posComponents) {
-        pos->x += 1;
-        pos->y += 1;
+    try {
+        auto &posComponents = reg.componentManager().getComponents<Components::Position>();
+
+        for (auto &pos : posComponents) {
+            pos->x += 1;
+            pos->y += 1;
+        }
+    } catch (std::runtime_error &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 }
 
-extern "C" ISystem *entryPoint()
+extern "C" std::unique_ptr<Systems::ISystem> entryPoint()
 {
-    return new MoveSystem();
+    return std::make_unique<Systems::MoveSystem>();
 }

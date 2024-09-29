@@ -1,0 +1,18 @@
+# Use an official Ubuntu as the base image
+FROM ubuntu:20.04
+
+WORKDIR /app
+
+RUN apt-get update -y
+
+# Update the package list and install dependencies for CMake, build tools, and SFML
+RUN apt-get install -y  \
+    x11-common          \
+    libgl-dev
+
+COPY ./ubuntu_build.tar .
+
+RUN tar -xf ubuntu_build.tar 
+
+RUN cd ./bin && ./launch_client.sh
+
