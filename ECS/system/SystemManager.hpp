@@ -24,12 +24,6 @@ namespace ECS {
     class SystemManager {
         public:
 
-            ~SystemManager() {
-                std::cout << "SystemManager destructor called" << std::endl;
-                __systems.clear(); // Clears the vector, invoking the destructors of each unique_ptr
-                std::cout << "Systems cleared" << std::endl;
-            }
-
             /**
              * @brief Add a system to the manager
              * 
