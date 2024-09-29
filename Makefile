@@ -20,6 +20,7 @@ CRITERION_LIBS = -lcriterion
 SRCS = 	ECS/entity/EntityManager.cpp	\
 		ECS/system/SystemManager.cpp	\
 		DLLoader/DLLoader.cpp	\
+		GameEngine.cpp
 
 # Main Source file
 MAIN_SRC = Main.cpp	\
