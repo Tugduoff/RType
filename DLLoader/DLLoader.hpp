@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2024
-** B-CPP-500-NAN-5-1-rtype-thomas.cluseau
+** RType
 ** File description:
 ** DLLoader
 */
@@ -9,6 +9,9 @@
     #define DLLOADER_HPP
 
     #include <dlfcn.h>
+    #include <string>
+    #include <utility>
+    #include <memory>
 
 class DLLoader {
     public:
@@ -20,6 +23,15 @@ class DLLoader {
         * @throw DLLExceptions If the library cannot be opened.
         */
         DLLoader(const std::string &libName);
+
+        /**
+         * @brief Move constructor.
+         * 
+         * @param loader The DLLoader object to move.
+         * 
+         * @note The moved object will have its __library pointer set to nullptr.
+         */
+        DLLoader(DLLoader &&loader);
 
         /**
         * @brief Destroys the DLLoader object and closes the currently opened library.
@@ -51,11 +63,12 @@ class DLLoader {
         * @throw DLLExceptions If the function pointer cannot be retrieved.
         */
         template<typename T, typename... Args>
-        T *getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
-            using EntryPointFunc = T* (*)(Args...);
+        std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
+            using EntryPointFunc = std::unique_ptr<T> (*)(Args...);
             EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(dlsym(__library, entryPointName.c_str()));
 
-            if (!entryPoint) throw DLLExceptions(dlerror());
+            if (!entryPoint)
+                throw DLLExceptions(dlerror());
 
             return entryPoint(std::forward<Args>(args)...);
         };

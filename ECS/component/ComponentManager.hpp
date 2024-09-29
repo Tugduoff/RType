@@ -10,11 +10,13 @@
 
     #include "ECS/entity/Entity.hpp"
     #include "ECS/utilities/SparseArray.hpp"
-    #include "plugins/components/IComponent.hpp"
-    #include "DLLoader.hpp"
+    #include "DLLoader/DLLoader.hpp"
     #include <unordered_map>
     #include <typeindex>
     #include <any>
+    #include <iostream>
+    #include <utility>
+    #include <memory>
 
 namespace ECS {
     /**
@@ -26,8 +28,9 @@ namespace ECS {
         public:
 
             struct component {
-                std::any sparseArray;
+                component(std::any sparseArray, DLLoader loader) : loader(std::move(loader)), sparseArray(std::move(sparseArray)) {};
                 DLLoader loader;
+                std::any sparseArray;
             };
 
             /**
@@ -44,17 +47,17 @@ namespace ECS {
              * @note It takes a parameter pack to pass to the constructor of the component.
              */
             template <class Component, typename... Args>
-            IComponent *loadComponent(Args&&... args)
+            std::unique_ptr<Component> loadComponent(Args&&... args)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
                 if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
                 
-                DLLoader &loader = __components[typeIndex].loader;
+                DLLoader &loader = __components.at(typeIndex).loader;
 
                 try {
-                    return loader.getInstance<IComponent>("entryPoint", std::forward<Args>(args)...);
+                    return loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
                 } catch (DLLoader::DLLExceptions &e) {
                     std::cerr << "Error: " << e.what() << std::endl;
                     return nullptr;
@@ -79,12 +82,9 @@ namespace ECS {
                 if (__components.contains(typeIndex))
                     return;
 
-                component comp = {
-                    SparseArray<Component>(),
-                    DLLoader(libName)
-                };
+                component comp((std::make_any<SparseArray<Component>>()), DLLoader(libName));
 
-                __components[typeIndex] = comp;
+                __components.emplace(typeIndex, std::move(comp));
             }
 
             /**
@@ -115,22 +115,22 @@ namespace ECS {
              * @param to : the entity
              * @param c : the component
              * 
-             * @return typename SparseArray<Component>::reference_type : the added component
-             * 
              * @note This function will add a component to an entity.
              * @note It's a major function in the ECS as it allows for entities to have components.
              */
-            template <typename Component>
-            typename SparseArray<Component>::reference_type addComponent(Entity const &to, Component &&c)
+            template <class Component>
+            void addComponent(Entity const &to, std::unique_ptr<Component> &&c)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
                 if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
 
-                SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(__components.at(typeIndex).sparseArray);
+                SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(
+                    __components.at(typeIndex).sparseArray
+                );
 
-                return sparseArray.insertAt(to, std::forward<Component>(c));            
+                return sparseArray.insertAt(to, std::move(c));
             }
 
             /**
@@ -141,7 +141,7 @@ namespace ECS {
              * 
              * @note This function will remove a component from an entity.
              */
-            template <typename Component>
+            template <class Component>
             void removeComponent(Entity const &from)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
@@ -149,7 +149,11 @@ namespace ECS {
                 if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
 
-                std::any_cast<SparseArray<Component>&>(__components.at(typeIndex).sparseArray).erase(from);
+                SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(
+                    __components.at(typeIndex).sparseArray
+                );
+
+                sparseArray.erase(from);
             }
 
         private:

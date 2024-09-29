@@ -10,121 +10,85 @@
 
     #include <vector>
     #include <stdexcept>
-    #include <optional>
     #include <algorithm>
     #include <memory>
 
-template <typename Component>
+template <class Component>
 class SparseArray {
     public:
 
         // Types
         // N.B: Value type is generally optional in a sparse array
 
-        using valueType = std::optional<Component>;
-        using referenceType = valueType &;
-        using constReferenceType = const valueType &;
-        using container = std::vector<valueType>;
-
-        using sizeType = typename container::sizeType;
-        using iterator = typename container::iterator;
-        using constIterator = typename container::constIterator;
-
-        // Ctors & Dtors
-
         SparseArray() = default;
-        SparseArray(const SparseArray &) = default;
-        SparseArray(SparseArray &&) noexcept = default;
+        SparseArray(const SparseArray<Component> &other) : __data() {
+            for (const std::unique_ptr<Component> &component : other.__data) {
+                if (!component) {
+                    __data.push_back(nullptr);
+                    continue;
+                }
+                __data.push_back(std::make_unique<Component>(*component));
+            }
+        };
         ~SparseArray() = default;
 
-        // operators
+        // Operators
 
-        SparseArray &operator=(const SparseArray &) = default;
-        SparseArray &operator=(SparseArray &&) noexcept = default;
-
-        referenceType operator[](sizeType index)
-        {
+        SparseArray &operator=(const SparseArray &other) = default;
+        SparseArray &operator=(SparseArray &&other) = default;
+        std::unique_ptr<Component> &operator[](std::size_t index) {
             if (index >= __data.size())
-                throw std::out_of_range("Index out of bounds");
+                throw std::out_of_range("Index out of range");
             return __data[index];
-        };
+        }
 
-        constReferenceType operator[](sizeType index) const
-        {
-            if (index >= __data.size())
-                throw std::out_of_range("Index out of bounds");
-            return __data[index];
-        };
+        // Iterators
+
+        auto begin() const { return __data.begin(); };
+        auto begin() { return __data.begin(); };
+        auto cbegin() const { return __data.cbegin(); };
+        auto end() { return __data.end(); };
+        auto end() const { return __data.end(); };
+        auto cend() const { return __data.cend(); };
+
+        auto back() { return __data.back(); };
+        auto front() { return __data.front(); };
 
         // Methods
 
-        iterator begin() { return __data.begin(); };
-        constIterator begin() const { return __data.begin(); };
-        constIterator cbegin() const { return __data.cbegin(); };
+        void push_back(std::unique_ptr<Component> &&component) {
+            __data.push_back(std::move(component));
+        }
 
-        iterator end() { return __data.end(); };
-        constIterator end() const { return __data.end(); };
-        constIterator cend() const { return __data.cend(); };
+        void push_front(std::unique_ptr<Component> &&component) {
+            __data.insert(__data.begin(), std::move(component));
+        }
 
-        sizeType size() const { return __data.size(); };
+        void erase(std::size_t index) {
+            if (index >= __data.size())
+                throw std::out_of_range("Index out of range");
+            __data.at(index).reset();
+        }
 
-        referenceType insertAt(sizeType pos, Component const &value)
-        {
-            if (pos >= __data.size())
-                __data.resize(pos + 1);
-            __data[pos] = value;
-            return __data[pos];
-        };
-
-        referenceType insertAt(sizeType pos, Component &&value)
-        {
-            if (pos >= __data.size())
-                __data.resize(pos + 1);
-            __data[pos] = std::move(value);
-            return __data[pos];
-        };
-
-        template <class... Params>
-        referenceType emplaceAt(sizeType pos, Params&&... params)
-        {
-            if (pos > __data.size())
-                __data.resize(pos + 1);
-            if (__data[pos].has_value()) {
-                using allocatorType = typename container::allocatorType;
-                allocatorType alloc = __data.get_allocator();
-                std::allocator_traits<allocatorType>::destroy(alloc, std::addressof(__data[pos].value()));
+        void insertAt(std::size_t index, std::unique_ptr<Component> &&component) {
+            if (index >= __data.size()) {
+                __data.resize(index + 1);
             }
-            __data[pos].emplace(std::forward<Params>(params)...);
-            return __data[pos];
-        };
+            __data[index] = std::move(component);
+        }
 
-        void erase(sizeType pos)
-        {
-            if (pos >= __data.size())
-                throw std::out_of_range("Index out of bounds");
-            if (__data[pos].has_value()) {
-                using allocatorType = decltype(__data.get_allocator());
-                allocatorType alloc = __data.get_allocator();
-                std::allocator_traits<allocatorType>::destroy(alloc, std::addressof(__data[pos].value()));
-                __data[pos].reset();
+        void emplaceAt(std::size_t index, std::unique_ptr<Component> &&component) {
+            if (index >= __data.size()) {
+                __data.resize(index + 1);
             }
-        };
+            __data[index] = std::move(component);
+        }
 
-        sizeType getIndex(valueType const &value) const
-        {
-            auto it = std::find_if(__data.begin(), __data.end(), [&](const valueType &elem) {
-                return std::addressof(elem) == std::addressof(value);
-            });
-            if (it == __data.end())
-                throw std::out_of_range("Value not found");
-            return std::distance(__data.begin(), it);
-        };
+        void clear() { __data.clear(); }
 
     private:
 
-        // Data
-
-        container __data;
+        std::vector<std::unique_ptr<Component>> __data;
 };
 
 #endif // SPARSE_ARRAY_HPP
