@@ -15,15 +15,26 @@
     #include <iostream>
 
 namespace Engine {
+    /**
+     * @class GameEngine
+     * 
+     * @brief Class that manages the game engine and stores the loaders of all plugins.
+     */
     class GameEngine {
         public:
 
-            GameEngine() = default;
-            ~GameEngine() {
-                std::cout << "GameEngine destructor called" << std::endl;
-                std::cout << "Component loaders cleared" << std::endl;
-            };
-
+            /**
+             * @brief Register a component
+             * 
+             * @tparam Component : the component type
+             * 
+             * @param componentPath : the path to the shared object containing the component
+             * 
+             * @note This function will register a component in the component manager.
+             * @note It will also store the loader in the component loaders map.
+             * @note This function only needs to be called at the start of the program.
+             * @note Possibly by the systems init functions.
+             */
             template <class Component>
             void registerComponent(const std::string &componentPath)
             {
@@ -36,11 +47,38 @@ namespace Engine {
 
                 __componentLoaders.emplace(typeIndex, DLLoader(componentPath));
                 __registry.componentManager().registerComponent<Component>();
-                std::cout << "Component loaded: " << componentPath << std::endl;
             }
 
+            /**
+             * @brief Load systems from a configuration file
+             * 
+             * @param systemsFolderPath : the path to the folder containing the shared objects
+             * @param systemsConfigFile : the path to the configuration file
+             * 
+             * @note This function will load systems from a configuration file.
+             * @note Read the documentation about defining systems used in the game using the config file.
+             * @note This function will load each systems and store them in the systemManager
+             * @note and keep each loaders in the systems loaders vector.
+             */
             void loadSystems(const std::string &systemsFolderPath, const std::string &systemsConfigFile);
 
+            /**
+             * @brief Create a new component instance
+             * 
+             * @tparam Component : the component type
+             * @tparam Args : the arguments to pass to the component constructor
+             * 
+             * @param args : the arguments to pass to the component constructor
+             * 
+             * @return std::unique_ptr<Component> : the component instance
+             * 
+             * @note This function will create a new component instance from a component tparam and stack of arguments.
+             * @note It will use the component loaders map to load the component from the shared object.
+             * @note And then return the component instance.
+             * 
+             * @throw std::runtime_error : "Component type not registered"
+             * @throw std::runtime_error : "Failed to load component from shared object"
+             */
             template <typename Component, typename... Args>
             std::unique_ptr<Component> newComponent(Args&& ...args) {
                 std::type_index typeIndex = std::type_index(typeid(Component));
@@ -57,6 +95,19 @@ namespace Engine {
                 return componentInstance;
             }
 
+            /**
+             * @brief Add a component to an entity
+             * 
+             * @tparam Component : the component type
+             * 
+             * @param entity : the entity to add the component to
+             * @param component : the component instance
+             * 
+             * @note This function will add a component to an entity.
+             * @note It will call the function addComponent from the component Manager class.
+             * 
+             * @throw std::runtime_error : "Component type not registered"
+             */
             template <typename Component>
             void addComponent(ECS::Entity &entity, std::unique_ptr<Component> component) {
                 std::type_index typeIndex = std::type_index(typeid(Component));
@@ -65,9 +116,15 @@ namespace Engine {
                     throw std::runtime_error("Component type not registered");
                 
                 __registry.componentManager().addComponent<Component>(entity, std::move(component));
-                std::cout << "Component added to entity: " << entity << std::endl;
             }
 
+            /**
+             * @brief Get the registry
+             * 
+             * @return ECS::Registry& : the registry
+             * 
+             * @note This function will return the registry stored in the game engine.
+             */
             ECS::Registry &getRegistry() { return __registry; }
 
         private:
