@@ -9,10 +9,9 @@
     #define SYSTEM_MANAGER_HPP
 
     #include <vector>
-
-namespace Systems {
-    class ISystem;
-};
+    #include <memory>
+    #include "plugins/systems/ISystem.hpp"
+    #include <iostream>
 
 namespace ECS {
     class Registry;
@@ -25,19 +24,18 @@ namespace ECS {
     class SystemManager {
         public:
 
-            /**
-             * @brief Add a system to the manager
-             * 
-             * @param system : the system
-             */
-            void addSystem(Systems::ISystem *system);
+            ~SystemManager() {
+                std::cout << "SystemManager destructor called" << std::endl;
+                __systems.clear(); // Clears the vector, invoking the destructors of each unique_ptr
+                std::cout << "Systems cleared" << std::endl;
+            }
 
             /**
              * @brief Add a system to the manager
              * 
              * @param system : the system
              */
-            void addSystem(const Systems::ISystem *system);
+            void addSystem(std::unique_ptr<Systems::ISystem> system);
 
             /**
              * @brief Run all the systems
@@ -46,7 +44,7 @@ namespace ECS {
 
         private:
 
-            std::vector<Systems::ISystem *> __systems;
+            std::vector<std::unique_ptr<Systems::ISystem>> __systems;
     };
 }
 

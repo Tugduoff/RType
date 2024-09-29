@@ -6,21 +6,16 @@
 */
 
 #include "SystemManager.hpp"
-#include "plugins/systems/ISystem.hpp"
 
-void ECS::SystemManager::addSystem(Systems::ISystem *system)
+void ECS::SystemManager::addSystem(std::unique_ptr<Systems::ISystem> system)
 {
-    __systems.push_back(system);
-}
-
-void ECS::SystemManager::addSystem(const Systems::ISystem *system)
-{
-    __systems.push_back(const_cast<Systems::ISystem *>(system));
+    std::cout << "Adding system to manager" << std::endl;
+    __systems.push_back(std::move(system));
 }
 
 void ECS::SystemManager::run(Registry &reg)
 {
-    for (Systems::ISystem *system : __systems) {
+    for (auto &system : __systems) {
         system->run(reg);
     }
 }
