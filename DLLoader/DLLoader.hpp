@@ -1,7 +1,6 @@
 /*
 ** EPITECH PROJECT, 2024
 ** RType
-** RType
 ** File description:
 ** DLLoader
 */
