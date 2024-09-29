@@ -27,66 +27,6 @@ namespace ECS {
     class ComponentManager {
         public:
 
-            struct component {
-                component(std::any sparseArray, DLLoader loader) : loader(std::move(loader)), sparseArray(std::move(sparseArray)) {};
-                DLLoader loader;
-                std::any sparseArray;
-            };
-
-            /**
-             * @brief Load a new component instance
-             * 
-             * @tparam Args : the arguments to be given to the ctor of the component. Can be empty
-             * @tparam Component : the component to load
-             * @param args : the arguments to be given to the ctor of the component
-             * 
-             * @return IComponent* : the new instance of the component
-             * 
-             * @note This function is needed for loading an instance
-             * @note of a specific component from type passed as template parameter.
-             * @note It takes a parameter pack to pass to the constructor of the component.
-             */
-            template <class Component, typename... Args>
-            std::unique_ptr<Component> loadComponent(Args&&... args)
-            {
-                std::type_index typeIndex = std::type_index(typeid(Component));
-
-                if (!__components.contains(typeIndex))
-                    throw std::runtime_error("Component type not registered");
-                
-                DLLoader &loader = __components.at(typeIndex).loader;
-
-                try {
-                    return loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
-                } catch (DLLoader::DLLExceptions &e) {
-                    std::cerr << "Error: " << e.what() << std::endl;
-                    return nullptr;
-                }
-            }
-
-            /**
-             * @brief Register a component
-             * 
-             * @tparam Component : the component to register
-             * @param filepath : the filepath to the component library
-             * 
-             * @note This function must be called when loading a component library.
-             * @note It will register the component type in the component manager and
-             * @note allow for instances of this type to be created.
-             */
-            template <class Component>
-            void registerComponent(std::string &libName)
-            {
-                std::type_index typeIndex = std::type_index(typeid(Component));
-
-                if (__components.contains(typeIndex))
-                    return;
-
-                component comp((std::make_any<SparseArray<Component>>()), DLLoader(libName));
-
-                __components.emplace(typeIndex, std::move(comp));
-            }
-
             /**
              * @brief Get components
              * 
@@ -105,7 +45,7 @@ namespace ECS {
                 if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
 
-                return std::any_cast<SparseArray<Component> &>(__components.at(typeIndex).sparseArray);
+                return std::any_cast<SparseArray<Component> &>(__components.at(typeIndex));
             }
 
             /**
@@ -127,7 +67,7 @@ namespace ECS {
                     throw std::runtime_error("Component type not registered");
 
                 SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(
-                    __components.at(typeIndex).sparseArray
+                    __components.at(typeIndex)
                 );
 
                 return sparseArray.insertAt(to, std::move(c));
@@ -149,12 +89,12 @@ namespace ECS {
                 if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
 
-                std::any_cast<SparseArray<Component>&>(__components.at(typeIndex).sparseArray).erase(from);
+                std::any_cast<SparseArray<Component>&>(__components.at(typeIndex)).erase(from);
             }
 
         private:
 
-            std::unordered_map<std::type_index, component> __components;
+            std::unordered_map<std::type_index, std::any> __components;
 
     };
 };
