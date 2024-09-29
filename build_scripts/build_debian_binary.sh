@@ -78,7 +78,7 @@ chmod +x $BINARY_DIR/launch_server.sh
 chmod +x $BINARY_DIR/launch_client.sh
 
 echo "Creating archive ubuntu_build.tar which will contain the application"
-tar -cf ubuntu_build.tar $BINARY_DIR
+tar -cf debian_build.tar $BINARY_DIR
 
 # libsfml-graphics.so.2.6
 # libsfml-network.so.2.6

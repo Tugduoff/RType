@@ -1,5 +1,5 @@
 # Use an official Ubuntu as the base image
-FROM ubuntu:latest
+FROM debian:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -31,9 +31,9 @@ COPY ./CMakeLists.txt .
 COPY ./cmake/ ./cmake/
 COPY ./server/ ./server/
 COPY ./client/ ./client/
-COPY ./build_scripts/build_ubuntu_binary.sh .
+COPY ./build_scripts/build_debian_binary.sh .
 COPY ./build_scripts/launch_client.sh .
 COPY ./build_scripts/launch_server.sh .
 
 # Run build script
-RUN ./build_ubuntu_binary.sh
+RUN ./build_debian_binary.sh
