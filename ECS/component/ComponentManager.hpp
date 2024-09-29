@@ -27,11 +27,6 @@ namespace ECS {
     class ComponentManager {
         public:
 
-            ComponentManager() = default;
-            ~ComponentManager() {
-                std::cout << "ComponentManager destructor called" << std::endl;
-            };
-
             /**
              * @brief Register a component
              * 
