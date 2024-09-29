@@ -20,6 +20,8 @@ SO_FILES=(
   "libudev.so.1"
   "libfreetype.so.6"
   "libpng16.so.16"
+  "libbrotlidec.so.1"
+  "libbrotlicommon.so.1"
 )
 
 
