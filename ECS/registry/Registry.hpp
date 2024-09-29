@@ -37,6 +37,11 @@ namespace ECS {
              */
             SystemManager &systemManager() { return __systemManager; };
 
+            /**
+             * @brief Shorthand to run all systems registered in the system manager
+             */
+            auto runSystems() { return __systemManager.run(*this); }
+
         private:
 
             EntityManager __entityManager;

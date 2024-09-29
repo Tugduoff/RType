@@ -31,6 +31,8 @@ namespace ECS {
              * @param idx : the index
              * 
              * @return Entity
+             *
+             * @throws if the index is out of range
              */
             Entity entityFromIndex(size_t idx);
 
