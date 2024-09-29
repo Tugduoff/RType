@@ -65,7 +65,7 @@ tests_run: tests
 
 # Cleaning object files and executables
 clean:
-	rm -f $(OBJS) $(TEST_OBJS) $(EXEC) $(TEST_EXEC)
+	rm -f $(OBJS) $(MAIN_OBJ) $(TEST_OBJS) $(EXEC) $(TEST_EXEC)
 
 # Rebuild everything
 re: clean all
