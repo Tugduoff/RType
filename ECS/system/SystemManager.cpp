@@ -9,7 +9,6 @@
 
 void ECS::SystemManager::addSystem(std::unique_ptr<Systems::ISystem> system)
 {
-    std::cout << "Adding system to manager" << std::endl;
     __systems.push_back(std::move(system));
 }
 
