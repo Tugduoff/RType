@@ -58,14 +58,15 @@ echo "Symbolic links of SFML .so created."
 for SO_FILE in "${SO_FILES[@]}"; do
   # Check if the file exists in /usr/lib64
   # SO_PATH=`apt-file search $SO_FILE | sed -E ':a;N;$!ba;s/^[^ ]+ ([^ ]+).*/\1/'`
-  SO_PATH=`apt-file search $SO_FILE | tr '\n' ' ' | sed -E 's/^[^ ]+ ([^ ]+).*/\1/'`
+  SO_APTFILE_SEARCH=`apt-file search $SO_FILE | tr '\n' ' '`
+  SO_PATH=`echo $SO_APTFILE_SEARCH | sed -E 's/^[^ ]+ ([^ ]+).*/\1/'`
+  echo "apt-file search $SO_FILE : `echo $SO_APTFILE_SEARCH`"
   if [ -f $SO_PATH ]; then
     echo "Copying $SO_FILE to $BINARY_DIR"
     cp "$SO_PATH" "$BINARY_DIR"
   else
     echo "$SO_FILE not found"
     echo "SO_PATH : '$SO_PATH'"
-    echo "apt-file search $SO_FILE : `apt-file search $SO_FILE`"
   fi
 done
 
