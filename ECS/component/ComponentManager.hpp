@@ -27,6 +27,33 @@ namespace ECS {
     class ComponentManager {
         public:
 
+            ComponentManager() = default;
+            ~ComponentManager() {
+                std::cout << "ComponentManager destructor called" << std::endl;
+            };
+
+            /**
+             * @brief Register a component
+             * 
+             * @tparam Component : the component type
+             * 
+             * @note This function will register a component in the component manager.
+             * @note It's a major function in the ECS as it allows for components to be registered and then created.
+             */
+            template <class Component>
+            void registerComponent()
+            {
+                std::type_index typeIndex = std::type_index(typeid(Component));
+
+                if (__components.contains(typeIndex)) {
+                    std::cerr << "Component already registered in component manager" << std::endl;
+                    return;
+                }
+
+                __components.emplace(typeIndex, std::make_any<SparseArray<Component>>());
+                std::cout << "Component loaded: " << typeid(Component).name() << std::endl;
+            }
+
             /**
              * @brief Get components
              * 
@@ -43,7 +70,7 @@ namespace ECS {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
                 if (!__components.contains(typeIndex))
-                    throw std::runtime_error("Component type not registered");
+                    throw std::runtime_error("Component type not registered in component manager");
 
                 return std::any_cast<SparseArray<Component> &>(__components.at(typeIndex));
             }
@@ -63,8 +90,9 @@ namespace ECS {
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (!__components.contains(typeIndex))
-                    throw std::runtime_error("Component type not registered");
+                if (!__components.contains(typeIndex)) {
+                    throw std::runtime_error("Component type not registered in component manager");
+                }
 
                 SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(
                     __components.at(typeIndex)
@@ -87,7 +115,7 @@ namespace ECS {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
                 if (!__components.contains(typeIndex))
-                    throw std::runtime_error("Component type not registered");
+                    throw std::runtime_error("Component type not registered in component manager");
 
                 SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(
                     __components.at(typeIndex)
