@@ -11,25 +11,32 @@
     #include "ECS/registry/Registry.hpp"
     #include "DLLoader/DLLoader.hpp"
     #include <unordered_map>
+    #include <typeindex>
+    #include <iostream>
 
 namespace Engine {
     class GameEngine {
         public:
 
             GameEngine() = default;
-            ~GameEngine() = default;
+            ~GameEngine() {
+                std::cout << "GameEngine destructor called" << std::endl;
+                std::cout << "Component loaders cleared" << std::endl;
+            };
 
             template <class Component>
             void registerComponent(const std::string &componentPath)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (__componentLoaders.contains(typeIndex))
+                if (__componentLoaders.contains(typeIndex)) {
+                    std::cerr << "Component already registered" << std::endl;
                     return;
+                }
 
-                DLLoader loader(componentPath);
-
-                __componentLoaders.emplace(typeIndex, loader);
+                __componentLoaders.emplace(typeIndex, DLLoader(componentPath));
+                __registry.componentManager().registerComponent<Component>();
+                std::cout << "Component loaded: " << componentPath << std::endl;
             }
 
             void loadSystems(const std::string &systemsFolderPath, const std::string &systemsConfigFile);
@@ -42,17 +49,32 @@ namespace Engine {
                     throw std::runtime_error("Component type not registered");
 
                 DLLoader &loader = __componentLoaders.at(typeIndex);
-                std::unique_ptr<Component> component = loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
+                auto componentInstance = loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
 
-                return component;
+                if (!componentInstance) {
+                    throw std::runtime_error("Failed to load component from shared object");
+                }
+                return componentInstance;
+            }
+
+            template <typename Component>
+            void addComponent(ECS::Entity &entity, std::unique_ptr<Component> component) {
+                std::type_index typeIndex = std::type_index(typeid(Component));
+
+                if (!__componentLoaders.contains(typeIndex))
+                    throw std::runtime_error("Component type not registered");
+                
+                __registry.componentManager().addComponent<Component>(entity, std::move(component));
+                std::cout << "Component added to entity: " << entity << std::endl;
             }
 
             ECS::Registry &getRegistry() { return __registry; }
 
         private:
 
-            ECS::Registry __registry;
             std::unordered_map<std::type_index, DLLoader> __componentLoaders;
+            std::vector<DLLoader> __systemLoaders;
+            ECS::Registry __registry;
 
     };
 };
