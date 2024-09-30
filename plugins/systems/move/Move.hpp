@@ -8,7 +8,7 @@
 #ifndef MOVESYSTEM_HPP
     #define MOVESYSTEM_HPP
 
-    #include "plugins/systems/ASystem.hpp"
+    #include "systems/ASystem.hpp"
 
 namespace Systems {
     class MoveSystem : public ASystem {

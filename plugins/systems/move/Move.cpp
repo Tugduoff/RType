@@ -6,7 +6,7 @@
 */
 
 #include "Move.hpp"
-#include "plugins/components/position/Position.hpp"
+#include "components/position/Position.hpp"
 #include "ECS/registry/Registry.hpp"
 
 void Systems::MoveSystem::run(ECS::Registry &reg)
