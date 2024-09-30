@@ -22,7 +22,7 @@ jobs:
   #         username: ClementBaziret
   #         password: ${{ secrets.GIT_AUTH_TOKEN }}
 
-  fedora_program_compilation:
+  fedora_compilation:
     runs-on: ubuntu-latest
     container:
       image: fedora:42
@@ -60,7 +60,7 @@ jobs:
             fi
           done
 
-  debian_program_compilation:
+  debian_compilation:
     runs-on: ubuntu-latest
     container:
       image: debian:12
@@ -100,7 +100,7 @@ jobs:
             fi
           done
 
-  windows_program_compilation:
+  windows_compilation:
     runs-on: windows-2022
     steps:
       - name: Checkout fetch
@@ -119,7 +119,7 @@ jobs:
   ## PLEASE ADD SOME UNITS TESTS !
 
   # run_tests:
-  #   needs: [check_program_compilation]
+  #   needs: [check_compilation]
 
   #   runs-on: ubuntu-latest
 
@@ -135,9 +135,9 @@ jobs:
 
   push_to_mirror:
     needs: [
-      fedora_program_compilation,
-      debian_program_compilation,
-      windows_program_compilation
+      fedora_compilation,
+      debian_compilation,
+      windows_compilation
     ]
     runs-on: ubuntu-latest
 
