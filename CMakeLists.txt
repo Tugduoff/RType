@@ -17,6 +17,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Set the binary output directory to a custom path
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin/release)
 
 # Include the subdirectories for client and server
 add_subdirectory(client)
