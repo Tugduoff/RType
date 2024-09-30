@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: fedora:latest
+      image: fedora:42
     # container:
     #   image: ghcr.io/ClementBaziret/custom-epitest:latest
     #   credentials:
