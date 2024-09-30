@@ -19,6 +19,8 @@
         packages = with pkgs; [
           bashInteractiveFHS
           pkg-config
+          boost185
+          asio
 
           valgrind
           cmake
