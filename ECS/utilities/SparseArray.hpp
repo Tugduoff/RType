@@ -44,6 +44,8 @@ class SparseArray {
 
         // Iterators
 
+        auto size() const { return __data.size(); };
+
         auto begin() const { return __data.begin(); };
         auto begin() { return __data.begin(); };
         auto cbegin() const { return __data.cbegin(); };
