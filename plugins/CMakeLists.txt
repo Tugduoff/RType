@@ -29,7 +29,7 @@ ADD_DEFINITIONS(-g -Wall -Wextra)
 
 # Add the include directory
 include_directories(./)
-include_directories(../)
+include_directories(../src)
 
 # Include the subdirectories for client and server
 add_subdirectory(components)
