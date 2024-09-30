@@ -49,7 +49,7 @@ jobs:
           libXcursor-devel 
           libXrandr-devel
       - name: Compilation
-        uses: actions/checkout@v4
+        run: ./build_fedora_binary.sh
       # - name: Init CMake
       #   run: cd build/ && cmake ..
       # - name: Compilation
