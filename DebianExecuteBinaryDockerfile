@@ -1,5 +1,5 @@
 # Use an official Ubuntu as the base image
-FROM debian:latest
+FROM debian:12
 
 WORKDIR /app
 
