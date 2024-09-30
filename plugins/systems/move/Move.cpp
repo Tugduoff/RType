@@ -39,9 +39,9 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
 
 void Systems::MoveSystem::init(Engine::GameEngine &engine)
 {
-    if (!engine.registerComponent<Components::Position>("/plugins/bin/components/Position.so"))
+    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/Position.so"))
         std::cerr << "Error: Could not register Position component in system Move" << std::endl;
-    if (!engine.registerComponent<Components::Velocity>("/plugins/bin/components/Velocity.so"))
+    if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/Velocity.so"))
         std::cerr << "Error: Could not register Velocity component in system Move" << std::endl;
 }
 
