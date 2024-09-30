@@ -10,6 +10,7 @@ on:
 env:
   MIRROR_URL: "git@github.com:EpitechPromo2027/B-CPP-500-NAN-5-1-rtype-thomas.cluseau.git"
   EXECUTABLES: "./bin/r-type_server, ./bin/r-type_client"
+  WINDOWS_EXECUTABLES: "./bin/r-type_server.exe, ./bin/r-type_client.exe"
 
 jobs:
 
@@ -21,7 +22,7 @@ jobs:
   #         username: ClementBaziret
   #         password: ${{ secrets.GIT_AUTH_TOKEN }}
 
-  check_fedora_program_compilation:
+  fedora_program_compilation:
     runs-on: ubuntu-latest
     container:
       image: fedora:42
@@ -59,7 +60,7 @@ jobs:
             fi
           done
 
-  check_debian_program_compilation:
+  debian_program_compilation:
     runs-on: ubuntu-latest
     container:
       image: debian:12
@@ -99,6 +100,23 @@ jobs:
             fi
           done
 
+  windows_program_compilation:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+      - name: Compilation
+        run: |
+          call build_scripts\build_windows_binary.bat
+      - name: Check compiled executables
+        run: |
+          for %%e in (${{ env.WINDOWS_EXECUTABLES }}); do (
+              if not exist "%%e" (
+                  echo Executable %%e does not exist.
+                  exit /b 1
+              )
+          )
+
   ## PLEASE ADD SOME UNITS TESTS !
 
   # run_tests:
@@ -117,7 +135,7 @@ jobs:
   #       run: make tests_run
 
   push_to_mirror:
-    needs: [check_fedora_program_compilation, check_debian_program_compilation]
+    needs: [fedora_program_compilation, debian_program_compilation]
     runs-on: ubuntu-latest
 
     if: ${{ github.event_name == 'push' }}
