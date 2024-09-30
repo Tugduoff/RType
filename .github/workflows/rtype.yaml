@@ -32,21 +32,22 @@ jobs:
       - name: Update Fedora
         run:  dnf update -y
       - name: Install necessary dependencies
-        run:  dnf install -y          \
-              g++                     \
-              git                     \
-              tree                    \
-              cmake                   \
-              mesa-libGL-devel        \
-              mesa-libGLU-devel       \
-              openal-soft-devel       \
-              libgudev-devel          \
-              flac-devel              \
-              libvorbis-devel         \
-              freetype-devel          \
-              libX11-devel            \
-              libXcursor-devel        \
-              libXrandr-devel
+        run: >
+          dnf install -y 
+          g++ 
+          git 
+          tree 
+          cmake 
+          mesa-libGL-devel 
+          mesa-libGLU-devel 
+          openal-soft-devel 
+          libgudev-devel 
+          flac-devel 
+          libvorbis-devel 
+          freetype-devel 
+          libX11-devel 
+          libXcursor-devel 
+          libXrandr-devel
       - name: Compilation
         uses: actions/checkout@v4
       # - name: Init CMake
