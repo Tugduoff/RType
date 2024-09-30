@@ -106,8 +106,7 @@ jobs:
       - name: Checkout fetch
         uses: actions/checkout@v4
       - name: Compilation
-        run: |
-          call build_scripts\build_windows_binary.bat
+        run: .\build_scripts\build_windows_binary.bat
       - name: Check compiled executables
         run: |
           for %%e in (${{ env.WINDOWS_EXECUTABLES }}); do (
@@ -135,7 +134,11 @@ jobs:
   #       run: make tests_run
 
   push_to_mirror:
-    needs: [fedora_program_compilation, debian_program_compilation]
+    needs: [
+      fedora_program_compilation,
+      debian_program_compilation,
+      windows_program_compilation
+    ]
     runs-on: ubuntu-latest
 
     if: ${{ github.event_name == 'push' }}
