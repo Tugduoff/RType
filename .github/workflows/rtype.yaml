@@ -12,23 +12,23 @@ env:
   EXECUTABLES: "./bin/r-type_server, ./bin/r-type_client"
 
 jobs:
+
+  # commented_job:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: ghcr.io/ClementBaziret/custom-epitest:latest
+  #     credentials:
+  #         username: ClementBaziret
+  #         password: ${{ secrets.GIT_AUTH_TOKEN }}
+
   check_fedora_program_compilation:
-
     runs-on: ubuntu-latest
-
     container:
       image: fedora:42
-    # container:
-    #   image: ghcr.io/ClementBaziret/custom-epitest:latest
-    #   credentials:
-    #       username: ClementBaziret
-    #       password: ${{ secrets.GIT_AUTH_TOKEN }}
 
     steps:
       - name: Checkout fetch
         uses: actions/checkout@v4
-      # - name: Create build directory
-      #   run: mkdir build
       - name: Update Fedora
         run:  dnf update -y
       - name: Install necessary dependencies
@@ -50,12 +50,47 @@ jobs:
           libXrandr-devel
       - name: Compilation
         run: ./build_scripts/build_fedora_binary.sh
-      # - name: Init CMake
-      #   run: cd build/ && cmake ..
-      # - name: Compilation
-      #   timeout-minutes: 3
-      #   run: cmake --build ./build/ --target all
-      - name: check execs
+      - name: Check compilated executables
+        run: |
+          for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
+            if [ ! -x "${executables}" ]; then
+              echo "Executable ${executables} doesn't exist or isn't excutable."
+              exit 1
+            fi
+          done
+
+  check_debian_program_compilation:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:12
+
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+      - name: Update Debian
+        run:  apt-get update -y
+      - name: Install necessary dependencies
+        run: >
+          apt-get install -y 
+          apt-file 
+          g++ 
+          git 
+          cmake 
+          x11-common 
+          libxrandr-dev 
+          libxcursor-dev 
+          libgl-dev 
+          libudev-dev 
+          libflac-dev 
+          libopenal-dev 
+          libvorbis-dev 
+          libfreetype-dev 
+          libfreetype6
+      - name: Updated apt-file cache
+        run: apt-file update
+      - name: Compilation
+        run: ./build_scripts/build_debian_binary.sh
+      - name: Check compilated executables
         run: |
           for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
             if [ ! -x "${executables}" ]; then
@@ -82,8 +117,7 @@ jobs:
   #       run: make tests_run
 
   push_to_mirror:
-    needs: [check_fedora_program_compilation]
-
+    needs: [check_fedora_program_compilation, check_debian_program_compilation]
     runs-on: ubuntu-latest
 
     if: ${{ github.event_name == 'push' }}
