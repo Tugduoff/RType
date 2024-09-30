@@ -66,22 +66,11 @@ for SO_FILE in "${SO_FILES[@]}"; do
   fi
 done
 
-cp ./launch_server.sh $BINARY_DIR
-cp ./launch_client.sh $BINARY_DIR
+# cp ./launch_server.sh $BINARY_DIR
+# cp ./launch_client.sh $BINARY_DIR
+find "./build_scripts" -type f -name "launch*.sh" -exec cp {} $BINARY_DIR \;
 chmod +x $BINARY_DIR/launch_server.sh
 chmod +x $BINARY_DIR/launch_client.sh
 
 echo "Creating archive fedora_build.tar which will contain the application"
 tar -cf fedora_build.tar $BINARY_DIR
-
-# libsfml-graphics.so.2.6
-# libsfml-network.so.2.6
-# libsfml-window.so.2.6
-# libsfml-system.so.2.6
-# libX11.so.6
-# libXrandr.so.2
-# libXcursor.so.1
-# libGL.so.1
-# libudev.so.1
-# libfreetype.so.6
-# libstdc++.so.6

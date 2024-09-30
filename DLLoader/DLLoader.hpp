@@ -8,7 +8,11 @@
 #ifndef DLLOADER_HPP
     #define DLLOADER_HPP
 
-    #include <dlfcn.h>
+    #ifdef _WIN32
+        #include <windows.h>
+    #else
+        #include <dlfcn.h>
+    #endif
     #include <string>
     #include <utility>
     #include <memory>
@@ -24,10 +28,9 @@ class DLLoader {
         *
         * @throw DLLExceptions If the library cannot be opened.
         */
-        DLLoader(const std::string &libName) : __library(dlopen(libName.c_str(), RTLD_LAZY))
+        DLLoader(const std::string &libName)
         {
-            if (!__library)
-                throw DLLExceptions(dlerror());
+            openLibrary(libName);
         }
 
         /**
@@ -47,13 +50,10 @@ class DLLoader {
         *
         * @throw std::exception If an error occurs during closing the library.
         */
-        ~DLLoader()
-        {
-            if (!__library)
-                return;
-            if (dlclose(__library) != 0)
-                std::cerr << dlerror() << std::endl;
-        }
+        ~DLLoader() {
+            if (__library)
+                closeLibrary();
+        };
 
         /**
         * @brief Closes the currently opened library and opens a new library.
@@ -62,20 +62,11 @@ class DLLoader {
         *
         * @throw DLLExceptions If the new library cannot be opened.
         */
-        void loadNew(const std::string &libName)
-        {   
-            if (!__library) {
-                __library = dlopen(libName.c_str(), RTLD_LAZY);
-                if (!__library)
-                    throw DLLExceptions(dlerror());
-                return;
-            }
-            if (dlclose(__library) != 0)
-                throw DLLExceptions(dlerror());
-            __library = dlopen(libName.c_str(), RTLD_LAZY);
-            if (!__library)
-                throw DLLExceptions(dlerror());
-        }
+        void loadNew(const std::string &libName) {
+            if (__library)
+                closeLibrary();
+            openLibrary(libName);
+        };
 
         /**
         * @brief Retrieves a function pointer from the library and calls it to create and return a new instance of type T.
@@ -92,13 +83,10 @@ class DLLoader {
         */
         template<typename T, typename... Args>
         std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
-            using EntryPointFunc = std::unique_ptr<T> (*)(Args...);
-            EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(dlsym(__library, entryPointName.c_str()));
+            using EntryPointFunc = T* (*)(Args...);
+            EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
 
-            if (!entryPoint)
-                throw DLLExceptions(dlerror());
-
-            return entryPoint(std::forward<Args>(args)...);
+            return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
         };
 
         /**
@@ -117,7 +105,71 @@ class DLLoader {
         };
 
     private:
+    #ifdef _WIN32
+        HMODULE __library;
+    #else
         void *__library;
+    #endif
+        /**
+        * @brief Opens the specified library.
+        *
+        * @param libName The name of the shared library to open.
+        *
+        * @throw DLLExceptions If the library cannot be opened.
+        */
+        void openLibrary(const std::string &libName) {
+            #ifdef _WIN32
+                __library = LoadLibraryA(libName.c_str());
+                if (!__library) throw DLLExceptions("Failed to load library: " + libName);
+            #else
+                __library = dlopen(libName.c_str(), RTLD_LAZY);
+                if (!__library) throw DLLExceptions(dlerror());
+            #endif
+        };
+
+        /**
+        * @brief Closes the currently opened library.
+        *
+        * @throw std::exception If an error occurs during closing the library.
+        */
+        void closeLibrary() {
+            #ifdef _WIN32
+                if (!FreeLibrary((HMODULE)__library))
+                    std::cerr << "Error while closing the library." << std::endl;
+            #else
+                if (dlclose(__library) != 0)
+                    std::cerr << dlerror() << std::endl;
+            #endif
+        };
+
+        /**
+        * @brief Retrieves a function pointer from the library.
+        *
+        * @tparam T The type of the function pointer.
+        *
+        * @param entryPointName The name of the function to retrieve from the library.
+        *
+        * @return The function pointer.
+        *
+        * @throw DLLExceptions If the function pointer cannot be retrieved.
+        */
+        template<typename T>
+        T getEntryPoint(const std::string &entryPointName) {
+        #ifdef _WIN32
+            T entryPoint = reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
+        #else
+            T entryPoint = reinterpret_cast<T>(dlsym(__library, entryPointName.c_str()));
+        #endif
+
+            if (!entryPoint)
+        #ifdef _WIN32
+                throw DLLExceptions("Failed to load library");
+        #else
+                throw DLLExceptions(dlerror());
+        #endif
+
+            return entryPoint;
+        }
 };
 
 #endif /* !DLLOADER_HPP_ */
