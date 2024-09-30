@@ -10,6 +10,7 @@
 #include "ECS/utilities/SparseArray.hpp"
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
+#include "plugins/components/velocity/Velocity.hpp"
 #include <iostream>
 
 int main() {
@@ -22,13 +23,22 @@ int main() {
         ECS::Entity entity = reg.entityManager().spawnEntity();
 
         engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
-        if (engine.registerComponent<Components::Position>(positionPluginPath))
-            std::cout << "Position component registered" << std::endl;
 
         std::unique_ptr<Components::Position> position = engine.newComponent<Components::Position>(10, 20);
+        std::unique_ptr<Components::Velocity> velocity = engine.newComponent<Components::Velocity>(2, 1);
         engine.addComponent<Components::Position>(entity, std::move(position));
+        engine.addComponent<Components::Velocity>(entity, std::move(velocity));
 
         SparseArray<Components::Position> &positionComponents = reg.componentManager().getComponents<Components::Position>();
+        std::cout << "Position components: " << std::endl;
+        for (std::unique_ptr<Components::Position> &pos : positionComponents) {
+            if (!pos)
+                continue;
+            std::cout << "Position: " << pos->x << ", " << pos->y << std::endl;
+        }
+
+        engine.runSystems();
+
         std::cout << "Position components: " << std::endl;
         for (std::unique_ptr<Components::Position> &pos : positionComponents) {
             if (!pos)
