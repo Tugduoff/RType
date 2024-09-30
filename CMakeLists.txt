@@ -2,7 +2,9 @@
 cmake_minimum_required(VERSION 3.10)
 
 # May be needed
-# set(MSVC True)
+if (WIN32)
+    set(MSVC True)
+endif (WIN32)
 # set( CMAKE_CXX_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.41.34120\\bin\\Hostx64\\x64\\cl.exe" )
 # set( CMAKE_C_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.41.34120\\bin\\Hostx64\\x64\\cl.exe" )
 
