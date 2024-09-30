@@ -25,6 +25,7 @@ void Engine::GameEngine::loadSystems(const std::string &systemsFolderPath, const
                 __registry.systemManager().addSystem(std::move(system));
                 __systemLoaders.push_back(std::move(loader));
             }
+            initSystems();
         }
     } catch (libconfig::ParseException &e) {
         std::cerr << "Error while parsing file: "
@@ -35,4 +36,14 @@ void Engine::GameEngine::loadSystems(const std::string &systemsFolderPath, const
         std::cerr << "Error while reading file: "
             << e.what() << std::endl;
     }
+}
+
+void Engine::GameEngine::initSystems()
+{
+    __registry.systemManager().initSystems(*this);
+}
+
+void Engine::GameEngine::runSystems()
+{
+    __registry.systemManager().run(*this);
 }
