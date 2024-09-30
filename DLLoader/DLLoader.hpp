@@ -69,18 +69,7 @@ class DLLoader {
         template<typename T, typename... Args>
         std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
             using EntryPointFunc = T* (*)(Args...);
-            #ifdef _WIN32
-                EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
-            #else
-                EntryPointFunc entryPoint = reinterpret_cast<EntryPointFunc>(dlsym(__library, entryPointName.c_str()));
-            #endif
-
-            if (!entryPoint)
-            #ifdef _WIN32
-                throw DLLExceptions("Failed to load library");
-            #else
-                throw DLLExceptions(dlerror());
-            #endif
+            EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
 
             return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
         };
@@ -121,6 +110,35 @@ class DLLoader {
         * @throw std::exception If an error occurs during closing the library.
         */
         void closeLibrary();
+
+        /**
+        * @brief Retrieves a function pointer from the library.
+        *
+        * @tparam T The type of the function pointer.
+        *
+        * @param entryPointName The name of the function to retrieve from the library.
+        *
+        * @return The function pointer.
+        *
+        * @throw DLLExceptions If the function pointer cannot be retrieved.
+        */
+        template<typename T>
+        T DLLoader::getEntryPoint(const std::string &entryPointName) {
+        #ifdef _WIN32
+            T entryPoint = reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
+        #else
+            T entryPoint = reinterpret_cast<T>(dlsym(__library, entryPointName.c_str()));
+        #endif
+
+            if (!entryPoint)
+        #ifdef _WIN32
+                throw DLLExceptions("Failed to load library");
+        #else
+                throw DLLExceptions(dlerror());
+        #endif
+
+            return entryPoint;
+        }
 };
 
 #endif /* !DLLOADER_HPP_ */
