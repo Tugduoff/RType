@@ -106,10 +106,14 @@ jobs:
       - name: Checkout fetch
         uses: actions/checkout@v4
       - name: Compilation
+        shell: cmd
         run: .\build_scripts\build_windows_binary.bat
+      - name: Compilation
+        run: ls ./bin
       - name: Check compiled executables
+        shell: cmd
         run: |
-          for %%e in ("${{ env.WINDOWS_EXECUTABLES }}"); do (
+          for %%e in (${{ env.WINDOWS_EXECUTABLES }}); do (
               if not exist "%%e" (
                   echo Executable %%e does not exist.
                   exit /b 1
