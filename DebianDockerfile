@@ -31,9 +31,10 @@ COPY ./CMakeLists.txt .
 COPY ./cmake/ ./cmake/
 COPY ./server/ ./server/
 COPY ./client/ ./client/
-COPY ./build_scripts/build_debian_binary.sh .
-COPY ./build_scripts/launch_client.sh .
-COPY ./build_scripts/launch_server.sh .
+COPY ./build_scripts .
+# COPY ./build_scripts/build_debian_binary.sh .
+# COPY ./build_scripts/launch_client.sh .
+# COPY ./build_scripts/launch_server.sh .
 
 # Run build script
-RUN ./build_debian_binary.sh
+RUN ./build_scripts/build_debian_binary.sh
