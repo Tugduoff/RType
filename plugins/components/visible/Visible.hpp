@@ -33,7 +33,7 @@ namespace Components {
         /**
          * @brief Default constructor for Visible component.
          * 
-         * Initializes `isVisible` to true by default, indicating that the entity is visible.
+         * Initializes `isVisible` to false by default, indicating that the entity is invisible.
          */
         Visible() : isVisible(false) {};
 
