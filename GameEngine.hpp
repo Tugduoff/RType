@@ -63,6 +63,22 @@ namespace Engine {
             void loadSystems(const std::string &systemsFolderPath, const std::string &systemsConfigFile);
 
             /**
+             * @brief Run all systems
+             * 
+             * @note This function will run all systems in the system manager.
+             * @note It must be called every tick of the game loop.
+             */
+            void runSystems();
+
+            /**
+             * @brief Initialize all systems
+             * 
+             * @note This function will run all systems init function.
+             * @note It must be called at the start of the game.
+             */
+            void initSystems();
+
+            /**
              * @brief Create a new component instance
              * 
              * @tparam Component : the component type
