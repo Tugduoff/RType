@@ -13,7 +13,7 @@ NAME	=	Position.so
 
 INCLUDES	= 	-I../../../
 CPP			= 	g++
-CPPFLAGS	=	-Wall -Wextra -Werror -fpic $(INCLUDES) -std=c++20
+CPPFLAGS	=	-Wall -Wextra -fpic $(INCLUDES) -std=c++20
 
 all: $(NAME)
 

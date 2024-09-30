@@ -8,13 +8,16 @@
 #ifndef SYSTEM_MANAGER_HPP
     #define SYSTEM_MANAGER_HPP
 
+    #include "plugins/systems/ISystem.hpp"
     #include <vector>
     #include <memory>
-    #include "plugins/systems/ISystem.hpp"
     #include <iostream>
 
+namespace Engine {
+    class GameEngine;
+}
+
 namespace ECS {
-    class Registry;
 
     /**
      * @class SystemManager
@@ -34,7 +37,14 @@ namespace ECS {
             /**
              * @brief Run all the systems
              */
-            void run(Registry &reg);
+            void run(Engine::GameEngine &engine);
+
+            /**
+             * @brief Run all systems init function
+             * 
+             * @note This function will run all systems init function.
+             */
+            void initSystems(Engine::GameEngine &engine);
 
         private:
 

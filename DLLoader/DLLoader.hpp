@@ -12,9 +12,11 @@
     #include <string>
     #include <utility>
     #include <memory>
+    #include <iostream>
 
 class DLLoader {
     public:
+
         /**
         * @brief Constructs a DLLoader object and opens the specified library.
         *
@@ -22,7 +24,11 @@ class DLLoader {
         *
         * @throw DLLExceptions If the library cannot be opened.
         */
-        DLLoader(const std::string &libName);
+        DLLoader(const std::string &libName) : __library(dlopen(libName.c_str(), RTLD_LAZY))
+        {
+            if (!__library)
+                throw DLLExceptions(dlerror());
+        }
 
         /**
          * @brief Move constructor.
@@ -31,14 +37,23 @@ class DLLoader {
          * 
          * @note The moved object will have its __library pointer set to nullptr.
          */
-        DLLoader(DLLoader &&loader);
+        DLLoader(DLLoader &&loader) : __library(loader.__library)
+        {
+            loader.__library = nullptr;
+        }
 
         /**
         * @brief Destroys the DLLoader object and closes the currently opened library.
         *
         * @throw std::exception If an error occurs during closing the library.
         */
-        ~DLLoader();
+        ~DLLoader()
+        {
+            if (!__library)
+                return;
+            if (dlclose(__library) != 0)
+                std::cerr << dlerror() << std::endl;
+        }
 
         /**
         * @brief Closes the currently opened library and opens a new library.
@@ -47,7 +62,20 @@ class DLLoader {
         *
         * @throw DLLExceptions If the new library cannot be opened.
         */
-        void loadNew(const std::string &libName);
+        void loadNew(const std::string &libName)
+        {   
+            if (!__library) {
+                __library = dlopen(libName.c_str(), RTLD_LAZY);
+                if (!__library)
+                    throw DLLExceptions(dlerror());
+                return;
+            }
+            if (dlclose(__library) != 0)
+                throw DLLExceptions(dlerror());
+            __library = dlopen(libName.c_str(), RTLD_LAZY);
+            if (!__library)
+                throw DLLExceptions(dlerror());
+        }
 
         /**
         * @brief Retrieves a function pointer from the library and calls it to create and return a new instance of type T.
