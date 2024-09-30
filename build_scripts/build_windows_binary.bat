@@ -4,14 +4,14 @@ REM Define directories
 set BUILD_DIR=.\build
 set BINARY_DIR=.\bin
 
-REM Define SFML .dll files (Windows equivalent to .so)
-set SFML_DLL_FILES=(
-    "libsfml-audio-2.dll"
-    "libsfml-graphics-2.dll"
-    "libsfml-network-2.dll"
-    "libsfml-window-2.dll"
-    "libsfml-system-2.dll"
-)
+@REM REM Define SFML .dll files (Windows equivalent to .so)
+@REM set SFML_DLL_FILES=(
+@REM     "libsfml-audio-2.dll"
+@REM     "libsfml-graphics-2.dll"
+@REM     "libsfml-network-2.dll"
+@REM     "libsfml-window-2.dll"
+@REM     "libsfml-system-2.dll"
+@REM )
 
 REM Compile the R-Type project
 echo R-Type Compilation...
@@ -24,20 +24,20 @@ cd %BUILD_DIR%
 cmake .. 
 if errorlevel 1 (
     echo Compilation failed
-    exit /b 84
+    exit 84
 )
 cmake --build .
 if errorlevel 1 (
     echo Compilation failed
-    exit /b 84
+    exit 84
 )
 cd ..
 
 REM Find all SFML .dll files and copy them to the binary directory
-for %%F in (%BUILD_DIR%\*.dll) do (
-    @REM copy %%F %BINARY_DIR%
-    echo %%F
-)
+@REM for %%F in (%BUILD_DIR%\*.dll) do (
+@REM     @REM copy %%F %BINARY_DIR%
+@REM     echo "%%F"
+@REM )
 @REM echo All SFML .dll files have been copied to %BINARY_DIR%.
 
 echo Windows build completed.
