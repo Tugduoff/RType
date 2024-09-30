@@ -19,7 +19,6 @@ CRITERION_LIBS = -lcriterion
 # Source files
 SRCS = 	ECS/entity/EntityManager.cpp	\
 		ECS/system/SystemManager.cpp	\
-		DLLoader/DLLoader.cpp	\
 
 # Main Source file
 MAIN_SRC = Main.cpp	\

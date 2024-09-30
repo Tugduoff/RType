@@ -26,7 +26,7 @@ class DLLoader {
         *
         * @throw DLLExceptions If the library cannot be opened.
         */
-        DLLoader(const std::string &libName);
+        DLLoader(const std::string &libName) { __library = openLibrary(libName); };
 
         /**
          * @brief Move constructor.
@@ -42,7 +42,10 @@ class DLLoader {
         *
         * @throw std::exception If an error occurs during closing the library.
         */
-        ~DLLoader();
+        ~DLLoader() {
+            if (__library)
+                closeLibrary();
+        };
 
         /**
         * @brief Closes the currently opened library and opens a new library.
@@ -51,7 +54,11 @@ class DLLoader {
         *
         * @throw DLLExceptions If the new library cannot be opened.
         */
-        void loadNew(const std::string &libName);
+        void loadNew(const std::string &libName) {
+            if (__library)
+                closeLibrary();
+            __library = openLibrary(libName);
+        };
 
         /**
         * @brief Retrieves a function pointer from the library and calls it to create and return a new instance of type T.
@@ -102,14 +109,30 @@ class DLLoader {
         *
         * @throw DLLExceptions If the library cannot be opened.
         */
-        void openLibrary(const std::string &libName);
+        void openLibrary(const std::string &libName) {
+            #ifdef _WIN32
+                __library = LoadLibraryA(libName.c_str());
+                if (!__library) throw DLLExceptions("Failed to load library: " + libName);
+            #else
+                __library = dlopen(libName.c_str(), RTLD_LAZY);
+                if (!__library) throw DLLExceptions(dlerror());
+            #endif
+        };
 
         /**
         * @brief Closes the currently opened library.
         *
         * @throw std::exception If an error occurs during closing the library.
         */
-        void closeLibrary();
+        void closeLibrary() {
+            #ifdef _WIN32
+                if (!FreeLibrary((HMODULE)__library))
+                    std::cerr << "Error while closing the library." << std::endl;
+            #else
+                if (dlclose(__library) != 0)
+                    std::cerr << dlerror() << std::endl;
+            #endif
+        };
 
         /**
         * @brief Retrieves a function pointer from the library.
