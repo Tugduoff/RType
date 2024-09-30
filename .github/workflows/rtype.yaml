@@ -22,83 +22,83 @@ jobs:
   #         username: ClementBaziret
   #         password: ${{ secrets.GIT_AUTH_TOKEN }}
 
-  # fedora_compilation:
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: fedora:42
+  fedora_compilation:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:42
 
-  #   steps:
-  #     - name: Checkout fetch
-  #       uses: actions/checkout@v4
-  #     - name: Update Fedora
-  #       run:  dnf update -y
-  #     - name: Install necessary dependencies
-  #       run: >
-  #         dnf install -y 
-  #         g++ 
-  #         git 
-  #         tree 
-  #         cmake 
-  #         mesa-libGL-devel 
-  #         mesa-libGLU-devel 
-  #         openal-soft-devel 
-  #         libgudev-devel 
-  #         flac-devel 
-  #         libvorbis-devel 
-  #         freetype-devel 
-  #         libX11-devel 
-  #         libXcursor-devel 
-  #         libXrandr-devel
-  #     - name: Compilation
-  #       run: ./build_scripts/build_fedora_binary.sh
-  #     - name: Check compilated executables
-  #       run: |
-  #         for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
-  #           if [ ! -x "${executables}" ]; then
-  #             echo "Executable ${executables} doesn't exist or isn't excutable."
-  #             exit 1
-  #           fi
-  #         done
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+      - name: Update Fedora
+        run:  dnf update -y
+      - name: Install necessary dependencies
+        run: >
+          dnf install -y 
+          g++ 
+          git 
+          tree 
+          cmake 
+          mesa-libGL-devel 
+          mesa-libGLU-devel 
+          openal-soft-devel 
+          libgudev-devel 
+          flac-devel 
+          libvorbis-devel 
+          freetype-devel 
+          libX11-devel 
+          libXcursor-devel 
+          libXrandr-devel
+      - name: Compilation
+        run: ./build_scripts/build_fedora_binary.sh
+      - name: Check compilated executables
+        run: |
+          for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
+            if [ ! -x "${executables}" ]; then
+              echo "Executable ${executables} doesn't exist or isn't excutable."
+              exit 1
+            fi
+          done
 
-  # debian_compilation:
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: debian:12
+  debian_compilation:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:12
 
-  #   steps:
-  #     - name: Checkout fetch
-  #       uses: actions/checkout@v4
-  #     - name: Update Debian
-  #       run:  apt-get update -y
-  #     - name: Install necessary dependencies
-  #       run: >
-  #         apt-get install -y 
-  #         apt-file 
-  #         g++ 
-  #         git 
-  #         cmake 
-  #         x11-common 
-  #         libxrandr-dev 
-  #         libxcursor-dev 
-  #         libgl-dev 
-  #         libudev-dev 
-  #         libflac-dev 
-  #         libopenal-dev 
-  #         libvorbis-dev 
-  #         libfreetype-dev 
-  #         libfreetype6
-  #     - name: Updated apt-file cache
-  #       run: apt-file update
-  #     - name: Compilation
-  #       run: ./build_scripts/build_debian_binary.sh
-  #     - name: Check compilated executables
-  #       run: |
-  #         for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
-  #           if [ ! -x "${executables}" ]; then
-  #             echo "Executable ${executables} doesn't exist or isn't excutable."
-  #             exit 1
-  #           fi
-  #         done
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+      - name: Update Debian
+        run:  apt-get update -y
+      - name: Install necessary dependencies
+        run: >
+          apt-get install -y 
+          apt-file 
+          g++ 
+          git 
+          cmake 
+          x11-common 
+          libxrandr-dev 
+          libxcursor-dev 
+          libgl-dev 
+          libudev-dev 
+          libflac-dev 
+          libopenal-dev 
+          libvorbis-dev 
+          libfreetype-dev 
+          libfreetype6
+      - name: Updated apt-file cache
+        run: apt-file update
+      - name: Compilation
+        run: ./build_scripts/build_debian_binary.sh
+      - name: Check compilated executables
+        run: |
+          for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
+            if [ ! -x "${executables}" ]; then
+              echo "Executable ${executables} doesn't exist or isn't excutable."
+              exit 1
+            fi
+          done
 
   windows_compilation:
     runs-on: windows-2022
@@ -138,12 +138,11 @@ jobs:
   #       run: make tests_run
 
   push_to_mirror:
-    # needs: [
-    #   fedora_compilation,
-    #   debian_compilation,
-    #   windows_compilation
-    # ]
-    needs: [windows_compilation]
+    needs: [
+      fedora_compilation,
+      debian_compilation,
+      windows_compilation
+    ]
     runs-on: ubuntu-latest
 
     if: ${{ github.event_name == 'push' }}
