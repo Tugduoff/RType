@@ -38,15 +38,6 @@ class DLLoader {
         DLLoader(DLLoader &&loader);
 
         /**
-         * @brief Move constructor.
-         * 
-         * @param loader The DLLoader object to move.
-         * 
-         * @note The moved object will have its __library pointer set to nullptr.
-         */
-        DLLoader(DLLoader &&loader);
-
-        /**
         * @brief Destroys the DLLoader object and closes the currently opened library.
         *
         * @throw std::exception If an error occurs during closing the library.
@@ -115,6 +106,21 @@ class DLLoader {
     #else
         void *__library;
     #endif
+        /**
+        * @brief Opens the specified library.
+        *
+        * @param libName The name of the shared library to open.
+        *
+        * @throw DLLExceptions If the library cannot be opened.
+        */
+        void openLibrary(const std::string &libName);
+
+        /**
+        * @brief Closes the currently opened library.
+        *
+        * @throw std::exception If an error occurs during closing the library.
+        */
+        void closeLibrary();
 };
 
 #endif /* !DLLOADER_HPP_ */
