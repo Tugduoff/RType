@@ -1,5 +1,4 @@
-@echo off
-setlocal enabledelayedexpansion
+@REM setlocal enabledelayedexpansion
 
 REM Define directories
 set BUILD_DIR=.\build
@@ -12,20 +11,6 @@ set SFML_DLL_FILES=(
     "libsfml-network-2.dll"
     "libsfml-window-2.dll"
     "libsfml-system-2.dll"
-)
-
-REM Define other dependencies
-set DLL_FILES=(
-    "libX11.dll"
-    "libXrandr.dll"
-    "libXcursor.dll"
-    "libXrender.dll"
-    "libGL.dll"
-    "libudev.dll"
-    "libfreetype.dll"
-    "libpng16.dll"
-    "libbrotlidec.dll"
-    "libbrotlicommon.dll"
 )
 
 REM Compile the R-Type project
@@ -56,5 +41,3 @@ for %%F in (%BUILD_DIR%\*.dll) do (
 @REM echo All SFML .dll files have been copied to %BINARY_DIR%.
 
 echo Windows build completed.
-
-pause
