@@ -32,21 +32,21 @@ namespace ECS {
              * 
              * @tparam Component : the component type
              * 
+             * @return bool : true if the component got registered, false otherwise
+             * 
              * @note This function will register a component in the component manager.
              * @note It's a major function in the ECS as it allows for components to be registered and then created.
              */
             template <class Component>
-            void registerComponent()
+            bool registerComponent()
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (__components.contains(typeIndex)) {
-                    std::cerr << "Component already registered in component manager" << std::endl;
-                    return;
-                }
+                if (__components.contains(typeIndex))
+                    return (false);
 
                 __components.emplace(typeIndex, std::make_any<SparseArray<Component>>());
-                std::cout << "Component loaded: " << typeid(Component).name() << std::endl;
+                return (true);
             }
 
             /**
@@ -85,9 +85,9 @@ namespace ECS {
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (!__components.contains(typeIndex)) {
+                if (!__components.contains(typeIndex))
                     throw std::runtime_error("Component type not registered in component manager");
-                }
+
 
                 SparseArray<Component> &sparseArray = std::any_cast<SparseArray<Component>&>(
                     __components.at(typeIndex)
