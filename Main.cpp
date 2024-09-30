@@ -22,7 +22,8 @@ int main() {
         ECS::Entity entity = reg.entityManager().spawnEntity();
 
         engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
-        engine.registerComponent<Components::Position>(positionPluginPath);
+        if (engine.registerComponent<Components::Position>(positionPluginPath))
+            std::cout << "Position component registered" << std::endl;
 
         std::unique_ptr<Components::Position> position = engine.newComponent<Components::Position>(10, 20);
         engine.addComponent<Components::Position>(entity, std::move(position));
