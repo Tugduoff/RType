@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Fedora Compilation
 
 docker build --file FedoraDockerfile -t fedora_compilation . --progress plain
