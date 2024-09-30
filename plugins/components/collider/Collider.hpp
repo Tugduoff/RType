@@ -40,14 +40,6 @@ namespace Components {
         Collider(float radius) : shape(ColliderShape::Circle), radius(radius), width(0), height(0) {};
 
         /**
-         * @brief Default constructor for rectangle collider
-         * 
-         * @param width The width of the rectangle.
-         * @param height The height of the rectangle.
-         */
-        Collider(float width, float height) : shape(ColliderShape::Rectangle), radius(0), width(5), height(5) {};
-
-        /**
          * @brief Constructor for rectangle collider
          * 
          * @param width The width of the rectangle.
