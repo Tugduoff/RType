@@ -30,23 +30,23 @@ namespace Engine {
              * 
              * @param componentPath : the path to the shared object containing the component
              * 
+             * @return bool : true if the component got registered, false otherwise
+             * 
              * @note This function will register a component in the component manager.
              * @note It will also store the loader in the component loaders map.
              * @note This function only needs to be called at the start of the program.
              * @note Possibly by the systems init functions.
              */
             template <class Component>
-            void registerComponent(const std::string &componentPath)
+            bool registerComponent(const std::string &componentPath)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (__componentLoaders.contains(typeIndex)) {
-                    std::cerr << "Component already registered" << std::endl;
-                    return;
-                }
+                if (__componentLoaders.contains(typeIndex))
+                    return (false);
 
                 __componentLoaders.emplace(typeIndex, DLLoader(componentPath));
-                __registry.componentManager().registerComponent<Component>();
+                return __registry.componentManager().registerComponent<Component>();
             }
 
             /**
@@ -89,9 +89,9 @@ namespace Engine {
                 DLLoader &loader = __componentLoaders.at(typeIndex);
                 auto componentInstance = loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
 
-                if (!componentInstance) {
+                if (!componentInstance)
                     throw std::runtime_error("Failed to load component from shared object");
-                }
+
                 return componentInstance;
             }
 
@@ -114,7 +114,7 @@ namespace Engine {
 
                 if (!__componentLoaders.contains(typeIndex))
                     throw std::runtime_error("Component type not registered");
-                
+
                 __registry.componentManager().addComponent<Component>(entity, std::move(component));
             }
 
