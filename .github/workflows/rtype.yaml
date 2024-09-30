@@ -9,16 +9,15 @@ on:
       - 'ga-ignore-*'
 env:
   MIRROR_URL: "git@github.com:EpitechPromo2027/B-CPP-500-NAN-5-1-rtype-thomas.cluseau.git"
-  EXECUTABLES: "bin/r-type_server, bin/r-type_client"
-  EXECUTABLES: ""
+  EXECUTABLES: "./bin/r-type_server, ./bin/r-type_client"
 
 jobs:
-  check_program_compilation:
+  check_fedora_program_compilation:
 
     runs-on: ubuntu-latest
 
     container:
-      image: epitechcontent/epitest-docker
+      image: fedora:40
     # container:
     #   image: ghcr.io/ClementBaziret/custom-epitest:latest
     #   credentials:
@@ -28,8 +27,26 @@ jobs:
     steps:
       - name: Checkout fetch
         uses: actions/checkout@v4
-      - name: Create build directory
-        run: mkdir build
+      # - name: Create build directory
+      #   run: mkdir build
+      - name: Install necessary dependencies
+        run:  dnf install -y          \
+              g++                     \
+              git                     \
+              tree                    \
+              cmake                   \
+              mesa-libGL-devel        \
+              mesa-libGLU-devel       \
+              openal-soft-devel       \
+              libgudev-devel          \
+              flac-devel              \
+              libvorbis-devel         \
+              freetype-devel          \
+              libX11-devel            \
+              libXcursor-devel        \
+              libXrandr-devel
+      - name: Compilation
+        uses: actions/checkout@v4
       # - name: Init CMake
       #   run: cd build/ && cmake ..
       # - name: Compilation
@@ -62,7 +79,7 @@ jobs:
   #       run: make tests_run
 
   push_to_mirror:
-    needs: [check_program_compilation]
+    needs: [check_fedora_program_compilation]
 
     runs-on: ubuntu-latest
 
