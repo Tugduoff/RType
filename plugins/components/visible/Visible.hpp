@@ -27,6 +27,7 @@ namespace Components {
      * deserialized for network transmission.
      */
     class Visible : public AComponent {
+
     public:
 
         /**
@@ -34,7 +35,7 @@ namespace Components {
          * 
          * Initializes `isVisible` to true by default, indicating that the entity is visible.
          */
-        Visible() : isVisible(true) {};
+        Visible() : isVisible(false) {};
 
         /**
          * @brief Parameterized constructor for Visible component.
