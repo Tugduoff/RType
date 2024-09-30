@@ -7,7 +7,7 @@
 
 # Compiler
 CXX = g++
-CXXFLAGS += --std=c++20 -Wall -Wextra $(INCLUDEFLAGS) -g -Og
+CXXFLAGS += -std=c++20 -Wall -Wextra $(INCLUDEFLAGS) -g -Og
 
 # PKG_CONFIG
 PKG_CONFIG_LIBS := $(shell pkg-config --libs sfml-all libconfig++)
@@ -67,8 +67,11 @@ tests_run: tests
 clean:
 	rm -f $(OBJS) $(MAIN_OBJ) $(TEST_OBJS) $(EXEC) $(TEST_EXEC)
 
+fclean: clean
+	rm -f $(EXEC) $(TEST_EXEC)
+
 # Rebuild everything
-re: clean all
+re: fclean all
 
 # Phony targets
 .PHONY: all clean re tests tests_run
