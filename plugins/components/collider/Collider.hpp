@@ -57,12 +57,10 @@ namespace Components {
         std::vector<uint8_t> serialize() override {
             std::vector<uint8_t> data;
             data.push_back(static_cast<uint8_t>(shape));
-            if (shape == ColliderShape::Circle) {
-                appendToData(data, radius);
-            } else {
-                appendToData(data, width);
-                appendToData(data, height);
-            }
+            appendToData(data, radius);
+            appendToData(data, width);
+            appendToData(data, height);
+
             return data;
         };
 
@@ -75,31 +73,23 @@ namespace Components {
          * @throws std::runtime_error If the data size is invalid.
          */
         void deserialize(std::vector<uint8_t> &data) override {
-            if (data.size() < 5)
+            if (data.size() != getConstantSize())
                 throw std::runtime_error("Invalid data size for Collider component");
 
             shape = static_cast<ColliderShape>(data[0]);
-
-            if (shape == ColliderShape::Circle) {
-                radius = *reinterpret_cast<float *>(&data[1]);
-            } else {
-                width = *reinterpret_cast<float *>(&data[1]);
-                height = *reinterpret_cast<float *>(&data[5]);
-            }
+            radius = *reinterpret_cast<float *>(&data[1]);
+            width = *reinterpret_cast<float *>(&data[5]);
+            height = *reinterpret_cast<float *>(&data[9]);
         };
 
         /**
-         * @brief Get the size of the serialized data
+         * @brief Get the fixed size of the serialized data
          * 
          * @return size_t Size in bytes
          */
         size_t getSize() const override {
-            if (shape == ColliderShape::Circle) {
-                return sizeof(ColliderShape) + sizeof(float);
-            } else {
-                return sizeof(ColliderShape) + 2 * sizeof(float);
-            }
-        };
+            return getConstantSize();
+        }
 
         /**
          * @brief Get the shape type of the collider.
@@ -137,6 +127,7 @@ namespace Components {
             return height;
         }
 
+
         ColliderShape shape;
         float radius;
         float width;
@@ -144,6 +135,21 @@ namespace Components {
 
     private:
 
+        /**
+         * @brief Returns the constant size of the serialized data.
+         * 
+         * @return size_t The fixed size of the serialized Collider data.
+         */
+        size_t getConstantSize() const {
+            return sizeof(uint8_t) + 3 * sizeof(float);
+        }
+        
+        /**
+         * @brief Helper function to append a float value to a byte vector.
+         * 
+         * @param data The byte vector to append to.
+         * @param value The float value to append.
+         */
         void appendToData(std::vector<uint8_t> &data, float value) {
             auto bytes = reinterpret_cast<uint8_t *>(&value);
             data.insert(data.end(), bytes, bytes + sizeof(float));
