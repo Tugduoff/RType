@@ -6,7 +6,7 @@
 */
 
 #include "SystemManager.hpp"
-#include "GameEngine.hpp"
+#include "GameEngine/GameEngine.hpp"
 
 void ECS::SystemManager::addSystem(std::unique_ptr<Systems::ISystem> system)
 {

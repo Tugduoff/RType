@@ -5,7 +5,7 @@
 ** Main.cpp file
 */
 
-#include "GameEngine.hpp"
+#include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
 #include "ECS/utilities/SparseArray.hpp"
 #include "plugins/components/IComponent.hpp"
