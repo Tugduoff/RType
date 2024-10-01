@@ -9,7 +9,7 @@ endif (WIN32)
 # set( CMAKE_C_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.41.34120\\bin\\Hostx64\\x64\\cl.exe" )
 
 # Set the project name and version
-project(MyProject VERSION 1.0)
+project(R-Type VERSION 1.0)
 
 # Specify the C++ standard
 set(CMAKE_CXX_STANDARD 20)
