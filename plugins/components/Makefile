@@ -7,6 +7,7 @@
 
 COMPONENTS = position \
 			 velocity \
+			 visible  \
 
 all:
 	@for component in $(COMPONENTS); do \
