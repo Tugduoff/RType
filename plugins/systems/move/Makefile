@@ -27,7 +27,7 @@ clean:
 	rm -f $(OBJ)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f ../../bin/systems/$(NAME)
 
 re: fclean all
 
