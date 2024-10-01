@@ -9,7 +9,11 @@
     #define POSITION_HPP
 
     #include "components/AComponent.hpp"
-    #include <arpa/inet.h>
+    #ifdef _WIN32
+        #include <winsock2.h>
+    #else
+        #include <arpa/inet.h>
+    #endif
     #include <vector>
     #include <stdexcept>
 
