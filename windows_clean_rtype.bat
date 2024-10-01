@@ -1,3 +1,5 @@
+@echo off
+
 set BUILD_DIR=.\src\build
 
 if not exist %BUILD_DIR% (

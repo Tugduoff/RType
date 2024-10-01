@@ -1,3 +1,5 @@
+@echo off
+
 set BUILD_DIR=.\build
 set BINARY_DIR=.\bin
 
