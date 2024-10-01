@@ -23,6 +23,8 @@ void ECS::SystemManager::run(Engine::GameEngine &engine)
 void ECS::SystemManager::initSystems(Engine::GameEngine &engine)
 {
     for (auto &system : __systems) {
+        if (!system)
+            continue;
         system->init(engine);
     }
 }

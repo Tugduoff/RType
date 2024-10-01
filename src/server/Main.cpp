@@ -13,38 +13,44 @@
 #include "plugins/components/velocity/Velocity.hpp"
 #include <iostream>
 
+void displayComponents(ECS::Registry &reg)
+{
+    SparseArray<Components::Position> &positionComponents = reg.componentManager().getComponents<Components::Position>();
+    SparseArray<Components::Velocity> &velocityComponents = reg.componentManager().getComponents<Components::Velocity>();
+
+    std::cout << "Position components: " << std::endl;
+    for (std::unique_ptr<Components::Position> &pos : positionComponents) {
+        if (!pos)
+            continue;
+        std::cout << "Position: " << pos->x << ", " << pos->y << std::endl;
+    }
+
+    std::cout << "Velocity components: " << std::endl;
+    for (std::unique_ptr<Components::Velocity> &vel : velocityComponents) {
+        if (!vel)
+            continue;
+        std::cout << "Velocity: " << vel->x << ", " << vel->y << std::endl;
+    }
+}
+
 int main() {
     Engine::GameEngine engine;
+    ECS::Registry &reg = engine.getRegistry();
+    ECS::Entity entity = reg.entityManager().spawnEntity();
+
     std::string positionPluginPath = "./plugins/bin/components/libPosition.so";
     std::string configSystemPath = "./plugins/bin/systems/libConfig.so";
 
     try {
-        ECS::Registry &reg = engine.getRegistry();
-        ECS::Entity entity = reg.entityManager().spawnEntity();
-
         engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
 
         std::unique_ptr<Components::Position> position = engine.newComponent<Components::Position>(10, 20);
         std::unique_ptr<Components::Velocity> velocity = engine.newComponent<Components::Velocity>(2, 1);
-        engine.addComponent<Components::Position>(entity, std::move(position));
-        engine.addComponent<Components::Velocity>(entity, std::move(velocity));
 
-        SparseArray<Components::Position> &positionComponents = reg.componentManager().getComponents<Components::Position>();
-        std::cout << "Position components: " << std::endl;
-        for (std::unique_ptr<Components::Position> &pos : positionComponents) {
-            if (!pos)
-                continue;
-            std::cout << "Position: " << pos->x << ", " << pos->y << std::endl;
-        }
+        reg.componentManager().addComponent<Components::Position>(entity, std::move(position));
+        reg.componentManager().addComponent<Components::Velocity>(entity, std::move(velocity));
 
-        engine.runSystems();
-
-        std::cout << "Position components: " << std::endl;
-        for (std::unique_ptr<Components::Position> &pos : positionComponents) {
-            if (!pos)
-                continue;
-            std::cout << "Position: " << pos->x << ", " << pos->y << std::endl;
-        }
+        displayComponents(reg);
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 84;

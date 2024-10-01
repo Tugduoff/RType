@@ -112,29 +112,6 @@ namespace Engine {
             }
 
             /**
-             * @brief Add a component to an entity
-             * 
-             * @tparam Component : the component type
-             * 
-             * @param entity : the entity to add the component to
-             * @param component : the component instance
-             * 
-             * @note This function will add a component to an entity.
-             * @note It will call the function addComponent from the component Manager class.
-             * 
-             * @throw std::runtime_error : "Component type not registered"
-             */
-            template <typename Component>
-            void addComponent(ECS::Entity &entity, std::unique_ptr<Component> component) {
-                std::type_index typeIndex = std::type_index(typeid(Component));
-
-                if (!__componentLoaders.contains(typeIndex))
-                    throw std::runtime_error("Component type not registered");
-
-                __registry.componentManager().addComponent<Component>(entity, std::move(component));
-            }
-
-            /**
              * @brief Get the registry
              * 
              * @return ECS::Registry& : the registry
