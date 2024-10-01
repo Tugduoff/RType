@@ -33,8 +33,8 @@
           libvorbis
           freetype
           criterion
-          sfml
-          libconfig
+          # sfml
+          # libconfig
         ];
 
         shellHook = ''
