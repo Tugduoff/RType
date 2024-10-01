@@ -1,4 +1,4 @@
 # Add an executable for the server project
-add_library(move_system SHARED
+add_library(Move SHARED
     Move.cpp
 )

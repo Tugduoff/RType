@@ -1,4 +1,4 @@
 # Add an executable for the server project
-add_library(position_component SHARED
+add_library(Position SHARED
     Position.cpp
 )
