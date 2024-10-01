@@ -8,14 +8,16 @@
 #ifndef SYSTEM_MANAGER_HPP
     #define SYSTEM_MANAGER_HPP
 
+    #include "plugins/systems/ISystem.hpp"
     #include <vector>
+    #include <memory>
+    #include <iostream>
 
-namespace Systems {
-    class ISystem;
-};
+namespace Engine {
+    class GameEngine;
+}
 
 namespace ECS {
-    class Registry;
 
     /**
      * @class SystemManager
@@ -30,23 +32,23 @@ namespace ECS {
              * 
              * @param system : the system
              */
-            void addSystem(Systems::ISystem *system);
-
-            /**
-             * @brief Add a system to the manager
-             * 
-             * @param system : the system
-             */
-            void addSystem(const Systems::ISystem *system);
+            void addSystem(std::unique_ptr<Systems::ISystem> system);
 
             /**
              * @brief Run all the systems
              */
-            void run(Registry &reg);
+            void run(Engine::GameEngine &engine);
+
+            /**
+             * @brief Run all systems init function
+             * 
+             * @note This function will run all systems init function.
+             */
+            void initSystems(Engine::GameEngine &engine);
 
         private:
 
-            std::vector<Systems::ISystem *> __systems;
+            std::vector<std::unique_ptr<Systems::ISystem>> __systems;
     };
 }
 

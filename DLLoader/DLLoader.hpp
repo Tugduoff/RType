@@ -16,9 +16,11 @@
     #include <string>
     #include <utility>
     #include <memory>
+    #include <iostream>
 
 class DLLoader {
     public:
+
         /**
         * @brief Constructs a DLLoader object and opens the specified library.
         *
@@ -26,7 +28,10 @@ class DLLoader {
         *
         * @throw DLLExceptions If the library cannot be opened.
         */
-        DLLoader(const std::string &libName) { __library = openLibrary(libName); };
+        DLLoader(const std::string &libName)
+        {
+            openLibrary(libName);
+        }
 
         /**
          * @brief Move constructor.
@@ -35,7 +40,10 @@ class DLLoader {
          * 
          * @note The moved object will have its __library pointer set to nullptr.
          */
-        DLLoader(DLLoader &&loader);
+        DLLoader(DLLoader &&loader) : __library(loader.__library)
+        {
+            loader.__library = nullptr;
+        }
 
         /**
         * @brief Destroys the DLLoader object and closes the currently opened library.
@@ -57,7 +65,7 @@ class DLLoader {
         void loadNew(const std::string &libName) {
             if (__library)
                 closeLibrary();
-            __library = openLibrary(libName);
+            openLibrary(libName);
         };
 
         /**
@@ -146,7 +154,7 @@ class DLLoader {
         * @throw DLLExceptions If the function pointer cannot be retrieved.
         */
         template<typename T>
-        T DLLoader::getEntryPoint(const std::string &entryPointName) {
+        T getEntryPoint(const std::string &entryPointName) {
         #ifdef _WIN32
             T entryPoint = reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
         #else
