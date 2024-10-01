@@ -25,7 +25,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin/release)
 
 # Add some addiotionnal flags to pass to compiler
-ADD_DEFINITIONS(-g -Wall -Wextra)
+if(NOT WIN32)
+    add_definitions(-g -Wall -Wextra)
+endif()
 
 # Add the include directory
 include_directories(./)

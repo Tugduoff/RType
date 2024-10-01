@@ -23,7 +23,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${BINARY_OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BINARY_OUTPUT_DIR}/release)
 
 # Add some addiotionnal flags to pass to compiler
-ADD_DEFINITIONS(-g -Wall -Wextra)
+if(NOT WIN32)
+    add_definitions(-g -Wall -Wextra)
+endif()
 
 # Add the include directory
 include_directories(./)
