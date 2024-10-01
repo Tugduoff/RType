@@ -11,13 +11,15 @@ cd %BUILD_DIR%
 cmake .. 
 if errorlevel 1 (
     echo Compilation failed
-    exit 84
+    goto failed
 )
 cmake --build .
 if errorlevel 1 (
     echo Compilation failed
-    exit 84
+    goto failed
 )
-cd ..
+
+:failed
+cd ../..
 
 echo Windows build completed.
