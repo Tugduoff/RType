@@ -72,8 +72,9 @@ for SO_FILE in "${SO_FILES[@]}"; do
   fi
 done
 
-cp ./launch_server.sh $BINARY_DIR
-cp ./launch_client.sh $BINARY_DIR
+# cp ./launch_server.sh $BINARY_DIR
+# cp ./launch_client.sh $BINARY_DIR
+find "./build_scripts" -type f -name "launch*.sh" -exec cp {} $BINARY_DIR \;
 chmod +x $BINARY_DIR/launch_server.sh
 chmod +x $BINARY_DIR/launch_client.sh
 

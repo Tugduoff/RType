@@ -6,21 +6,23 @@
 */
 
 #include "SystemManager.hpp"
-#include "plugins/systems/ISystem.hpp"
+#include "GameEngine.hpp"
 
-void ECS::SystemManager::addSystem(Systems::ISystem *system)
+void ECS::SystemManager::addSystem(std::unique_ptr<Systems::ISystem> system)
 {
-    __systems.push_back(system);
+    __systems.push_back(std::move(system));
 }
 
-void ECS::SystemManager::addSystem(const Systems::ISystem *system)
+void ECS::SystemManager::run(Engine::GameEngine &engine)
 {
-    __systems.push_back(const_cast<Systems::ISystem *>(system));
+    for (auto &system : __systems) {
+        system->run(engine);
+    }
 }
 
-void ECS::SystemManager::run(Registry &reg)
+void ECS::SystemManager::initSystems(Engine::GameEngine &engine)
 {
-    for (Systems::ISystem *system : __systems) {
-        system->run(reg);
+    for (auto &system : __systems) {
+        system->init(engine);
     }
 }

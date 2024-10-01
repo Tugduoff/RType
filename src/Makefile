@@ -7,7 +7,7 @@
 
 # Compiler
 CXX = g++
-CXXFLAGS += --std=c++20 -Wall -Wextra $(INCLUDEFLAGS) -g -Og
+CXXFLAGS += -std=c++20 -Wall -Wextra $(INCLUDEFLAGS) -g -Og
 
 # PKG_CONFIG
 PKG_CONFIG_LIBS := $(shell pkg-config --libs sfml-all libconfig++)
@@ -19,7 +19,7 @@ CRITERION_LIBS = -lcriterion
 # Source files
 SRCS = 	ECS/entity/EntityManager.cpp	\
 		ECS/system/SystemManager.cpp	\
-		DLLoader/DLLoader.cpp	\
+		GameEngine.cpp
 
 # Main Source file
 MAIN_SRC = Main.cpp	\
@@ -64,10 +64,13 @@ tests_run: tests
 
 # Cleaning object files and executables
 clean:
-	rm -f $(OBJS) $(TEST_OBJS) $(EXEC) $(TEST_EXEC)
+	rm -f $(OBJS) $(MAIN_OBJ) $(TEST_OBJS) $(EXEC) $(TEST_EXEC)
+
+fclean: clean
+	rm -f $(EXEC) $(TEST_EXEC)
 
 # Rebuild everything
-re: clean all
+re: fclean all
 
 # Phony targets
 .PHONY: all clean re tests tests_run

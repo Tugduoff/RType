@@ -10,13 +10,18 @@
 
     #include "systems/ASystem.hpp"
 
+namespace Engine {
+    class GameEngine;
+}
+
 namespace Systems {
     class MoveSystem : public ASystem {
         public:
             MoveSystem() = default;
             ~MoveSystem() = default;
 
-            void run(ECS::Registry &reg) override;
+            void run(Engine::GameEngine &engine) override;
+            void init(Engine::GameEngine &engine) override;
         private:
     };
 };
