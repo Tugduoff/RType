@@ -29,7 +29,11 @@ ADD_DEFINITIONS(-g -Wall -Wextra)
 
 # Add the include directory
 include_directories(./)
+# To acces plugin include directory
+include_directories(../)
+# To allow plugin files include to work
 include_directories(../src)
+
 
 # Include the subdirectories for client and server
 add_subdirectory(components)

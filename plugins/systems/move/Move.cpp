@@ -5,19 +5,14 @@
 ** MoveSystem.cpp file
 */
 
-#include "GameEngine.hpp"
+#include "GameEngine/GameEngine.hpp"
 #include "Move.hpp"
-<<<<<<< HEAD
-#include "components/position/Position.hpp"
-#include "ECS/registry/Registry.hpp"
-=======
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <memory>
 #include <cstdint>
->>>>>>> main
 
 void Systems::MoveSystem::run(Engine::GameEngine &engine)
 {
