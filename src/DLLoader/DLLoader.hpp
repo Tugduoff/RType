@@ -83,10 +83,10 @@ class DLLoader {
         */
         template<typename T, typename... Args>
         std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
-            using EntryPointFunc = std::unique_ptr<T> (*)(Args...);
+            using EntryPointFunc = T *(*)(Args...);
             EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
 
-            return entryPoint(std::forward<Args>(args)...);
+            return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
         };
 
         /**
