@@ -45,7 +45,7 @@ void Systems::MoveSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Velocity component in system Move" << std::endl;
 }
 
-extern "C" std::unique_ptr<Systems::ISystem> entryPoint()
+extern "C" Systems::ISystem *entryPoint()
 {
-    return std::make_unique<Systems::MoveSystem>();
+    return new Systems::MoveSystem();
 }
