@@ -49,8 +49,10 @@ jobs:
           libX11-devel 
           libXcursor-devel 
           libXrandr-devel
-      - name: Compilation
-        run: ./build_scripts/build_fedora_binary.sh
+      - name: R-Type Compilation
+        run: ./build_rtype.sh
+      - name: R-Type Plugins Compilation
+        run: ./build_plugins.sh
       - name: Check compilated executables
         run: |
           for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
@@ -89,8 +91,10 @@ jobs:
           libfreetype6
       - name: Updated apt-file cache
         run: apt-file update
-      - name: Compilation
-        run: ./build_scripts/build_debian_binary.sh
+      - name: R-Type Compilation
+        run: ./build_rtype.sh
+      - name: R-Type Plugins Compilation
+        run: ./build_plugins.sh
       - name: Check compilated executables
         run: |
           for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
@@ -105,11 +109,12 @@ jobs:
     steps:
       - name: Checkout fetch
         uses: actions/checkout@v4
-      - name: Compilation
+      - name: R-Type Compilation
         shell: cmd
-        run: .\build_scripts\build_windows_binary.bat
-      - name: Compilation
-        run: ls ./bin
+        run: .\windows_build_rtype.bat
+      - name: R-Type Plugins Compilation
+        shell: cmd
+        run: .\windows_build_plugins.bat
       - name: Check compiled executables
         shell: cmd
         run: |
