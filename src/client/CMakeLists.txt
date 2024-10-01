@@ -1,5 +1,11 @@
 # Add an executable for the client project
-add_executable(client Main.cpp)
+add_executable(client
+    Main.cpp
+
+    ../DLLoader/DLLoader.cpp
+    ../ECS/entity/EntityManager.cpp
+    ../ECS/system/SystemManager.cpp
+)
 
 # Set the output name for the server binary
 set_target_properties(client PROPERTIES OUTPUT_NAME "r-type_client")
