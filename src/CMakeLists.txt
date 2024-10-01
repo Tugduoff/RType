@@ -48,6 +48,12 @@ CPMAddPackage(
     "BUILD_TESTS OFF"
 )
 
+if (WIN32)
+    set(LIBCONFIG_LIB_NAME libconfig libconfig++)
+else()
+    set(LIBCONFIG_LIB_NAME config config++)
+endif (WIN32)
+
 # Include the subdirectories for client and server
 add_subdirectory(client)
 add_subdirectory(server)
