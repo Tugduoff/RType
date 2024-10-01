@@ -5,6 +5,5 @@ cd ./plugins
 mkdir -p build && cd ./build
 
 cmake ..
-cmake --build . --target clean
 cmake --build . --target all
 
