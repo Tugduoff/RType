@@ -16,7 +16,7 @@
 #include <ostream>
 #include <fstream>
 
-#include "output.hpp"
+#include "Output.hpp"
 
 void displayComponents(ECS::Registry &reg)
 {

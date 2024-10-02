@@ -7,7 +7,7 @@
 
 #include "GameEngine.hpp"
 #include <libconfig.h++>
-#include "output.hpp"
+#include "Output.hpp"
 
 void Engine::GameEngine::loadSystems(const std::string &systemsFolderPath, const std::string &systemsConfigFile)
 {
