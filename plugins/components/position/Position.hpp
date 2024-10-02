@@ -10,7 +10,12 @@
 
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine.hpp"
-    #include <arpa/inet.h>
+    #include "components/AComponent.hpp"
+    #ifdef _WIN32
+        #include <winsock2.h>
+    #else
+        #include <arpa/inet.h>
+    #endif
     #include <vector>
     #include <stdexcept>
     #include <libconfig.h++>

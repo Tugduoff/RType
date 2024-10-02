@@ -5,7 +5,7 @@
 ** Main.cpp file
 */
 
-#include "GameEngine.hpp"
+#include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
 #include "ECS/utilities/SparseArray.hpp"
 #include "plugins/components/IComponent.hpp"
@@ -39,8 +39,8 @@ int main() {
     ECS::Registry &reg = engine.getRegistry();
     ECS::Entity entity = reg.entityManager().spawnEntity();
 
-    std::string positionPluginPath = "./plugins/bin/components/Position.so";
-    std::string configSystemPath = "./plugins/bin/systems/Config.so";
+    std::string positionPluginPath = "./plugins/bin/components/libPosition.so";
+    std::string configSystemPath = "./plugins/bin/systems/libConfig.so";
 
     try {
         engine.loadSystems("./plugins/bin/systems/configSystems.cfg");

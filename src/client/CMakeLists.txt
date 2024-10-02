@@ -1,10 +1,14 @@
 # Add an executable for the client project
-add_executable(client Main.cpp)
+add_executable(client
+    Main.cpp
+
+    ../ECS/entity/EntityManager.cpp
+    ../ECS/system/SystemManager.cpp
+    ../GameEngine/GameEngine.cpp
+)
 
 # Set the output name for the server binary
 set_target_properties(client PROPERTIES OUTPUT_NAME "r-type_client")
-
-include(../cmake/CPM.cmake)
 
 CPMAddPackage(
     NAME SFML 
@@ -14,7 +18,14 @@ CPMAddPackage(
     # "BUILD_SHARED_LIBS OFF"
 )
 
-target_link_libraries(client sfml-graphics sfml-window sfml-graphics sfml-network)
+target_link_libraries(client
+    sfml-graphics
+    sfml-window
+    sfml-graphics
+    sfml-network
+    config
+    config++
+)
 
 
 # if(SFML_ADDED)

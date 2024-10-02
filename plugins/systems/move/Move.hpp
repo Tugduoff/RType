@@ -8,8 +8,8 @@
 #ifndef MOVESYSTEM_HPP
     #define MOVESYSTEM_HPP
 
-    #include "plugins/systems/ASystem.hpp"
     #include <libconfig.h++>
+    #include "systems/ASystem.hpp"
 
 namespace Engine {
     class GameEngine;
