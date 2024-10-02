@@ -7,7 +7,6 @@
 
 #include "GameEngine.hpp"
 #include "ECS/component/ComponentRegisterer.hpp"
-#include <functional>
 #include <libconfig.h++>
 #include <typeindex>
 

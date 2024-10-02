@@ -12,7 +12,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <memory>
-#include <cstdint>
 
 void Systems::MoveSystem::run(Engine::GameEngine &engine)
 {
