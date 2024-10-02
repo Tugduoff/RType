@@ -40,11 +40,10 @@ namespace ECS {
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (__components.contains(typeIndex))
-                    return (false);
-
-                __components.emplace(typeIndex, std::make_any<SparseArray<Component>>());
-                return (true);
+                return __components.emplace(
+                    typeIndex,
+                    std::make_any<SparseArray<Component>>()
+                ).second;
             }
 
             /**
