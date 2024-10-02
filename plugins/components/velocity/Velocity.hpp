@@ -83,6 +83,16 @@ namespace Components {
             return sizeof(__data);
         };
 
+        /**
+         * @brief Adds the Velocity component to an entity.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param args The arguments to pass to the component constructor.
+         * 
+         * @note This function will add the component to the entity.
+         * @note The arguments should be a pair of uint32_t values representing the x and y components of the velocity.
+         */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
             if (args.size() != 2)
                 throw std::runtime_error("Invalid number of arguments for Velocity component");
@@ -91,6 +101,16 @@ namespace Components {
             engine.getRegistry().componentManager().addComponent<Components::Velocity>(to, engine.newComponent<Components::Velocity>(x, y));
         };
 
+        /**
+         * @brief Adds the Velocity component to an entity.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param config The configuration settings to use for the component.
+         * 
+         * @note This function will add the component to the entity.
+         * @note The configuration settings should contain the x and y components of the velocity.
+         */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
             int xVal = 0, yVal = 0;
 
