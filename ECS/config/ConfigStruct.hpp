@@ -39,7 +39,7 @@ std::map<std::string, Difficulty> difficultyFromString = {
 
 struct Component {
     std::string id;
-    std::vector<std::any> args;
+    libconfig::Setting &args;
 };
 
 struct ConfigStruct {
