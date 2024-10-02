@@ -8,8 +8,6 @@
 #ifndef ISYSTEM_HPP
     #define ISYSTEM_HPP
 
-#include "ECS/component/ComponentRegisterer.hpp"
-
 namespace ECS {
     class ComponentRegisterer;
     class Registry;

@@ -6,7 +6,7 @@
 */
 
 #include "ECS/registry/Registry.hpp"
-#include "GameEngine/GameEngine.hpp"
+#include "ECS/component/ComponentRegisterer.hpp"
 #include "Move.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
