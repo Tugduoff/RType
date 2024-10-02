@@ -44,14 +44,13 @@ namespace Engine {
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (__componentLoaders.contains(typeIndex))
+                if (!__componentLoaders.emplace(typeIndex, DLLoader(componentPath)).second)
                     return (false);
 
-                __componentLoaders.emplace(typeIndex, DLLoader(componentPath));
                 DLLoader &loader = __componentLoaders.at(typeIndex);
                 auto componentID = loader.getStringId("entryID");
 
-                std::cout << "Component ID: " << componentID << std::endl;
+                std::cout << "Component ID: " << componentID << " registered!" << std::endl;
                 __components.emplace(componentID, std::make_shared<Component>());
                 return __registry.componentManager().registerComponent<Component>();
             }
