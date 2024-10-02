@@ -23,6 +23,7 @@ namespace Systems {
 
             ConfigLoader() = default;
             ConfigLoader(const std::string &configFilePath);
+            ConfigLoader(libconfig::Setting &config);
             ~ConfigLoader() = default;
 
             void run(Engine::GameEngine &engine) override;
