@@ -7,8 +7,7 @@
 
 #include "GameEngine.hpp"
 #include "Move.hpp"
-#include "plugins/components/position/Position.hpp"
-#include "plugins/components/velocity/Velocity.hpp"
+#include "plugins/Components.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <memory>
@@ -43,6 +42,7 @@ void Systems::MoveSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Position component in system Move" << std::endl;
     if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/Velocity.so"))
         std::cerr << "Error: Could not register Velocity component in system Move" << std::endl;
+    std::cout << "Move system initialized!" << std::endl;
 }
 
 extern "C" std::unique_ptr<Systems::ISystem> entryPoint()
