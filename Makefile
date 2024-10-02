@@ -17,8 +17,7 @@ PKG_CONFIG_CFLAGS := $(shell pkg-config --cflags sfml-all libconfig++)
 CRITERION_LIBS = -lcriterion
 
 # Source files
-SRCS = 	ECS/entity/EntityManager.cpp	\
-		ECS/system/SystemManager.cpp	\
+SRCS = 	ECS/system/SystemManager.cpp	\
 		GameEngine.cpp
 
 # Main Source file
