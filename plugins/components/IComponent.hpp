@@ -8,9 +8,15 @@
 #ifndef ICOMPONENT_HPP
     #define ICOMPONENT_HPP
 
+    #include "ECS/entity/Entity.hpp"
     #include <cstddef>
     #include <cstdint>
     #include <vector>
+    #include <any>
+
+namespace Engine {
+    class GameEngine;
+}
 
 namespace Components {
     class IComponent {
@@ -40,8 +46,19 @@ namespace Components {
              * @return size_t : The size of the component
              */
             virtual size_t getSize() const = 0;
+
+            /**
+             * @brief Add the component to an entity
+             * 
+             * @param to : The entity to add the component to
+             * @param engine : The game engine
+             * @param args : The arguments to pass to the component constructor
+             * 
+             * @note This function will add the component to the entity
+             */
+            virtual void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) = 0;
         private:
     };
-}
+};
 
 #endif // ICOMPONENT_HPP
