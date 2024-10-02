@@ -6,6 +6,7 @@
 ##
 
 SYSTEMS = move \
+		  config
 
 all:
 	@for system in $(SYSTEMS); do \
