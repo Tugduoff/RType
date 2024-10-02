@@ -9,6 +9,7 @@
     #define POSITION_HPP
 
     #include "plugins/components/AComponent.hpp"
+    #include "GameEngine.hpp"
     #include <arpa/inet.h>
     #include <vector>
     #include <stdexcept>
@@ -81,6 +82,15 @@ namespace Components {
          * @return The size of the data, in bytes.
          */
         size_t getSize() const override { return sizeof(__data); };
+
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+            if (args.size() != 3)
+                throw std::runtime_error("Invalid number of arguments for Position component");
+            uint32_t x = std::any_cast<uint32_t>(args[0]);
+            uint32_t y = std::any_cast<uint32_t>(args[1]);
+            uint32_t layer = std::any_cast<uint32_t>(args[2]);
+            engine.getRegistry().componentManager().addComponent<Components::Position>(to, engine.newComponent<Components::Position>(x, y, layer));
+        };
 
         uint32_t x;
         uint32_t y;
