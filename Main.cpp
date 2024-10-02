@@ -42,7 +42,7 @@ int main() {
     std::string configSystemPath = "./plugins/bin/systems/Config.so";
 
     try {
-        engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
+        engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
 
         std::unique_ptr<Components::Position> position = engine.newComponent<Components::Position>(10, 20);
         std::unique_ptr<Components::Velocity> velocity = engine.newComponent<Components::Velocity>(2, 1);
