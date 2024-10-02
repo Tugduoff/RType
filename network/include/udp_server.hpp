@@ -13,6 +13,7 @@ class UDPServer {
     public:
         UDPServer(boost::asio::io_context& io_context, short port)
             : socket_(io_context, udp::endpoint(udp::v4(), port)) {
+            std::cout << "Server started on port " << port << std::endl;
             start_receive();
         }
 
