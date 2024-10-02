@@ -39,9 +39,6 @@ int main() {
     ECS::Registry &reg = engine.getRegistry();
     ECS::Entity entity = reg.entityManager().spawnEntity();
 
-    // std::string positionPluginPath = "./plugins/bin/components/libPosition.dll";
-    // std::string configSystemPath = "./plugins/bin/systems/libConfig.dll";
-
     try {
         engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
 
