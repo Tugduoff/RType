@@ -18,7 +18,9 @@ namespace ECS {
     /**
      * @brief Wrapper for a `ComponentManager`'s `registerComponent` member function
      *
-     * This class is useful
+     * This class allows the GameEngine to allow the system plugins to register
+     * their components in the ComponentManager of the Registry by passing
+     * template parameters to the member function `registerComponent`
      */
     class ComponentRegisterer {
         public:
@@ -26,6 +28,13 @@ namespace ECS {
                 bool(const std::string &plugin, std::type_index typeIndex)
             >;
 
+            /**
+             * @brief Constructor for a ComponentRegisterer
+             *
+             * @param manager The ComponentManager on which to call `registerComponent`
+             * @param preHook Optional function to run before `registerComponent`
+             * @param postHook Optional function to run after `registerComponent`
+             */
             ComponentRegisterer(
                 ComponentManager &manager,
                 callBackType preHook = defaultHook,
