@@ -13,7 +13,7 @@ NAME	=	Move.so
 
 INCLUDES	= 	-I../../../
 CPP			= 	g++
-CPPFLAGS	=	-Wall -Wextra -Werror -fpic $(INCLUDES) -std=c++20
+CPPFLAGS	=	-Wall -Wextra -fpic $(INCLUDES) -std=c++20
 
 all: $(NAME)
 
@@ -27,7 +27,7 @@ clean:
 	rm -f $(OBJ)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f ../../bin/systems/$(NAME)
 
 re: fclean all
 

@@ -8,6 +8,7 @@
 #include <criterion/criterion.h>
 #include <criterion/internal/assert.h>
 #include <criterion/redirect.h>
+#include "GameEngine.hpp"
 #include "ECS/entity/Entity.hpp"
 #include "ECS/registry/Registry.hpp"
 #include "plugins/components/position/Position.hpp"
@@ -21,7 +22,8 @@ void redirect_all_stdout(void) {
 // Test for registering and adding a component to an entity
 Test(ComponentManager, register_and_add_component, .init = redirect_all_stdout)
 {
-    ECS::Registry reg;
+    Engine::GameEngine gameEngine;
+    ECS::Registry &reg = gameEngine.getRegistry();
     std::string positionPluginPath = "./plugins/bin/components/Position.so";
 
     // Manually test for exceptions instead of using cr_assert_no_throw
@@ -29,14 +31,16 @@ Test(ComponentManager, register_and_add_component, .init = redirect_all_stdout)
 
     try {
         // Register Position component
-        reg.componentManager().registerComponent<Components::Position>(positionPluginPath);
+        gameEngine.registerComponent<Components::Position>(positionPluginPath);
 
         // Create an entity
         ECS::Entity entity = reg.entityManager().spawnEntity();
 
-        // Load and add a Position component to the entity
-        std::unique_ptr<Components::Position> posComponent = reg.componentManager().loadComponent<Components::Position>(10, 20);
-        reg.componentManager().addComponent<Components::Position>(entity, std::move(posComponent));
+        // Load a Position component
+        std::unique_ptr<Components::Position> position = gameEngine.newComponent<Components::Position>(10, 20);
+
+        // Add the Position component to the entity
+        reg.componentManager().addComponent<Components::Position>(entity, std::move(position));
     } catch (const std::exception &e) {
         exception_thrown = true;
     }
@@ -48,12 +52,12 @@ Test(ComponentManager, register_and_add_component, .init = redirect_all_stdout)
 // Test for handling a missing component registration
 Test(ComponentManager, load_unregistered_component)
 {
-    ECS::Registry reg;
+    Engine::GameEngine gameEngine;
 
     bool exception_thrown = false;
     try {
         // Attempt to load a component without registering it
-        std::unique_ptr<Components::Position> posComponent = reg.componentManager().loadComponent<Components::Position>(10, 20);
+        std::unique_ptr<Components::Position> position = gameEngine.newComponent<Components::Position>(10, 20);
     } catch (const std::runtime_error &e) {
         exception_thrown = true;
         // Optional: Verify the exception message if you want to check its content
@@ -68,17 +72,22 @@ Test(ComponentManager, load_unregistered_component)
 // Test for adding a component to an entity
 Test(ComponentManager, add_component)
 {
-    ECS::Registry reg;
+    Engine::GameEngine gameEngine;
+    ECS::Registry &reg = gameEngine.getRegistry();
     std::string positionPluginPath = "./plugins/bin/components/Position.so";
 
     try {
         // Register the Position component
-        reg.componentManager().registerComponent<Components::Position>(positionPluginPath);
+        gameEngine.registerComponent<Components::Position>(positionPluginPath);
 
-        // Create an entity and add a Position component to it
+        // Create an entity
         ECS::Entity entity = reg.entityManager().spawnEntity();
-        std::unique_ptr<Components::Position> posComponent = reg.componentManager().loadComponent<Components::Position>(10, 20);
-        reg.componentManager().addComponent<Components::Position>(entity, std::move(posComponent));
+
+        // Load and add a Position component to the entity
+        std::unique_ptr<Components::Position> position = gameEngine.newComponent<Components::Position>(10, 20);
+
+        // Add the Position component to the entity
+        reg.componentManager().addComponent<Components::Position>(entity, std::move(position));
 
         // Get the SparseArray for Position components
         SparseArray<Components::Position> &positionComponents = reg.componentManager().getComponents<Components::Position>();
@@ -95,17 +104,22 @@ Test(ComponentManager, add_component)
 // Test for removing adding a component and then removing it from an entity
 Test(ComponentManager, remove_component)
 {
-    ECS::Registry reg;
+    Engine::GameEngine gameEngine;
+    ECS::Registry &reg = gameEngine.getRegistry();
     std::string positionPluginPath = "./plugins/bin/components/Position.so";
 
     try {
         // Register the Position component
-        reg.componentManager().registerComponent<Components::Position>(positionPluginPath);
+        gameEngine.registerComponent<Components::Position>(positionPluginPath);
 
-        // Create an entity and add a Position component to it
+        // Create an entity
         ECS::Entity entity = reg.entityManager().spawnEntity();
-        std::unique_ptr<Components::Position> posComponent = reg.componentManager().loadComponent<Components::Position>(10, 20);
-        reg.componentManager().addComponent<Components::Position>(entity, std::move(posComponent));
+
+        // Load and add a Position component to the entity
+        std::unique_ptr<Components::Position> position = gameEngine.newComponent<Components::Position>(10, 20);
+
+        // Add the Position component to the entity
+        reg.componentManager().addComponent<Components::Position>(entity, std::move(position));
 
         // Remove the Position component from the entity
         reg.componentManager().removeComponent<Components::Position>(entity);
