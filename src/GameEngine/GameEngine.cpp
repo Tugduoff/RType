@@ -55,10 +55,5 @@ void Engine::GameEngine::runSystems()
 
 bool Engine::GameEngine::_loadComponentLib(const std::string &libName, std::type_index typeIndex)
 {
-    if (__componentLoaders.contains(typeIndex))
-        return (false);
-
-    __componentLoaders.emplace(typeIndex, DLLoader(libName));
-
-    return true;
+    return __componentLoaders.emplace(typeIndex, DLLoader(libName)).second;
 }
