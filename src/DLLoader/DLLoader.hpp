@@ -177,15 +177,19 @@ class DLLoader {
         #endif
 
             outputFile << "in getEntryPoint function middle" << std::endl;
+            outputFile << "EntrypointFunction : " << entryPointName.c_str() << std::endl;
+            outputFile << GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()) << std::endl;
 
-            if (!entryPoint)
-        #ifdef _WIN32
+            outputFile << "Just before checking entrypoint" << std::endl;
+            if (!entryPoint) {
+            #ifdef _WIN32
                 outputFile << "Just before throwing and error" << std::endl;
                 throw DLLExceptions("Failed to load library");
-        #else
+            #else
                 throw DLLExceptions(dlerror());
-        #endif
-
+            #endif
+            }
+            outputFile << "Just after checking entrypoint" << std::endl;
             return entryPoint;
         }
 };

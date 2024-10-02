@@ -8,7 +8,10 @@
 #include <memory>
 #include "Position.hpp"
 
-extern "C" Components::IComponent *entryPoint(uint32_t x, uint32_t y)
+extern "C"
 {
-    return new Components::Position(x, y);
+    __declspec(dllexport) Components::IComponent *entryPoint(uint32_t x, uint32_t y)
+    {
+        return new Components::Position(x, y);
+    }
 }

@@ -11,6 +11,7 @@
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
+#include <exception>
 #include <iostream>
 #include <ostream>
 #include <fstream>
@@ -62,7 +63,7 @@ int main() {
         outputFile << "test after register of components" << std::endl;
 
         displayComponents(reg);
-    } catch (std::runtime_error &e) {
+    } catch (std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 84;
     }
