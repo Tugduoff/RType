@@ -48,10 +48,9 @@ void Systems::MoveSystem::init(Engine::GameEngine &engine)
 extern "C"
 {
 #ifdef _WIN32
-    __declspec(dllexport) Systems::ISystem *entryPoint()
-#else
-    Systems::ISystem *entryPoint()
+    __declspec(dllexport)
 #endif
+    Systems::ISystem *entryPoint()
     {
         return new Systems::MoveSystem();
     }
