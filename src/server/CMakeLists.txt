@@ -2,7 +2,6 @@
 add_executable(server
     Main.cpp
 
-    ../ECS/entity/EntityManager.cpp
     ../ECS/system/SystemManager.cpp
     ../GameEngine/GameEngine.cpp
 )

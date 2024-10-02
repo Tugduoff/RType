@@ -9,7 +9,7 @@
     #define POSITION_HPP
 
     #include "plugins/components/AComponent.hpp"
-    #include "GameEngine.hpp"
+    #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
     #ifdef _WIN32
         #include <winsock2.h>

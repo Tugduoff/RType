@@ -8,7 +8,7 @@
 #ifndef VELOCITY_HPP
     #define VELOCITY_HPP
 
-    #include "GameEngine.hpp"
+    #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
     #include <arpa/inet.h>
     #include <vector>
