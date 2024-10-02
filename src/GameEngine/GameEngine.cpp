@@ -7,6 +7,7 @@
 
 #include "GameEngine.hpp"
 #include <libconfig.h++>
+#include "output.hpp"
 
 void Engine::GameEngine::loadSystems(const std::string &systemsFolderPath, const std::string &systemsConfigFile)
 {
@@ -18,10 +19,15 @@ void Engine::GameEngine::loadSystems(const std::string &systemsFolderPath, const
         if (root.exists("systems")) {
             libconfig::Setting &systems = root["systems"];
             for (int i = 0; i < systems.getLength(); ++i) {
+                outputFile << "System n°" << i << std::endl;
                 std::string systemName = systems[i].c_str();
-                std::string systemPath = systemsFolderPath + systemName + ".so";
+                // std::string systemPath = systemsFolderPath + systemName + ".so";
+                outputFile << "systemName : " << systemName << std::endl;
+                outputFile << "systemsFolderPath : " << systemsFolderPath << std::endl;
                 DLLoader loader(systemsFolderPath, systemName);
+                outputFile << "After DLLoader" << std::endl;
                 std::unique_ptr<Systems::ISystem> system = loader.getInstance<Systems::ISystem>("entryPoint", loader);
+                outputFile << "After get instance" << std::endl;
                 __registry.systemManager().addSystem(std::move(system));
                 __systemLoaders.push_back(std::move(loader));
             }

@@ -13,6 +13,9 @@
 #include "plugins/components/velocity/Velocity.hpp"
 #include <iostream>
 #include <ostream>
+#include <fstream>
+
+#include "output.hpp"
 
 void displayComponents(ECS::Registry &reg)
 {
@@ -42,21 +45,27 @@ int main() {
     // std::string positionPluginPath = "./plugins/bin/components/libPosition.dll";
     // std::string configSystemPath = "./plugins/bin/systems/libConfig.dll";
 
+    openOutputFile();
     try {
+        outputFile << "test before everything" << std::endl;
         engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
 
-        std::cout << "test" << std::endl;
+        outputFile << "test" << std::endl;
 
         std::unique_ptr<Components::Position> position = engine.newComponent<Components::Position>(10, 20);
         std::unique_ptr<Components::Velocity> velocity = engine.newComponent<Components::Velocity>(2, 1);
 
+        outputFile << "test after creations of components" << std::endl;
+
         reg.componentManager().addComponent<Components::Position>(entity, std::move(position));
         reg.componentManager().addComponent<Components::Velocity>(entity, std::move(velocity));
+        outputFile << "test after register of components" << std::endl;
 
         displayComponents(reg);
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 84;
     }
+    outputFile.close();
     return 0;
 }

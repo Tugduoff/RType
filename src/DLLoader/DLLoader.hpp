@@ -8,7 +8,8 @@
 #ifndef DLLOADER_HPP
     #define DLLOADER_HPP
 
-    #ifdef _WIN32
+    #include <ostream>
+#ifdef _WIN32
         #include <windows.h>
     #else
         #include <dlfcn.h>
@@ -17,6 +18,8 @@
     #include <utility>
     #include <memory>
     #include <iostream>
+
+    #include "Output.hpp"
 
 class DLLoader {
     public:
@@ -84,8 +87,9 @@ class DLLoader {
         template<typename T, typename... Args>
         std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
             using EntryPointFunc = T *(*)(Args...);
+            outputFile << "Just before getting the entry point" << std::endl;
             EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
-
+            outputFile << "Just after getting the entry point" << std::endl;
             return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
         };
 
@@ -123,7 +127,9 @@ class DLLoader {
             #ifdef _WIN32
                 localLibName = libName + ".dll";
                 localLibPath = libPath + localLibName;
+                outputFile << "Lib path : " << localLibPath << std::endl;
                 __library = LoadLibraryA(localLibPath.c_str());
+                outputFile << "Just after Lib path" << std::endl;
                 if (!__library) throw DLLExceptions("Failed to load library: " + localLibName);
             #else
                 localLibName = "lib" + libName + ".so";
@@ -161,14 +167,20 @@ class DLLoader {
         */
         template<typename T>
         T getEntryPoint(const std::string &entryPointName) {
+
+        outputFile << "in getEntryPoint function start" << std::endl;
+
         #ifdef _WIN32
             T entryPoint = reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
         #else
             T entryPoint = reinterpret_cast<T>(dlsym(__library, entryPointName.c_str()));
         #endif
 
+            outputFile << "in getEntryPoint function middle" << std::endl;
+
             if (!entryPoint)
         #ifdef _WIN32
+                outputFile << "Just before throwing and error" << std::endl;
                 throw DLLExceptions("Failed to load library");
         #else
                 throw DLLExceptions(dlerror());
