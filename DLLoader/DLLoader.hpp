@@ -89,6 +89,13 @@ class DLLoader {
             return entryPoint(std::forward<Args>(args)...);
         };
 
+        std::string getStringId(const std::string &entryPointName = "entryID") {
+            using EntryPointFunc = std::string (*)();
+            EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
+
+            return entryPoint();
+        };
+
         /**
         * @class DLLExceptions
         *
