@@ -17,4 +17,3 @@ extern "C" std::unique_ptr<Components::IComponent> entryPoint(uint32_t shape, ui
     }
     throw std::invalid_argument("Invalid shape type provided");
 }
-
