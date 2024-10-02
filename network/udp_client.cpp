@@ -18,9 +18,22 @@ int main() {
         udp::resolver::results_type endpoints = resolver.resolve(udp::v4(), "127.0.0.1", "8080");
 
         std::string message = "Hello from client!";
-        socket.send_to(boost::asio::buffer(message), *endpoints.begin());
+        std::array<char, 1024> recv_buffer;
 
-        std::cout << "Message from server: " << message << std::endl;
+        while (true) {
+            if (message == "exit") 
+                break;
+
+            socket.send_to(boost::asio::buffer(message), *endpoints.begin());
+            std::cout << "Message sent to server: " << message << std::endl;
+
+            // Wait for server's response (if any)
+            udp::endpoint server_endpoint;
+            std::size_t len = socket.receive_from(boost::asio::buffer(recv_buffer), server_endpoint);
+
+            std::cout << "Received from server: " << std::string(recv_buffer.data(), len) << std::endl;
+        }
+
     } catch (std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 84;
