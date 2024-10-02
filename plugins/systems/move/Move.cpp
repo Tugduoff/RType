@@ -5,6 +5,7 @@
 ** MoveSystem.cpp file
 */
 
+#include "ECS/registry/Registry.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "Move.hpp"
 #include "plugins/components/position/Position.hpp"
@@ -13,10 +14,8 @@
 #include <stdexcept>
 #include <memory>
 
-void Systems::MoveSystem::run(Engine::GameEngine &engine)
+void Systems::MoveSystem::run(ECS::Registry &reg)
 {
-    auto &reg = engine.getRegistry();
-
     try {
         auto &posComponents = reg.componentManager().getComponents<Components::Position>();
         auto &velComponents = reg.componentManager().getComponents<Components::Velocity>();

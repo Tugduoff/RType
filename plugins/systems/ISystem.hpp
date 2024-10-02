@@ -9,12 +9,10 @@
     #define ISYSTEM_HPP
 
 #include "ECS/component/ComponentRegisterer.hpp"
-namespace Engine {
-    class GameEngine;
-}
 
 namespace ECS {
     class ComponentRegisterer;
+    class Registry;
 }
 
 namespace Systems {
@@ -28,7 +26,7 @@ namespace Systems {
              * @param reg : The registry of the ECS
              * @note This function should contain the logic of the system
              */
-            virtual void run(Engine::GameEngine &engine) = 0;
+            virtual void run(ECS::Registry &registry) = 0;
 
             /**
              * @brief Function called when the system is initialized

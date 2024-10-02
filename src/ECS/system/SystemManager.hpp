@@ -12,12 +12,9 @@
     #include <vector>
     #include <memory>
 
-namespace Engine {
-    class GameEngine;
-}
-
 namespace ECS {
     class ComponentRegisterer;
+    class Registry;
 }
 
 namespace ECS {
@@ -40,7 +37,7 @@ namespace ECS {
             /**
              * @brief Run all the systems
              */
-            void run(Engine::GameEngine &engine);
+            void run(Registry &registry);
 
             /**
              * @brief Run all systems init function

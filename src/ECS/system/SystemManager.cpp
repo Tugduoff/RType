@@ -6,7 +6,7 @@
 */
 
 #include "SystemManager.hpp"
-#include "GameEngine/GameEngine.hpp"
+#include "ECS/registry/Registry.hpp"
 #include "ECS/component/ComponentRegisterer.hpp"
 
 void ECS::SystemManager::addSystem(std::unique_ptr<Systems::ISystem> system)
@@ -14,10 +14,10 @@ void ECS::SystemManager::addSystem(std::unique_ptr<Systems::ISystem> system)
     __systems.push_back(std::move(system));
 }
 
-void ECS::SystemManager::run(Engine::GameEngine &engine)
+void ECS::SystemManager::run(ECS::Registry &registry)
 {
     for (auto &system : __systems) {
-        system->run(engine);
+        system->run(registry);
     }
 }
 

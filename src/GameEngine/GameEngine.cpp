@@ -50,7 +50,7 @@ void Engine::GameEngine::initSystems()
 
 void Engine::GameEngine::runSystems()
 {
-    __registry.systemManager().run(*this);
+    __registry.systemManager().run(this->getRegistry());
 }
 
 bool Engine::GameEngine::_loadComponentLib(const std::string &libName, std::type_index typeIndex)
