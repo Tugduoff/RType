@@ -9,8 +9,9 @@
     #define POSITION_HPP
 
     #include "components/AComponent.hpp"
-    #ifdef _WIN32
-        #include <winsock2.h>
+     #ifdef _WIN32
+        #include <windows.h>
+        #pragma comment(lib, "ws2_32.lib")
     #else
         #include <arpa/inet.h>
     #endif
