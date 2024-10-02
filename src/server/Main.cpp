@@ -16,8 +16,6 @@
 #include <ostream>
 #include <fstream>
 
-#include "Output.hpp"
-
 void displayComponents(ECS::Registry &reg)
 {
     SparseArray<Components::Position> &positionComponents = reg.componentManager().getComponents<Components::Position>();
@@ -48,19 +46,13 @@ int main() {
 
     openOutputFile();
     try {
-        outputFile << "test before everything" << std::endl;
         engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
-
-        outputFile << "test" << std::endl;
 
         std::unique_ptr<Components::Position> position = engine.newComponent<Components::Position>(10, 20);
         std::unique_ptr<Components::Velocity> velocity = engine.newComponent<Components::Velocity>(2, 1);
 
-        outputFile << "test after creations of components" << std::endl;
-
         reg.componentManager().addComponent<Components::Position>(entity, std::move(position));
         reg.componentManager().addComponent<Components::Velocity>(entity, std::move(velocity));
-        outputFile << "test after register of components" << std::endl;
 
         displayComponents(reg);
     } catch (std::exception &e) {
