@@ -13,6 +13,11 @@
 #include <memory>
 #include <cstdint>
 
+Systems::MoveSystem::MoveSystem(libconfig::Setting &config)
+{
+    (void)config;
+}
+
 void Systems::MoveSystem::run(Engine::GameEngine &engine)
 {
     auto &reg = engine.getRegistry();
@@ -42,10 +47,14 @@ void Systems::MoveSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Position component in system Move" << std::endl;
     if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/Velocity.so"))
         std::cerr << "Error: Could not register Velocity component in system Move" << std::endl;
-    std::cout << "Move system initialized!" << std::endl;
 }
 
 extern "C" std::unique_ptr<Systems::ISystem> entryPoint()
 {
     return std::make_unique<Systems::MoveSystem>();
+}
+
+extern "C" std::unique_ptr<Systems::ISystem> entryConfig(libconfig::Setting &config)
+{
+    return std::make_unique<Systems::MoveSystem>(config);
 }
