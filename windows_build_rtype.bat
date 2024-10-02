@@ -11,7 +11,7 @@ cd %BUILD_DIR%
 cmake .. 
 
 if errorlevel 1 (
-    echo ERROR: Building failed !
+    echo ERROR: Build failed !
     goto failed
 )
 
