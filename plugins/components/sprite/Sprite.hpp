@@ -8,7 +8,7 @@
 #ifndef SPRITE_HPP
     #define SPRITE_HPP
 
-    #include "AComponent.hpp"
+    #include "components/AComponent.hpp"
     #include <SFML/Graphics.hpp>
     #include <stdexcept>
     #include <arpa/inet.h>
