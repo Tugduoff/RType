@@ -31,26 +31,10 @@ void Engine::GameEngine::loadSystems(const std::string &systemsConfigFile)
                     systemPath += systemName + ".so";
 
                     std::cout << "Loading system: " << systemPath << std::endl;
-                    std::vector<std::any> instanceArgs;
-                    if (systemConfig.exists("args")) {
-                        libconfig::Setting &args = systemConfig["args"];
-                        for (int k = 0; k < args.getLength(); ++k) {
-                            libconfig::Setting &arg = args[k];
-                            if (arg.getType() == libconfig::Setting::TypeInt) {
-                                instanceArgs.push_back(arg.operator int());
-                            } else if (arg.getType() == libconfig::Setting::TypeFloat) {
-                                instanceArgs.push_back(arg.operator double());
-                            } else if (arg.getType() == libconfig::Setting::TypeString) {
-                                instanceArgs.push_back(arg.c_str());
-                            } else if (arg.getType() == libconfig::Setting::TypeBoolean) {
-                                instanceArgs.push_back(arg.operator bool());
-                            } else {
-                                std::cerr << "Unsupported argument type" << std::endl;
-                            }
-                        }
-                    }
+                    libconfig::Setting &args = systemConfig["args"];
+
                     DLLoader loader(systemPath);
-                    std::unique_ptr<Systems::ISystem> system = loader.getInstance<Systems::ISystem>("entryPoint", instanceArgs);
+                    std::unique_ptr<Systems::ISystem> system = loader.getInstance2<Systems::ISystem>("entryConfig", args);
                     __registry.systemManager().addSystem(std::move(system));
                     __systemLoaders.push_back(std::move(loader));
                 }
