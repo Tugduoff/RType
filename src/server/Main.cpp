@@ -44,7 +44,6 @@ int main() {
     // std::string positionPluginPath = "./plugins/bin/components/libPosition.dll";
     // std::string configSystemPath = "./plugins/bin/systems/libConfig.dll";
 
-    openOutputFile();
     try {
         engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
 
@@ -59,6 +58,5 @@ int main() {
         std::cerr << "Error: " << e.what() << std::endl;
         return 84;
     }
-    outputFile.close();
     return 0;
 }
