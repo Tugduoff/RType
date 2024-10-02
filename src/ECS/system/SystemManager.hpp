@@ -18,6 +18,10 @@ namespace Engine {
 }
 
 namespace ECS {
+    class ComponentRegisterer;
+}
+
+namespace ECS {
 
     /**
      * @class SystemManager
@@ -44,7 +48,7 @@ namespace ECS {
              * 
              * @note This function will run all systems init function.
              */
-            void initSystems(Engine::GameEngine &engine);
+            void initSystems(const ComponentRegisterer &engine);
 
         private:
 

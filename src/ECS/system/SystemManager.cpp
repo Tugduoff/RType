@@ -7,6 +7,7 @@
 
 #include "SystemManager.hpp"
 #include "GameEngine/GameEngine.hpp"
+#include "ECS/component/ComponentRegisterer.hpp"
 
 void ECS::SystemManager::addSystem(std::unique_ptr<Systems::ISystem> system)
 {
@@ -20,11 +21,11 @@ void ECS::SystemManager::run(Engine::GameEngine &engine)
     }
 }
 
-void ECS::SystemManager::initSystems(Engine::GameEngine &engine)
+void ECS::SystemManager::initSystems(const ECS::ComponentRegisterer &registerer)
 {
     for (auto &system : __systems) {
         if (!system)
             continue;
-        system->init(engine);
+        system->init(registerer);
     }
 }

@@ -8,8 +8,13 @@
 #ifndef ISYSTEM_HPP
     #define ISYSTEM_HPP
 
+#include "ECS/component/ComponentRegisterer.hpp"
 namespace Engine {
     class GameEngine;
+}
+
+namespace ECS {
+    class ComponentRegisterer;
 }
 
 namespace Systems {
@@ -36,7 +41,7 @@ namespace Systems {
              * 
              * @note This function should be used to initialize the system and must be called at the start of the game
              */
-            virtual void init(Engine::GameEngine &engine) = 0;
+            virtual void init(const ECS::ComponentRegisterer &registerer) = 0;
 
         private:
     };

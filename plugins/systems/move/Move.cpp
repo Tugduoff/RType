@@ -37,11 +37,11 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
     }
 }
 
-void Systems::MoveSystem::init(Engine::GameEngine &engine)
+void Systems::MoveSystem::init(const ECS::ComponentRegisterer &registerer)
 {
-    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/libPosition.so"))
+    if (!registerer.registerComponent<Components::Position>("./plugins/bin/components/libPosition.so"))
         std::cerr << "Error: Could not register Position component in system Move" << std::endl;
-    if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/libVelocity.so"))
+    if (!registerer.registerComponent<Components::Velocity>("./plugins/bin/components/libVelocity.so"))
         std::cerr << "Error: Could not register Velocity component in system Move" << std::endl;
 }
 

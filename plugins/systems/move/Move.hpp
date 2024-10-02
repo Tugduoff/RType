@@ -21,7 +21,7 @@ namespace Systems {
             ~MoveSystem() = default;
 
             void run(Engine::GameEngine &engine) override;
-            void init(Engine::GameEngine &engine) override;
+            void init(const ECS::ComponentRegisterer &registerer) override;
         private:
     };
 };

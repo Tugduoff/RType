@@ -10,6 +10,7 @@
 
     #include "ECS/registry/Registry.hpp"
     #include "DLLoader/DLLoader.hpp"
+    #include <string>
     #include <unordered_map>
     #include <typeindex>
     #include <iostream>
@@ -42,10 +43,10 @@ namespace Engine {
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (__componentLoaders.contains(typeIndex))
-                    return (false);
+                if (_loadComponentLib(componentPath, typeIndex)) {
+                    return false;
+                }
 
-                __componentLoaders.emplace(typeIndex, DLLoader(componentPath));
                 return __registry.componentManager().registerComponent<Component>();
             }
 
@@ -100,7 +101,7 @@ namespace Engine {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
                 if (!__componentLoaders.contains(typeIndex))
-                    throw std::runtime_error("Component type not registered");
+                    throw std::runtime_error(std::string("Component type '") + typeid(Component).name() + "' not registered");
 
                 DLLoader &loader = __componentLoaders.at(typeIndex);
                 auto componentInstance = loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
@@ -119,6 +120,9 @@ namespace Engine {
              * @note This function will return the registry stored in the game engine.
              */
             ECS::Registry &getRegistry() { return __registry; }
+
+        protected:
+            bool _loadComponentLib(const std::string &libName, std::type_index typeIndex);
 
         private:
 
