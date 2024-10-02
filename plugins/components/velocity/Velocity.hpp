@@ -9,6 +9,7 @@
     #define VELOCITY_HPP
 
     #include "plugins/components/AComponent.hpp"
+    #include "GameEngine.hpp"
     #include <arpa/inet.h>
     #include <vector>
     #include <stdexcept>
@@ -79,6 +80,14 @@ namespace Components {
          */
         size_t getSize() const override {
             return sizeof(__data);
+        };
+
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+            if (args.size() != 2)
+                throw std::runtime_error("Invalid number of arguments for Velocity component");
+            uint32_t x = std::any_cast<uint32_t>(args[0]);
+            uint32_t y = std::any_cast<uint32_t>(args[1]);
+            engine.getRegistry().componentManager().addComponent<Components::Velocity>(to, engine.newComponent<Components::Velocity>(x, y));
         };
 
         uint32_t x;
