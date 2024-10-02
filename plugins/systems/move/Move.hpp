@@ -8,16 +8,22 @@
 #ifndef MOVESYSTEM_HPP
     #define MOVESYSTEM_HPP
 
-    #include "ASystem.hpp"
-    #include "Registry.hpp"
+    #include "systems/ASystem.hpp"
 
-class MoveSystem : public ASystem {
-    public:
-        MoveSystem() = default;
-        ~MoveSystem() = default;
+namespace Engine {
+    class GameEngine;
+}
 
-        void func(Registry &reg) override;
-    private:
+namespace Systems {
+    class MoveSystem : public ASystem {
+        public:
+            MoveSystem() = default;
+            ~MoveSystem() = default;
+
+            void run(Engine::GameEngine &engine) override;
+            void init(Engine::GameEngine &engine) override;
+        private:
+    };
 };
 
 #endif // MOVESYSTEM_HPP
