@@ -178,7 +178,7 @@ class DLLoader {
 
             outputFile << "in getEntryPoint function middle" << std::endl;
             outputFile << "EntrypointFunction : " << entryPointName.c_str() << std::endl;
-            outputFile << GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()) << std::endl;
+            // outputFile << GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()) << std::endl;
 
             outputFile << "Just before checking entrypoint" << std::endl;
             if (!entryPoint) {
