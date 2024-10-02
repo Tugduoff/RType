@@ -29,6 +29,7 @@ namespace Components {
          * Initializes the velocity components (x and y) to zero.
          */
         Velocity() : x(0), y(0) {};
+        Velocity(libconfig::Setting &config);
 
         /**
          * @brief Parameterized constructor for the Velocity component.
@@ -88,6 +89,22 @@ namespace Components {
             uint32_t x = std::any_cast<uint32_t>(args[0]);
             uint32_t y = std::any_cast<uint32_t>(args[1]);
             engine.getRegistry().componentManager().addComponent<Components::Velocity>(to, engine.newComponent<Components::Velocity>(x, y));
+        };
+
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
+            int xVal = 0, yVal = 0;
+
+            if (
+                !config.lookupValue("x", xVal) ||
+                !config.lookupValue("y", yVal)) {
+                throw std::invalid_argument("Failed to retrieve values for 'x', 'y'");
+            }
+
+            std::cout << "x: " << xVal << " y: " << yVal << std::endl;
+
+            std::unique_ptr<Components::Velocity> pos = engine.newComponent<Components::Velocity>(static_cast<uint32_t>(xVal), static_cast<uint32_t>(yVal));
+            engine.getRegistry().componentManager().addComponent<Components::Velocity>(to, std::move(pos));
+            std::cout << std::endl;
         };
 
         uint32_t x;
