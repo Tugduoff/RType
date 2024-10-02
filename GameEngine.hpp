@@ -10,6 +10,8 @@
 
     #include "ECS/registry/Registry.hpp"
     #include "DLLoader/DLLoader.hpp"
+    #include "plugins/components/IComponent.hpp"
+    #include <functional>
     #include <unordered_map>
     #include <typeindex>
     #include <iostream>
@@ -46,6 +48,11 @@ namespace Engine {
                     return (false);
 
                 __componentLoaders.emplace(typeIndex, DLLoader(componentPath));
+                DLLoader &loader = __componentLoaders.at(typeIndex);
+                auto componentID = loader.getStringId("entryID");
+
+                std::cout << "Component ID: " << componentID << std::endl;
+                __components.emplace(componentID, std::make_shared<Component>());
                 return __registry.componentManager().registerComponent<Component>();
             }
 
@@ -60,7 +67,7 @@ namespace Engine {
              * @note This function will load each systems and store them in the systemManager
              * @note and keep each loaders in the systems loaders vector.
              */
-            void loadSystems(const std::string &systemsFolderPath, const std::string &systemsConfigFile);
+            void loadSystems(const std::string &systemsConfigFile);
 
             /**
              * @brief Run all systems
@@ -111,6 +118,13 @@ namespace Engine {
                 return componentInstance;
             }
 
+            std::shared_ptr<Components::IComponent> getComponentFromId(const std::string &componentId)
+            {
+                if (!__components.contains(componentId))
+                    return nullptr;
+                return __components.at(componentId);
+            }
+
             /**
              * @brief Get the registry
              * 
@@ -123,6 +137,7 @@ namespace Engine {
         private:
 
             std::unordered_map<std::type_index, DLLoader> __componentLoaders;
+            std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> __components;
             std::vector<DLLoader> __systemLoaders;
             ECS::Registry __registry;
 
