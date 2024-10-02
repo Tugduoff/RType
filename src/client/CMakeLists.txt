@@ -5,8 +5,6 @@ add_executable(client
     ../ECS/entity/EntityManager.cpp
     ../ECS/system/SystemManager.cpp
     ../GameEngine/GameEngine.cpp
-
-    ../Output.cpp
 )
 
 # Set the output name for the server binary

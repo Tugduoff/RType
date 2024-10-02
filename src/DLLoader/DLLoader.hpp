@@ -8,7 +8,6 @@
 #ifndef DLLOADER_HPP
     #define DLLOADER_HPP
 
-    #include <ostream>
     #ifdef _WIN32
         #include <windows.h>
     #else

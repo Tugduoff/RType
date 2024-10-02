@@ -13,8 +13,6 @@
 #include "plugins/components/velocity/Velocity.hpp"
 #include <exception>
 #include <iostream>
-#include <ostream>
-#include <fstream>
 
 void displayComponents(ECS::Registry &reg)
 {
