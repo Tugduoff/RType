@@ -6,9 +6,16 @@
 */
 
 #include <memory>
+#include <iostream>
+#include <stdexcept>
 #include "Velocity.hpp"
 
 extern "C" std::unique_ptr<Components::IComponent> entryPoint(uint32_t x, uint32_t y)
 {
     return std::make_unique<Components::Velocity>(x, y);
+}
+
+extern "C" std::string entryID()
+{
+    return "Velocity";
 }
