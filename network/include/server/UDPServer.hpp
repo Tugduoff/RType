@@ -2,14 +2,16 @@
 ** EPITECH PROJECT, 2024
 ** RType
 ** File description:
-** udp_server
+** udp server
 */
+#include "../IUDP.hpp"
+
 using boost::asio::ip::udp;
 
 #ifndef UDP_SERVER_HPP
     #define UDP_SERVER_HPP
 
-class UDPServer {
+class UDPServer : public IUDP {
     public:
         UDPServer(boost::asio::io_context& io_context, short port)
             : socket_(io_context, udp::endpoint(udp::v4(), port)) {
@@ -22,7 +24,7 @@ class UDPServer {
         udp::endpoint remote_endpoint_;
         std::array<char, 1024> recv_buffer_;
 
-        void start_receive() {
+        void start_receive() override {
             socket_.async_receive_from( boost::asio::buffer(recv_buffer_), remote_endpoint_,
                 [this](boost::system::error_code ec, std::size_t bytes_recvd) {
                     if (!ec && bytes_recvd > 0)
