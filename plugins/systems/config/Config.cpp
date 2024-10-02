@@ -13,6 +13,11 @@ Systems::ConfigLoader::ConfigLoader(const std::string &configFilePath) : __confi
 {
 }
 
+Systems::ConfigLoader::ConfigLoader(libconfig::Setting &config)
+{
+    config.lookupValue("path", __configFilePath);
+}
+
 void Systems::ConfigLoader::init(Engine::GameEngine &engine)
 {
     loadConfig(__configFilePath, engine);
@@ -92,7 +97,7 @@ void Systems::ConfigLoader::loadConfig(const std::string &filepath, Engine::Game
 {
     try {
         cfg.readFile(filepath);
-        std::cout << "Config file loaded: " << filepath << std::endl;
+        std::cout << "\nConfig file loaded: " << filepath << std::endl;
         libconfig::Setting &root = cfg.getRoot();
         extractConfig(root, engine);
     } catch (libconfig::ParseException &e) {
@@ -131,7 +136,7 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
         level.lookupValue("cell_size", config.level.cellSize);
         level.lookupValue("goal", config.level.goal);
 
-        std::cout << "Level info: " << config.level.name << " loaded!" << std::endl;
+        std::cout << "\nLevel: " << config.level.name << " loaded!" << std::endl;
     }
 
     // Extract entities
@@ -147,46 +152,29 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
                 component.lookupValue("name", componentName);
 
                 // Extract the args array
-                std::vector<std::any> componentArgs;
-                if (component.exists("args")) {
-                    libconfig::Setting &args = component["args"];
-                    for (int k = 0; k < args.getLength(); ++k) {
-                        libconfig::Setting &arg = args[k];
-                        if (arg.getType() == libconfig::Setting::TypeInt) {
-                            componentArgs.push_back(arg.operator int());
-                        } else if (arg.getType() == libconfig::Setting::TypeFloat) {
-                            componentArgs.push_back(arg.operator double());
-                        } else if (arg.getType() == libconfig::Setting::TypeString) {
-                            componentArgs.push_back(arg.operator std::string());
-                        } else if (arg.getType() == libconfig::Setting::TypeBoolean) {
-                            componentArgs.push_back(arg.operator bool());
-                        } else {
-                            std::cerr << "Unsupported argument type" << std::endl;
-                        }
-                    }
-                }
+                libconfig::Setting &args = component["args"];
 
                 // Store the component in the entity
-                entity.components.push_back({componentName, componentArgs});
-                std::cout << "Component: " << componentName << " added to entity." << std::endl;
+                entity.components.push_back({componentName, args});
             }
             config.entities.push_back(entity);
         }
-        std::cout << "Entities loaded: " << config.entities.size() << std::endl;
+        std::cout << "Entities loaded: " << config.entities.size() << "\n" << std::endl;
     }
 
     // Create the entities
     for (const auto &entity : config.entities) {
         // Create the entity based on the type and components
         // Add cases for other entity types
-        std::cout << "Creating entity of type: " << entity.type << std::endl;
         ECS::Entity newEntity = engine.getRegistry().entityManager().spawnEntity();
+        std::cout << "New entity created with ID: " << newEntity << std::endl;
         // call engine to create the entity
 
         for (const auto &component : entity.components) {
+            std::cout << "Adding component: \"" << component.id << "\" to entity ID: " << newEntity << std::endl;
             std::shared_ptr<Components::IComponent> comp = engine.getComponentFromId(component.id);
             if (!comp) {
-                std::cerr << "Component with ID " << component.id << " not found!" << std::endl;
+                std::cerr << "Component with ID: \"" << component.id << "\" not found!" << std::endl;
                 continue;  // Skip if the component is not found
             }
             comp->addTo(newEntity, engine, component.args);
@@ -198,4 +186,9 @@ extern "C" std::unique_ptr<Systems::ISystem> entryPoint(const char *configFilePa
 {
     std::cout << "entryPoint called with configFilePath: " << configFilePath << std::endl;
     return std::make_unique<Systems::ConfigLoader>(configFilePath);
+}
+
+extern "C" std::unique_ptr<Systems::ISystem> entryConfig(libconfig::Setting &config)
+{
+    return std::make_unique<Systems::ConfigLoader>(config);
 }
