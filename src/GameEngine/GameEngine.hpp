@@ -38,14 +38,14 @@ namespace Engine {
              * @note Possibly by the systems init functions.
              */
             template <class Component>
-            bool registerComponent(const std::string &componentPath)
+            bool registerComponent(const std::string &libPath, const std::string &libName)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
                 if (__componentLoaders.contains(typeIndex))
                     return (false);
 
-                __componentLoaders.emplace(typeIndex, DLLoader(componentPath));
+                __componentLoaders.emplace(typeIndex, DLLoader(libPath, libName));
                 return __registry.componentManager().registerComponent<Component>();
             }
 

@@ -12,6 +12,7 @@
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
 #include <iostream>
+#include <ostream>
 
 void displayComponents(ECS::Registry &reg)
 {
@@ -38,11 +39,13 @@ int main() {
     ECS::Registry &reg = engine.getRegistry();
     ECS::Entity entity = reg.entityManager().spawnEntity();
 
-    std::string positionPluginPath = "./plugins/bin/components/libPosition.so";
-    std::string configSystemPath = "./plugins/bin/systems/libConfig.so";
+    // std::string positionPluginPath = "./plugins/bin/components/libPosition.dll";
+    // std::string configSystemPath = "./plugins/bin/systems/libConfig.dll";
 
     try {
         engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
+
+        std::cout << "test" << std::endl;
 
         std::unique_ptr<Components::Position> position = engine.newComponent<Components::Position>(10, 20);
         std::unique_ptr<Components::Velocity> velocity = engine.newComponent<Components::Velocity>(2, 1);
