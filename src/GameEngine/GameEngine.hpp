@@ -40,11 +40,11 @@ namespace Engine {
              * @note Possibly by the systems init functions.
              */
             template <class Component>
-            bool registerComponent(const std::string &componentPath)
+            bool registerComponent(const std::string &libPath, const std::string &libName)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
-                if (!__componentLoaders.emplace(typeIndex, DLLoader(componentPath)).second)
+                if (!__componentLoaders.emplace(typeIndex, DLLoader(libPath, libName)).second)
                     return (false);
 
                 DLLoader &loader = __componentLoaders.at(typeIndex);

@@ -10,6 +10,5 @@ add_executable(server
 set_target_properties(server PROPERTIES OUTPUT_NAME "r-type_server")
 
 target_link_libraries(server
-    config
-    config++
+    ${LIBCONFIG_LIB_NAME}
 )

@@ -22,8 +22,7 @@ target_link_libraries(client
     sfml-window
     sfml-graphics
     sfml-network
-    config
-    config++
+    ${LIBCONFIG_LIB_NAME}
 )
 
 
