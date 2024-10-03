@@ -8,7 +8,8 @@
 #ifndef DLLOADER_HPP
     #define DLLOADER_HPP
 
-    #ifdef _WIN32
+    #include <functional>
+#ifdef _WIN32
         #include <windows.h>
     #else
         #include <dlfcn.h>
@@ -85,7 +86,7 @@ class DLLoader {
         template<typename T, typename... Args>
         std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
             using EntryPointFunc = T *(*)(Args...);
-            EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
+            EntryPointFunc entryPoint = getSymbolAddress<EntryPointFunc>(entryPointName);
 
             return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
         };
@@ -106,17 +107,37 @@ class DLLoader {
         template<typename T>
         std::unique_ptr<T> getInstance2(const std::string &entryPointName, libconfig::Setting &config) {
             using EntryPointFunc = T *(*)(libconfig::Setting &);
-            EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
+            EntryPointFunc entryPoint = getSymbolAddress<EntryPointFunc>(entryPointName);
 
             return std::unique_ptr<T>(entryPoint(config));
         };
 
         std::string getStringId(const std::string &entryPointName = "entryID") {
             using EntryPointFunc = char const *(*)();
-            EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
+            EntryPointFunc entryPoint = getSymbolAddress<EntryPointFunc>(entryPointName);
 
             return entryPoint();
         };
+
+        template<typename R, typename... Args>
+        R callFunction(const std::string &entryPointName, Args... args)
+        {
+            return getFunctionPointer<R, Args...>(entryPointName)(args...);
+        }
+ 
+        template<class R, class... Args>
+        std::function<R(Args...)> getFunctionPointer(const std::string &entryPointName)
+        {
+            using fptr_type = R (*)(Args...);
+
+            return getSymbolAddress<fptr_type>(entryPointName);
+        }
+
+        template<typename T>
+        T getSymbolValue(const std::string &entryPointName)
+        {
+            return *getSymbolAddress<T *>(entryPointName);
+        }
 
         /**
         * @class DLLExceptions
@@ -178,24 +199,19 @@ class DLLoader {
         };
 
         /**
-        * @brief Retrieves a function pointer from the library.
+        * @brief Retrieves a the address of a symbol in a loaded library.
         *
-        * @tparam T The type of the function pointer.
+        * @tparam T The pointer to be retrieved.
         *
-        * @param entryPointName The name of the function to retrieve from the library.
+        * @param entryPointName The name of the symbol to retrieve from the library.
         *
-        * @return The function pointer.
+        * @return The smybol pointer.
         *
-        * @throw DLLExceptions If the function pointer cannot be retrieved.
+        * @throw DLLExceptions If the symbol cannot be retrieved.
         */
         template<typename T>
-        T getEntryPoint(const std::string &entryPointName) {
-
-        #ifdef _WIN32
-            T entryPoint = reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
-        #else
-            T entryPoint = reinterpret_cast<T>(dlsym(__library, entryPointName.c_str()));
-        #endif
+        T getSymbolAddress(const std::string &entryPointName) {
+            T entryPoint = getSymbolAddress_nothrow<T>(entryPointName);
 
             if (!entryPoint) {
             #ifdef _WIN32
@@ -205,6 +221,15 @@ class DLLoader {
             #endif
             }
             return entryPoint;
+        }
+
+        template<typename T>
+        T getSymbolAddress_nothrow(const std::string &entryPointName) {
+        #ifdef _WIN32
+            return reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
+        #else
+            return reinterpret_cast<T>(dlsym(__library, entryPointName.c_str()));
+        #endif
         }
 };
 
