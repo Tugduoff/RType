@@ -11,6 +11,7 @@
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
+#include <exception>
 #include <iostream>
 
 void displayComponents(ECS::Registry &reg)
@@ -38,9 +39,6 @@ int main() {
     ECS::Registry &reg = engine.getRegistry();
     ECS::Entity entity = reg.entityManager().spawnEntity();
 
-    std::string positionPluginPath = "./plugins/bin/components/libPosition.so";
-    std::string configSystemPath = "./plugins/bin/systems/libConfig.so";
-
     try {
         engine.loadSystems("./plugins/bin/systems/", "./plugins/bin/systems/configSystems.cfg");
 
@@ -51,7 +49,7 @@ int main() {
         reg.componentManager().addComponent<Components::Velocity>(entity, std::move(velocity));
 
         displayComponents(reg);
-    } catch (std::runtime_error &e) {
+    } catch (std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 84;
     }

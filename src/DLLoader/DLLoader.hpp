@@ -28,9 +28,9 @@ class DLLoader {
         *
         * @throw DLLExceptions If the library cannot be opened.
         */
-        DLLoader(const std::string &libName)
+        DLLoader(const std::string &libPath, const std::string &libName)
         {
-            openLibrary(libName);
+            openLibrary(libPath, libName);
         }
 
         /**
@@ -62,10 +62,10 @@ class DLLoader {
         *
         * @throw DLLExceptions If the new library cannot be opened.
         */
-        void loadNew(const std::string &libName) {
+        void loadNew(const std::string &libPath, const std::string &libName) {
             if (__library)
                 closeLibrary();
-            openLibrary(libName);
+            openLibrary(libPath, libName);
         };
 
         /**
@@ -83,10 +83,10 @@ class DLLoader {
         */
         template<typename T, typename... Args>
         std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
-            using EntryPointFunc = std::unique_ptr<T> (*)(Args...);
+            using EntryPointFunc = T *(*)(Args...);
             EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
 
-            return entryPoint(std::forward<Args>(args)...);
+            return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
         };
 
         /**
@@ -117,12 +117,18 @@ class DLLoader {
         *
         * @throw DLLExceptions If the library cannot be opened.
         */
-        void openLibrary(const std::string &libName) {
+        void openLibrary(const std::string &libPath, const std::string &libName) {
+            std::string localLibName;
+            std::string localLibPath;
             #ifdef _WIN32
-                __library = LoadLibraryA(libName.c_str());
-                if (!__library) throw DLLExceptions("Failed to load library: " + libName);
+                localLibName = libName + ".dll";
+                localLibPath = libPath + localLibName;
+                __library = LoadLibraryA(localLibPath.c_str());
+                if (!__library) throw DLLExceptions("Failed to load library: " + localLibName);
             #else
-                __library = dlopen(libName.c_str(), RTLD_LAZY);
+                localLibName = "lib" + libName + ".so";
+                localLibPath = libPath + localLibName;
+                __library = dlopen(localLibPath.c_str(), RTLD_LAZY);
                 if (!__library) throw DLLExceptions(dlerror());
             #endif
         };
@@ -155,19 +161,20 @@ class DLLoader {
         */
         template<typename T>
         T getEntryPoint(const std::string &entryPointName) {
+
         #ifdef _WIN32
             T entryPoint = reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
         #else
             T entryPoint = reinterpret_cast<T>(dlsym(__library, entryPointName.c_str()));
         #endif
 
-            if (!entryPoint)
-        #ifdef _WIN32
+            if (!entryPoint) {
+            #ifdef _WIN32
                 throw DLLExceptions("Failed to load library");
-        #else
+            #else
                 throw DLLExceptions(dlerror());
-        #endif
-
+            #endif
+            }
             return entryPoint;
         }
 };
