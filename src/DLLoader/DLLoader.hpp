@@ -140,6 +140,31 @@ class DLLoader {
         }
 
         /**
+        * @brief Retrieves a the address of a symbol in a loaded library.
+        *
+        * @tparam T The pointer to be retrieved.
+        *
+        * @param entryPointName The name of the symbol to retrieve from the library.
+        *
+        * @return The smybol pointer.
+        *
+        * @throw DLLExceptions If the symbol cannot be retrieved.
+        */
+        template<typename T>
+        T getSymbolAddress(const std::string &entryPointName) {
+            T entryPoint = getSymbolAddress_nothrow<T>(entryPointName);
+
+            if (!entryPoint) {
+            #ifdef _WIN32
+                throw DLLExceptions("Failed to load library");
+            #else
+                throw DLLExceptions(dlerror());
+            #endif
+            }
+            return entryPoint;
+        }
+
+        /**
         * @class DLLExceptions
         *
         * @brief A custom exception class for errors related to dynamic library loading.
@@ -197,31 +222,6 @@ class DLLoader {
                     std::cerr << dlerror() << std::endl;
             #endif
         };
-
-        /**
-        * @brief Retrieves a the address of a symbol in a loaded library.
-        *
-        * @tparam T The pointer to be retrieved.
-        *
-        * @param entryPointName The name of the symbol to retrieve from the library.
-        *
-        * @return The smybol pointer.
-        *
-        * @throw DLLExceptions If the symbol cannot be retrieved.
-        */
-        template<typename T>
-        T getSymbolAddress(const std::string &entryPointName) {
-            T entryPoint = getSymbolAddress_nothrow<T>(entryPointName);
-
-            if (!entryPoint) {
-            #ifdef _WIN32
-                throw DLLExceptions("Failed to load library");
-            #else
-                throw DLLExceptions(dlerror());
-            #endif
-            }
-            return entryPoint;
-        }
 
         template<typename T>
         T getSymbolAddress_nothrow(const std::string &entryPointName) {
