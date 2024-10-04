@@ -105,7 +105,7 @@ class DLLoader {
         */
         template<typename T>
         std::unique_ptr<T> getInstance2(const std::string &entryPointName, libconfig::Setting &config) {
-            using EntryPointFunc = std::unique_ptr<T> (*)(libconfig::Setting &);
+            using EntryPointFunc = T *(*)(libconfig::Setting &);
             EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
 
             return entryPoint(config);

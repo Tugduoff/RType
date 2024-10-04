@@ -21,9 +21,9 @@ extern "C"
     }
 }
 
-extern "C" std::unique_ptr<Components::IComponent> entryConfig(libconfig::Setting &config)
+extern "C" Components::IComponent *entryConfig(libconfig::Setting &config)
 {
-    return std::make_unique<Components::Velocity>(config);
+    return new Components::Velocity(config);
 }
 
 extern "C" std::string entryID()

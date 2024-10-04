@@ -10,9 +10,9 @@
 #include <stdexcept>
 #include "Position.hpp"
 
-extern "C" std::unique_ptr<Components::IComponent> entryConfig(libconfig::Setting &config)
+extern "C" Components::IComponent *entryConfig(libconfig::Setting &config)
 {
-    return std::make_unique<Components::Position>(config);
+    return new Components::Position(config);
 }
 
 extern "C" std::string entryID()

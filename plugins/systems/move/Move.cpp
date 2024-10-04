@@ -60,7 +60,7 @@ extern "C"
     }
 }
 
-extern "C" std::unique_ptr<Systems::ISystem> entryConfig(libconfig::Setting &config)
+extern "C" Systems::ISystem *entryConfig(libconfig::Setting &config)
 {
-    return std::make_unique<Systems::MoveSystem>(config);
+    return new Systems::MoveSystem(config);
 }

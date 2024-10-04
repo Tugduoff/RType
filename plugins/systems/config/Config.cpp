@@ -188,7 +188,7 @@ extern "C" Systems::ISystem *entryPoint(const char *configFilePath)
     return new Systems::ConfigLoader(configFilePath);
 }
 
-extern "C" std::unique_ptr<Systems::ISystem> entryConfig(libconfig::Setting &config)
+extern "C" Systems::ISystem *entryConfig(libconfig::Setting &config)
 {
-    return std::make_unique<Systems::ConfigLoader>(config);
+    return new Systems::ConfigLoader(config);
 }
