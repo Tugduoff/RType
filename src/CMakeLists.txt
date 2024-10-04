@@ -23,7 +23,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${BINARY_OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BINARY_OUTPUT_DIR}/release)
 
 # Add some addiotionnal flags to pass to compiler
-if(CMAKE_BUILD_TYPE EQUAL Debug AND NOT WIN32)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT WIN32)
     message("Debug build, adding following compiler flags : -g -Wall -Wextra")
     add_definitions(-g -Wall -Wextra)
 endif()
