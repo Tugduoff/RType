@@ -108,7 +108,7 @@ class DLLoader {
             using EntryPointFunc = T *(*)(libconfig::Setting &);
             EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
 
-            return entryPoint(config);
+            return std::unique_ptr<T>(entryPoint(config));
         };
 
         std::string getStringId(const std::string &entryPointName = "entryID") {
