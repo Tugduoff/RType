@@ -51,16 +51,15 @@ void Systems::MoveSystem::init(Engine::GameEngine &engine)
 
 extern "C"
 {
-#ifdef _WIN32
-    __declspec(dllexport)
-#endif
+    WINDOWS_DLL_EXPORT
     Systems::ISystem *entryPoint()
     {
         return new Systems::MoveSystem();
     }
-}
 
-extern "C" Systems::ISystem *entryConfig(libconfig::Setting &config)
-{
-    return new Systems::MoveSystem(config);
+    WINDOWS_DLL_EXPORT
+    Systems::ISystem *entryConfig(libconfig::Setting &config)
+    {
+        return new Systems::MoveSystem(config);
+    }
 }

@@ -10,24 +10,24 @@
 #include <stdexcept>
 #include "Position.hpp"
 
-extern "C" Components::IComponent *entryConfig(libconfig::Setting &config)
-{
-    return new Components::Position(config);
-}
-
-extern "C" char const *entryID()
-{
-    return "Position";
-}
-
 extern "C"
 {
-#ifdef _WIN32
-    __declspec(dllexport)
-#endif
+    WINDOWS_DLL_EXPORT
     Components::IComponent *entryPoint(uint32_t x, uint32_t y, uint32_t layer)
     {
         return new Components::Position(x, y, layer);
+    }
+
+    WINDOWS_DLL_EXPORT
+    Components::IComponent *entryConfig(libconfig::Setting &config)
+    {
+        return new Components::Position(config);
+    }
+
+    WINDOWS_DLL_EXPORT
+    char const *entryID()
+    {
+        return "Position";
     }
 }
 
