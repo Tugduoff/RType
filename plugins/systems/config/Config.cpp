@@ -182,10 +182,10 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
     }
 }
 
-extern "C" std::unique_ptr<Systems::ISystem> entryPoint(const char *configFilePath)
+extern "C" Systems::ISystem *entryPoint(const char *configFilePath)
 {
     std::cout << "entryPoint called with configFilePath: " << configFilePath << std::endl;
-    return std::make_unique<Systems::ConfigLoader>(configFilePath);
+    return new Systems::ConfigLoader(configFilePath);
 }
 
 extern "C" std::unique_ptr<Systems::ISystem> entryConfig(libconfig::Setting &config)
