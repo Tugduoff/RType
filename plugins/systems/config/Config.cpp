@@ -5,7 +5,7 @@
 ** ConfigLoader.cpp file
 */
 
-#include "GameEngine.hpp"
+#include "GameEngine/GameEngine.hpp"
 #include "Config.hpp"
 #include <iostream>
 
