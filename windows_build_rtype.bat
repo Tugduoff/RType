@@ -12,7 +12,7 @@ cmake ..
 
 if errorlevel 1 (
     echo ERROR: Build failed !
-    goto failed
+    exit /b 84
 )
 
 echo R-Type Compilation...
@@ -20,8 +20,7 @@ cmake --build .
 
 if errorlevel 1 (
     echo ERROR: Compilation failed !
-    goto failed
+    exit /b 84
 )
 
-:failed
 cd ../..
