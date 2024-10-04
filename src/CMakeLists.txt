@@ -49,6 +49,12 @@ CPMAddPackage(
     "BUILD_TESTS OFF"
 )
 
+CPMAddPackage(
+    NAME asio
+    GIT_REPOSITORY "https://github.com/boostorg/asio"
+    GIT_TAG "boost-1.86.0"
+)
+
 if (WIN32)
     set(LIBCONFIG_LIB_NAME libconfig libconfig++)
 else()
