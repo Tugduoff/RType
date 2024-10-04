@@ -36,6 +36,17 @@ include_directories(../)
 # To allow plugin files include to work
 include_directories(../src)
 
+include_directories(./build/_deps/libconfig-src/lib)
+
+include(../src/cmake/CPM.cmake)
+CPMAddPackage(
+    NAME libconfig
+    GIT_REPOSITORY "https://github.com/hyperrealm/libconfig.git"
+    GIT_TAG "v1.7.3"
+    OPTIONS
+    "BUILD_EXAMPLES OFF"
+    "BUILD_TESTS OFF"
+)
 
 # Include the subdirectories for client and server
 add_subdirectory(components)
