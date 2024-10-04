@@ -112,7 +112,7 @@ class DLLoader {
         };
 
         std::string getStringId(const std::string &entryPointName = "entryID") {
-            using EntryPointFunc = std::string (*)();
+            using EntryPointFunc = char const *(*)();
             EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
 
             return entryPoint();

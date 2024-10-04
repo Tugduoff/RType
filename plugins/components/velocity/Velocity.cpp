@@ -26,7 +26,7 @@ extern "C" Components::IComponent *entryConfig(libconfig::Setting &config)
     return new Components::Velocity(config);
 }
 
-extern "C" std::string entryID()
+extern "C" char const *entryID()
 {
     return "Velocity";
 }

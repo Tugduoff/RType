@@ -15,7 +15,7 @@ extern "C" Components::IComponent *entryConfig(libconfig::Setting &config)
     return new Components::Position(config);
 }
 
-extern "C" std::string entryID()
+extern "C" char const *entryID()
 {
     return "Position";
 }
