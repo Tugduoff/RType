@@ -18,8 +18,8 @@ class UDPServer : public IUDP {
             : socket_(io_context, udp::endpoint(udp::v4(), port)) {
             std::cout << "Server started on port " << port << std::endl;
             /* HARD CODE */
-            size_max = 10;
             components_names = {"Position", "Velocity", "Health"};
+            size_max = get_size_max();
             /* --------- */
             start_receive();
         }
@@ -57,12 +57,19 @@ class UDPServer : public IUDP {
                 socket_.async_send_to(
                     boost::asio::buffer(message), remote_endpoint_,
                     [this, message](boost::system::error_code ec, std::size_t size_max) {
-                        if (!ec) {
+                        if (!ec)
                             std::cout << "Message sent to client: " << message << std::endl;
-                        }
                     }
                 );
             }
+        }
+
+        std::size_t get_size_max() {
+            auto max_component = std::max_element(components_names.begin(), components_names.end(),
+                [](const std::string& a, const std::string& b) {
+                    return a.size() < b.size();
+                });
+            return max_component != components_names.end() ? max_component->size() : 0;
         }
 };
 
