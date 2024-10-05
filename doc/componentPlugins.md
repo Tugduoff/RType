@@ -10,7 +10,7 @@ By following this guide, you will be able to create a new plugin that integrates
 
 ## IComponent Interface
 
-To add a new component as a plugin, you need to **inherit from the `IComponent` interface** and implement the required methods. Below is an overview of the `IComponent` interface and step-by-step instructions on how to implement it.
+To add a new component as a plugin, you need to **inherit from the `AComponent`, itself inheriting from `IComponent` interface** and implement the required methods. Below is an overview of the `IComponent` interface and step-by-step instructions on how to implement it.
 
 ### Key Methods to Implement
 
@@ -30,7 +30,7 @@ Your custom component must define the following methods to work as a plugin with
   - `data`: A byte stream (vector of bytes) containing the serialized state of the component.
 - **Details**:
   - Implement this to take in the byte data and **rebuild the component's state**. This is the reverse of `serialize()`.
-  - This method is used when recieving component update from the network. It should replace all data members with the updated data.
+  - This method is used when receiving component update from the network. It should replace all data members with the updated data.
   - Make sure to validate the size of the data given as argument. It should be the same as the components data size. If not, **throw a `std::runtime_error`**.
 
 ### 3. `getSize() const -> size_t`
