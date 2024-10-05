@@ -1,7 +1,7 @@
 # R-Type (Multiplayer Variant)
 
 ## Project Description
-This is a C++ school project in which we recreate the classic [**R-Type**](https://rtype.fandom.com/wiki/R-Type) game with a multiplayer twist. This project is available on Windows and Linux.
+This is a C++ school project in which we recreate the classic [**R-Type**](https://rtype.fandom.com/wiki/R-Type) game with a multiplayer twist. This project is available and run on Windows and Linux.
 
 You can now play together on different computers with your friends to the best game ever ! **Go destroy the Bydo together !**
 
@@ -20,9 +20,10 @@ Once you have downloaded the archive, you will need to extract the binaries from
 
 - **Windows** :
 You can either do it via :
-  -  Windows Graphical User Interface (GUI) :
+  - Windows Graphical User Interface (GUI) :
   In the **File Explorer** navigate to the folder where the `r-type_windows_x64.zip` is. Right click on it and select the  option `Extract all`.
-  -  Powershell : *(We will consider that the archive is in the Download folder of the user)*
+  &nbsp;
+  - Powershell : *(We will consider that the archive is in the Download folder of the user)*
   ```powershell
   cd ~\Downloads
   Expand-Archive -Path ".\r-type_windows_x64.zip" -DestinationPath ".\rtype"
@@ -41,7 +42,7 @@ You can either do it via :
 You should now have a `rtype` directory, in this folder you will find on : 
 - **Windows** : `r-type_server.exe`, `r-type_client.exe` and a bunch of `.dll` and `.pdb` files
 
-- **Linux** : `r-type_server.sh`, `r-type_client.sh` and a `lib` folder with a bunch of `.so` files
+- **Linux** : `r-type_server.sh`, `r-type_client.sh` and a `lib` folder in which a bunch of `.so` files
 
 
 ## Running the Game
