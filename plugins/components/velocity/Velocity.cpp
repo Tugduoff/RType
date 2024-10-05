@@ -24,10 +24,7 @@ Components::IComponent *entryConfig(libconfig::Setting &config)
 }
 
 LIBRARY_ENTRYPOINT
-char const *entryID()
-{
-    return "Velocity";
-}
+char const *componentName = "Velocity";
 
 Components::Velocity::Velocity(libconfig::Setting &config)
 {

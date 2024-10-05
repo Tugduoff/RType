@@ -48,7 +48,7 @@ namespace Engine {
                     return (false);
 
                 DLLoader &loader = __componentLoaders.at(typeIndex);
-                auto componentID = loader.getStringId("entryID");
+                std::string componentID = loader.getSymbolValue<const char *>("componentName");
 
                 std::cout << "Component ID: " << componentID << " registered!" << std::endl;
                 __components.emplace(componentID, std::make_shared<Component>());

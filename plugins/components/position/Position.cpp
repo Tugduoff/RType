@@ -24,10 +24,7 @@ Components::IComponent *entryConfig(libconfig::Setting &config)
 }
 
 LIBRARY_ENTRYPOINT
-char const *entryID()
-{
-    return "Position";
-}
+char const *componentName = "Position";
 
 Components::Position::Position(libconfig::Setting &config)
 {
