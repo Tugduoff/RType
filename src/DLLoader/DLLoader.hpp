@@ -84,11 +84,8 @@ class DLLoader {
         * @throw DLLExceptions If the function pointer cannot be retrieved.
         */
         template<typename T, typename... Args>
-        std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
-            using EntryPointFunc = T *(*)(Args...);
-            EntryPointFunc entryPoint = getSymbolAddress<EntryPointFunc>(entryPointName);
-
-            return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
+        std::unique_ptr<T> getUniqueInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
+            return std::unique_ptr<T>(callFunction<T *>(entryPointName, args...));
         };
 
         /**

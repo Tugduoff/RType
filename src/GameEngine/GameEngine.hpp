@@ -109,7 +109,7 @@ namespace Engine {
                     throw std::runtime_error("Component type not registered");
 
                 DLLoader &loader = __componentLoaders.at(typeIndex);
-                auto componentInstance = loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
+                auto componentInstance = loader.getUniqueInstance<Component>("entryPoint", std::forward<Args>(args)...);
 
                 if (!componentInstance)
                     throw std::runtime_error("Failed to load component from shared object");
