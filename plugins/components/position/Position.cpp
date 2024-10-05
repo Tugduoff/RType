@@ -5,9 +5,6 @@
 ** Position.cpp file
 */
 
-#include <memory>
-#include <iostream>
-#include <stdexcept>
 #include "Position.hpp"
 #include "library_entrypoint.hpp"
 

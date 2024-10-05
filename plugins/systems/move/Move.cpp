@@ -7,12 +7,11 @@
 
 #include "GameEngine/GameEngine.hpp"
 #include "Move.hpp"
+#include "components/position/Position.hpp"
+#include "components/velocity/Velocity.hpp"
 #include "library_entrypoint.hpp"
-#include "plugins/Components.hpp"
 #include <iostream>
 #include <stdexcept>
-#include <memory>
-#include <cstdint>
 
 Systems::MoveSystem::MoveSystem(libconfig::Setting &config)
 {

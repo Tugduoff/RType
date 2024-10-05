@@ -11,7 +11,6 @@
     #include "ECS/registry/Registry.hpp"
     #include "DLLoader/DLLoader.hpp"
     #include "plugins/components/IComponent.hpp"
-    #include <functional>
     #include <unordered_map>
     #include <typeindex>
     #include <iostream>

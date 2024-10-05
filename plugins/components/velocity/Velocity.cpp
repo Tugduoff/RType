@@ -5,9 +5,6 @@
 ** Velocity.cpp file
 */
 
-#include <memory>
-#include <iostream>
-#include <stdexcept>
 #include "Velocity.hpp"
 #include "library_entrypoint.hpp"
 

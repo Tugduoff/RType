@@ -15,7 +15,6 @@
         #include <dlfcn.h>
     #endif
     #include <string>
-    #include <utility>
     #include <memory>
     #include <iostream>
     #include <libconfig.h++>
@@ -86,13 +85,6 @@ class DLLoader {
         template<typename T, typename... Args>
         std::unique_ptr<T> getUniqueInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
             return std::unique_ptr<T>(callFunction<T *, Args...>(entryPointName, args...));
-        };
-
-        std::string getStringId(const std::string &entryPointName = "entryID") {
-            using EntryPointFunc = char const *(*)();
-            EntryPointFunc entryPoint = getSymbolAddress<EntryPointFunc>(entryPointName);
-
-            return entryPoint();
         };
 
         template<typename R, typename... Args>
