@@ -8,10 +8,10 @@
 #ifndef CONFIGSTRUCT_HPP
     #define CONFIGSTRUCT_HPP
 
-    #include <string>
-    #include <map>
+    #include <unordered_map>
     #include <vector>
     #include <cstdint>
+    #include <libconfig.h++>
 
 enum Difficulty {
     PEACEFUL,
@@ -24,7 +24,7 @@ enum Difficulty {
     UNREAL
 };
 
-std::map<std::string, Difficulty> difficultyFromString = {
+const std::unordered_map<std::string, Difficulty> difficultyFromString = {
     {"PEACEFUL", PEACEFUL},
     {"EASY", EASY},
     {"MEDIUM", MEDIUM},
@@ -60,7 +60,7 @@ struct ConfigStruct {
     struct EntityTemplate {
         std::vector<Component> components;
     }; // Entity template structure, when adding new components, add them here as well
-    std::map<std::string, EntityTemplate> entityTemplates; // List of entity templates
+    std::unordered_map<std::string, EntityTemplate> entityTemplates; // List of entity templates
 
     struct Entity {
         std::string type; // If the entity is dependant of a template, the type will be the template name
