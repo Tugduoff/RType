@@ -123,7 +123,7 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
         level.lookupValue("description", config.level.description);
         std::string difficultyString;
         level.lookupValue("difficulty", difficultyString);
-        config.level.difficulty = difficultyFromString[difficultyString];
+        config.level.difficulty = difficultyFromString.at(difficultyString);
         level.lookupValue("background_music", config.level.backgroundMusic);
 
         // Extract nested structures (map_size, view_port)
