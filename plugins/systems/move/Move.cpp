@@ -13,9 +13,8 @@
 #include <iostream>
 #include <stdexcept>
 
-Systems::MoveSystem::MoveSystem(libconfig::Setting &config)
+Systems::MoveSystem::MoveSystem(libconfig::Setting &)
 {
-    (void)config;
 }
 
 void Systems::MoveSystem::run(Engine::GameEngine &engine)
