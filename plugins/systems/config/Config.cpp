@@ -50,6 +50,7 @@ std::string Systems::ConfigLoader::difficultyToString(enum Difficulty difficulty
         case UNREAL:
             return "UNREAL";
     }
+    return "";
 }
 
 void Systems::ConfigLoader::displayConfig()
