@@ -8,12 +8,13 @@
 #ifndef DLLOADER_HPP
     #define DLLOADER_HPP
 
-    #include <functional>
-#ifdef _WIN32
+    #ifdef _WIN32
         #include <windows.h>
     #else
         #include <dlfcn.h>
     #endif
+
+    #include <functional>
     #include <string>
     #include <memory>
     #include <iostream>
@@ -87,12 +88,34 @@ class DLLoader {
             return std::unique_ptr<T>(callFunction<T *, Args...>(entryPointName, args...));
         };
 
+        /**
+         * @brief Call a function in the currently loaded library
+         *
+         * @tparam R The return type of the function
+         * @tparam Args This function's parameters types
+         *
+         * @param entryPointName The name of the function to call
+         * @param args The arguments to pass to the function
+         *
+         * @return The return value of the function
+         */
         template<typename R, typename... Args>
         R callFunction(const std::string &entryPointName, Args... args)
         {
             return getFunctionPointer<R, Args...>(entryPointName)(args...);
         }
  
+        /**
+         * @brief Function to retrieve a function pointer in the
+         * @brief currently loaded library
+         *
+         * @param entryPointName The name of the function in the library
+         *
+         * @tparam R The return type of the function
+         * @tparam Args the parameter types of the function
+         *
+         * @return A function object wrapping the function pointer
+         */
         template<class R, class... Args>
         std::function<R(Args...)> getFunctionPointer(const std::string &entryPointName)
         {
@@ -101,6 +124,11 @@ class DLLoader {
             return getSymbolAddress<fptr_type>(entryPointName);
         }
 
+        /**
+         * @brief Short hand for `*getSymbolAddress<T *>
+         *
+         * @see getSymbolAddress
+         */
         template<typename T>
         T getSymbolValue(const std::string &entryPointName)
         {
@@ -108,7 +136,7 @@ class DLLoader {
         }
 
         /**
-        * @brief Retrieves a the address of a symbol in a loaded library.
+        * @brief Retrieves the address of a symbol in a loaded library.
         *
         * @tparam T The pointer to be retrieved.
         *
@@ -191,6 +219,15 @@ class DLLoader {
             #endif
         };
 
+        /**
+         * @brief Return a symbol contained in the currently open library
+         *
+         * @param entryPointName The name of the symbol to retrieve
+         *
+         * @tparam T The pointer type to return
+         *
+         * @return The retrieved pointer
+         */
         template<typename T>
         T getSymbolAddress_nothrow(const std::string &entryPointName) {
         #ifdef _WIN32
