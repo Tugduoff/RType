@@ -1,6 +1,9 @@
 # Set the minimum required version of CMake
 cmake_minimum_required(VERSION 3.10)
 
+# Enable config export to clangd language server
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 # May be needed
 if (WIN32)
     set(MSVC True)
