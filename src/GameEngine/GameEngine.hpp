@@ -136,8 +136,8 @@ namespace Engine {
         private:
 
             std::unordered_map<std::type_index, DLLoader> __componentLoaders;
-            std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> __components;
             std::vector<DLLoader> __systemLoaders;
+            std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> __components;
             ECS::Registry __registry;
 
     };
