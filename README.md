@@ -1,15 +1,12 @@
 # R-Type (Multiplayer Variant)
 
 ## Project Description
-This is a C++ school project in which we recreate the classic **R-Type** game with a multiplayer twist. Players can connect to a server as clients, and the server can handle multiple client connections to enable multiplayer gameplay.
+This is a C++ school project in which we recreate the classic [**R-Type**](https://rtype.fandom.com/wiki/R-Type) game with a multiplayer twist. This project is available on Windows and Linux.
 
-## Features
-- **Multiplayer**: Players connect as clients to a central game server.
-- **Server-Client Architecture**: Separate binaries for `r-type_server` and `r-type_client`.
-- **Cross-Platform**: Compatible with Windows and Linux.
+You can now play together on different computers with your friends to the best game ever ! **Go destroy the Bydo together !**
 
 ## Installation
-To use our game, follow these steps:
+To play our game, follow these steps:
 
 ### 1. Download the archive
 On the [release page](https://github.com/Tugduoff/RType/releases), download the files corresponding to your operating system :
@@ -70,4 +67,4 @@ To start the game, first go into the `rtype` directory, then, run the server:
 ./r-type_server.sh -h 127.0.0.0 -p 4242
 ```
 
-Here you go, you can now enjoy playing our game and even invite some friends if you want !
+Here you go, you can now enjoy playing our game !
