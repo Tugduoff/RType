@@ -7,3 +7,4 @@ build/
 *.so.*
 r-type_server
 r-type_client
+output.txt

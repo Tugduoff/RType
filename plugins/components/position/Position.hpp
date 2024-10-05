@@ -8,8 +8,13 @@
 #ifndef POSITION_HPP
     #define POSITION_HPP
 
-    #include "plugins/components/AComponent.hpp"
-    #include <arpa/inet.h>
+    #include "components/AComponent.hpp"
+     #ifdef _WIN32
+        #include <windows.h>
+        #pragma comment(lib, "ws2_32.lib")
+    #else
+        #include <arpa/inet.h>
+    #endif
     #include <vector>
     #include <stdexcept>
 

@@ -8,7 +8,13 @@
 #include <memory>
 #include "Position.hpp"
 
-extern "C" std::unique_ptr<Components::IComponent> entryPoint(uint32_t x, uint32_t y)
+extern "C"
 {
-    return std::make_unique<Components::Position>(x, y);
+#ifdef _WIN32
+    __declspec(dllexport)
+#endif
+    Components::IComponent *entryPoint(uint32_t x, uint32_t y)
+    {
+        return new Components::Position(x, y);
+    }
 }
