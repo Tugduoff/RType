@@ -8,6 +8,6 @@
         #define WINDOWS_DLL_EXPORT
     #endif
 
-    #define LIBRARY_ENTRYPOINT WINDOWS_DLL_EXPORT extern "C"
+    #define  LIBRARY_ENTRYPOINT extern "C" WINDOWS_DLL_EXPORT
 
 #endif /* LIBRARY_ENTRYPOINT */
