@@ -9,26 +9,24 @@
 #include <iostream>
 #include <stdexcept>
 #include "Velocity.hpp"
+#include "library_entrypoint.hpp"
 
-extern "C"
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryPoint(uint32_t x, uint32_t y)
 {
-    WINDOWS_DLL_EXPORT
-    Components::IComponent *entryPoint(uint32_t x, uint32_t y)
-    {
-        return new Components::Velocity(x, y);
-    }
+    return new Components::Velocity(x, y);
+}
 
-    WINDOWS_DLL_EXPORT
-    Components::IComponent *entryConfig(libconfig::Setting &config)
-    {
-        return new Components::Velocity(config);
-    }
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryConfig(libconfig::Setting &config)
+{
+    return new Components::Velocity(config);
+}
 
-    WINDOWS_DLL_EXPORT
-    char const *entryID()
-    {
-        return "Velocity";
-    }
+LIBRARY_ENTRYPOINT
+char const *entryID()
+{
+    return "Velocity";
 }
 
 Components::Velocity::Velocity(libconfig::Setting &config)

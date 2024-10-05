@@ -6,6 +6,7 @@
 */
 
 #include "GameEngine/GameEngine.hpp"
+#include "library_entrypoint.hpp"
 #include "Config.hpp"
 #include <iostream>
 
@@ -182,13 +183,15 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
     }
 }
 
-extern "C" Systems::ISystem *entryPoint(const char *configFilePath)
+LIBRARY_ENTRYPOINT
+Systems::ISystem *entryPoint(const char *configFilePath)
 {
     std::cout << "entryPoint called with configFilePath: " << configFilePath << std::endl;
     return new Systems::ConfigLoader(configFilePath);
 }
 
-extern "C" Systems::ISystem *entryConfig(libconfig::Setting &config)
+LIBRARY_ENTRYPOINT
+Systems::ISystem *entryConfig(libconfig::Setting &config)
 {
     return new Systems::ConfigLoader(config);
 }

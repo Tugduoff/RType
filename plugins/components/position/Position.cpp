@@ -9,26 +9,24 @@
 #include <iostream>
 #include <stdexcept>
 #include "Position.hpp"
+#include "library_entrypoint.hpp"
 
-extern "C"
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryPoint(uint32_t x, uint32_t y, uint32_t layer)
 {
-    WINDOWS_DLL_EXPORT
-    Components::IComponent *entryPoint(uint32_t x, uint32_t y, uint32_t layer)
-    {
-        return new Components::Position(x, y, layer);
-    }
+    return new Components::Position(x, y, layer);
+}
 
-    WINDOWS_DLL_EXPORT
-    Components::IComponent *entryConfig(libconfig::Setting &config)
-    {
-        return new Components::Position(config);
-    }
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryConfig(libconfig::Setting &config)
+{
+    return new Components::Position(config);
+}
 
-    WINDOWS_DLL_EXPORT
-    char const *entryID()
-    {
-        return "Position";
-    }
+LIBRARY_ENTRYPOINT
+char const *entryID()
+{
+    return "Position";
 }
 
 Components::Position::Position(libconfig::Setting &config)
