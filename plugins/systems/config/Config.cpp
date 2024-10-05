@@ -8,7 +8,9 @@
 #include "GameEngine/GameEngine.hpp"
 #include "library_entrypoint.hpp"
 #include "Config.hpp"
+#include <exception>
 #include <iostream>
+#include <winspool.h>
 
 Systems::ConfigLoader::ConfigLoader(const std::string &configFilePath) : __configFilePath(configFilePath)
 {
@@ -123,7 +125,13 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
         level.lookupValue("description", config.level.description);
         std::string difficultyString;
         level.lookupValue("difficulty", difficultyString);
-        config.level.difficulty = difficultyFromString.at(difficultyString);
+        try {
+            config.level.difficulty = difficultyFromString.at(difficultyString);
+        } catch (std::exception &) {
+            std::cerr << "ERROR: Invalid difficulty setting : " << difficultyString <<
+            ". Defaulting to EASY." << std::endl;
+            config.level.difficulty = Difficulty::EASY;
+        }
         level.lookupValue("background_music", config.level.backgroundMusic);
 
         // Extract nested structures (map_size, view_port)
