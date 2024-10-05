@@ -10,7 +10,6 @@
 #include "Config.hpp"
 #include <exception>
 #include <iostream>
-#include <winspool.h>
 
 Systems::ConfigLoader::ConfigLoader(const std::string &configFilePath) : __configFilePath(configFilePath)
 {
