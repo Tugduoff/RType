@@ -79,8 +79,8 @@ Your custom component must define the following methods to work as a plugin with
   - Implement this function to **return a new instance** of your custom component.
   - The engine uses this entry point to instantiate your component at runtime.
 
-### 3. `char const *name`
-- **Purpose**: This variable defines the name of the component. This id will be used as a key in a map of component's instances created on registration. It allows for the functions addTo() of the component interface to be called on every component as long as we have the component name.
+### 3. `char const *componentName`
+- **Purpose**: This variable defines the name of the component. This id will be used as a key in a map of component's instances created on registration. It allows for the functions addTo() of the component interface to be called on every component as long as we have the component name. It must be named : componentName
 
 ## Steps to Create a New Component Plugin
 
