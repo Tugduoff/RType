@@ -23,7 +23,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${BINARY_OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BINARY_OUTPUT_DIR}/release)
 
 # Add some addiotionnal flags to pass to compiler
-if(NOT WIN32)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT WIN32)
+    message("Debug build, adding following compiler flags : -g -Wall -Wextra")
     add_definitions(-g -Wall -Wextra)
 endif()
 
@@ -46,6 +47,12 @@ CPMAddPackage(
     OPTIONS
     "BUILD_EXAMPLES OFF"
     "BUILD_TESTS OFF"
+)
+
+CPMAddPackage(
+    NAME asio
+    GIT_REPOSITORY "https://github.com/boostorg/asio"
+    GIT_TAG "boost-1.86.0"
 )
 
 if (WIN32)
