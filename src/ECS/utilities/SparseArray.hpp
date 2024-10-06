@@ -11,6 +11,9 @@
     #include <cstddef>
     #include <functional>
     #include <unordered_map>
+    #include <forward_list>
+    #include <functional>
+    #include <vector>
     #include <stdexcept>
     #include <algorithm>
     #include <memory>
@@ -35,6 +38,8 @@ class SparseArray {
          * @brief Type of a function that can be used to get a Component instance
          */
         using comp_ctor = std::function<Component *()>;
+    
+        using updateCallback_t =  std::function<void(std::size_t index, const Component &modified)>;
 
         using value_type = std::unique_ptr<Component>;
         using map_type = std::unordered_map<std::size_t, value_type>;
@@ -66,10 +71,45 @@ class SparseArray {
          */
         SparseArray &operator=(const SparseArray &other) = default;
         SparseArray &operator=(SparseArray &&other) = default;
+
         std::unique_ptr<Component> &operator[](std::size_t index) {
             if (index >= __data.size())
                 throw std::out_of_range("Index out of range");
             return __data[index];
+        }
+
+        /**
+         * @brief Function which notifies all event listeners
+         * @brief about a specific component instance's state
+         *
+         * @param index The index of the updated component
+         * @param modif A function which will modify the component
+         *
+         * @return `modif`'s return value
+         */
+        template<typename T>
+        T updateComponent(
+            std::size_t index,
+            std::function<T(Component &)> modif
+        )
+        {
+            auto ret = modif((*this)[index]);
+            updateComponent(index);
+            return ret;
+        }
+
+        /**
+         * @brief Function which notifies all event listeners
+         * @brief about a specific component instance's state
+         *
+         * @param index The index of the updated component
+         */
+        void updateComponent(std::size_t index) {
+            auto modifiedComponent = (*this)[index];
+
+            for (auto &callback : __updateCallbacks) {
+                callback(index, modifiedComponent);
+            }
         }
 
         // Iterators
@@ -130,10 +170,21 @@ class SparseArray {
             std::erase_if(__data, [](auto const &it) { return !*it; });
         }
 
+        /**
+         * @brief Register an update callback to the sparseArray
+         * 
+         * The callback will be called each time the `UpdateComponent` is called
+         */
+        void registerUpdateCallback(updateCallback_t callback) {
+            __updateCallbacks.push_front(std::move(callback));
+        }
+
     private:
 
         std::unordered_map<std::size_t, std::unique_ptr<Component>> __data;
         comp_ctor __ctor;
+
+        std::forward_list<updateCallback_t> __updateCallbacks;
 };
 
 #endif // SPARSE_ARRAY_HPP
