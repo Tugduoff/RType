@@ -25,7 +25,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin/release)
 
 # Add some addiotionnal flags to pass to compiler
-if(NOT WIN32)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT WIN32)
+    message("Debug build, adding following compiler flags : -g -Wall -Wextra")
     add_definitions(-g -Wall -Wextra)
 endif()
 
