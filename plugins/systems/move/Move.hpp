@@ -9,21 +9,17 @@
     #define MOVESYSTEM_HPP
 
     #include <libconfig.h++>
-    #include "systems/ASystem.hpp"
-
-namespace Engine {
-    class GameEngine;
-}
+    #include "systems/AServerSystem.hpp"
 
 namespace Systems {
-    class MoveSystem : public ASystem {
+    class MoveSystem : public AServerSystem {
         public:
             MoveSystem() = default;
             MoveSystem(libconfig::Setting &config);
             ~MoveSystem() = default;
 
-            void run(Engine::GameEngine &engine) override;
-            void init(Engine::GameEngine &engine) override;
+            void run(Engine::ServerEngine &engine) override;
+            void init(Engine::ServerEngine &engine) override;
         private:
     };
 };

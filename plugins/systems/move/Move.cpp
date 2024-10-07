@@ -5,7 +5,6 @@
 ** MoveSystem.cpp file
 */
 
-#include "GameEngine/GameEngine.hpp"
 #include "Move.hpp"
 #include "components/position/Position.hpp"
 #include "components/velocity/Velocity.hpp"
@@ -17,7 +16,7 @@ Systems::MoveSystem::MoveSystem(libconfig::Setting &)
 {
 }
 
-void Systems::MoveSystem::run(Engine::GameEngine &engine)
+void Systems::MoveSystem::run(Engine::ServerEngine &engine)
 {
     auto &reg = engine.getRegistry();
 
@@ -40,7 +39,7 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
     }
 }
 
-void Systems::MoveSystem::init(Engine::GameEngine &engine)
+void Systems::MoveSystem::init(Engine::ServerEngine &engine)
 {
     if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
         std::cerr << "Error: Could not register Position component in system Move" << std::endl;
