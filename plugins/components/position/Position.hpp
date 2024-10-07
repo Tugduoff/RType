@@ -8,9 +8,7 @@
 #ifndef POSITION_HPP
     #define POSITION_HPP
 
-    #include "plugins/components/AComponent.hpp"
-    #include "GameEngine/GameEngine.hpp"
-    #include "components/AComponent.hpp"
+    #include "components/AServerComponent.hpp"
      #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -29,7 +27,7 @@ namespace Components {
      * as well as a layer to manage the entity's depth in the rendering order. It also provides
      * methods to serialize and deserialize the position data.
      */
-    class Position : public AComponent {
+    class Position : public AServerComponent {
     public:
         /**
          * @brief Default constructor for the Position component.
@@ -101,7 +99,7 @@ namespace Components {
          * @note This function will add the Position component to the entity.
          * @note The arguments should be a tuple of three uint32_t values: x, y, and layer.
          */
-        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+        void addTo(ECS::Entity &to, Engine::ServerEngine &engine, std::vector<std::any> args) override {
             if (args.size() != 3)
                 throw std::runtime_error("Invalid number of arguments for Position component");
             uint32_t x = std::any_cast<uint32_t>(args[0]);
@@ -120,7 +118,7 @@ namespace Components {
          * @note This function will add the Position component to the entity.
          * @note The configuration setting should contain the keys 'x', 'y', and 'layer'.
          */
-        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
+        void addTo(ECS::Entity &to, Engine::ServerEngine &engine, libconfig::Setting &config) override {
             int xVal = 0, yVal = 0, layerVal = 0;
 
             if (
