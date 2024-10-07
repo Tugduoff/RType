@@ -11,9 +11,9 @@
     #include <cstddef>
     #include <functional>
     #include <unordered_map>
-    #include <forward_list>
     #include <functional>
-#include <typeindex>
+    #include <list>
+    #include <typeindex>
     #include <vector>
     #include <stdexcept>
     #include <algorithm>
@@ -185,7 +185,7 @@ class SparseArray {
          * The callback will be called each time the `UpdateComponent` is called
          */
         void registerUpdateCallback(updateCallback_t callback) {
-            __updateCallbacks.push_front(std::move(callback));
+            __updateCallbacks.push_back(std::move(callback));
         }
 
     private:
@@ -193,7 +193,7 @@ class SparseArray {
         std::unordered_map<std::size_t, std::unique_ptr<Component>> __data;
         comp_ctor __ctor;
 
-        std::forward_list<updateCallback_t> __updateCallbacks;
+        std::list<updateCallback_t> __updateCallbacks;
 };
 
 #endif // SPARSE_ARRAY_HPP
