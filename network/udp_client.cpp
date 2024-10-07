@@ -5,40 +5,92 @@
 ** udp_client
 */
 
-#include "boost/asio.hpp"
 #include <iostream>
+#include <string>
+#include <optional>
+#include "boost/asio.hpp"
 
 using boost::asio::ip::udp;
+
+class UDPConnection {
+public:
+    UDPConnection(boost::asio::io_context& io_context, std::string hostname, std::string port)
+        : _socket(io_context, udp::endpoint(udp::v4(), 0))
+    {
+        udp::resolver resolver(io_context);
+        udp::resolver::results_type endpoints = resolver.resolve(udp::v4(), hostname, port);
+        _server_endpoint = *endpoints.begin();
+    }
+
+    void send(const std::string& message) {
+        _socket.send_to(boost::asio::buffer(message), _server_endpoint);
+        std::cout << "Sent message: " << message << std::endl;
+    }
+
+    std::string blockingReceive() {
+        char recv_buffer[1024];
+        udp::endpoint sender_endpoint;
+        size_t len = 0;
+
+        while (sender_endpoint != _server_endpoint) {
+            len = _socket.receive_from(boost::asio::buffer(recv_buffer), sender_endpoint);
+        }
+        std::string message(recv_buffer, len);
+        std::cout << "Received message from server: " << message << std::endl;
+        return message;
+    }
+
+    std::optional<std::string> nonBlockingReceive() {
+        char recv_buffer[1024];
+        udp::endpoint sender_endpoint;
+
+        if (_socket.available() > 0) {
+            size_t len = _socket.receive_from(boost::asio::buffer(recv_buffer), sender_endpoint);
+
+            if (sender_endpoint == _server_endpoint) {
+                std::string message(recv_buffer, len);
+                std::cout << "Received message from server: " << message << std::endl;
+                return message;
+            } else {
+                std::cerr << "Data received from another host, ignoring..." << std::endl;
+                return std::nullopt;
+            }
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    void close() {
+        boost::system::error_code ec;
+        _socket.close(ec);
+        if (ec) {
+            std::cerr << "Error closing socket: " << ec.message() << std::endl;
+        } else {
+            std::cout << "Socket closed successfully." << std::endl;
+        }
+    }
+
+protected:
+    udp::socket _socket;
+    udp::endpoint _server_endpoint;
+};
 
 int main() {
     try {
         boost::asio::io_context io_context;
-        udp::socket socket(io_context, udp::endpoint(udp::v4(), 0));
-
-        udp::resolver resolver(io_context);
-        udp::resolver::results_type endpoints = resolver.resolve(udp::v4(), "127.0.0.1", "8080");
+        UDPConnection conn(io_context, "127.0.0.1", "8080");
 
         std::string message = "Hello from client!";
-        std::array<char, 1024> recv_buffer;
 
-        socket.send_to(boost::asio::buffer(message), *endpoints.begin());
-        std::cout << "Message sent to server: " << message << std::endl;
+        conn.send(message);
 
         while (true) {
-            // if (message == "exit")
-            //     break;
-            // socket.send_to(boost::asio::buffer(message), *endpoints.begin());
-            // std::cout << "Message sent to server: " << message << std::endl;
-
-            // Wait for server's response (if any)
             udp::endpoint server_endpoint;
-            std::size_t len = socket.receive_from(boost::asio::buffer(recv_buffer), server_endpoint);
+            std::string recv_mesage = conn.blockingReceive();
 
-            std::cout << "Received from server: " << std::string(recv_buffer.data(), len) << std::endl;
-            // if (std::string(recv_buffer.data(), len) == "ping") {
-            //     socket.send_to(boost::asio::buffer("pong"), *endpoints.begin());
-            //     std::cout << "Message sent to server: " << "pong" << std::endl;
-            // }
+            if (recv_mesage == "ping") {
+                conn.send("pong");
+            }
         }
 
     } catch (std::exception& e) {
