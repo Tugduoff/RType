@@ -13,6 +13,7 @@
     #include <unordered_map>
     #include <forward_list>
     #include <functional>
+#include <typeindex>
     #include <vector>
     #include <stdexcept>
     #include <algorithm>
@@ -39,7 +40,11 @@ class SparseArray {
          */
         using comp_ctor = std::function<Component *()>;
     
-        using updateCallback_t =  std::function<void(std::size_t index, const Component &modified)>;
+        using updateCallback_t =  std::function<void(
+            std::size_t index,
+            std::type_index type,
+            const Component &modified
+        )>;
 
         using value_type = std::unique_ptr<Component>;
         using map_type = std::unordered_map<std::size_t, value_type>;
@@ -108,7 +113,11 @@ class SparseArray {
             auto modifiedComponent = (*this)[index];
 
             for (auto &callback : __updateCallbacks) {
-                callback(index, modifiedComponent);
+                callback(
+                    index,
+                    std::type_index(typeid(Component)),
+                    modifiedComponent
+                );
             }
         }
 
