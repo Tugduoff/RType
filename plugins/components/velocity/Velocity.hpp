@@ -8,8 +8,7 @@
 #ifndef VELOCITY_HPP
     #define VELOCITY_HPP
 
-    #include "GameEngine/GameEngine.hpp"
-    #include "components/AComponent.hpp"
+    #include "components/AServerComponent.hpp"
      #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -26,7 +25,7 @@ namespace Components {
      * This class represents the velocity of an entity, storing the x and y components,
      * and provides methods to serialize and deserialize the data.
      */
-    class Velocity : public AComponent {
+    class Velocity : public AServerComponent {
     public:
         /**
          * @brief Default constructor for the Velocity component.
@@ -98,7 +97,7 @@ namespace Components {
          * @note This function will add the component to the entity.
          * @note The arguments should be a pair of uint32_t values representing the x and y components of the velocity.
          */
-        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+        void addTo(ECS::Entity &to, Engine::ServerEngine &engine, std::vector<std::any> args) override {
             if (args.size() != 2)
                 throw std::runtime_error("Invalid number of arguments for Velocity component");
             uint32_t x = std::any_cast<uint32_t>(args[0]);
@@ -116,7 +115,7 @@ namespace Components {
          * @note This function will add the component to the entity.
          * @note The configuration settings should contain the x and y components of the velocity.
          */
-        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
+        void addTo(ECS::Entity &to, Engine::ServerEngine &engine, libconfig::Setting &config) override {
             int xVal = 0, yVal = 0;
 
             if (
