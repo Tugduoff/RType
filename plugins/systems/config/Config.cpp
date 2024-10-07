@@ -5,9 +5,9 @@
 ** ConfigLoader.cpp file
 */
 
-#include "GameEngine/GameEngine.hpp"
-#include "library_entrypoint.hpp"
 #include "Config.hpp"
+#include "components/IComponent.hpp"
+#include "library_entrypoint.hpp"
 #include <exception>
 #include <iostream>
 
@@ -20,12 +20,12 @@ Systems::ConfigLoader::ConfigLoader(libconfig::Setting &config)
     config.lookupValue("path", __configFilePath);
 }
 
-void Systems::ConfigLoader::init(Engine::GameEngine &engine)
+void Systems::ConfigLoader::init(Engine::ServerEngine &engine)
 {
     loadConfig(__configFilePath, engine);
 }
 
-void Systems::ConfigLoader::run(Engine::GameEngine &engine)
+void Systems::ConfigLoader::run(Engine::ServerEngine &engine)
 {
     // Do smth
 
@@ -96,7 +96,7 @@ void Systems::ConfigLoader::displayConfig()
     }
 }
 
-void Systems::ConfigLoader::loadConfig(const std::string &filepath, Engine::GameEngine &engine)
+void Systems::ConfigLoader::loadConfig(const std::string &filepath, Engine::ServerEngine &engine)
 {
     try {
         cfg.readFile(filepath);
@@ -115,7 +115,7 @@ void Systems::ConfigLoader::loadConfig(const std::string &filepath, Engine::Game
     }
 }
 
-void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::GameEngine &engine)
+void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::ServerEngine &engine)
 {
         // Extract level information
     if (root.exists("level")) {
