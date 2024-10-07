@@ -9,7 +9,7 @@
     #define ISYSTEM_HPP
 
 namespace Engine {
-    class GameEngine;
+    class IEngine;
 }
 
 namespace Systems {
@@ -23,7 +23,7 @@ namespace Systems {
              * @param reg : The registry of the ECS
              * @note This function should contain the logic of the system
              */
-            virtual void run(Engine::GameEngine &engine) = 0;
+            virtual void run(Engine::IEngine &engine) = 0;
 
             /**
              * @brief Function called when the system is initialized
@@ -36,7 +36,7 @@ namespace Systems {
              * 
              * @note This function should be used to initialize the system and must be called at the start of the game
              */
-            virtual void init(Engine::GameEngine &engine) = 0;
+            virtual void init(Engine::IEngine &engine) = 0;
 
         private:
     };
