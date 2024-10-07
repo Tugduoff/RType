@@ -3,7 +3,7 @@ add_executable(server
     Main.cpp
 
     ../ECS/system/SystemManager.cpp
-    ../GameEngine/GameEngine.cpp
+    ../Engine/ServerEngine.cpp
 )
 
 # Set the output name for the server binary
