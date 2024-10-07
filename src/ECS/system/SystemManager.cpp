@@ -6,21 +6,21 @@
 */
 
 #include "SystemManager.hpp"
-#include "GameEngine/GameEngine.hpp"
+#include "src/Engine/IEngine.hpp"
 
 void ECS::SystemManager::addSystem(std::unique_ptr<Systems::ISystem> system)
 {
     __systems.push_back(std::move(system));
 }
 
-void ECS::SystemManager::run(Engine::GameEngine &engine)
+void ECS::SystemManager::run(Engine::IEngine &engine)
 {
     for (auto &system : __systems) {
         system->run(engine);
     }
 }
 
-void ECS::SystemManager::initSystems(Engine::GameEngine &engine)
+void ECS::SystemManager::initSystems(Engine::IEngine &engine)
 {
     for (auto &system : __systems) {
         if (!system)

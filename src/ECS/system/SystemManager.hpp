@@ -13,7 +13,7 @@
     #include <memory>
 
 namespace Engine {
-    class GameEngine;
+    class IEngine;
 }
 
 namespace ECS {
@@ -36,14 +36,14 @@ namespace ECS {
             /**
              * @brief Run all the systems
              */
-            void run(Engine::GameEngine &engine);
+            void run(Engine::IEngine &engine);
 
             /**
              * @brief Run all systems init function
              * 
              * @note This function will run all systems init function.
              */
-            void initSystems(Engine::GameEngine &engine);
+            void initSystems(Engine::IEngine &engine);
 
         private:
 
