@@ -16,7 +16,7 @@
     #include <libconfig.h++>
 
 namespace Engine {
-    class GameEngine;
+    class IEngine;
 }
 
 namespace Components {
@@ -57,7 +57,7 @@ namespace Components {
              * 
              * @note This function will add the component to the entity
              */
-            virtual void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) = 0;
+            virtual void addTo(ECS::Entity &to, Engine::IEngine &engine, std::vector<std::any> args) = 0;
 
             /**
              * @brief Add the component to an entity
@@ -68,7 +68,7 @@ namespace Components {
              * 
              * @note This function will add the component to the entity
              */
-            virtual void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) = 0;
+            virtual void addTo(ECS::Entity &to, Engine::IEngine &engine, libconfig::Setting &config) = 0;
         private:
     };
 };
