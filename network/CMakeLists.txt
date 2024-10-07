@@ -29,6 +29,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
 # Add an executable for the server project
 add_executable(udp_server
     udp_server.cpp
+    UDPServer.cpp
 )
 
 target_link_libraries(udp_server
