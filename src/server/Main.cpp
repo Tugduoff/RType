@@ -5,7 +5,7 @@
 ** Main.cpp file
 */
 
-#include "GameEngine/GameEngine.hpp"
+#include "Engine/ServerEngine.hpp"
 #include "ECS/registry/Registry.hpp"
 #include "ECS/utilities/SparseArray.hpp"
 #include "plugins/components/IComponent.hpp"
@@ -36,7 +36,7 @@ void displayComponents(ECS::Registry &reg)
 }
 
 int main() {
-    Engine::GameEngine engine;
+    Engine::ServerEngine engine;
     ECS::Registry &reg = engine.getRegistry();
     ECS::Entity entity = reg.entityManager().spawnEntity();
 
