@@ -1,6 +1,9 @@
 # Set the minimum required version of CMake
 cmake_minimum_required(VERSION 3.10)
 
+# Enable config export to clangd language server
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 # May be needed
 if (WIN32)
     set(MSVC True)
@@ -9,7 +12,7 @@ endif (WIN32)
 # set( CMAKE_C_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.41.34120\\bin\\Hostx64\\x64\\cl.exe" )
 
 # Set the project name and version
-project(MyProject VERSION 1.0)
+project(R-Type VERSION 1.0)
 
 # Specify the C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -23,7 +26,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${BINARY_OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BINARY_OUTPUT_DIR}/release)
 
 # Add some addiotionnal flags to pass to compiler
-if(NOT WIN32)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT WIN32)
+    message("Debug build, adding following compiler flags : -g -Wall -Wextra")
     add_definitions(-g -Wall -Wextra)
 endif()
 
@@ -47,6 +51,18 @@ CPMAddPackage(
     "BUILD_EXAMPLES OFF"
     "BUILD_TESTS OFF"
 )
+
+CPMAddPackage(
+    NAME asio
+    GIT_REPOSITORY "https://github.com/boostorg/asio"
+    GIT_TAG "boost-1.86.0"
+)
+
+if (WIN32)
+    set(LIBCONFIG_LIB_NAME libconfig libconfig++)
+else()
+    set(LIBCONFIG_LIB_NAME config config++)
+endif (WIN32)
 
 # Include the subdirectories for client and server
 add_subdirectory(client)

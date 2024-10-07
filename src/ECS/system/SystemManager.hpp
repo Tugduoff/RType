@@ -11,7 +11,6 @@
     #include "plugins/systems/ISystem.hpp"
     #include <vector>
     #include <memory>
-    #include <iostream>
 
 namespace Engine {
     class GameEngine;

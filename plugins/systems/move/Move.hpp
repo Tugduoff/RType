@@ -8,6 +8,7 @@
 #ifndef MOVESYSTEM_HPP
     #define MOVESYSTEM_HPP
 
+    #include <libconfig.h++>
     #include "systems/ASystem.hpp"
 
 namespace Engine {
@@ -18,6 +19,7 @@ namespace Systems {
     class MoveSystem : public ASystem {
         public:
             MoveSystem() = default;
+            MoveSystem(libconfig::Setting &config);
             ~MoveSystem() = default;
 
             void run(Engine::GameEngine &engine) override;

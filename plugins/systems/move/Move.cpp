@@ -7,12 +7,15 @@
 
 #include "GameEngine/GameEngine.hpp"
 #include "Move.hpp"
-#include "plugins/components/position/Position.hpp"
-#include "plugins/components/velocity/Velocity.hpp"
+#include "components/position/Position.hpp"
+#include "components/velocity/Velocity.hpp"
+#include "library_entrypoint.hpp"
 #include <iostream>
 #include <stdexcept>
-#include <memory>
-#include <cstdint>
+
+Systems::MoveSystem::MoveSystem(libconfig::Setting &)
+{
+}
 
 void Systems::MoveSystem::run(Engine::GameEngine &engine)
 {
@@ -39,13 +42,20 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
 
 void Systems::MoveSystem::init(Engine::GameEngine &engine)
 {
-    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/libPosition.so"))
+    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
         std::cerr << "Error: Could not register Position component in system Move" << std::endl;
-    if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/libVelocity.so"))
+    if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity"))
         std::cerr << "Error: Could not register Velocity component in system Move" << std::endl;
 }
 
-extern "C" std::unique_ptr<Systems::ISystem> entryPoint()
+LIBRARY_ENTRYPOINT
+Systems::ISystem *entryPoint()
 {
-    return std::make_unique<Systems::MoveSystem>();
+    return new Systems::MoveSystem();
+}
+
+LIBRARY_ENTRYPOINT
+Systems::ISystem *entryConfig(libconfig::Setting &config)
+{
+    return new Systems::MoveSystem(config);
 }

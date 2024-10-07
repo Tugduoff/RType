@@ -1,8 +1,8 @@
 # Add an executable for the server project
-add_library(Move SHARED
-    Move.cpp
+add_library(Config SHARED
+    Config.cpp
 )
 
-target_link_libraries(Move
+target_link_libraries(Config
     ${LIBCONFIG_LIB_NAME}
 )
