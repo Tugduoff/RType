@@ -13,8 +13,9 @@
     #else
         #include <dlfcn.h>
     #endif
+
+    #include <functional>
     #include <string>
-    #include <utility>
     #include <memory>
     #include <iostream>
     #include <libconfig.h++>
@@ -83,40 +84,81 @@ class DLLoader {
         * @throw DLLExceptions If the function pointer cannot be retrieved.
         */
         template<typename T, typename... Args>
-        std::unique_ptr<T> getInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
-            using EntryPointFunc = T *(*)(Args...);
-            EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
-
-            return std::unique_ptr<T>(entryPoint(std::forward<Args>(args)...));
+        std::unique_ptr<T> getUniqueInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
+            return std::unique_ptr<T>(callFunction<T *, Args...>(entryPointName, args...));
         };
 
         /**
-        * @brief Retrieves a function pointer from the library and calls it to create and return a new instance of type T.
+         * @brief Call a function in the currently loaded library
+         *
+         * @tparam R The return type of the function
+         * @tparam Args This function's parameters types
+         *
+         * @param entryPointName The name of the function to call
+         * @param args The arguments to pass to the function
+         *
+         * @return The return value of the function
+         */
+        template<typename R, typename... Args>
+        R callFunction(const std::string &entryPointName, Args... args)
+        {
+            return getFunctionPointer<R, Args...>(entryPointName)(args...);
+        }
+ 
+        /**
+         * @brief Function to retrieve a function pointer in the
+         * @brief currently loaded library
+         *
+         * @param entryPointName The name of the function in the library
+         *
+         * @tparam R The return type of the function
+         * @tparam Args the parameter types of the function
+         *
+         * @return A function object wrapping the function pointer
+         */
+        template<class R, class... Args>
+        std::function<R(Args...)> getFunctionPointer(const std::string &entryPointName)
+        {
+            using fptr_type = R (*)(Args...);
+
+            return getSymbolAddress<fptr_type>(entryPointName);
+        }
+
+        /**
+         * @brief Short hand for `*getSymbolAddress<T *>
+         *
+         * @see getSymbolAddress
+         */
+        template<typename T>
+        T getSymbolValue(const std::string &entryPointName)
+        {
+            return *getSymbolAddress<T *>(entryPointName);
+        }
+
+        /**
+        * @brief Retrieves the address of a symbol in a loaded library.
         *
-        * @tparam T The type of the object to create.
-        * @tparam Args The types of the arguments to pass to the function.
+        * @tparam T The pointer to be retrieved.
         *
-        * @param entryPointName The name of the function to retrieve from the library (default: "entryPoint").
-        * @param args The arguments to pass to the function.
+        * @param entryPointName The name of the symbol to retrieve from the library.
         *
-        * @return A pointer to a new instance of type T.
+        * @return The smybol pointer.
         *
-        * @throw DLLExceptions If the function pointer cannot be retrieved.
+        * @throw DLLExceptions If the symbol cannot be retrieved.
         */
         template<typename T>
-        std::unique_ptr<T> getInstance2(const std::string &entryPointName, libconfig::Setting &config) {
-            using EntryPointFunc = T *(*)(libconfig::Setting &);
-            EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
+        T getSymbolAddress(const std::string &entryPointName) {
+            T entryPoint = getSymbolAddress_nothrow<T>(entryPointName);
 
-            return std::unique_ptr<T>(entryPoint(config));
-        };
-
-        std::string getStringId(const std::string &entryPointName = "entryID") {
-            using EntryPointFunc = char const *(*)();
-            EntryPointFunc entryPoint = getEntryPoint<EntryPointFunc>(entryPointName);
-
-            return entryPoint();
-        };
+            if (!entryPoint) {
+            #ifdef _WIN32
+                throw DLLExceptions("Failed to load library");
+            #else
+                throw DLLExceptions(dlerror());
+            #endif
+            }
+            return entryPoint;
+        }
 
         /**
         * @class DLLExceptions
@@ -178,33 +220,21 @@ class DLLoader {
         };
 
         /**
-        * @brief Retrieves a function pointer from the library.
-        *
-        * @tparam T The type of the function pointer.
-        *
-        * @param entryPointName The name of the function to retrieve from the library.
-        *
-        * @return The function pointer.
-        *
-        * @throw DLLExceptions If the function pointer cannot be retrieved.
-        */
+         * @brief Return a symbol contained in the currently open library
+         *
+         * @param entryPointName The name of the symbol to retrieve
+         *
+         * @tparam T The pointer type to return
+         *
+         * @return The retrieved pointer
+         */
         template<typename T>
-        T getEntryPoint(const std::string &entryPointName) {
-
+        T getSymbolAddress_nothrow(const std::string &entryPointName) {
         #ifdef _WIN32
-            T entryPoint = reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
+            return reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(__library), entryPointName.c_str()));
         #else
-            T entryPoint = reinterpret_cast<T>(dlsym(__library, entryPointName.c_str()));
+            return reinterpret_cast<T>(dlsym(__library, entryPointName.c_str()));
         #endif
-
-            if (!entryPoint) {
-            #ifdef _WIN32
-                throw DLLExceptions("Failed to load library");
-            #else
-                throw DLLExceptions(dlerror());
-            #endif
-            }
-            return entryPoint;
         }
 };
 

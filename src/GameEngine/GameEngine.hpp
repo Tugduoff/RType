@@ -11,7 +11,6 @@
     #include "ECS/registry/Registry.hpp"
     #include "DLLoader/DLLoader.hpp"
     #include "plugins/components/IComponent.hpp"
-    #include <functional>
     #include <unordered_map>
     #include <typeindex>
     #include <iostream>
@@ -48,7 +47,7 @@ namespace Engine {
                     return (false);
 
                 DLLoader &loader = __componentLoaders.at(typeIndex);
-                auto componentID = loader.getStringId("entryID");
+                std::string componentID = loader.getSymbolValue<const char *>("componentName");
 
                 std::cout << "Component ID: " << componentID << " registered!" << std::endl;
                 __components.emplace(componentID, std::make_shared<Component>());
@@ -109,7 +108,7 @@ namespace Engine {
                     throw std::runtime_error("Component type not registered");
 
                 DLLoader &loader = __componentLoaders.at(typeIndex);
-                auto componentInstance = loader.getInstance<Component>("entryPoint", std::forward<Args>(args)...);
+                auto componentInstance = loader.getUniqueInstance<Component>("entryPoint", std::forward<Args>(args)...);
 
                 if (!componentInstance)
                     throw std::runtime_error("Failed to load component from shared object");

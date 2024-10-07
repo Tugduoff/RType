@@ -20,7 +20,6 @@
     #include <vector>
     #include <stdexcept>
     #include <libconfig.h++>
-    #include <string>
 
 namespace Components {
     /**

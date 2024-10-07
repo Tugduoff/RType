@@ -5,8 +5,8 @@
 ** GameEngine.cpp file
 */
 
-#include "GameEngine.hpp"
 #include <libconfig.h++>
+#include "GameEngine.hpp"
 
 void Engine::GameEngine::loadSystems(const std::string &systemsConfigFile)
 {
@@ -32,7 +32,7 @@ void Engine::GameEngine::loadSystems(const std::string &systemsConfigFile)
                     libconfig::Setting &args = systemConfig["args"];
 
                     DLLoader loader(systemPath, systemName);
-                    std::unique_ptr<Systems::ISystem> system = loader.getInstance2<Systems::ISystem>("entryConfig", args);
+                    std::unique_ptr<Systems::ISystem> system = loader.getUniqueInstance<Systems::ISystem, const libconfig::Setting &>("entryConfig", args);
                     __registry.systemManager().addSystem(std::move(system));
                     __systemLoaders.push_back(std::move(loader));
                 }

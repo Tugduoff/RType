@@ -6,7 +6,9 @@
 */
 
 #include "GameEngine/GameEngine.hpp"
+#include "library_entrypoint.hpp"
 #include "Config.hpp"
+#include <exception>
 #include <iostream>
 
 Systems::ConfigLoader::ConfigLoader(const std::string &configFilePath) : __configFilePath(configFilePath)
@@ -49,6 +51,7 @@ std::string Systems::ConfigLoader::difficultyToString(enum Difficulty difficulty
         case UNREAL:
             return "UNREAL";
     }
+    return "";
 }
 
 void Systems::ConfigLoader::displayConfig()
@@ -121,7 +124,13 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
         level.lookupValue("description", config.level.description);
         std::string difficultyString;
         level.lookupValue("difficulty", difficultyString);
-        config.level.difficulty = difficultyFromString[difficultyString];
+        try {
+            config.level.difficulty = difficultyFromString.at(difficultyString);
+        } catch (std::exception &) {
+            std::cerr << "ERROR: Invalid difficulty setting : " << difficultyString <<
+            ". Defaulting to EASY." << std::endl;
+            config.level.difficulty = Difficulty::EASY;
+        }
         level.lookupValue("background_music", config.level.backgroundMusic);
 
         // Extract nested structures (map_size, view_port)
@@ -182,13 +191,15 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
     }
 }
 
-extern "C" Systems::ISystem *entryPoint(const char *configFilePath)
+LIBRARY_ENTRYPOINT
+Systems::ISystem *entryPoint(const char *configFilePath)
 {
     std::cout << "entryPoint called with configFilePath: " << configFilePath << std::endl;
     return new Systems::ConfigLoader(configFilePath);
 }
 
-extern "C" Systems::ISystem *entryConfig(libconfig::Setting &config)
+LIBRARY_ENTRYPOINT
+Systems::ISystem *entryConfig(libconfig::Setting &config)
 {
     return new Systems::ConfigLoader(config);
 }
