@@ -27,16 +27,18 @@ int main() {
         while (true) {
             // if (message == "exit")
             //     break;
+            // socket.send_to(boost::asio::buffer(message), *endpoints.begin());
+            // std::cout << "Message sent to server: " << message << std::endl;
 
             // Wait for server's response (if any)
             udp::endpoint server_endpoint;
             std::size_t len = socket.receive_from(boost::asio::buffer(recv_buffer), server_endpoint);
 
             std::cout << "Received from server: " << std::string(recv_buffer.data(), len) << std::endl;
-            if (std::string(recv_buffer.data(), len) == "ping") {
-                socket.send_to(boost::asio::buffer("pong"), *endpoints.begin());
-                std::cout << "Message sent to server: " << "pong" << std::endl;
-            }
+            // if (std::string(recv_buffer.data(), len) == "ping") {
+            //     socket.send_to(boost::asio::buffer("pong"), *endpoints.begin());
+            //     std::cout << "Message sent to server: " << "pong" << std::endl;
+            // }
         }
 
     } catch (std::exception& e) {
@@ -45,4 +47,3 @@ int main() {
     }
     return 0;
 }
- 

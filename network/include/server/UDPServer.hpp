@@ -4,10 +4,11 @@
 ** File description:
 ** udp server
 */
-#include <algorithm>
-#include <chrono>
-#include <map>
 #include "../IUDP.hpp"
+#include <algorithm>
+#include <map>
+#include <chrono>
+#include <memory>  // For std::unique_ptr
 
 using boost::asio::ip::udp;
 
@@ -26,9 +27,9 @@ class UDPServer : public IUDP {
         */
         UDPServer(boost::asio::io_context& io_context, short port)
             : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context) {
-            std::cout << "Server started on port " << port << std::endl;
             components_names = {"Position", "Velocity", "Health"};
             size_max = get_size_max();
+            std::cout << "Server started on port " << port << ", size_max = " << size_max << std::endl;
             start_receive();
         }
 
@@ -37,10 +38,13 @@ class UDPServer : public IUDP {
         udp::endpoint remote_endpoint_;
         boost::asio::io_context& io_context_;
         std::array<char, 1024> recv_buffer_;
-        std::vector<udp::endpoint> client_endpoints;
-        std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
         std::size_t size_max;
         std::vector<std::string> components_names;
+        std::vector<udp::endpoint> client_endpoints;
+        std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
+        std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;
+        std::map<udp::endpoint, bool> client_responses;
+        std::map<udp::endpoint, bool> is_disconnected;
 
         /**
         * @brief Starts receiving data from clients. Asynchronously waits for data from any client.
@@ -51,22 +55,27 @@ class UDPServer : public IUDP {
             socket_.async_receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_,
                 [this](boost::system::error_code ec, std::size_t bytes_recvd) {
                     if (!ec && bytes_recvd > 0) {
-                        std::cout << "Client connected: " << remote_endpoint_ << std::endl;
+                        std::string message(recv_buffer_.data(), bytes_recvd);
+                        std::cout << "Received message from client (" << remote_endpoint_.address().to_string() 
+                                  << ":" << remote_endpoint_.port() << "): " << message << std::endl;
 
                         if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
                             client_endpoints.push_back(remote_endpoint_);
-                            std::cout << "New client added: " << remote_endpoint_ << std::endl;
-                            send_components_names();
-                            start_timer(remote_endpoint_);
+                            std::cout << "New client added: " << remote_endpoint_.address().to_string() 
+                                      << ":" << remote_endpoint_.port() << std::endl;
+                            client_responses[remote_endpoint_] = true;
+                            is_disconnected[remote_endpoint_] = false;  // Initialize disconnection status.
+                            checking_client(remote_endpoint_);
                         } else {
-                            reset_timer(remote_endpoint_);
+                            client_responses[remote_endpoint_] = true;
                         }
 
-                        std::string message(recv_buffer_.data(), bytes_recvd);
-                        std::cout << "Received message from client (" << remote_endpoint_ << "): " << message << std::endl;
-
-                        if (message == "pong")
-                            std::cout << "Received pong from client: " << remote_endpoint_ << std::endl;
+                        if (message == "pong") {
+                            std::cout << "Received pong from client: " << remote_endpoint_.address().to_string() 
+                                      << ":" << remote_endpoint_.port() << std::endl;
+                            client_responses[remote_endpoint_] = true;
+                        }
+                        send_components_names();
                     }
                     start_receive();
                 });
@@ -101,34 +110,26 @@ class UDPServer : public IUDP {
         }
 
         /**
-        * @brief Starts a timer for the specified client, which triggers after 10 seconds to send a "ping" message.
-        * 
-        * @param client The UDP endpoint of the client for which the timer is started.
+        * @brief Check the response status of a client.
+        *
+        * @param client The UDP endpoint of the client we want to check it's response status.
         */
-        void start_timer(const udp::endpoint& client) {
+        void checking_client(const udp::endpoint& client) {
             std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(10)));
             timer->async_wait([this, client](const boost::system::error_code& ec) {
                 if (!ec) {
-                    send_ping(client);
+                    if (!client_responses[client] && !is_disconnected[client]) {
+                        std::cout << "Client did not respond to ping, disconnecting: " 
+                                  << client.address().to_string() << ":" << client.port() << std::endl;
+                        remove_client(client);
+                    } else {
+                        client_responses[client] = false;
+                        send_ping(client);
+                    }
+                    checking_client(client);
                 }
             });
             client_timers[client] = std::move(timer);
-        }
-
-        /**
-        * @brief Resets the client's timer to expire again in 10 seconds and schedules a new ping after the timer expires.
-        * 
-        * @param client The UDP endpoint of the client for which the timer is reset.
-        */
-        void reset_timer(const udp::endpoint& client) {
-            if (client_timers.find(client) != client_timers.end()) {
-                client_timers[client]->expires_after(std::chrono::seconds(10));  // Réinitialise à 10 secondes
-                client_timers[client]->async_wait([this, client](const boost::system::error_code& ec) {
-                    if (!ec) {
-                        send_ping(client);
-                    }
-                });
-            }
         }
 
         /**
@@ -139,23 +140,58 @@ class UDPServer : public IUDP {
         void send_ping(const udp::endpoint& client) {
             std::string ping_message = "ping";
             socket_.async_send_to(boost::asio::buffer(ping_message), client,
-                [this, client](boost::system::error_code ec, std::size_t /*bytes_sent*/) {
+                [this, client](boost::system::error_code ec, std::size_t size_max) {
                     if (!ec) {
-                        std::cout << "Sent ping to client: " << client << std::endl;
+                        std::cout << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
+                        start_pong_timer(client);
                     }
                 }
             );
         }
 
         /**
-        * @brief Removes a client from the server.
+        * @brief Starts a timer waiting for the "pong" response from a client.
+        * 
+        * @param client The UDP endpoint of the client from which the pong message is expected.
+        */
+        void start_pong_timer(const udp::endpoint& client) {
+            std::unique_ptr<boost::asio::steady_timer> pong_timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(2)));  // 2 seconds for "pong"
+            pong_timer->async_wait([this, client](const boost::system::error_code& ec) {
+                if (!ec) {
+                    if (!client_responses[client] && !is_disconnected[client]) {
+                        std::cout << "Client did not respond to ping (no pong), disconnecting: " 
+                                  << client.address().to_string() << ":" << client.port() << std::endl;
+                        remove_client(client);
+                    }
+                }
+            });
+            pong_timers[client] = std::move(pong_timer);
+        }
+
+        /**
+        * @brief Removes a client from the server and notify them about it.
         * 
         * @param client The UDP endpoint of the client to be removed.
         */
         void remove_client(const udp::endpoint& client) {
-            client_endpoints.erase(std::remove(client_endpoints.begin(), client_endpoints.end(), client), client_endpoints.end());
-            client_timers.erase(client);
-            std::cout << "Client disconnected: " << client << std::endl;
+            if (!is_disconnected[client]) {
+                is_disconnected[client] = true;
+
+                client_endpoints.erase(std::remove(client_endpoints.begin(), client_endpoints.end(), client), client_endpoints.end());
+                client_timers.erase(client);
+                pong_timers.erase(client);
+                client_responses.erase(client);
+
+                std::cout << "Client disconnected: " << client.address().to_string() << ":" << client.port() << std::endl;
+
+                std::string deconnection_message = "You have been disconnected :(";
+                socket_.async_send_to(boost::asio::buffer(deconnection_message), client,
+                    [this, client](boost::system::error_code ec, std::size_t size_max) {
+                        if (!ec)
+                            std::cout << "Client " << client.address().to_string() << ":" << client.port() << " is now aware of their disconnection" << std::endl;
+                    }
+                );
+            }
         }
 };
 
