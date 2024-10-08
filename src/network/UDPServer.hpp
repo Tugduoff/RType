@@ -4,8 +4,7 @@
 ** File description:
 ** udp server
 */
-#include "../IUDP.hpp"
-#include "../../../src/GameEngine/GameEngine.hpp"
+#include "../GameEngine/GameEngine.hpp"
 #include <boost/asio.hpp>
 #include <algorithm>
 #include <map>
@@ -17,7 +16,7 @@ using boost::asio::ip::udp;
 #ifndef UDP_SERVER_HPP
     #define UDP_SERVER_HPP
 
-class UDPServer : public IUDP {
+class UDPServer {
     public:
         /**
         * @brief Constructs a new UDPServer object.
@@ -47,7 +46,7 @@ class UDPServer : public IUDP {
         * If a new client connects, it adds the client to the list and starts a timer for managing pings.
         * This function is continuously called recursively to maintain receiving data.
         */
-        void start_receive() override;
+        void start_receive();
 
         /**
         * @brief Sends the list of component informations to the connected client.
