@@ -5,16 +5,26 @@
 ** Velocity.cpp file
 */
 
-#include <memory>
 #include "Velocity.hpp"
+#include "library_entrypoint.hpp"
 
-extern "C"
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryPoint(uint32_t x, uint32_t y)
 {
-#ifdef _WIN32
-    __declspec(dllexport)
-#endif
-    Components::IComponent *entryPoint(uint32_t x, uint32_t y)
-    {
-        return new Components::Velocity(x, y);
-    }
+    return new Components::Velocity(x, y);
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryConfig(libconfig::Setting &config)
+{
+    return new Components::Velocity(config);
+}
+
+LIBRARY_ENTRYPOINT
+char const *componentName = "Velocity";
+
+Components::Velocity::Velocity(libconfig::Setting &config)
+{
+    config.lookupValue("x", x);
+    config.lookupValue("y", y);
 }
