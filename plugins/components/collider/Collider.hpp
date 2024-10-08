@@ -6,12 +6,14 @@
 */
 
 #ifndef COLLIDER_HPP
-    #define COLLIDER_HPP
+#define COLLIDER_HPP
 
-    #include "plugins/components/AComponent.hpp"
-    #include <vector>
-    #include <stdexcept>
-    #include <cstdint>
+#include "plugins/components/AComponent.hpp"
+#include "GameEngine/GameEngine.hpp"
+#include <vector>
+#include <stdexcept>
+#include <cstdint>
+#include <libconfig.h++>
 
 /**
  * @brief Enum to define different collider shapes
@@ -60,7 +62,6 @@ namespace Components {
             appendToData(data, radius);
             appendToData(data, width);
             appendToData(data, height);
-
             return data;
         };
 
@@ -92,41 +93,70 @@ namespace Components {
         }
 
         /**
-         * @brief Get the shape type of the collider.
+         * @brief Adds the Collider component to an entity.
          * 
-         * @return ColliderShape The shape of the collider.
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param args The arguments to pass to the component constructor.
+         * 
+         * @note This function will add the Collider component to the entity.
+         * @note The arguments should be a tuple containing the shape type and dimensions.
          */
-        ColliderShape getShape() const {
-            return shape;
-        }
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+            if (args.size() < 1 || args.size() > 3)
+                throw std::runtime_error("Invalid number of arguments for Collider component");
+
+            ColliderShape shape = std::any_cast<ColliderShape>(args[0]);
+            float radius = 0.0f, width = 0.0f, height = 0.0f;
+
+            if (shape == ColliderShape::Circle && args.size() == 2) {
+                radius = std::any_cast<float>(args[1]);
+            } else if (shape == ColliderShape::Rectangle && args.size() == 3) {
+                width = std::any_cast<float>(args[1]);
+                height = std::any_cast<float>(args[2]);
+            } else {
+                throw std::runtime_error("Invalid arguments for Collider component");
+            }
+
+            auto collider = (shape == ColliderShape::Circle) 
+                            ? engine.newComponent<Components::Collider>(radius) 
+                            : engine.newComponent<Components::Collider>(width, height);
+            engine.getRegistry().componentManager().addComponent<Components::Collider>(to, std::move(collider));
+        };
 
         /**
-         * @brief Get the radius (for circle colliders).
+         * @brief Adds the Collider component to an entity from a configuration setting.
          * 
-         * @return float The radius of the circle.
-         */
-        float getRadius() const {
-            return radius;
-        }
-
-        /**
-         * @brief Get the width (for rectangle colliders).
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param config The configuration setting to extract the component data from.
          * 
-         * @return float The width of the rectangle.
+         * @note This function will add the Collider component to the entity.
+         * @note The configuration setting should contain the keys 'shape', and if the shape is Circle, 'radius', or if Rectangle, 'width' and 'height'.
          */
-        float getWidth() const {
-            return width;
-        }
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
+            int shapeVal;
+            if (!config.lookupValue("shape", shapeVal)) {
+                throw std::invalid_argument("Failed to retrieve value for 'shape'");
+            }
 
-        /**
-         * @brief Get the height (for rectangle colliders).
-         * 
-         * @return float The height of the rectangle.
-         */
-        float getHeight() const {
-            return height;
-        }
+            ColliderShape shape = static_cast<ColliderShape>(shapeVal);
+            float radius = 0.0f, width = 0.0f, height = 0.0f;
 
+            if (shape == ColliderShape::Circle) {
+                if (!config.lookupValue("radius", radius)) {
+                    throw std::invalid_argument("Failed to retrieve value for 'radius'");
+                }
+                std::unique_ptr<Components::Collider> collider = engine.newComponent<Components::Collider>(radius);
+                engine.getRegistry().componentManager().addComponent<Components::Collider>(to, std::move(collider));
+            } else if (shape == ColliderShape::Rectangle) {
+                if (!config.lookupValue("width", width) || !config.lookupValue("height", height)) {
+                    throw std::invalid_argument("Failed to retrieve values for 'width' and 'height'");
+                }
+                std::unique_ptr<Components::Collider> collider = engine.newComponent<Components::Collider>(width, height);
+                engine.getRegistry().componentManager().addComponent<Components::Collider>(to, std::move(collider));
+            }
+        };
 
         ColliderShape shape;
         float radius;
@@ -134,7 +164,6 @@ namespace Components {
         float height;
 
     private:
-
         /**
          * @brief Returns the constant size of the serialized data.
          * 
