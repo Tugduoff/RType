@@ -54,8 +54,15 @@ void UDPServer::start_receive() {
 
     void UDPServer::send_components_infos() {
         // Total components
+        uint16_t total_components = static_cast<uint16_t>(__components.size());
+        total_components = htons(total_components);
+        std::array<uint8_t, 2> total_components_buffer = {
+            static_cast<uint8_t>((total_components >> 8) & 0xFF),               // Frst Byte
+            static_cast<uint8_t>(total_components & 0xFF)                       // Second Byte
+        };
+
         socket_.async_send_to(
-            boost::asio::buffer("Total " + std::to_string(__components.size())), remote_endpoint_,
+            boost::asio::buffer(total_components_buffer), remote_endpoint_,
             [this](boost::system::error_code ec, std::size_t) {
                 if (!ec)
                     std::cout << "Total components sent to client." << std::endl;
