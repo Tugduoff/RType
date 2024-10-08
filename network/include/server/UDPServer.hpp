@@ -50,9 +50,9 @@ class UDPServer : public IUDP {
         void start_receive() override;
 
         /**
-        * @brief Sends the list of component names to the connected client.
+        * @brief Sends the list of component informations to the connected client.
         */
-        void send_components_names();
+        void send_components_infos();
 
         /**
         * @brief Gets the maximum size of the component names.

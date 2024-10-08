@@ -14,9 +14,9 @@ using boost::asio::ip::udp;
 UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
                      std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> components)
     : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context) {
+    __components = components;
     size_max = get_size_max();
     std::cout << "Server started on port " << port << ", package size_max = " << size_max << std::endl;
-    __components = components;
     start_receive();
 }
 
@@ -46,13 +46,23 @@ void UDPServer::start_receive() {
                                 << ":" << remote_endpoint_.port() << std::endl;
                     client_responses[remote_endpoint_] = true;
                 }
-                send_components_names();
+                send_components_infos();
             }
             start_receive();
         });
 }
 
-void UDPServer::send_components_names() {
+void UDPServer::send_components_infos() {
+    // Size max
+    socket_.async_send_to(
+        boost::asio::buffer("Size " + std::to_string(size_max)), remote_endpoint_,
+        [this](boost::system::error_code ec, std::size_t size_max) {
+            if (!ec)
+                std::cout << "Size max sent to client: " << size_max << std::endl;
+        }
+    );
+
+    // components
     int index = 0;
     for (const auto& component : __components) {
         std::string indexed_message = std::to_string(index) + " " + component.first;
@@ -68,11 +78,12 @@ void UDPServer::send_components_names() {
 }
 
 std::size_t UDPServer::get_size_max() {
-    auto max_component = std::max_element(components_names.begin(), components_names.end(),
-        [](const std::string& a, const std::string& b) {
-            return a.size() < b.size();
+    auto max_component = std::max_element(__components.begin(), __components.end(),
+        [](const auto& a, const auto& b) {
+            return a.first.size() < b.first.size();
         });
-    return max_component != components_names.end() ? max_component->size() : 0;
+
+    return max_component != __components.end() ? max_component->first.size() : 0;
 }
 
 void UDPServer::checking_client(const udp::endpoint& client) {
