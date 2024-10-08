@@ -36,8 +36,13 @@ namespace Components {
          * 
          * Initializes the position components (x, y, layer) to zero.
          */
-        Position() : x(0), y(0), layer(0) {};
-        Position(libconfig::Setting &config);
+        Position() : AComponent(std::string("Position")), x(0), y(0), layer(0) {};
+        Position(libconfig::Setting &config) : AComponent(std::string("Position"))
+        {
+            config.lookupValue("x", x);
+            config.lookupValue("y", y);
+            config.lookupValue("layer", layer);
+        }
 
         /**
          * @brief Parameterized constructor for the Position component.
@@ -47,7 +52,7 @@ namespace Components {
          * @param x The X coordinate of the position.
          * @param y The Y coordinate of the position.
          */
-        Position(uint32_t x, uint32_t y, uint32_t layer) : x(x), y(y), layer(layer) {};
+        Position(uint32_t x, uint32_t y, uint32_t layer) : AComponent(std::string("Position")), x(x), y(y), layer(layer) {};
 
         /**
          * @brief Default destructor for the Position component.

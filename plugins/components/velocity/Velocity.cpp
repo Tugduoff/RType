@@ -22,9 +22,3 @@ Components::IComponent *entryConfig(libconfig::Setting &config)
 
 LIBRARY_ENTRYPOINT
 char const *componentName = "Velocity";
-
-Components::Velocity::Velocity(libconfig::Setting &config)
-{
-    config.lookupValue("x", x);
-    config.lookupValue("y", y);
-}
