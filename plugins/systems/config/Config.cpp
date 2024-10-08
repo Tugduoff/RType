@@ -181,7 +181,7 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
 
         for (const auto &component : entity.components) {
             std::cout << "Adding component: \"" << component.id << "\" to entity ID: " << newEntity << std::endl;
-            std::shared_ptr<Components::IComponent> comp = engine.getComponentFromId(component.id);
+            std::unique_ptr<Components::IComponent> &comp = engine.getComponentFromId(component.id);
             if (!comp) {
                 std::cerr << "Component with ID: \"" << component.id << "\" not found!" << std::endl;
                 continue;  // Skip if the component is not found
