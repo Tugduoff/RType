@@ -132,6 +132,8 @@ namespace Engine {
              */
             ECS::Registry &getRegistry() { return __registry; }
 
+            std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> getComponents() { return __components; }
+
         private:
 
             std::unordered_map<std::type_index, DLLoader> __componentLoaders;

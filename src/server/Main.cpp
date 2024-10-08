@@ -51,7 +51,7 @@ int main() {
         reg.componentManager().addComponent<Components::Velocity>(entity, std::move(velocity));
 
         boost::asio::io_context io_context;
-        UDPServer server(io_context, 8080);
+        UDPServer server(io_context, 8080, engine.getComponents());
         io_context.run();
 
         displayComponents(reg);

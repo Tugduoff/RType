@@ -11,11 +11,12 @@ using boost::asio::ip::udp;
 
 // --- PUBLIC --- //
 
-UDPServer::UDPServer(boost::asio::io_context& io_context, short port)
+UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
+                     std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> components)
     : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context) {
-    components_names = {"Position", "Velocity", "Health"}; /* HARD CODED */
     size_max = get_size_max();
     std::cout << "Server started on port " << port << ", package size_max = " << size_max << std::endl;
+    __components = components;
     start_receive();
 }
 
@@ -52,14 +53,17 @@ void UDPServer::start_receive() {
 }
 
 void UDPServer::send_components_names() {
-    for (const auto& message : components_names) {
+    int index = 0;
+    for (const auto& component : __components) {
+        std::string indexed_message = std::to_string(index) + " " + component.first;
         socket_.async_send_to(
-            boost::asio::buffer(message), remote_endpoint_,
-            [this, message](boost::system::error_code ec, std::size_t size_max) {
+            boost::asio::buffer(indexed_message), remote_endpoint_,
+            [this, indexed_message](boost::system::error_code ec, std::size_t size_max) {
                 if (!ec)
-                    std::cout << "Message sent to client: " << message << std::endl;
+                    std::cout << "Message sent to client: " << indexed_message << std::endl;
             }
         );
+        index++;
     }
 }
 
