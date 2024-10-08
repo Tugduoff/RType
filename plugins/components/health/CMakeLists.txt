@@ -3,6 +3,6 @@ add_library(Health SHARED
     Health.cpp
 )
 
-target_link_libraries(Position
+target_link_libraries(Health
     ${LIBCONFIG_LIB_NAME}
 )
