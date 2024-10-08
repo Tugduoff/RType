@@ -5,35 +5,27 @@
 ** Visible.cpp file
 */
 
-#include <memory>
 #include "Visible.hpp"
+#include "library_entrypoint.hpp"
 
-namespace Components {
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryPoint(bool isVisible)
+{
+    return new Components::Visible(isVisible);
+}
 
-    /**
-     * @brief Factory function to create an instance of Visible with an initial state.
-     * 
-     * @param isVisible Initial visibility state for the component.
-     * @return A unique pointer to the created Visible component.
-     */
-    extern "C" std::unique_ptr<IComponent> entryPoint(bool isVisible)
-    {
-        return std::make_unique<Visible>(isVisible);
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryConfig(libconfig::Setting &config)
+{
+    return new Components::Visible(config);
+}
+
+LIBRARY_ENTRYPOINT
+char const *componentName = "Visible";
+
+Components::Visible::Visible(libconfig::Setting &config)
+{
+    if (!config.lookupValue("isVisible", isVisible)) {
+        throw std::runtime_error("Missing 'isVisible' setting for Visible component");
     }
-
-    /**
-     * @brief Factory function to create an instance of Visible using configuration settings.
-     * 
-     * @param config A libconfig::Setting object containing the visibility state.
-     * @return A unique pointer to the created Visible component.
-     */
-    extern "C" std::unique_ptr<IComponent> entryConfig(libconfig::Setting &config)
-    {
-        bool visibleState;
-        if (!config.lookupValue("isVisible", visibleState))
-            throw std::runtime_error("Missing 'isVisible' setting for Visible component");
-
-        return std::make_unique<Visible>(visibleState);
-    }
-
 }
