@@ -9,9 +9,12 @@
     #define HEALTH_HPP
 
     #include "plugins/components/AComponent.hpp"
+    #include "GameEngine/GameEngine.hpp"
     #include <vector>
     #include <stdexcept>
     #include <arpa/inet.h>
+    #include <libconfig.h++>
+    #include <any>
 
 namespace Components {
 
@@ -30,6 +33,7 @@ namespace Components {
          * Initializes current and max health to default values of 100.
          */
         Health() : currentHealth(100), maxHealth(100) {}
+        Health(libconfig::Setting &config);
 
         /**
          * @brief Parameterized constructor for Health component.
@@ -77,6 +81,49 @@ namespace Components {
          */
         size_t getSize() const override {
             return sizeof(__data);
+        };
+
+        /**
+         * @brief Adds the Health component to an entity.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param args The arguments to pass to the component constructor.
+         * 
+         * @note This function will add the Health component to the entity.
+         * @note The arguments should be a tuple of two uint32_t values: currentHealth and maxHealth.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+            if (args.size() != 2)
+                throw std::runtime_error("Invalid number of arguments for Health component");
+            
+            uint32_t currentHealth = std::any_cast<uint32_t>(args[0]);
+            uint32_t maxHealth = std::any_cast<uint32_t>(args[1]);
+
+            engine.getRegistry().componentManager().addComponent<Components::Health>(to, engine.newComponent<Components::Health>(currentHealth, maxHealth));
+        };
+
+        /**
+         * @brief Adds the Health component to an entity from a configuration setting.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param config The configuration setting to extract the component data from.
+         * 
+         * @note This function will add the Health component to the entity.
+         * @note The configuration setting should contain the keys 'currentHealth' and 'maxHealth'.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
+            int currentVal = 0, maxVal = 0;
+
+            if (
+                !config.lookupValue("currentHealth", currentVal) ||
+                !config.lookupValue("maxHealth", maxVal)) {
+                throw std::invalid_argument("Failed to retrieve values for 'currentHealth' or 'maxHealth'");
+            }
+
+            std::unique_ptr<Components::Health> health = engine.newComponent<Components::Health>(static_cast<uint32_t>(currentVal), static_cast<uint32_t>(maxVal));
+            engine.getRegistry().componentManager().addComponent<Components::Health>(to, std::move(health));
         };
 
         uint32_t currentHealth;

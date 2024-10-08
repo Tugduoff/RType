@@ -5,10 +5,26 @@
 ** Health.cpp file
 */
 
-#include <memory>
 #include "Health.hpp"
+#include "library_entrypoint.hpp"
 
-extern "C" std::unique_ptr<Components::IComponent> entryPoint(uint32_t currentHealth, uint32_t maxHealth)
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryPoint(uint32_t currentHealth, uint32_t maxHealth)
 {
-    return std::make_unique<Components::Health>(currentHealth, maxHealth);
+    return new Components::Health(currentHealth, maxHealth);
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *entryConfig(libconfig::Setting &config)
+{
+    return new Components::Health(config);
+}
+
+LIBRARY_ENTRYPOINT
+char const *componentName = "Health";
+
+Components::Health::Health(libconfig::Setting &config)
+{
+    config.lookupValue("currentHealth", currentHealth);
+    config.lookupValue("maxHealth", maxHealth);
 }
