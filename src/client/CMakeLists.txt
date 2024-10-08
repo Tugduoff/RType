@@ -2,7 +2,9 @@
 add_executable(client
     Main.cpp
     Window.cpp
-
+    
+    ../Network/RTypeClient.cpp
+    ../Network/UDPConnection.cpp
     ../ECS/system/SystemManager.cpp
     ../GameEngine/GameEngine.cpp
 )
@@ -24,6 +26,7 @@ target_link_libraries(client
     sfml-graphics
     sfml-network
     ${LIBCONFIG_LIB_NAME}
+    Boost::asio
 )
 
 
