@@ -11,6 +11,7 @@
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
+#include "../../network/include/server/UDPServer.hpp"
 #include <exception>
 #include <iostream>
 
@@ -48,6 +49,10 @@ int main() {
 
         reg.componentManager().addComponent<Components::Position>(entity, std::move(position));
         reg.componentManager().addComponent<Components::Velocity>(entity, std::move(velocity));
+
+        boost::asio::io_context io_context;
+        UDPServer server(io_context, 8080);
+        io_context.run();
 
         displayComponents(reg);
     } catch (std::exception &e) {
