@@ -97,7 +97,7 @@ public:
      * @return The size of the serialized component, in bytes.
      */
     size_t getSize() const override {
-        return 1;
+        return (sizeof(__data));
     }
 
     /**
