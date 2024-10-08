@@ -162,6 +162,7 @@ namespace Components {
         float radius;
         float width;
         float height;
+        char const *componentName;
 
     private:
         /**
