@@ -146,7 +146,7 @@ public:
      * @brief Indicates whether the entity is visible or not.
      */
     bool isVisible;
-    extern char const *componentName;
+    char const *componentName;
 
 private:
     /**
