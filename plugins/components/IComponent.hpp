@@ -69,6 +69,9 @@ namespace Components {
              * @note This function will add the component to the entity
              */
             virtual void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) = 0;
+
+            virtual std::string &getId() = 0;
+
         private:
     };
 };
