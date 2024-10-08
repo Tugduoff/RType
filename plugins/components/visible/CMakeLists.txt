@@ -2,3 +2,7 @@
 add_library(Visible SHARED
     Visible.cpp
 )
+
+target_link_libraries(Visible
+    ${LIBCONFIG_LIB_NAME}
+)
