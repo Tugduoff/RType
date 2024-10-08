@@ -9,8 +9,10 @@
     #define VISIBLE_HPP
 
     #include "plugins/components/AComponent.hpp"
+    #include "GameEngine/GameEngine.hpp"
     #include <vector>
     #include <stdexcept>
+    #include <libconfig.h++>
 
 /**
  * @namespace Components
@@ -29,16 +31,15 @@ namespace Components {
     class Visible : public AComponent {
 
     public:
-
         /**
-         * @brief Default constructor for Visible component.
+         * @brief Default constructor for the Visible component.
          * 
          * Initializes `isVisible` to false by default, indicating that the entity is invisible.
          */
         Visible() : isVisible(false) {};
 
         /**
-         * @brief Parameterized constructor for Visible component.
+         * @brief Parameterized constructor for the Visible component.
          * 
          * @param isVisible The initial visibility state of the entity.
          */
@@ -48,14 +49,13 @@ namespace Components {
          * @brief Serializes the visibility state.
          * 
          * Converts the `isVisible` boolean into a single byte that can be transmitted
-         * or stored. This is useful for saving or sending the visibility state over
-         * a network.
+         * or stored.
          * 
          * @return A vector of bytes representing the serialized visibility state.
          */
         std::vector<uint8_t> serialize() override {
             return { static_cast<uint8_t>(isVisible) };
-        };
+        }
 
         /**
          * @brief Deserializes the visibility state from a byte vector.
@@ -71,7 +71,7 @@ namespace Components {
                 throw std::runtime_error("Invalid data size for Visible component");
 
             isVisible = static_cast<bool>(data[0]);
-        };
+        }
 
         /**
          * @brief Gets the size of the serialized component.
@@ -83,21 +83,81 @@ namespace Components {
          */
         size_t getSize() const override {
             return 1;
+        }
+
+        /**
+         * @brief Adds the Visible component to an entity.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param args The arguments to pass to the component constructor.
+         * 
+         * @note This function will add the Visible component to the entity.
+         * @note The arguments should be a boolean value representing visibility.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+            if (args.size() != 1)
+                throw std::runtime_error("Invalid number of arguments for Visible component");
+            
+            bool visibility = std::any_cast<bool>(args[0]);
+            engine.getRegistry().componentManager().addComponent<Components::Visible>(to, engine.newComponent<Components::Visible>(visibility));
+        };
+
+        /**
+         * @brief Adds the Visible component to an entity from a configuration setting.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param config The configuration setting to extract the component data from.
+         * 
+         * @note This function will add the Visible component to the entity.
+         * @note The configuration setting should contain the key 'isVisible'.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
+            bool isVisibleConfig = false;
+
+            if (!config.lookupValue("isVisible", isVisibleConfig)) {
+                throw std::invalid_argument("Failed to retrieve 'isVisible' value from config");
+            }
+
+            std::cout << "isVisible: " << isVisibleConfig << std::endl;
+
+            std::unique_ptr<Components::Visible> visibilityComponent = engine.newComponent<Components::Visible>(isVisibleConfig);
+            engine.getRegistry().componentManager().addComponent<Components::Visible>(to, std::move(visibilityComponent));
+            std::cout << std::endl;
         };
 
         /**
          * @brief Indicates whether the entity is visible or not.
          */
         bool isVisible;
-
+    
     private:
+        /**
+         * @brief Network packet representation for the Visible component.
+         */
         union {
             struct {
                 uint8_t isVisible;
             } __network;
             uint8_t __data[1];
         };
+
     };
+
+    /**
+     * @brief Factory function for dynamic loading of Visible component as a plugin.
+     * 
+     * @return A unique pointer to a new Visible component instance.
+     */
+    extern "C" std::unique_ptr<IComponent> entryPoint(bool isVisible);
+
+    /**
+     * @brief Factory function for creating a Visible component from a libconfig setting.
+     * 
+     * @return A unique pointer to a new Visible component instance created using configuration data.
+     */
+    extern "C" std::unique_ptr<IComponent> entryConfig(libconfig::Setting &config);
 };
 
 #endif // VISIBLE_HPP
