@@ -42,14 +42,14 @@ public:
      * 
      * Initializes `isVisible` to false by default, indicating that the entity is invisible.
      */
-    Visible() : isVisible(false) {}
+    Visible() : AComponent(std::string("Visible")), isVisible(false) {}
 
     /**
      * @brief Parameterized constructor for the Visible component.
      * 
      * @param isVisible The initial visibility state of the entity.
      */
-    Visible(bool isVisible) : isVisible(isVisible) {}
+    Visible(bool isVisible) : AComponent(std::string("Visible")), isVisible(isVisible) {}
 
     /**
      * @brief Constructor for the Visible component that initializes from a configuration setting.
@@ -58,7 +58,10 @@ public:
      * 
      * @throws std::invalid_argument If the 'isVisible' key is not found in the configuration.
      */
-    Visible(libconfig::Setting &config);
+    Visible(libconfig::Setting &config) : AComponent(std::string("Visible")) {
+        if (!config.lookupValue("isVisible", isVisible))
+            throw std::runtime_error("Missing 'isVisible' setting for Visible component");
+    }
 
     /**
      * @brief Serializes the visibility state.
