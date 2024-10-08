@@ -1,18 +1,18 @@
 # Use an official Ubuntu as the base image
-FROM fedora:42
+FROM debian:12
 
 WORKDIR /app
 
-RUN dnf update -y
+RUN apt-get update -y
 
 # Update the package list and install dependencies for CMake, build tools, and SFML
-RUN dnf install -y  \
-    libX11          \
-    mesa-libGL
+RUN apt-get install -y  \
+    x11-common          \
+    libgl-dev
 
-COPY ./fedora_build.tar .
+COPY ./debian_build.tar .
 
-RUN tar -xf fedora_build.tar 
+RUN tar -xf debian_build.tar 
 
 RUN cd ./bin && ./launch_client.sh
 

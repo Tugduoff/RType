@@ -8,8 +8,14 @@
 #ifndef VELOCITY_HPP
     #define VELOCITY_HPP
 
-    #include "plugins/components/AComponent.hpp"
-    #include <arpa/inet.h>
+    #include "GameEngine/GameEngine.hpp"
+    #include "components/AComponent.hpp"
+     #ifdef _WIN32
+        #include <windows.h>
+        #pragma comment(lib, "ws2_32.lib")
+    #else
+        #include <arpa/inet.h>
+    #endif
     #include <vector>
     #include <stdexcept>
 
@@ -28,6 +34,7 @@ namespace Components {
          * Initializes the velocity components (x and y) to zero.
          */
         Velocity() : x(0), y(0) {};
+        Velocity(libconfig::Setting &config);
 
         /**
          * @brief Parameterized constructor for the Velocity component.
@@ -79,6 +86,50 @@ namespace Components {
          */
         size_t getSize() const override {
             return sizeof(__data);
+        };
+
+        /**
+         * @brief Adds the Velocity component to an entity.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param args The arguments to pass to the component constructor.
+         * 
+         * @note This function will add the component to the entity.
+         * @note The arguments should be a pair of uint32_t values representing the x and y components of the velocity.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+            if (args.size() != 2)
+                throw std::runtime_error("Invalid number of arguments for Velocity component");
+            uint32_t x = std::any_cast<uint32_t>(args[0]);
+            uint32_t y = std::any_cast<uint32_t>(args[1]);
+            engine.getRegistry().componentManager().addComponent<Components::Velocity>(to, engine.newComponent<Components::Velocity>(x, y));
+        };
+
+        /**
+         * @brief Adds the Velocity component to an entity.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param config The configuration settings to use for the component.
+         * 
+         * @note This function will add the component to the entity.
+         * @note The configuration settings should contain the x and y components of the velocity.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
+            int xVal = 0, yVal = 0;
+
+            if (
+                !config.lookupValue("x", xVal) ||
+                !config.lookupValue("y", yVal)) {
+                throw std::invalid_argument("Failed to retrieve values for 'x', 'y'");
+            }
+
+            std::cout << "x: " << xVal << " y: " << yVal << std::endl;
+
+            std::unique_ptr<Components::Velocity> pos = engine.newComponent<Components::Velocity>(static_cast<uint32_t>(xVal), static_cast<uint32_t>(yVal));
+            engine.getRegistry().componentManager().addComponent<Components::Velocity>(to, std::move(pos));
+            std::cout << std::endl;
         };
 
         uint32_t x;

@@ -9,33 +9,51 @@ on:
       - 'ga-ignore-*'
 env:
   MIRROR_URL: "git@github.com:EpitechPromo2027/B-CPP-500-NAN-5-1-rtype-thomas.cluseau.git"
-  EXECUTABLES: "bin/r-type_server, bin/r-type_client"
-  EXECUTABLES: ""
+  EXECUTABLES: "./bin/r-type_server, ./bin/r-type_client"
+  WINDOWS_EXECUTABLES: "./bin/r-type_server.exe, ./bin/r-type_client.exe"
 
 jobs:
-  check_program_compilation:
 
+  # commented_job:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: ghcr.io/ClementBaziret/custom-epitest:latest
+  #     credentials:
+  #         username: ClementBaziret
+  #         password: ${{ secrets.GIT_AUTH_TOKEN }}
+
+  fedora_compilation:
     runs-on: ubuntu-latest
-
     container:
-      image: epitechcontent/epitest-docker
-    # container:
-    #   image: ghcr.io/ClementBaziret/custom-epitest:latest
-    #   credentials:
-    #       username: ClementBaziret
-    #       password: ${{ secrets.GIT_AUTH_TOKEN }}
+      image: fedora:42
 
     steps:
       - name: Checkout fetch
         uses: actions/checkout@v4
-      - name: Create build directory
-        run: mkdir build
-      # - name: Init CMake
-      #   run: cd build/ && cmake ..
-      # - name: Compilation
-      #   timeout-minutes: 3
-      #   run: cmake --build ./build/ --target all
-      - name: check execs
+      - name: Update Fedora
+        run:  dnf update -y
+      - name: Install necessary dependencies
+        run: >
+          dnf install -y 
+          g++ 
+          git 
+          tree 
+          cmake 
+          mesa-libGL-devel 
+          mesa-libGLU-devel 
+          openal-soft-devel 
+          libgudev-devel 
+          flac-devel 
+          libvorbis-devel 
+          freetype-devel 
+          libX11-devel 
+          libXcursor-devel 
+          libXrandr-devel
+      - name: R-Type Compilation
+        run: ./build_rtype.sh
+      - name: R-Type Plugins Compilation
+        run: ./build_plugins.sh
+      - name: Check compilated executables
         run: |
           for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
             if [ ! -x "${executables}" ]; then
@@ -44,10 +62,73 @@ jobs:
             fi
           done
 
+  debian_compilation:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:12
+
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+      - name: Update Debian
+        run:  apt-get update -y
+      - name: Install necessary dependencies
+        run: >
+          apt-get install -y 
+          apt-file 
+          g++ 
+          git 
+          cmake 
+          x11-common 
+          libxrandr-dev 
+          libxcursor-dev 
+          libgl-dev 
+          libudev-dev 
+          libflac-dev 
+          libopenal-dev 
+          libvorbis-dev 
+          libfreetype-dev 
+          libfreetype6
+      - name: Updated apt-file cache
+        run: apt-file update
+      - name: R-Type Compilation
+        run: ./build_rtype.sh
+      - name: R-Type Plugins Compilation
+        run: ./build_plugins.sh
+      - name: Check compilated executables
+        run: |
+          for executables in $(echo "${{ env.EXECUTABLES }}" | tr ',' ' '); do
+            if [ ! -x "${executables}" ]; then
+              echo "Executable ${executables} doesn't exist or isn't excutable."
+              exit 1
+            fi
+          done
+
+  windows_compilation:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+      - name: R-Type Compilation
+        shell: cmd
+        run: .\windows_build_rtype.bat
+      - name: R-Type Plugins Compilation
+        shell: cmd
+        run: .\windows_build_plugins.bat
+      - name: Check compiled executables
+        shell: cmd
+        run: |
+          for %%e in (${{ env.WINDOWS_EXECUTABLES }}); do (
+              if not exist "%%e" (
+                  echo Executable %%e does not exist.
+                  exit /b 1
+              )
+          )
+
   ## PLEASE ADD SOME UNITS TESTS !
 
   # run_tests:
-  #   needs: [check_program_compilation]
+  #   needs: [check_compilation]
 
   #   runs-on: ubuntu-latest
 
@@ -62,8 +143,11 @@ jobs:
   #       run: make tests_run
 
   push_to_mirror:
-    needs: [check_program_compilation]
-
+    needs: [
+      fedora_compilation,
+      debian_compilation,
+      windows_compilation
+    ]
     runs-on: ubuntu-latest
 
     if: ${{ github.event_name == 'push' }}
