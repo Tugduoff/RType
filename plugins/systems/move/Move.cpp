@@ -7,12 +7,15 @@
 
 #include "GameEngine/GameEngine.hpp"
 #include "Move.hpp"
-#include "plugins/components/position/Position.hpp"
-#include "plugins/components/velocity/Velocity.hpp"
+#include "components/position/Position.hpp"
+#include "components/velocity/Velocity.hpp"
+#include "library_entrypoint.hpp"
 #include <iostream>
 #include <stdexcept>
-#include <memory>
-#include <cstdint>
+
+Systems::MoveSystem::MoveSystem(libconfig::Setting &)
+{
+}
 
 void Systems::MoveSystem::run(Engine::GameEngine &engine)
 {
@@ -45,13 +48,14 @@ void Systems::MoveSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Velocity component in system Move" << std::endl;
 }
 
-extern "C"
+LIBRARY_ENTRYPOINT
+Systems::ISystem *entryPoint()
 {
-#ifdef _WIN32
-    __declspec(dllexport)
-#endif
-    Systems::ISystem *entryPoint()
-    {
-        return new Systems::MoveSystem();
-    }
+    return new Systems::MoveSystem();
+}
+
+LIBRARY_ENTRYPOINT
+Systems::ISystem *entryConfig(libconfig::Setting &config)
+{
+    return new Systems::MoveSystem(config);
 }

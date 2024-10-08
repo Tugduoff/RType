@@ -8,6 +8,8 @@
 #ifndef POSITION_HPP
     #define POSITION_HPP
 
+    #include "plugins/components/AComponent.hpp"
+    #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
      #ifdef _WIN32
         #include <windows.h>
@@ -17,6 +19,7 @@
     #endif
     #include <vector>
     #include <stdexcept>
+    #include <libconfig.h++>
 
 namespace Components {
     /**
@@ -34,6 +37,7 @@ namespace Components {
          * Initializes the position components (x, y, layer) to zero.
          */
         Position() : x(0), y(0), layer(0) {};
+        Position(libconfig::Setting &config);
 
         /**
          * @brief Parameterized constructor for the Position component.
@@ -43,7 +47,7 @@ namespace Components {
          * @param x The X coordinate of the position.
          * @param y The Y coordinate of the position.
          */
-        Position(uint32_t x, uint32_t y) : x(x), y(y), layer(0) {};
+        Position(uint32_t x, uint32_t y, uint32_t layer) : x(x), y(y), layer(layer) {};
 
         /**
          * @brief Default destructor for the Position component.
@@ -86,6 +90,52 @@ namespace Components {
          * @return The size of the data, in bytes.
          */
         size_t getSize() const override { return sizeof(__data); };
+
+        /**
+         * @brief Adds the Position component to an entity.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param args The arguments to pass to the component constructor.
+         * 
+         * @note This function will add the Position component to the entity.
+         * @note The arguments should be a tuple of three uint32_t values: x, y, and layer.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+            if (args.size() != 3)
+                throw std::runtime_error("Invalid number of arguments for Position component");
+            uint32_t x = std::any_cast<uint32_t>(args[0]);
+            uint32_t y = std::any_cast<uint32_t>(args[1]);
+            uint32_t layer = std::any_cast<uint32_t>(args[2]);
+            engine.getRegistry().componentManager().addComponent<Components::Position>(to, engine.newComponent<Components::Position>(x, y, layer));
+        };
+
+        /**
+         * @brief Adds the Position component to an entity from a configuration setting.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param config The configuration setting to extract the component data from.
+         * 
+         * @note This function will add the Position component to the entity.
+         * @note The configuration setting should contain the keys 'x', 'y', and 'layer'.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
+            int xVal = 0, yVal = 0, layerVal = 0;
+
+            if (
+                !config.lookupValue("x", xVal) ||
+                !config.lookupValue("y", yVal) ||
+                !config.lookupValue("layer", layerVal)) {
+                throw std::invalid_argument("Failed to retrieve values for 'x', 'y', or 'layer'");
+            }
+
+            std::cout << "x: " << xVal << " y: " << yVal << " layer: " << layerVal << std::endl;
+
+            std::unique_ptr<Components::Position> pos = engine.newComponent<Components::Position>(static_cast<uint32_t>(xVal), static_cast<uint32_t>(yVal), static_cast<uint32_t>(layerVal));
+            engine.getRegistry().componentManager().addComponent<Components::Position>(to, std::move(pos));
+            std::cout << std::endl;
+        };
 
         uint32_t x;
         uint32_t y;
