@@ -52,3 +52,21 @@ Components::IComponent *entryConfig(libconfig::Setting &config)
 
 LIBRARY_ENTRYPOINT
 char const *componentName = "Collider";
+
+Components::Collider::Collider(libconfig::Setting &config)
+{
+    std::string shapeStr;
+
+    if (config.lookupValue("shape", shapeStr)) {
+        if (shapeStr == "Circle") {
+            shape = ColliderShape::Circle;
+            config.lookupValue("radius", radius);
+        } else if (shapeStr == "Rectangle") {
+            shape = ColliderShape::Rectangle;
+            config.lookupValue("width", width);
+            config.lookupValue("height", height);
+        } else {
+            throw std::invalid_argument("Unknown collider shape: " + shapeStr);
+        }
+    }
+}

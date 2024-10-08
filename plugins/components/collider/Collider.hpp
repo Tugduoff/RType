@@ -33,6 +33,7 @@ namespace Components {
          * Initializes the collider as a circle with a default radius of 1.
          */
         Collider() : shape(ColliderShape::Circle), radius(1.0f), width(0), height(0) {};
+        Collider(libconfig::Setting &config);
 
         /**
          * @brief Constructor for circle collider
@@ -187,4 +188,4 @@ namespace Components {
     };
 };
 
-#endif // COLLIDER_HPP
+#endif // COLLIDER_HPP //
