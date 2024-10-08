@@ -11,7 +11,7 @@
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
-#include "../network/include/server/UDPServer.hpp"
+#include "network/UDPServer.hpp"
 #include <exception>
 #include <iostream>
 
