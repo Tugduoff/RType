@@ -53,6 +53,15 @@ void UDPServer::start_receive() {
 }
 
 void UDPServer::send_components_infos() {
+    // Total components
+    socket_.async_send_to(
+        boost::asio::buffer("Total " + std::to_string(__components.size())), remote_endpoint_,
+        [this](boost::system::error_code ec, std::size_t) {
+            if (!ec)
+                std::cout << "Total components sent to client." << std::endl;
+        }
+    );
+
     // Size max
     socket_.async_send_to(
         boost::asio::buffer("Size " + std::to_string(size_max)), remote_endpoint_,
