@@ -4,6 +4,8 @@ add_executable(server
 
     ../ECS/system/SystemManager.cpp
     ../GameEngine/GameEngine.cpp
+
+    ../../network/UDPServer.cpp
 )
 
 # Set the output name for the server binary
@@ -11,4 +13,5 @@ set_target_properties(server PROPERTIES OUTPUT_NAME "r-type_server")
 
 target_link_libraries(server
     ${LIBCONFIG_LIB_NAME}
+    Boost::asio
 )
