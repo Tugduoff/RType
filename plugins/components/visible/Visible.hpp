@@ -8,7 +8,7 @@
 #ifndef VISIBLE_HPP
 #define VISIBLE_HPP
 
-#include "plugins/components/AComponent.hpp"
+    #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
      #ifdef _WIN32
@@ -58,11 +58,7 @@ public:
      * 
      * @throws std::invalid_argument If the 'isVisible' key is not found in the configuration.
      */
-    Visible(libconfig::Setting &config) {
-        if (!config.lookupValue("isVisible", isVisible)) {
-            throw std::invalid_argument("Failed to retrieve 'isVisible' value from config");
-        }
-    }
+    Visible(libconfig::Setting &config);
 
     /**
      * @brief Serializes the visibility state.
@@ -150,6 +146,7 @@ public:
      * @brief Indicates whether the entity is visible or not.
      */
     bool isVisible;
+    extern char const *componentName;
 
 private:
     /**
