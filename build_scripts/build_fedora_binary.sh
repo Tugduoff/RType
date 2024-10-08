@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BUILD_DIR=./build
+BUILD_DIR=./src/build
 BINARY_DIR=./bin
 
 SFML_SO_FILES=(
@@ -29,7 +29,7 @@ SO_FILES=(
 echo "R-Type Compilation..."
 
 mkdir -p $BUILD_DIR
-cd $BUILD_DIR && cmake .. && cd ..
+cd $BUILD_DIR && cmake .. && cd ../..
 cmake --build $BUILD_DIR
 
 if [ $? -ne 0 ]; then

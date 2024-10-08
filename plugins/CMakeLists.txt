@@ -1,12 +1,13 @@
 # Set the minimum required version of CMake
 cmake_minimum_required(VERSION 3.10)
 
+# Enable config export to clangd language server
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 # May be needed
 if (WIN32)
     set(MSVC True)
 endif (WIN32)
-# set( CMAKE_CXX_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.41.34120\\bin\\Hostx64\\x64\\cl.exe" )
-# set( CMAKE_C_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.41.34120\\bin\\Hostx64\\x64\\cl.exe" )
 
 # Set the project name and version
 project(RTypePlugins VERSION 1.0)
@@ -25,7 +26,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin/release)
 
 # Add some addiotionnal flags to pass to compiler
-if(NOT WIN32)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT WIN32)
+    message("Debug build, adding following compiler flags : -g -Wall -Wextra")
     add_definitions(-g -Wall -Wextra)
 endif()
 
@@ -36,6 +38,23 @@ include_directories(../)
 # To allow plugin files include to work
 include_directories(../src)
 
+include_directories(./build/_deps/libconfig-src/lib)
+
+include(../src/cmake/CPM.cmake)
+CPMAddPackage(
+    NAME libconfig
+    GIT_REPOSITORY "https://github.com/hyperrealm/libconfig.git"
+    GIT_TAG "v1.7.3"
+    OPTIONS
+    "BUILD_EXAMPLES OFF"
+    "BUILD_TESTS OFF"
+)
+
+if (WIN32)
+    set(LIBCONFIG_LIB_NAME libconfig libconfig++)
+else()
+    set(LIBCONFIG_LIB_NAME config config++)
+endif (WIN32)
 
 # Include the subdirectories for client and server
 add_subdirectory(components)

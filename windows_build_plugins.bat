@@ -1,3 +1,5 @@
+@echo off
+
 set BUILD_DIR=.\plugins\build
 
 if not exist %BUILD_DIR% (
@@ -7,14 +9,18 @@ if not exist %BUILD_DIR% (
 echo R-Type Building...
 cd %BUILD_DIR%
 cmake .. 
+
 if errorlevel 1 (
-    echo Compilation failed
-    exit 84
+    echo ERROR: Build failed !
+    exit /b 84
 )
 
 echo R-Type Compilation...
 cmake --build .
+
 if errorlevel 1 (
-    echo Compilation failed
-    exit 84
+    echo ERROR: Compilation failed !
+    exit /b 84
 )
+
+cd ../..

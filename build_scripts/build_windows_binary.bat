@@ -1,3 +1,5 @@
+@echo off
+
 set BUILD_DIR=.\build
 set BINARY_DIR=.\bin
 
@@ -11,13 +13,14 @@ cd %BUILD_DIR%
 cmake .. 
 if errorlevel 1 (
     echo Compilation failed
-    exit 84
+    exit /b 84
 )
 cmake --build .
 if errorlevel 1 (
     echo Compilation failed
-    exit 84
+    exit /b 84
 )
-cd ..
+
+cd ../..
 
 echo Windows build completed.

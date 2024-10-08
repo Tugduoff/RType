@@ -1,12 +1,13 @@
 #include <SFML/Graphics.hpp>
+#include "Window.hpp"
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Entity System");
-    while (1)
-    {
-        window.display();
+    Window win(1920, 1080, "test");
+    while (win.isOpen()) {
+        win.clear(sf::Color::Blue);
+        win.display();
+        while (win.pollEvent());
     }
-    window.close();
     return 0;
 }
