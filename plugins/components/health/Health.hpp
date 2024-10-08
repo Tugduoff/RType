@@ -37,8 +37,12 @@ namespace Components {
          * 
          * Initializes current and max health to default values of 100.
          */
-        Health() : currentHealth(100), maxHealth(100) {}
-        Health(libconfig::Setting &config);
+        Health() : AComponent(std::string("Health")), currentHealth(100), maxHealth(100) {}
+
+        Health(libconfig::Setting &config) : AComponent(std::string("Health")) {
+            config.lookupValue("currentHealth", currentHealth);
+            config.lookupValue("maxHealth", maxHealth);
+        };
 
         /**
          * @brief Parameterized constructor for Health component.
@@ -48,7 +52,7 @@ namespace Components {
          * @param current The initial value of current health.
          * @param max The initial value of maximum health.
          */
-        Health(uint32_t current, uint32_t max) : currentHealth(current), maxHealth(max) {}
+        Health(uint32_t current, uint32_t max) : AComponent(std::string("Health")), currentHealth(current), maxHealth(max) {}
 
         /**
          * @brief Serializes the health values into a byte vector.
