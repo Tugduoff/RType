@@ -12,4 +12,5 @@ set_target_properties(server PROPERTIES OUTPUT_NAME "r-type_server")
 
 target_link_libraries(server
     ${LIBCONFIG_LIB_NAME}
+    Boost::asio
 )

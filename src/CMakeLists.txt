@@ -50,9 +50,10 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-    NAME asio
-    GIT_REPOSITORY "https://github.com/boostorg/asio"
-    GIT_TAG "boost-1.86.0"
+  NAME Boost
+  VERSION 1.86.0
+  URL https://github.com/boostorg/boost/releases/download/boost-1.86.0/boost-1.86.0-cmake.tar.xz
+  OPTIONS "BOOST_ENABLE_CMAKE ON" "BOOST_INCLUDE_LIBRARIES asio"
 )
 
 if (WIN32)
