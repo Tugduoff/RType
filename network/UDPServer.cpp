@@ -52,110 +52,115 @@ void UDPServer::start_receive() {
         });
 }
 
-void UDPServer::send_components_infos() {
-    // Total components
-    socket_.async_send_to(
-        boost::asio::buffer("Total " + std::to_string(__components.size())), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t) {
-            if (!ec)
-                std::cout << "Total components sent to client." << std::endl;
-        }
-    );
-
-    // Size max
-    socket_.async_send_to(
-        boost::asio::buffer("Size " + std::to_string(size_max)), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t size_max) {
-            if (!ec)
-                std::cout << "Size max sent to client: " << size_max << std::endl;
-        }
-    );
-
-    // components
-    int index = 0;
-    for (const auto& component : __components) {
-        std::string indexed_message = std::to_string(index) + " " + component.first;
+    void UDPServer::send_components_infos() {
+        // Total components
         socket_.async_send_to(
-            boost::asio::buffer(indexed_message), remote_endpoint_,
-            [this, indexed_message](boost::system::error_code ec, std::size_t size_max) {
+            boost::asio::buffer("Total " + std::to_string(__components.size())), remote_endpoint_,
+            [this](boost::system::error_code ec, std::size_t) {
                 if (!ec)
-                    std::cout << "Message sent to client: " << indexed_message << std::endl;
+                    std::cout << "Total components sent to client." << std::endl;
             }
         );
-        index++;
-    }
-}
 
-std::size_t UDPServer::get_size_max() {
-    auto max_component = std::max_element(__components.begin(), __components.end(),
-        [](const auto& a, const auto& b) {
-            return a.first.size() < b.first.size();
-        });
+        // Size max
+        std::size_t max_name_length = 0;
+        for (const auto& component : __components)
+            max_name_length = std::max(max_name_length, component.first.size());
+        uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
 
-    return max_component != __components.end() ? max_component->first.size() : 0;
-}
-
-void UDPServer::checking_client(const udp::endpoint& client) {
-    std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(10)));
-    timer->async_wait([this, client](const boost::system::error_code& ec) {
-        if (!ec) {
-            if (!client_responses[client] && !is_disconnected[client]) {
-                std::cout << "Client did not respond to ping, disconnecting: " 
-                            << client.address().to_string() << ":" << client.port() << std::endl;
-                remove_client(client);
-            } else {
-                client_responses[client] = false;
-                send_ping(client);
+        socket_.async_send_to(
+            boost::asio::buffer(&max_name_length_byte, 1), remote_endpoint_,
+            [this](boost::system::error_code ec, std::size_t) {
+                if (!ec)
+                    std::cout << "Size max sent to client: " << size_max << std::endl;
             }
-            checking_client(client);
-        }
-    });
-    client_timers[client] = std::move(timer);
-}
+        );
 
-void UDPServer::send_ping(const udp::endpoint& client) {
-    std::string ping_message = "ping";
-    socket_.async_send_to(boost::asio::buffer(ping_message), client,
-        [this, client](boost::system::error_code ec, std::size_t size_max) {
+        // Components
+        int index = 0;
+        for (const auto& component : __components) {
+            std::string indexed_message = std::to_string(index) + " " + component.first;
+            socket_.async_send_to(
+                boost::asio::buffer(indexed_message), remote_endpoint_,
+                [this, indexed_message](boost::system::error_code ec, std::size_t size_max) {
+                    if (!ec)
+                        std::cout << "Message sent to client: " << indexed_message << std::endl;
+                }
+            );
+            index++;
+        }
+    }
+
+    std::size_t UDPServer::get_size_max() {
+        auto max_component = std::max_element(__components.begin(), __components.end(),
+            [](const auto& a, const auto& b) {
+                return a.first.size() < b.first.size();
+            });
+
+        return max_component != __components.end() ? max_component->first.size() : 0;
+    }
+
+    void UDPServer::checking_client(const udp::endpoint& client) {
+        std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(10)));
+        timer->async_wait([this, client](const boost::system::error_code& ec) {
             if (!ec) {
-                std::cout << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
-                start_pong_timer(client);
+                if (!client_responses[client] && !is_disconnected[client]) {
+                    std::cout << "Client did not respond to ping, disconnecting: " 
+                                << client.address().to_string() << ":" << client.port() << std::endl;
+                    remove_client(client);
+                } else {
+                    client_responses[client] = false;
+                    send_ping(client);
+                }
+                checking_client(client);
             }
-        }
-    );
-}
+        });
+        client_timers[client] = std::move(timer);
+    }
 
-void UDPServer::start_pong_timer(const udp::endpoint& client) {
-    std::unique_ptr<boost::asio::steady_timer> pong_timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(2)));  // 2 seconds for "pong"
-    pong_timer->async_wait([this, client](const boost::system::error_code& ec) {
-        if (!ec) {
-            if (!client_responses[client] && !is_disconnected[client]) {
-                std::cout << "Client did not respond to ping (no pong), disconnecting: " 
-                            << client.address().to_string() << ":" << client.port() << std::endl;
-                remove_client(client);
-            }
-        }
-    });
-    pong_timers[client] = std::move(pong_timer);
-}
-
-void UDPServer::remove_client(const udp::endpoint& client) {
-    if (!is_disconnected[client]) {
-        is_disconnected[client] = true;
-
-        client_endpoints.erase(std::remove(client_endpoints.begin(), client_endpoints.end(), client), client_endpoints.end());
-        client_timers.erase(client);
-        pong_timers.erase(client);
-        client_responses.erase(client);
-
-        std::cout << "Client disconnected: " << client.address().to_string() << ":" << client.port() << std::endl;
-
-        std::string deconnection_message = "You have been disconnected :(";
-        socket_.async_send_to(boost::asio::buffer(deconnection_message), client,
+    void UDPServer::send_ping(const udp::endpoint& client) {
+        std::string ping_message = "ping";
+        socket_.async_send_to(boost::asio::buffer(ping_message), client,
             [this, client](boost::system::error_code ec, std::size_t size_max) {
-                if (!ec)
-                    std::cout << "Client " << client.address().to_string() << ":" << client.port() << " is now aware of their disconnection" << std::endl;
+                if (!ec) {
+                    std::cout << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
+                    start_pong_timer(client);
+                }
             }
         );
     }
-}
+
+    void UDPServer::start_pong_timer(const udp::endpoint& client) {
+        std::unique_ptr<boost::asio::steady_timer> pong_timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(2)));
+        pong_timer->async_wait([this, client](const boost::system::error_code& ec) {
+            if (!ec) {
+                if (!client_responses[client] && !is_disconnected[client]) {
+                    std::cout << "Client did not respond to ping (no pong), disconnecting: " 
+                                << client.address().to_string() << ":" << client.port() << std::endl;
+                    remove_client(client);
+                }
+            }
+        });
+        pong_timers[client] = std::move(pong_timer);
+    }
+
+    void UDPServer::remove_client(const udp::endpoint& client) {
+        if (!is_disconnected[client]) {
+            is_disconnected[client] = true;
+
+            client_endpoints.erase(std::remove(client_endpoints.begin(), client_endpoints.end(), client), client_endpoints.end());
+            client_timers.erase(client);
+            pong_timers.erase(client);
+            client_responses.erase(client);
+
+            std::cout << "Client disconnected: " << client.address().to_string() << ":" << client.port() << std::endl;
+
+            std::string deconnection_message = "You have been disconnected :(";
+            socket_.async_send_to(boost::asio::buffer(deconnection_message), client,
+                [this, client](boost::system::error_code ec, std::size_t size_max) {
+                    if (!ec)
+                        std::cout << "Client " << client.address().to_string() << ":" << client.port() << " is now aware of their disconnection" << std::endl;
+                }
+            );
+        }
+    }
