@@ -80,34 +80,33 @@ void UDPServer::send_components_infos() {
     );
 
     // Components
-    // int i = 0;
-    // for (const auto& component : __components) {
-    //     uint8_t index = static_cast<uint8_t>(i);
-    //     const std::string& component_name = component.first;
+    int i = 0;
+    for (const auto& component : __components) {
+        uint8_t index = static_cast<uint8_t>(i);
+        const std::string& component_name = component.first;
 
-    //     std::vector<uint8_t> buffer(1 + component_name.size());
-    //     buffer[0] = index;
-    //     std::memcpy(buffer.data() + 1, component_name.data(), component_name.size());
+        std::vector<uint8_t> buffer(1 + component_name.size());
+        buffer[0] = index;
+        std::memcpy(buffer.data() + 1, component_name.data(), component_name.size());
 
-    //     socket_.async_send_to(
-    //         boost::asio::buffer(buffer), remote_endpoint_,
-    //         [this, index, component_name](boost::system::error_code ec, std::size_t) {
-    //             if (!ec)
-    //                 std::cout << "Sent index: " << static_cast<int>(index) << ", component name: " << component_name << std::endl;
-    //         }
-    //     );
-    //     i++;
-    // }
+        socket_.async_send_to(
+            boost::asio::buffer(buffer), remote_endpoint_,
+            [this, index, component_name](boost::system::error_code ec, std::size_t) {
+                if (!ec)
+                    std::cout << "Sent index: " << static_cast<int>(index) << ", component name: " << component_name << std::endl;
+            }
+        );
+        i++;
+    }
 
     // test entity creation
-    std::cout << "Before entity creation" << std::endl;
-
     Engine::GameEngine gameEngine;
     ECS::Registry &reg = gameEngine.getRegistry();
     ECS::Entity entity_test = reg.entityManager().spawnEntity();
+    ECS::Entity entity_test2 = reg.entityManager().spawnEntity();
     create_entity(entity_test);
-
-    std::cout << "After entity creation" << std::endl;
+    create_entity(entity_test2);
+    create_entity(entity_test);
 }
 
 std::size_t UDPServer::get_size_max() {
@@ -195,9 +194,11 @@ void UDPServer::create_entity(ECS::Entity &entity) {
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t) {
-            if (!ec)
-                std::cout << "Entity creation sent to client." << std::endl;
+        [this, entity_id](boost::system::error_code ec, std::size_t) {
+            if (!ec) {
+                uint16_t id = ntohs(entity_id); 
+                std::cout << "Entity " << static_cast<int>(id) << " created." << std::endl;
+            }
         }
     );
 }
