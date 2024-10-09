@@ -12,9 +12,9 @@ LIBRARY_ENTRYPOINT
 char const *componentName = "Visible";
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint(bool isVisible)
+Components::IComponent *entryPoint()
 {
-    return new Components::Visible(isVisible);
+    return new Components::Visible();
 }
 
 LIBRARY_ENTRYPOINT
