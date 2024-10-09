@@ -12,9 +12,9 @@ LIBRARY_ENTRYPOINT
 char const *componentName = "Health";
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint(uint32_t currentHealth, uint32_t maxHealth)
+Components::IComponent *entryPoint()
 {
-    return new Components::Health(currentHealth, maxHealth);
+    return new Components::Health();
 }
 
 LIBRARY_ENTRYPOINT
