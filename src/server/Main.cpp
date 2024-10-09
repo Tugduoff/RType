@@ -35,8 +35,15 @@ void displayComponents(ECS::Registry &reg)
     }
 }
 
+void updateComponent(size_t id, std::string name, std::vector<uint8_t> data)
+{
+    std::cout << "Updating component: " << name << " with ID: " << id << std::endl;
+    for (auto u : data)
+        std::cout << u << " ";
+}
+
 int main() {
-    Engine::GameEngine engine;
+    Engine::GameEngine engine(updateComponent);
     ECS::Registry &reg = engine.getRegistry();
     ECS::Entity entity = reg.entityManager().spawnEntity();
 
@@ -50,6 +57,9 @@ int main() {
         reg.componentManager().addComponent<Components::Velocity>(entity, std::move(velocity));
 
         displayComponents(reg);
+
+        engine.runSystems();
+        engine.runSystems();
     } catch (std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 84;
