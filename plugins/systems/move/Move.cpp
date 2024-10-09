@@ -26,7 +26,7 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
         auto &velComponents = reg.componentManager().getComponents<Components::Velocity>();
 
         size_t i = 0;
-        for (i = 0; i < posComponents.size() || i < velComponents.size(); i++) {
+        for (i = 0; i < posComponents.size() && i < velComponents.size(); i++) {
             auto &pos = posComponents[i];
             auto &vel = velComponents[i];
 
@@ -34,6 +34,7 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
                 continue;
             pos->x += vel->x;
             pos->y += vel->y;
+            engine.updateComponent(i, pos->getId(), pos->serialize());
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
