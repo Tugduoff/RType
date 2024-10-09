@@ -145,7 +145,7 @@ namespace Engine {
              * @note It will be used by the systems to update components.
              * @note It will be set by the game engine constructor.
              */
-            void updateComponent(size_t index, std::string &componentId, std::vector<uint8_t> data)
+            void updateComponent(size_t index, const std::string &componentId, std::vector<uint8_t> data)
             {
                 __updateComponent(index, componentId, data);
             }
