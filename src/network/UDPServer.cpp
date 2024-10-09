@@ -202,6 +202,24 @@ void UDPServer::create_entity(ECS::Entity &entity) {
     );
 }
 
+void UDPServer::delete_entity(ECS::Entity &entity) {
+    uint8_t opcode = 0x1;
+    uint16_t entity_id = static_cast<uint16_t>(entity);
+    entity_id = htons(entity_id);
+
+    std::array<uint8_t, 3> message;
+    message[0] = opcode;
+    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
+
+    socket_.async_send_to(
+        boost::asio::buffer(message), remote_endpoint_,
+        [this](boost::system::error_code ec, std::size_t) {
+            if (!ec)
+                std::cout << "Entity delete sent to client." << std::endl;
+        }
+    );
+}
+
 void UDPServer::attach_component() {
     return;
 }
