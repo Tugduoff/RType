@@ -14,6 +14,7 @@
 #include <iostream>
 #include <memory>
 #include <sys/types.h>
+#include <unordered_map>
 
 namespace Components {
 
@@ -25,10 +26,18 @@ namespace Components {
         Unknown,
     };
 
+    static const std::unordered_map<SpriteID, std::string> SpriteIDToString = {
+        {SpriteID::Player, "Player"},
+        {SpriteID::Enemy, "Enemy"},
+        {SpriteID::ProjectileRight, "ProjectileRight"},
+        {SpriteID::ProjectileLeft, "ProjectileLeft"},
+        {SpriteID::Unknown, "Unknown"}
+    };
+
     class SpriteIDComponent : public Components::AComponent {
     public:
         SpriteIDComponent(SpriteID id = SpriteID::Unknown)
-        :   Components::AComponent("SpriteId"),
+        :   Components::AComponent("SpriteID"),
             id(id)
         {
         }
