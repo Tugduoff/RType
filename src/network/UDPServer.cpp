@@ -56,13 +56,9 @@ void UDPServer::start_receive() {
         // Total components
         uint16_t total_components = static_cast<uint16_t>(__components.size());
         total_components = htons(total_components);
-        std::array<uint8_t, 2> total_components_buffer = {
-            static_cast<uint8_t>((total_components >> 8) & 0xFF),               // Frst Byte
-            static_cast<uint8_t>(total_components & 0xFF)                       // Second Byte
-        };
 
         socket_.async_send_to(
-            boost::asio::buffer(total_components_buffer), remote_endpoint_,
+            boost::asio::buffer(&total_components, 2), remote_endpoint_,
             [this](boost::system::error_code ec, std::size_t) {
                 if (!ec)
                     std::cout << "Total components sent to client." << std::endl;
@@ -108,7 +104,7 @@ void UDPServer::start_receive() {
     }
 
     void UDPServer::checking_client(const udp::endpoint& client) {
-        std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(10)));
+        std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(60)));
         timer->async_wait([this, client](const boost::system::error_code& ec) {
             if (!ec) {
                 if (!client_responses[client] && !is_disconnected[client]) {
@@ -138,7 +134,7 @@ void UDPServer::start_receive() {
     }
 
     void UDPServer::start_pong_timer(const udp::endpoint& client) {
-        std::unique_ptr<boost::asio::steady_timer> pong_timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(2)));
+        std::unique_ptr<boost::asio::steady_timer> pong_timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(10)));
         pong_timer->async_wait([this, client](const boost::system::error_code& ec) {
             if (!ec) {
                 if (!client_responses[client] && !is_disconnected[client]) {
