@@ -24,6 +24,8 @@ namespace Engine {
     class GameEngine {
         public:
 
+            GameEngine(std::function<void(size_t, std::string, std::vector<uint8_t>)> updateComponent) : __updateComponent(updateComponent) {};
+
             /**
              * @brief Register a component
              * 
@@ -50,7 +52,7 @@ namespace Engine {
                 std::string componentID = loader.getSymbolValue<const char *>("componentName");
 
                 std::cout << "Component ID: " << componentID << " registered!" << std::endl;
-                __components.emplace(componentID, std::make_shared<Component>());
+                __components.emplace(componentID, std::make_unique<Component>());
                 return __registry.componentManager().registerComponent<Component>();
             }
 
@@ -116,10 +118,10 @@ namespace Engine {
                 return componentInstance;
             }
 
-            std::shared_ptr<Components::IComponent> getComponentFromId(const std::string &componentId)
+            std::unique_ptr<Components::IComponent> &getComponentFromId(const std::string &componentId)
             {
                 if (!__components.contains(componentId))
-                    return nullptr;
+                    throw std::runtime_error("Component not found");
                 return __components.at(componentId);
             }
 
@@ -132,14 +134,31 @@ namespace Engine {
              */
             ECS::Registry &getRegistry() { return __registry; }
 
+            /**
+             * @brief Call the updateComponent call back
+             * 
+             * @param index : the index of the component
+             * @param componentId : the id of the component
+             * @param data : the data to update the component with
+             * 
+             * @note This function will call the updateComponent call back function.
+             * @note It will be used by the systems to update components.
+             * @note It will be set by the game engine constructor.
+             */
+            void updateComponent(size_t index, const std::string &componentId, std::vector<uint8_t> data)
+            {
+                __updateComponent(index, componentId, data);
+            }
+            
             std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> getComponents() { return __components; }
 
         private:
 
             std::unordered_map<std::type_index, DLLoader> __componentLoaders;
             std::vector<DLLoader> __systemLoaders;
-            std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> __components;
+            std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> __components;
             ECS::Registry __registry;
+            std::function<void(size_t, std::string, std::vector<uint8_t>)> __updateComponent;
 
     };
 };

@@ -13,8 +13,13 @@
 namespace Components {
     class AComponent : public IComponent {
         public:
-            AComponent() = default;
+            AComponent(std::string componentName) : __componentName(componentName) {};
+
+            const std::string &getId() { return __componentName; };
+
         private:
+
+            const std::string __componentName;
     };
 }
 
