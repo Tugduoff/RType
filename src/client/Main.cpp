@@ -14,26 +14,27 @@ int main()
 {
     Engine::GameEngine engine(updateComponent);
     RTypeClient conn("127.0.0.1", "8080");
-    conn.initGame();
 
+    conn.engineInit();
     std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();
     for (const auto &name : compNames) {
         std::cout << "Commponent n°" << (int)name.first << ": " << name.second << std::endl;
     }
 
-    bool end = false;
-
     try
     {
         engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
-        // Check that you have the same components here 
-        while (end != true) {
-            // engine.runSystems();
+        // Check that you have the same components here with the map in RTypeClient
+        while (conn.gameEnd != true) {
+            if (conn.dataFromServer()) {
+                conn.interpretServerData(engine);
+            }
+            engine.runSystems();
         }
     }
     catch(const std::exception& e)
     {
-        std::cerr << e.what() << '\n';
+        std::cerr << e.what() << std::endl;
     }
     return 0;
 }
