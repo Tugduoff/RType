@@ -9,7 +9,13 @@
 
 // TODO choose an appropriate namespace
 
-class SpriteComponent {
-    public:
-        sf::Sprite sprite;
+namespace Components {
+    class SpriteComponent {
+        public:
+
+            SpriteComponent() : sprite(), textureLoaded(false) {};
+
+            sf::Sprite sprite;
+            bool textureLoaded;
+    };
 };
