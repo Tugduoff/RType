@@ -35,12 +35,20 @@ class RTypeClient : public UDPConnection
 
         RTypeClient(std::string hostname, std::string port);
 
-        std::unordered_map<uint8_t, std::string> initGame();
+        void initGame();
+
+        int findFirstOf(char c, const std::vector<uint8_t> &array);
 
         uint16_t receiveUint16();
         uint8_t receiveUint8();
 
         void sendEvent(enum EventType event);
+
+        std::unordered_map<uint8_t, std::string> getCompNames() const { return _compNames; };
+
+    private:
+
+        std::unordered_map<uint8_t, std::string> _compNames;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */
