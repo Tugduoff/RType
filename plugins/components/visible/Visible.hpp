@@ -42,14 +42,7 @@ public:
      * 
      * Initializes `isVisible` to false by default, indicating that the entity is invisible.
      */
-    Visible() : AComponent(std::string("Visible")), isVisible(false) {}
-
-    /**
-     * @brief Parameterized constructor for the Visible component.
-     * 
-     * @param isVisible The initial visibility state of the entity.
-     */
-    Visible(bool isVisible) : AComponent(std::string("Visible")), isVisible(isVisible) {}
+    Visible(bool isVisible = false) : AComponent("Visible"), isVisible(isVisible) {}
 
     /**
      * @brief Constructor for the Visible component that initializes from a configuration setting.
