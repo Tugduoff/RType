@@ -104,7 +104,7 @@ void UDPServer::start_receive() {
     }
 
     void UDPServer::checking_client(const udp::endpoint& client) {
-        std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(10)));
+        std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(60)));
         timer->async_wait([this, client](const boost::system::error_code& ec) {
             if (!ec) {
                 if (!client_responses[client] && !is_disconnected[client]) {
@@ -134,7 +134,7 @@ void UDPServer::start_receive() {
     }
 
     void UDPServer::start_pong_timer(const udp::endpoint& client) {
-        std::unique_ptr<boost::asio::steady_timer> pong_timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(2)));
+        std::unique_ptr<boost::asio::steady_timer> pong_timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(10)));
         pong_timer->async_wait([this, client](const boost::system::error_code& ec) {
             if (!ec) {
                 if (!client_responses[client] && !is_disconnected[client]) {
