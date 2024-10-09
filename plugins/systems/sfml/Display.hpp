@@ -5,14 +5,29 @@
 ** Display.hpp file
 */
 
-#include <SFML/Graphics/RenderWindow.hpp>
-#include "systems/ASystem.hpp"
+#ifndef DISPLAY_HPP
+    #define DISPLAY_HPP
+
+    #include <SFML/Graphics.hpp>
+    #include <libconfig.h++>
+    #include "systems/ASystem.hpp"
 
 namespace Systems {
     class Display : public ASystem {
-    public:
+        public:
 
-    private:
-        sf::RenderWindow __window;
+            Display();
+            Display(libconfig::Setting &config);
+            ~Display() = default;
+
+            void run(Engine::GameEngine &engine) override;
+            void init(Engine::GameEngine &engine) override;
+
+        private:
+
+            sf::RenderWindow __window;
+            std::vector<sf::Texture> __textures;
     };
-}
+};
+
+#endif // DISPLAY_HPP
