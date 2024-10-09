@@ -16,14 +16,13 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
     : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context) {
     __components = components;
     size_max = get_size_max();
-    std::cout << "Server started on port " << port << ", package size_max = " << size_max << std::endl;
+    std::cout << "--- Server started on port " << port << ", package size_max = " << size_max << std::endl;
     start_receive();
 }
 
 // --- PRIVATE --- //
 
 void UDPServer::start_receive() {
-    ECS::Entity entity_test = reg.entityManager().spawnEntity();
     socket_.async_receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_,
         [this](boost::system::error_code ec, std::size_t bytes_recvd) {
             if (!ec && bytes_recvd > 0) {
@@ -48,7 +47,6 @@ void UDPServer::start_receive() {
                     client_responses[remote_endpoint_] = true;
                 }
                 send_components_infos();
-                create_entity(entity_test);
             }
             start_receive();
         });
@@ -82,24 +80,34 @@ void UDPServer::send_components_infos() {
     );
 
     // Components
-    int i = 0;
-    for (const auto& component : __components) {
-        uint8_t index = static_cast<uint8_t>(i);
-        const std::string& component_name = component.first;
+    // int i = 0;
+    // for (const auto& component : __components) {
+    //     uint8_t index = static_cast<uint8_t>(i);
+    //     const std::string& component_name = component.first;
 
-        std::vector<uint8_t> buffer(1 + component_name.size());
-        buffer[0] = index;
-        std::memcpy(buffer.data() + 1, component_name.data(), component_name.size());
+    //     std::vector<uint8_t> buffer(1 + component_name.size());
+    //     buffer[0] = index;
+    //     std::memcpy(buffer.data() + 1, component_name.data(), component_name.size());
 
-        socket_.async_send_to(
-            boost::asio::buffer(buffer), remote_endpoint_,
-            [this, index, component_name](boost::system::error_code ec, std::size_t) {
-                if (!ec)
-                    std::cout << "Sent index: " << static_cast<int>(index) << ", component name: " << component_name << std::endl;
-            }
-        );
-        i++;
-    }
+    //     socket_.async_send_to(
+    //         boost::asio::buffer(buffer), remote_endpoint_,
+    //         [this, index, component_name](boost::system::error_code ec, std::size_t) {
+    //             if (!ec)
+    //                 std::cout << "Sent index: " << static_cast<int>(index) << ", component name: " << component_name << std::endl;
+    //         }
+    //     );
+    //     i++;
+    // }
+
+    // test entity creation
+    std::cout << "Before entity creation" << std::endl;
+
+    Engine::GameEngine gameEngine;
+    ECS::Registry &reg = gameEngine.getRegistry();
+    ECS::Entity entity_test = reg.entityManager().spawnEntity();
+    create_entity(entity_test);
+
+    std::cout << "After entity creation" << std::endl;
 }
 
 std::size_t UDPServer::get_size_max() {
@@ -174,4 +182,22 @@ void UDPServer::remove_client(const udp::endpoint& client) {
             }
         );
     }
+}
+
+void UDPServer::create_entity(ECS::Entity &entity) {
+    uint8_t opcode = 0x0;
+    uint16_t entity_id = static_cast<uint16_t>(entity);
+    entity_id = htons(entity_id);
+
+    std::array<uint8_t, 3> message;
+    message[0] = opcode;
+    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
+
+    socket_.async_send_to(
+        boost::asio::buffer(message), remote_endpoint_,
+        [this](boost::system::error_code ec, std::size_t) {
+            if (!ec)
+                std::cout << "Entity creation sent to client." << std::endl;
+        }
+    );
 }

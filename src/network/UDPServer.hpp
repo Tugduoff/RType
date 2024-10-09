@@ -10,6 +10,9 @@
 #include <map>
 #include <chrono>
 #include <memory>
+#include "../GameEngine/GameEngine.hpp"
+#include "../ECS/entity/Entity.hpp"
+#include "../ECS/registry/Registry.hpp"
 
 using boost::asio::ip::udp;
 
@@ -87,6 +90,8 @@ class UDPServer {
         * @param client The UDP endpoint of the client to be removed.
         */
         void remove_client(const udp::endpoint& client);
+
+        void create_entity(ECS::Entity &entity);
 };
 
 #endif /* !UDP_SERVER_HPP_ */
