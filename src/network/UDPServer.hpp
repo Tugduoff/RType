@@ -92,6 +92,14 @@ class UDPServer {
         void remove_client(const udp::endpoint& client);
 
         void create_entity(ECS::Entity &entity);
+    
+        void delete_entity(ECS::Entity &entity);
+    
+        void attach_component();
+    
+        void update_component();
+    
+        void detach_component();
 };
 
 #endif /* !UDP_SERVER_HPP_ */

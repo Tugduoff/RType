@@ -201,3 +201,15 @@ void UDPServer::create_entity(ECS::Entity &entity) {
         }
     );
 }
+
+void UDPServer::attach_component() {
+    return;
+}
+
+void UDPServer::update_component() {
+    return;
+}
+
+void UDPServer::detach_component() {
+    return;
+}
