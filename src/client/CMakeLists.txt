@@ -3,8 +3,8 @@ add_executable(client
     Main.cpp
     Window.cpp
     
-    ../Network/RTypeClient.cpp
-    ../Network/UDPConnection.cpp
+    ../network/RTypeClient.cpp
+    ../network/UDPConnection.cpp
     ../ECS/system/SystemManager.cpp
     ../GameEngine/GameEngine.cpp
 )

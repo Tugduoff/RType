@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "Window.hpp"
-#include "Network/RTypeClient.hpp"
+#include "network/RTypeClient.hpp"
 
 int main()
 {
