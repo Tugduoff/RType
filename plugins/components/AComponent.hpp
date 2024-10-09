@@ -15,11 +15,11 @@ namespace Components {
         public:
             AComponent(std::string componentName) : __componentName(componentName) {};
 
-            std::string &getId() { return __componentName; };
+            const std::string &getId() { return __componentName; };
 
         private:
 
-            std::string __componentName;
+            const std::string __componentName;
     };
 }
 

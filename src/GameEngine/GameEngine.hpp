@@ -121,7 +121,7 @@ namespace Engine {
             std::unique_ptr<Components::IComponent> &getComponentFromId(const std::string &componentId)
             {
                 if (!__components.contains(componentId))
-                    return __components.at("Unknown");
+                    throw std::runtime_error("Component not found");
                 return __components.at(componentId);
             }
 

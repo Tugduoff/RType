@@ -181,12 +181,13 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
 
         for (const auto &component : entity.components) {
             std::cout << "Adding component: \"" << component.id << "\" to entity ID: " << newEntity << std::endl;
-            std::unique_ptr<Components::IComponent> &comp = engine.getComponentFromId(component.id);
-            if (!comp) {
+            try {
+                std::unique_ptr<Components::IComponent> &comp = engine.getComponentFromId(component.id);
+                comp->addTo(newEntity, engine, component.args);
+            } catch (std::exception &e) {
                 std::cerr << "Component with ID: \"" << component.id << "\" not found!" << std::endl;
-                continue;  // Skip if the component is not found
+                continue;
             }
-            comp->addTo(newEntity, engine, component.args);
         }
     }
 }

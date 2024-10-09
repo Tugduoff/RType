@@ -70,7 +70,7 @@ namespace Components {
              */
             virtual void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) = 0;
 
-            virtual std::string &getId() = 0;
+            virtual const std::string &getId() = 0;
 
         private:
     };
