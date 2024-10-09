@@ -12,9 +12,8 @@ using boost::asio::ip::udp;
 // --- PUBLIC --- //
 
 UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
-                     std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> components)
-    : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context) {
-    __components = components;
+                     std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &components)
+    : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context), __components(components) {
     size_max = get_size_max();
     std::cout << "Server started on port " << port << ", package size_max = " << size_max << std::endl;
     start_receive();
@@ -23,7 +22,6 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
 // --- PRIVATE --- //
 
 void UDPServer::start_receive() {
-    ECS::Entity entity_test = reg.entityManager().spawnEntity();
     socket_.async_receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_,
         [this](boost::system::error_code ec, std::size_t bytes_recvd) {
             if (!ec && bytes_recvd > 0) {
@@ -48,7 +46,6 @@ void UDPServer::start_receive() {
                     client_responses[remote_endpoint_] = true;
                 }
                 send_components_infos();
-                create_entity(entity_test);
             }
             start_receive();
         });

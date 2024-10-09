@@ -149,8 +149,8 @@ namespace Engine {
             {
                 __updateComponent(index, componentId, data);
             }
-            
-            std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> getComponents() { return __components; }
+
+            std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &getComponents() { return __components; }
 
         private:
 
