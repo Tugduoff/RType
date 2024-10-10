@@ -83,7 +83,13 @@ class SparseArray {
             __data[index] = std::move(component);
         }
 
-        void clear() { __data.clear(); }
+        void constructAt(std::size_t index) {
+            __data[index] = __ctor();
+        }
+
+        void clear() {
+            __data.clear();
+        }
 
     private:
 
