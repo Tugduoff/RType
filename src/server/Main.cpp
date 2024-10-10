@@ -5,15 +5,16 @@
 ** Main.cpp file
 */
 
+
+#include <exception>
+#include <iostream>
+#include "network/UDPServer.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
 #include "ECS/utilities/SparseArray.hpp"
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
-#include "network/UDPServer.hpp"
-#include <exception>
-#include <iostream>
 
 void displayComponents(ECS::Registry &reg)
 {

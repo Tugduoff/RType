@@ -4,17 +4,17 @@
 ** File description:
 ** udp server
 */
-#include "../GameEngine/GameEngine.hpp"
-#include <boost/asio.hpp>
-#include <algorithm>
-#include <map>
-#include <chrono>
-#include <memory>
-
-using boost::asio::ip::udp;
 
 #ifndef UDP_SERVER_HPP
     #define UDP_SERVER_HPP
+    #include <algorithm>
+    #include <map>
+    #include <chrono>
+    #include <memory>
+    #include "boost/asio.hpp"
+    #include "../GameEngine/GameEngine.hpp"
+
+using boost::asio::ip::udp;
 
 class UDPServer {
     public:
