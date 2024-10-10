@@ -14,8 +14,14 @@
     #include <stdexcept>
     #include <algorithm>
     #include <memory>
-#include <vector>
 
+/**
+ * @brief Helper class for iterating over the values of a map
+ *
+ * @tparam The iterator type, for example: `std::map<int, int>::iterator`
+ *
+ * Inspired by https://stackoverflow.com/a/23608376
+ */
 template<typename It>
 struct ValueIterator : public It {
     ValueIterator(It src) : It(std::move(src)) {}
@@ -31,6 +37,9 @@ template <class Component>
 class SparseArray {
     public:
 
+        /**
+         * @brief Type of a function that can be used to get a Component instance
+         */
         using comp_ctor = std::function<Component *()>;
 
         using value_type = std::unique_ptr<Component>;
@@ -84,6 +93,12 @@ class SparseArray {
             __data[index] = std::move(component);
         }
 
+        /**
+         * @brief Constructs a new instance of a component at the specified
+         * @brief index using the registered constructor function
+         *
+         * @param index The index at which to construct a new component
+         */
         void constructAt(std::size_t index) {
             __data[index] = __ctor();
         }
@@ -92,10 +107,13 @@ class SparseArray {
             __data.clear();
         }
 
+        /**
+         * @brief Deletes from the SparseArray any nullptrs that would have
+         * @brief been left in the internal map
+         */
         void clearNulls() {
             std::erase_if(__data, [](auto const &it) { return !*it; });
         }
-
 
     private:
 
