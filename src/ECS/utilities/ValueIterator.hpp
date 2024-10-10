@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2024
-** BsRtype
+** Rtype
 ** File description:
 ** ValueIterator.hpp file
 */
@@ -18,7 +18,7 @@ template<typename It>
 struct ValueIterator : public It {
     ValueIterator(It src) : It(std::move(src)) {}
 
-    auto &operator*() const 
+    auto &operator*() const
     {
         return It::operator*().second;
     }

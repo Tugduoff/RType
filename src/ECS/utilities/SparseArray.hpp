@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2024
-** BsRtype
+** Rtype
 ** File description:
 ** SparseArray.hpp file
 */
@@ -16,6 +16,17 @@
     #include <memory>
     #include "ValueIterator.hpp"
 
+/** @class SparseArray
+ * @brief A sparse array that can hold components of a specific type
+ *
+ * @tparam Component The type of component to store in the array
+ *
+ * This class is used to store components in a sparse array.
+ * A sparse Array is a data structure that can hold components of a specific type whilst
+ * allowing for gaps in the array. This is useful for ECS systems where entities can have
+ * different components and we want to avoid having to store a component for every entity.
+ * Gaps in the array represent entities that do not have a component of the specified type.
+ */
 template <class Component>
 class SparseArray {
     public:
@@ -47,6 +58,12 @@ class SparseArray {
 
         // Operators
 
+        /**
+         * @brief Copy and move assignment operators
+         *
+         * @param other The SparseArray to copy or move
+         * @return SparseArray& A reference to the SparseArray
+         */
         SparseArray &operator=(const SparseArray &other) = default;
         SparseArray &operator=(SparseArray &&other) = default;
         std::unique_ptr<Component> &operator[](std::size_t index) {
@@ -62,16 +79,28 @@ class SparseArray {
         auto begin() const { return const_value_iterator(__data.begin()); };
         auto begin() { return value_iterator(__data.begin()); };
         auto cbegin() const { return const_value_iterator(__data.cbegin()); };
+
         auto end() { return value_iterator(__data.end()); };
         auto end() const { return const_value_iterator(__data.end()); };
         auto cend() const { return const_value_iterator(__data.cend()); };
 
         // Methods
 
+        /**
+         * @brief Calls the erase method on the internal map at the specified index
+         *
+         * @param index The index at which to erase the component
+         */
         void erase(std::size_t index) {
             __data.erase(index);
         }
 
+        /**
+         * @brief Inserts a component at the specified index
+         *
+         * @param index The index at which to insert the component
+         * @param component The component to insert
+         */
         void insertAt(std::size_t index, std::unique_ptr<Component> &&component) {
             __data[index] = std::move(component);
         }
@@ -86,6 +115,9 @@ class SparseArray {
             __data[index] = __ctor();
         }
 
+        /**
+         * @brief Clears the SparseArray's internal map of all it's components
+         */
         void clear() {
             __data.clear();
         }
