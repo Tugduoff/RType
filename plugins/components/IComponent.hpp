@@ -9,6 +9,7 @@
     #define ICOMPONENT_HPP
 
     #include "ECS/entity/Entity.hpp"
+#include "ECS/utilities/SparseArray.hpp"
     #include <cstddef>
     #include <cstdint>
     #include <vector>
@@ -69,6 +70,23 @@ namespace Components {
              * @note This function will add the component to the entity
              */
             virtual void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) = 0;
+
+            /**
+             * @brief Cast a SparseArray out of a std::any
+             *
+             * This function is required for technical reasons: it allows the
+             * client to call methods on `IComponent`s stored in the Registry.
+             *
+             * For the any_cast to be successful, the concrete implementer
+             * must call std::any_cast<SparseArray<*concrete*>>. It should
+             * then cast by not quite standard means the SparseArray<*concrete*>
+             * into a SparseArray<IComponent>, which should be safe as long as
+             * IComponent is the first base class of the concrete type.
+             *
+             * This is explained quite well by https://stackoverflow.com/a/38539705
+             */
+            virtual SparseArray<IComponent> &any_cast(std::any &sparseArray) = 0;
+            virtual const SparseArray<IComponent> &any_cast(const std::any &sparseArray) = 0;
 
             virtual const std::string &getId() = 0;
 
