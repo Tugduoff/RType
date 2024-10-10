@@ -5,7 +5,10 @@
 ** ValueIterator.hpp file
 */
 
-#include <utility>
+#ifndef VALUE_ITERATOR_HPP
+    #define VALUE_ITERATOR_HPP
+
+    #include <utility>
 
 /**
  * @brief Helper class for iterating over the values of a map
@@ -23,3 +26,5 @@ struct ValueIterator : public It {
         return It::operator*().second;
     }
 };
+
+#endif /* VALUE_ITERATOR_HPP */
