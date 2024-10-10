@@ -32,6 +32,13 @@ class SparseArray {
 
         using comp_ctor = std::function<Component *()>;
 
+        using value_type = std::unique_ptr<Component>;
+        using map_type = std::unordered_map<std::size_t, value_type>;
+        using iterator = map_type::iterator;
+        using const_iterator = map_type::const_iterator;
+        using value_iterator = ValueIterator<iterator>;
+        using const_value_iterator = ValueIterator<const_iterator>;
+
         SparseArray(comp_ctor constructor) : __ctor(std::move(constructor)) {}
         SparseArray(const SparseArray<Component> &other)
         : __data(), __ctor(other.__ctor) {
@@ -58,13 +65,6 @@ class SparseArray {
         // Iterators
 
         auto size() const { return __data.size(); };
-
-        using value_type = std::unique_ptr<Component>;
-        using map_type = std::unordered_map<std::size_t, value_type>;
-        using iterator = map_type::iterator;
-        using const_iterator = map_type::const_iterator;
-        using value_iterator = ValueIterator<iterator>;
-        using const_value_iterator = ValueIterator<const_iterator>;
 
         auto begin() const { return const_value_iterator(__data.begin()); };
         auto begin() { return value_iterator(__data.begin()); };
