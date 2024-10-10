@@ -14,24 +14,7 @@
     #include <stdexcept>
     #include <algorithm>
     #include <memory>
-
-/**
- * @brief Helper class for iterating over the values of a map
- *
- * @tparam The iterator type, for example: `std::map<int, int>::iterator`
- *
- * Inspired by https://stackoverflow.com/a/23608376
- */
-template<typename It>
-struct ValueIterator : public It {
-    ValueIterator(It src) : It(std::move(src)) {}
-
-    auto &operator*() const 
-    {
-        return It::operator*().second;
-    }
-};
-
+    #include "ValueIterator.hpp"
 
 template <class Component>
 class SparseArray {
