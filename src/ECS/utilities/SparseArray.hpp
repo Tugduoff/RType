@@ -8,28 +8,41 @@
 #ifndef SPARSE_ARRAY_HPP
     #define SPARSE_ARRAY_HPP
 
-    #include <vector>
+    #include <cstddef>
+    #include <functional>
+    #include <unordered_map>
     #include <stdexcept>
     #include <algorithm>
     #include <memory>
+
+template<typename It>
+struct ValueIterator : public It {
+    ValueIterator(It src) : It(std::move(src)) {}
+
+    auto &operator*() const 
+    {
+        return It::operator*().second;
+    }
+};
+
 
 template <class Component>
 class SparseArray {
     public:
 
-        // Types
-        // N.B: Value type is generally optional in a sparse array
+        using comp_ctor = std::function<Component *()>;
 
-        SparseArray() = default;
-        SparseArray(const SparseArray<Component> &other) : __data() {
-            for (const std::unique_ptr<Component> &component : other.__data) {
-                if (!component) {
-                    __data.push_back(nullptr);
-                    continue;
+        SparseArray(comp_ctor constructor) : __ctor(std::move(constructor)) {}
+        SparseArray(const SparseArray<Component> &other)
+        : __data(), __ctor(other.__ctor) {
+            for (auto &[idx, uniq] : other.__data) {
+                if (!uniq) {
+                    __data.emplace(idx, nullptr);
+                } else {
+                    __data.emplace(idx, std::make_unique<Component>(*uniq));
                 }
-                __data.push_back(std::make_unique<Component>(*component));
             }
-        };
+        }
         ~SparseArray() = default;
 
         // Operators
@@ -46,43 +59,27 @@ class SparseArray {
 
         auto size() const { return __data.size(); };
 
-        auto begin() const { return __data.begin(); };
-        auto begin() { return __data.begin(); };
-        auto cbegin() const { return __data.cbegin(); };
-        auto end() { return __data.end(); };
-        auto end() const { return __data.end(); };
-        auto cend() const { return __data.cend(); };
+        using value_type = std::unique_ptr<Component>;
+        using map_type = std::unordered_map<std::size_t, value_type>;
+        using iterator = map_type::iterator;
+        using const_iterator = map_type::const_iterator;
+        using value_iterator = ValueIterator<iterator>;
+        using const_value_iterator = ValueIterator<const_iterator>;
 
-        auto back() { return __data.back(); };
-        auto front() { return __data.front(); };
+        auto begin() const { return const_value_iterator(__data.begin()); };
+        auto begin() { return value_iterator(__data.begin()); };
+        auto cbegin() const { return const_value_iterator(__data.cbegin()); };
+        auto end() { return value_iterator(__data.end()); };
+        auto end() const { return const_value_iterator(__data.end()); };
+        auto cend() const { return const_value_iterator(__data.cend()); };
 
         // Methods
 
-        void push_back(std::unique_ptr<Component> &&component) {
-            __data.push_back(std::move(component));
-        }
-
-        void push_front(std::unique_ptr<Component> &&component) {
-            __data.insert(__data.begin(), std::move(component));
-        }
-
         void erase(std::size_t index) {
-            if (index >= __data.size())
-                throw std::out_of_range("Index out of range");
-            __data.at(index).reset();
+            __data.erase(index);
         }
 
         void insertAt(std::size_t index, std::unique_ptr<Component> &&component) {
-            if (index >= __data.size()) {
-                __data.resize(index + 1);
-            }
-            __data[index] = std::move(component);
-        }
-
-        void emplaceAt(std::size_t index, std::unique_ptr<Component> &&component) {
-            if (index >= __data.size()) {
-                __data.resize(index + 1);
-            }
             __data[index] = std::move(component);
         }
 
@@ -90,7 +87,8 @@ class SparseArray {
 
     private:
 
-        std::vector<std::unique_ptr<Component>> __data;
+        std::unordered_map<std::size_t, std::unique_ptr<Component>> __data;
+        comp_ctor __ctor;
 };
 
 #endif // SPARSE_ARRAY_HPP

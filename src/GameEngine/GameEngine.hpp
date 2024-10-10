@@ -53,7 +53,9 @@ namespace Engine {
 
                 std::cout << "Component ID: " << componentID << " registered!" << std::endl;
                 __components.emplace(componentID, std::make_unique<Component>());
-                return __registry.componentManager().registerComponent<Component>();
+                return __registry
+                    .componentManager()
+                    .registerComponent<Component>(loader.getFunctionPointer<Component *>("entryPoint"));
             }
 
             /**
