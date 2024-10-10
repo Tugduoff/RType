@@ -14,6 +14,7 @@
     #include <stdexcept>
     #include <algorithm>
     #include <memory>
+#include <vector>
 
 template<typename It>
 struct ValueIterator : public It {
@@ -90,6 +91,11 @@ class SparseArray {
         void clear() {
             __data.clear();
         }
+
+        void clearNulls() {
+            std::erase_if(__data, [](auto const &it) { return !*it; });
+        }
+
 
     private:
 
