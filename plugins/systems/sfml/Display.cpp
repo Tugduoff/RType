@@ -5,35 +5,24 @@
 ** Display.cpp file
 */
 
-#include "GameEngine/GameEngine.hpp"
 #include "components/position/Position.hpp"
 #include "components/spriteId/SpriteID.hpp"
 #include "SpriteComponent.hpp"
 #include "Display.hpp"
-#include "library_entrypoint.hpp"
 
-Systems::Display::Display(libconfig::Setting &config)
+Systems::Display::Display(libconfig::Setting &)
 {
-    int width;
-    int height;
-    std::string title;
-
-    config.lookupValue("width", width);
-    config.lookupValue("height", height);
-    config.lookupValue("title", title);
-    __window.create(sf::VideoMode(width, height), title);
 }
 
 Systems::Display::Display()
 {
-    __window.create(sf::VideoMode(1920, 1080), "RType");
 }
 
-void Systems::Display::init(Engine::GameEngine &engine)
+void Systems::Display::init(Engine::GameEngine &engine, sf::RenderWindow &window)
 {
     auto &manager = engine.getRegistry().componentManager();
 
-    __window.clear();
+    window.clear();
     if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
         std::cerr << "Error: Could not register Position component in system Display" << std::endl;
     if (!engine.registerComponent<Components::SpriteIDComponent>("./plugins/bin/components/", "SpriteID"))
@@ -54,12 +43,13 @@ void Systems::Display::init(Engine::GameEngine &engine)
     __textures.push_back(enemyTexture);
 }
 
-void Systems::Display::run(Engine::GameEngine &engine)
+void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 {
     auto &reg = engine.getRegistry();
 
-    __window.clear();
+    window.clear();
 
+    std::cout << "Running Display" << std::endl;
     try {
         auto &posComponents = reg.componentManager().getComponents<Components::Position>();
         auto &spriteComponents = reg.componentManager().getComponents<Components::SpriteComponent>();
@@ -80,7 +70,7 @@ void Systems::Display::run(Engine::GameEngine &engine)
                 continue;
             sprite->sprite.setPosition(pos->x, pos->y);
             if (sprite->textureLoaded) {
-                __window.draw(sprite->sprite);
+                window.draw(sprite->sprite);
                 continue;
             }
             if (spriteId->id == Components::SpriteID::Player) {
@@ -89,22 +79,11 @@ void Systems::Display::run(Engine::GameEngine &engine)
                 sprite->sprite.setTexture(__textures[1]);
             }
             sprite->textureLoaded = true;
-            __window.draw(sprite->sprite);
+            window.draw(sprite->sprite);
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
-    __window.display();
-}
-
-LIBRARY_ENTRYPOINT
-Systems::ISystem *entryPoint()
-{
-    return new Systems::Display();
-}
-
-LIBRARY_ENTRYPOINT
-Systems::ISystem *entryConfig(libconfig::Setting &config)
-{
-    return new Systems::Display(config);
+    std::cout << "Display done" << std::endl;
+    window.display();
 }

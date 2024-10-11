@@ -10,22 +10,21 @@
 
     #include <SFML/Graphics.hpp>
     #include <libconfig.h++>
-    #include "systems/ASystem.hpp"
+    #include "GameEngine/GameEngine.hpp"
 
 namespace Systems {
-    class Display : public ASystem {
+    class Display {
         public:
 
             Display();
             Display(libconfig::Setting &config);
             ~Display() = default;
 
-            void run(Engine::GameEngine &engine) override;
-            void init(Engine::GameEngine &engine) override;
+            void run(Engine::GameEngine &engine, sf::RenderWindow &window);
+            void init(Engine::GameEngine &engine, sf::RenderWindow &window);
 
         private:
 
-            sf::RenderWindow __window;
             std::vector<sf::Texture> __textures;
     };
 };
