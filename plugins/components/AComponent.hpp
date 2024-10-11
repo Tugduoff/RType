@@ -25,6 +25,10 @@ namespace Components {
             {
                 const SparseArray<Concrete> *sparseArray = std::any_cast<SparseArray<Concrete>>(&anySparseArray);
 
+                if (!sparseArray) {
+                    throw BadSparseArrayCast();
+                }
+
                 return *reinterpret_cast<const SparseArray<IComponent> *>(sparseArray);
             }
 
