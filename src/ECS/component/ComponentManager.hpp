@@ -66,6 +66,16 @@ namespace ECS {
                     (getComponents(typeid(Component)));
             }
 
+            /**
+             * @brief Get components
+             * 
+             * @tparam type : the type index of the component
+             * 
+             * @return std::any &: the components sparseArray containing all instances as std::any
+             * 
+             * @note This function will retrieve all components from the same type given as template parameter.
+             * @note Mostly used in systems to iterate over all components of a specific type.
+             */
             std::any &getComponents(std::type_index type)
             {
                 if (!__components.contains(type)) {
