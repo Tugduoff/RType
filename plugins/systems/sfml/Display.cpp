@@ -49,7 +49,6 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 
     window.clear();
 
-    std::cout << "Running Display" << std::endl;
     try {
         auto &posComponents = reg.componentManager().getComponents<Components::Position>();
         auto &spriteComponents = reg.componentManager().getComponents<Components::SpriteComponent>();
@@ -84,6 +83,5 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
-    std::cout << "Display done" << std::endl;
     window.display();
 }
