@@ -61,12 +61,18 @@ namespace ECS {
             template <class Component>
             SparseArray<Component> &getComponents()
             {
-                std::type_index typeIndex = std::type_index(typeid(Component));
+                return std::any_cast
+                    <SparseArray<Component> &>
+                    (getComponents(typeid(Component)));
+            }
 
-                if (!__components.contains(typeIndex))
+            std::any &getComponents(std::type_index type)
+            {
+                if (!__components.contains(type)) {
                     throw std::runtime_error("Component type not registered in component manager");
+                }
 
-                return std::any_cast<SparseArray<Component> &>(__components.at(typeIndex));
+                return __components.at(type);
             }
 
             /**
