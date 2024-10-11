@@ -13,6 +13,7 @@
     #include "systems/ASystem.hpp"
     #include "Display.hpp"
     #include "Input.hpp"
+    #include "Chrono.hpp"
 
 namespace Systems {
     class Sfml : public ASystem {
@@ -31,6 +32,7 @@ namespace Systems {
         private:
 
             sf::RenderWindow __window;
+            Chrono __chrono;
     };
 };
 
