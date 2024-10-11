@@ -13,7 +13,6 @@
 #include "plugins/components/velocity/Velocity.hpp"
 #include "plugins/components/spriteId/SpriteID.hpp"
 #include "plugins/systems/sfml/SpriteComponent.hpp"
-#include "Chrono.hpp"
 #include <exception>
 #include <iostream>
 
@@ -54,7 +53,7 @@ int main() {
     Engine::GameEngine engine(updateComponent);
     ECS::Registry &reg = engine.getRegistry();
     ECS::Entity entity = reg.entityManager().spawnEntity();
-    Chrono chrono;
+
     try {
         engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
 
@@ -71,10 +70,7 @@ int main() {
         // displayComponents(reg);
 
         while (true) {
-            if (chrono.getElapsedTime() > 25) {
-                engine.runSystems();
-                chrono.restart();
-            }
+            engine.runSystems();
         }
     } catch (std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
