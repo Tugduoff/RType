@@ -9,6 +9,7 @@
     #define INPUT_HPP
 
     #include <SFML/Graphics.hpp>
+    #include <SFML/Window.hpp>
     #include <libconfig.h++>
     #include "GameEngine/GameEngine.hpp"
 
@@ -25,6 +26,7 @@ namespace Systems {
 
         private:
 
+            void handleInput(Engine::GameEngine &engine, sf::Event &event);
     };
 };
 
