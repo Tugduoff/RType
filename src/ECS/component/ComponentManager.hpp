@@ -10,6 +10,7 @@
 
     #include "ECS/entity/Entity.hpp"
     #include "ECS/utilities/SparseArray.hpp"
+    #include <functional>
     #include <unordered_map>
     #include <typeindex>
     #include <any>
@@ -36,14 +37,14 @@ namespace ECS {
              * @note It's a major function in the ECS as it allows for components to be registered and then created.
              */
             template <class Component>
-            bool registerComponent()
+            bool registerComponent(std::function<Component *()> ctor)
             {
                 std::type_index typeIndex = std::type_index(typeid(Component));
 
                 if (__components.contains(typeIndex))
                     return (false);
 
-                __components.emplace(typeIndex, std::make_any<SparseArray<Component>>());
+                __components.emplace(typeIndex, std::make_any<SparseArray<Component>>(ctor));
                 return (true);
             }
 
