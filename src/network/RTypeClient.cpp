@@ -93,19 +93,19 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
-
+    uint16_t componentId = uint16From2Uint8(operation[3], operation[4]);
 }
 
 void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
-
+    uint16_t componentId = uint16From2Uint8(operation[3], operation[4]);
 }
 
 void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
-
+    uint16_t componentId = uint16From2Uint8(operation[3], operation[4]);
 }
 
 uint16_t RTypeClient::uint16From2Uint8(uint8_t first, uint8_t second)
