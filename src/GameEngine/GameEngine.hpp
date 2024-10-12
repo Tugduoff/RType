@@ -60,7 +60,7 @@ namespace Engine {
 
                 std::cout << "Component ID: " << componentID << " registered!" << std::endl;
 
-                auto compCtor = loader.getFunctionPointer<Component *>("entryPoint");
+                auto compCtor = loader.getFunctionPointer<Component *>("buildDefault");
 
                 __components.emplace(typeIndex, std::unique_ptr<Component>(compCtor()));
                 __idStringToType.emplace(std::move(componentID), typeIndex);
@@ -124,7 +124,7 @@ namespace Engine {
                     throw std::runtime_error("Component type not registered");
 
                 DLLoader &loader = __componentLoaders.at(typeIndex);
-                auto componentInstance = loader.getUniqueInstance<Component>("entryPoint", std::forward<Args>(args)...);
+                auto componentInstance = loader.getUniqueInstance<Component>("buildWithParams", std::forward<Args>(args)...);
 
                 if (!componentInstance)
                     throw std::runtime_error("Failed to load component from shared object");

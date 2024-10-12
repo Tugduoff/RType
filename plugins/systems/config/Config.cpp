@@ -195,7 +195,6 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
 LIBRARY_ENTRYPOINT
 Systems::ISystem *entryPoint(const char *configFilePath)
 {
-    std::cout << "entryPoint called with configFilePath: " << configFilePath << std::endl;
     return new Systems::ConfigLoader(configFilePath);
 }
 
