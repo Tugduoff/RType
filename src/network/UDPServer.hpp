@@ -34,7 +34,7 @@ class UDPServer {
         boost::asio::io_context& io_context_;
         std::array<char, 1024> recv_buffer_;
         std::size_t size_max;
-        std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &__components;
+        std::vector<std::string> __component_names;
         std::vector<udp::endpoint> client_endpoints;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;
@@ -87,6 +87,16 @@ class UDPServer {
         * @param client The UDP endpoint of the client to be removed.
         */
         void remove_client(const udp::endpoint& client);
+
+        void create_entity(ECS::Entity &entity);
+    
+        void delete_entity(ECS::Entity &entity);
+    
+        void attach_component(ECS::Entity &entity, Components::IComponent &component);
+    
+        void update_component();
+    
+        void detach_component();
 };
 
 #endif /* !UDP_SERVER_HPP_ */

@@ -31,6 +31,8 @@ namespace Engine {
     class GameEngine {
         public:
 
+            GameEngine() {};
+
             GameEngine(std::function<void(size_t, std::string, std::vector<uint8_t>)> updateComponent) : __updateComponent(updateComponent) {};
 
             /**
@@ -147,6 +149,8 @@ namespace Engine {
 
                 return __components.at(typeIndex);
             }
+
+            std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &getComponents() { return __components; }
 
             /**
              * @brief Get the registry
