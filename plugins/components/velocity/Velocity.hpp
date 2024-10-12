@@ -28,16 +28,20 @@ namespace Components {
      */
     class Velocity : public AComponent<Velocity> {
     public:
+
         /**
-         * @brief Default constructor for the Velocity component.
+         * @brief Constructor using configuration setting.
          * 
-         * Initializes the velocity components (x and y) to zero.
+         * Initializes the velocity with the x and y components from the configuration settings.
+         * 
+         * @param config The configuration settings to use for the component.
          */
-        Velocity() : AComponent("Velocity"), x(0), y(0) {};
         Velocity(libconfig::Setting &config) : AComponent("Velocity")
         {
-            config.lookupValue("x", x);
-            config.lookupValue("y", y);
+            if (!config.lookupValue("x", x))
+                x = 0;
+            if (!config.lookupValue("y", y))
+                y = 0;
         }
 
         /**
@@ -48,7 +52,7 @@ namespace Components {
          * @param x The X component of the velocity.
          * @param y The Y component of the velocity.
          */
-        Velocity(uint32_t x, uint32_t y) : AComponent("Velocity"), x(x), y(y) {};
+        Velocity(uint32_t x = 0, uint32_t y = 0) : AComponent("Velocity"), x(x), y(y) {};
 
         /**
          * @brief Default destructor for the Velocity component.
