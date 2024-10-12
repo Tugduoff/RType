@@ -53,14 +53,6 @@ namespace Components {
         }
 
         /**
-         * @brief Parameterized constructor for the Gun component.
-         * 
-         * @param damage The amount of damage the gun can inflict.
-         * @param fireRate The rate at which the gun can fire.
-         */
-        Gun(uint32_t damage, uint32_t fireRate) : AComponent("Gun"), damage(damage), fireRate(fireRate) {}
-
-        /**
          * @brief Default destructor for the Gun component.
          */
         ~Gun() = default;
