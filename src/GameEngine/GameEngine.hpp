@@ -150,8 +150,6 @@ namespace Engine {
                 return __components.at(typeIndex);
             }
 
-            std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &getComponents() { return __components; }
-
             /**
              * @brief Get the registry
              * 
