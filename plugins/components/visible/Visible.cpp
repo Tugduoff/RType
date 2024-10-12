@@ -18,9 +18,9 @@ Components::IComponent *buildDefault()
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(bool isVisible)
+Components::IComponent *buildWithParams(uint8_t isVisible)
 {
-    return new Components::Visible(isVisible);
+    return new Components::Visible(!!isVisible);
 }
 
 LIBRARY_ENTRYPOINT
