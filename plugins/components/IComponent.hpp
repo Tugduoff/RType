@@ -20,7 +20,19 @@ namespace Engine {
     class GameEngine;
 }
 
+/**
+ * @namespace Components
+ * @brief Namespace for all ECS Components.
+ */
 namespace Components {
+    /**
+     * @class IComponent
+     * 
+     * @brief Interface for all our Components.
+     * 
+     * This class is an interface for all ECS components. It provides methods to serialize and deserialize
+     * components, add them to entities, and get their size.
+     */
     class IComponent {
         public:
             virtual ~IComponent() = default;

@@ -23,7 +23,7 @@
 
 namespace Components {
     /**
-     * @brief Position component class for ECS.
+     * @brief Position component class in Components.
      * 
      * This class represents the position of an entity, storing the x and y coordinates,
      * as well as a layer to manage the entity's depth in the rendering order. It also provides

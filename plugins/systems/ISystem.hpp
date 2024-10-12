@@ -12,7 +12,18 @@ namespace Engine {
     class GameEngine;
 }
 
+/**
+ * @namespace Systems
+ * @brief Namespace for all ECS Systems.
+ */
 namespace Systems {
+    /**
+     * @class ISystem
+     * 
+     * @brief Interface for all our Systems.
+     * 
+     * This class is an interface for all ECS systems. It provides methods to run the system and initialize it.
+     */
     class ISystem {
         public:
             virtual ~ISystem() = default;

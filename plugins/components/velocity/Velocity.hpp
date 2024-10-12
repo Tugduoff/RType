@@ -21,7 +21,7 @@
 
 namespace Components {
     /**
-     * @brief Velocity component class for ECS.
+     * @brief Velocity component class in Components.
      * 
      * This class represents the velocity of an entity, storing the x and y components,
      * and provides methods to serialize and deserialize the data.

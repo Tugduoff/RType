@@ -13,6 +13,16 @@
     #include <any>
 
 namespace Components {
+    /**
+     * @class AComponent
+     * 
+     * @brief Abstract class for all our Components.
+     *
+     * @tparam Concrete The derived type inheriting from AComponent
+     * 
+     * This class is an abstract class for all ECS components. It provides a method to get the component's ID.
+     * It stores the component's name on ctor as a stringID.
+     */
     template<typename Concrete>
     class AComponent : public IComponent {
         public:
