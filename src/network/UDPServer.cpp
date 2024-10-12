@@ -278,6 +278,36 @@ void UDPServer::update_component() {
     return;
 }
 
-void UDPServer::detach_component() {
-    return;
+void UDPServer::detach_component(ECS::Entity &entity, Components::IComponent &component) {
+    uint8_t opcode = 0x4;
+    uint16_t entity_id = static_cast<uint16_t>(entity);
+    entity_id = htons(entity_id);
+
+    const std::string component_name = component.getId();
+
+    auto it = std::find(__component_names.begin(), __component_names.end(), component_name);
+    if (it == __component_names.end()) {
+        std::cerr << "Error 0x2: Component '" << component_name << "' not found." << std::endl;
+        return;
+    }
+
+    uint8_t index = static_cast<uint8_t>(std::distance(__component_names.begin(), it));
+    uint16_t component_id = index;
+    component_id = htons(component_id);
+
+    std::array<uint8_t, 5> message;
+    message[0] = opcode;
+    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
+    std::memcpy(&message[3], &component_id, sizeof(component_id));
+
+    socket_.async_send_to(
+        boost::asio::buffer(message), remote_endpoint_,
+        [this, entity_id, component_id](boost::system::error_code ec, std::size_t) {
+            if (!ec) {
+                uint16_t e_id = ntohs(entity_id);
+                uint16_t c_id = ntohs(component_id);
+                std::cout << "Detach component [" << static_cast<int>(c_id) << "] from entity [" << static_cast<int>(e_id) << "]." << std::endl;
+            }
+        }
+    );
 }
