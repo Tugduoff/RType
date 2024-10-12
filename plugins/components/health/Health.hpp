@@ -128,14 +128,18 @@ namespace Components {
          * @note The configuration setting should contain the keys 'currentHealth' and 'maxHealth'.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            int currentVal = 0, maxVal = 0;
+            int currentVal = 0;
+            int maxVal = 0;
 
-            if (
-                !config.lookupValue("currentHealth", currentVal) ||
-                !config.lookupValue("maxHealth", maxVal)) {
-                throw std::invalid_argument("Failed to retrieve values for 'currentHealth' or 'maxHealth'");
+            if (!config.lookupValue("currentVal", currentVal)) {
+                std::cerr << "Warning: 'currentVal' not found in config. Using default value: 1.0f\n";
+                currentVal = 100;
             }
-
+            
+            if (!config.lookupValue("maxVal", maxVal)) {
+                std::cerr << "Warning: 'maxVal' not found in config. Using default value: 1.0f\n";
+                maxVal = 100;
+            }
             std::unique_ptr<Components::Health> health = engine.newComponent<Components::Health>(static_cast<uint32_t>(currentVal), static_cast<uint32_t>(maxVal));
             engine.getRegistry().componentManager().addComponent<Components::Health>(to, std::move(health));
         };
