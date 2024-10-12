@@ -26,7 +26,7 @@
 
 namespace Components {
     /**
-     * @brief Controllable component class for ECS.
+     * @brief Controllable component class in Components.
      * 
      * This class is a component that can be added to an entity to make it controllable by user inputs.
      * It holds a list of key bindings for movement and up to 10 different actions.

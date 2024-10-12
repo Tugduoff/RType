@@ -12,7 +12,19 @@
     #include "ECS/entity/EntityManager.hpp"
     #include "ECS/system/SystemManager.hpp"
 
+/**
+ * @namespace ECS
+ * 
+ * @brief Main namespace for the ECS
+ */
 namespace ECS {
+    /**
+     * @class Registry
+     * 
+     * @brief holds the component, entity and system managers of the ECS
+     * 
+     * This class is a singleton that holds the component, entity and system managers.
+     */
     class Registry {
         public:
 

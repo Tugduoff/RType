@@ -23,13 +23,13 @@
 
 /**
  * @namespace Components
- * @brief Namespace for all ECS components.
+ * @brief Namespace for all ECS Components.
  */
 namespace Components {
 
 /**
  * @class Visible
- * @brief Component that determines whether an entity should be rendered.
+ * @brief Visible component class in Components.
  * 
  * The Visible component holds a boolean value (`isVisible`) that indicates whether
  * an entity should be displayed in the game. This component can be serialized and
