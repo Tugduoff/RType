@@ -111,7 +111,7 @@ public:
             throw std::runtime_error("Invalid number of arguments for Visible component");
         
         bool visibility = std::any_cast<bool>(args[0]);
-        engine.getRegistry().componentManager().addComponent<Components::Visible>(to, engine.newComponent<Components::Visible>(visibility));
+        engine.getRegistry().componentManager().addComponent<Components::Visible>(to, engine.newComponent<Components::Visible>(static_cast<uint8_t>(visibility)));
     }
 
     /**
