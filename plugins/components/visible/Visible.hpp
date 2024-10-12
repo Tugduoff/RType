@@ -53,7 +53,7 @@ public:
      */
     Visible(libconfig::Setting &config) : AComponent(std::string("Visible")) {
         if (!config.lookupValue("isVisible", isVisible))
-            throw std::runtime_error("Missing 'isVisible' setting for Visible component");
+            isVisible = false;
     }
 
     /**
