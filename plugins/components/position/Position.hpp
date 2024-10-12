@@ -29,7 +29,7 @@ namespace Components {
      * as well as a layer to manage the entity's depth in the rendering order. It also provides
      * methods to serialize and deserialize the position data.
      */
-    class Position : public AComponent {
+    class Position : public AComponent<Position> {
     public:
         /**
          * @brief Default constructor for the Position component.
