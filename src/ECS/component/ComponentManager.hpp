@@ -11,6 +11,7 @@
     #include "ECS/entity/Entity.hpp"
     #include "ECS/utilities/SparseArray.hpp"
     #include <functional>
+    #include <stdexcept>
     #include <unordered_map>
     #include <typeindex>
     #include <any>
@@ -45,6 +46,12 @@ namespace ECS {
                     return (false);
 
                 __components.emplace(typeIndex, std::make_any<SparseArray<Component>>(ctor));
+                auto dtor = [
+                    &sparseArr = std::any_cast<SparseArray<Component> &>(__components.at(typeIndex))
+                ](const Entity &entity) {
+                    sparseArr.erase(entity);
+                };
+                __compDestructors.emplace(typeIndex, std::move(dtor));
                 return (true);
             }
 
@@ -134,9 +141,46 @@ namespace ECS {
                 sparseArray.erase(from);
             }
 
+
+            /**
+             * @brief Remove a component from an entity
+             * 
+             * @param type : the component type index
+             * @param from : the entity to remove the component from
+             * 
+             * @note This function will remove a component from an entity.
+             */
+            void removeComponent(std::type_index type, Entity const &from)
+            {
+                if (!__compDestructors.contains(type)) {
+                    throw std::runtime_error("Component type not registered in component manager");
+                }
+
+                __compDestructors.at(type)(from);
+            }
+
+
+            /**
+             * @brief Remove all components from an entity
+             * 
+             * @param from : the entity to remove all components from
+             * 
+             * @note This function will remove all components from an entity.
+             */
+            void removeAllFromEntity(Entity const &from)
+            {
+                for (auto const &[_, dtor] : __compDestructors) {
+                    dtor(from);
+                }
+            }
+
         private:
 
             std::unordered_map<std::type_index, std::any> __components;
+            std::unordered_map<
+                std::type_index,
+                std::function<void(const Entity &e)>
+            > __compDestructors;
 
     };
 };
