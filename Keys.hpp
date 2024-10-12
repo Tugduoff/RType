@@ -12,9 +12,9 @@
     #include <string>
 
 enum class Key {
-    A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+    A = 0, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
     UP_KEY, DOWN_KEY, LEFT_KEY, RIGHT_KEY,
-    SPACE, ENTER, ESCAPE, DELETE, BACKSPACE,
+    SPACE, ENTER, ESCAPE, DELETE_KEY, BACKSPACE,
     NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9,
     LEFT_CLICK, RIGHT_CLICK, MIDDLE_CLICK,
     UNKNOWN
@@ -29,7 +29,7 @@ const std::unordered_map<std::string, Key> strToKey = {
     {"U", Key::U}, {"V", Key::V}, {"W", Key::W}, {"X", Key::X},
     {"Y", Key::Y}, {"Z", Key::Z},
     {"UP", Key::UP_KEY}, {"DOWN", Key::DOWN_KEY}, {"LEFT", Key::LEFT_KEY}, {"RIGHT", Key::RIGHT_KEY},
-    {"SPACE", Key::SPACE}, {"ENTER", Key::ENTER}, {"ESCAPE", Key::ESCAPE}, {"DELETE", Key::DELETE},
+    {"SPACE", Key::SPACE}, {"ENTER", Key::ENTER}, {"ESCAPE", Key::ESCAPE}, {"DELETE", Key::DELETE_KEY},
     {"BACKSPACE", Key::BACKSPACE},
     {"NUM_0", Key::NUM_0}, {"NUM_1", Key::NUM_1}, {"NUM_2", Key::NUM_2}, {"NUM_3", Key::NUM_3},
     {"NUM_4", Key::NUM_4}, {"NUM_5", Key::NUM_5}, {"NUM_6", Key::NUM_6}, {"NUM_7", Key::NUM_7},
