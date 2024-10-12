@@ -31,7 +31,10 @@ namespace Components {
          * 
          * Initializes the rectangle collider based on config settings.
          */
-        Collider(libconfig::Setting &config) : AComponent(std::string("Collider")) {} ;
+        Collider(libconfig::Setting &config) : AComponent("Collider") {
+            config.lookupValue("width", width);
+            config.lookupValue("height", height);
+        }
 
         /**
          * @brief Serialize the collider data
