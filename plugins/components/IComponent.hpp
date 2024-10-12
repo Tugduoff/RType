@@ -9,7 +9,7 @@
     #define ICOMPONENT_HPP
 
     #include "ECS/entity/Entity.hpp"
-#include "ECS/utilities/SparseArray.hpp"
+    #include "ECS/utilities/SparseArray.hpp"
     #include <cstddef>
     #include <cstdint>
     #include <vector>
@@ -90,10 +90,10 @@ namespace Components {
              * client to call methods on `IComponent`s stored in the Registry.
              *
              * For the any_cast to be successful, the concrete implementer
-             * must call std::any_cast<SparseArray<*concrete*>>. It should
-             * then cast by not quite standard means the SparseArray<*concrete*>
+             * must call std::any_cast<SparseArray<_concrete_>>. It should
+             * then cast by not quite standard means the SparseArray<_concrete_>
              * into a SparseArray<IComponent>, which should be safe as long as
-             * IComponent is the first base class of the concrete type.
+             * IComponent is the **first base class** of the concrete type.
              *
              * This is explained quite well by https://stackoverflow.com/a/38539705
              */
