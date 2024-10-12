@@ -22,7 +22,12 @@
     #include <libconfig.h++>
 
 namespace Components {
-
+    /**
+     * @brief Collider component class in Components.
+     * 
+     * This class represents a rectangle collider for an entity, storing the width and height of the collider.
+     * It provides methods to serialize and deserialize the collider data for network transmission or storage.
+     */
     class Collider : public AComponent<Collider> {
     public:
         /**
