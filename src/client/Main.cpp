@@ -7,15 +7,16 @@ void updateComponent(size_t id, std::string name, std::vector<uint8_t> data, RTy
 {
     std::vector<uint8_t> updateOperation;
 
-    updateOperation.resize(2 + 2 + data.size());
-    updateOperation[0] = (uint16_t)id;
+    updateOperation.resize(1 + 2 + 2 + data.size());
+    updateOperation[0] = 0x3;
+    updateOperation[1] = (uint16_t)id;
     for (const auto &compId : conn.getCompNames()) {
         if (compId.second == name) {
-            updateOperation[2] = (uint16_t)compId.first;
+            updateOperation[3] = (uint16_t)compId.first;
         }
     }
     // add a verification that a compId matched with name
-    updateOperation.insert(updateOperation.end(), data.begin(), data.end());
+    updateOperation.insert(updateOperation.begin() + 5, data.begin(), data.end());
     conn.send(updateOperation);
 }
 
