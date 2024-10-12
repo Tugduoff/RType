@@ -7,7 +7,7 @@ void updateComponent(size_t id, std::string name, std::vector<uint8_t> data, RTy
 {
     std::vector<uint8_t> updateOperation;
 
-    updateOperation.resize(1 + 2 + data.size());
+    updateOperation.resize(2 + 2 + data.size());
     updateOperation[0] = (uint16_t)id;
     for (const auto &compId : conn.getCompNames()) {
         if (compId.second == name) {
