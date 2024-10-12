@@ -112,7 +112,7 @@ class SparseArray {
          * @param index The index at which to construct a new component
          */
         void constructAt(std::size_t index) {
-            __data[index] = __ctor();
+            __data[index] = std::unique_ptr<Component>(__ctor());;
         }
 
         /**
