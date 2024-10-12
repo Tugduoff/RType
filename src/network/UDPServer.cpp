@@ -7,14 +7,20 @@
 #include "UDPServer.hpp"
 #include <iostream>
 
+#include "../../plugins/components/IComponent.hpp"
+#include "../../plugins/components/position/Position.hpp"
+#include "../../plugins/components/velocity/Velocity.hpp"
+
 using boost::asio::ip::udp;
 
 // --- PUBLIC --- //
 
 UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
-                     std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> components)
+                     std::unordered_map<std::string,  std::unique_ptr<Components::IComponent>> &components)
     : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context) {
-    __components = components;
+    for (auto& component : components)
+        __component_names.push_back(component.first);
+
     size_max = get_size_max();
     std::cout << "--- Server started on port " << port << ", package size_max = " << size_max << std::endl;
     start_receive();
@@ -54,7 +60,7 @@ void UDPServer::start_receive() {
 
 void UDPServer::send_components_infos() {
     // Total components
-    uint16_t total_components = static_cast<uint16_t>(__components.size());
+    uint16_t total_components = static_cast<uint16_t>(__component_names.size());
     total_components = htons(total_components);
 
     socket_.async_send_to(
@@ -67,23 +73,23 @@ void UDPServer::send_components_infos() {
 
     // Size max
     std::size_t max_name_length = 0;
-    for (const auto& component : __components)
-        max_name_length = std::max(max_name_length, component.first.size());
+    for (const auto& component_name : __component_names) {
+        max_name_length = std::max(max_name_length, component_name.size());
+    }
     uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
 
     socket_.async_send_to(
         boost::asio::buffer(&max_name_length_byte, 1), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t) {
+        [this, max_name_length_byte](boost::system::error_code ec, std::size_t) {
             if (!ec)
-                std::cout << "Size max sent to client: " << size_max << std::endl;
+                std::cout << "Size max sent to client: " << static_cast<int>(max_name_length_byte) << std::endl;
         }
     );
 
     // Components
     int i = 0;
-    for (const auto& component : __components) {
+    for (const auto& component_name : __component_names) {
         uint8_t index = static_cast<uint8_t>(i);
-        const std::string& component_name = component.first;
 
         std::vector<uint8_t> buffer(1 + component_name.size());
         buffer[0] = index;
@@ -99,27 +105,34 @@ void UDPServer::send_components_infos() {
         i++;
     }
 
-    // test entity creation
+    // Test entity creation
     Engine::GameEngine gameEngine;
-    ECS::Registry &reg = gameEngine.getRegistry();
+    ECS::Registry& reg = gameEngine.getRegistry();
     ECS::Entity entity_test = reg.entityManager().spawnEntity();
     ECS::Entity entity_test2 = reg.entityManager().spawnEntity();
     create_entity(entity_test);
     create_entity(entity_test2);
     create_entity(entity_test);
 
-    for (const auto& component : __components) {
+    gameEngine.loadSystems("./plugins/bin/systems/configSystems.cfg");
+
+    std::unique_ptr<Components::Position> position = gameEngine.newComponent<Components::Position>(10, 20, 1);
+    std::unique_ptr<Components::Velocity> velocity = gameEngine.newComponent<Components::Velocity>(2, 1);
+
+    reg.componentManager().addComponent<Components::Position>(entity_test, std::move(position));
+    reg.componentManager().addComponent<Components::Velocity>(entity_test2, std::move(velocity));
+
+    for (const auto& component : gameEngine.getComponents())
         attach_component(entity_test2, *(component.second));
-    }
 }
 
 std::size_t UDPServer::get_size_max() {
-    auto max_component = std::max_element(__components.begin(), __components.end(),
+    auto max_name_length = std::max_element(__component_names.begin(), __component_names.end(),
         [](const auto& a, const auto& b) {
-            return a.first.size() < b.first.size();
+            return a.size() < b.size();
         });
 
-    return max_component != __components.end() ? max_component->first.size() : 0;
+    return max_name_length != __component_names.end() ? max_name_length->size() : 0;
 }
 
 void UDPServer::checking_client(const udp::endpoint& client) {
@@ -231,30 +244,17 @@ void UDPServer::attach_component(ECS::Entity &entity, Components::IComponent &co
     uint8_t opcode = 0x2;
     uint16_t entity_id = static_cast<uint16_t>(entity);
     entity_id = htons(entity_id);
-    
-    // get component name
-    // std::string component_name = component.getId();
-    // for (const auto& comp : __components) {
-    //     if (comp.second.get() == &component) {
-    //         component_name = comp.first;
-    //         std::cout << "COMPONENT NAME : " << component_name << std::endl;
-    //         break;
-    //     }
-    // }
-    // if (component_name.empty()) {
-    //     std::cerr << "Error 0x2: Component not found." << std::endl;
-    //     return;
-    // }
 
-    // get id from name
-    auto it = __components.find(omponent.getId());
-    if (it == __components.end()) {
-        std::cerr << "Error 0x2: Component '" << omponent.getId() << "' not found." << std::endl;
+    const std::string component_name = component.getId();
+
+    auto it = std::find(__component_names.begin(), __component_names.end(), component_name);
+    if (it == __component_names.end()) {
+        std::cerr << "Error 0x2: Component '" << component_name << "' not found." << std::endl;
         return;
-    } else {
-        std::cout << "Component name :'" << omponent.getId() << "'" << std::endl;
     }
-    uint16_t component_id = static_cast<uint16_t>(reinterpret_cast<uintptr_t>(it->second.get()));
+
+    uint8_t index = static_cast<uint8_t>(std::distance(__component_names.begin(), it));
+    uint16_t component_id = index;
     component_id = htons(component_id);
 
     std::array<uint8_t, 5> message;

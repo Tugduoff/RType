@@ -4,7 +4,6 @@
 ** File description:
 ** udp server
 */
-#include "../GameEngine/GameEngine.hpp"
 #include <boost/asio.hpp>
 #include <algorithm>
 #include <map>
@@ -29,7 +28,7 @@ class UDPServer {
         * @param io_context The Boost.Asio context for managing asynchronous operations.
         * @param port The port number on which the server will listen for incoming connections.
         */
-        UDPServer(boost::asio::io_context& io_context, short port, std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> components);
+        UDPServer(boost::asio::io_context& io_context, short port, std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &components);
 
     private:
         udp::socket socket_;
@@ -37,7 +36,7 @@ class UDPServer {
         boost::asio::io_context& io_context_;
         std::array<char, 1024> recv_buffer_;
         std::size_t size_max;
-        std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> __components;
+        std::vector<std::string> __component_names;
         std::vector<udp::endpoint> client_endpoints;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;

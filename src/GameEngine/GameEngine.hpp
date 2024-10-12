@@ -24,6 +24,8 @@ namespace Engine {
     class GameEngine {
         public:
 
+            GameEngine() {};
+
             GameEngine(std::function<void(size_t, std::string, std::vector<uint8_t>)> updateComponent) : __updateComponent(updateComponent) {};
 
             /**
@@ -124,6 +126,8 @@ namespace Engine {
                     throw std::runtime_error("Component not found");
                 return __components.at(componentId);
             }
+
+            std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &getComponents() { return __components; }
 
             /**
              * @brief Get the registry
