@@ -18,6 +18,13 @@ namespace Engine {
 }
 
 namespace Systems {
+    /**
+     * @class ConfigLoader
+     * 
+     * @brief System class from Systems that loads the game configuration.
+     * 
+     * This system is responsible for loading the game configuration from a file and extracting the data
+     */
     class ConfigLoader : public ASystem {
         public:
 

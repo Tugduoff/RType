@@ -1,6 +1,4 @@
-# ################### #
-#   CONTRIBUTING.md   #
-# ################### #
+# CONTRIBUTING
 
 # Repository changes
 - 🔨 `:hammer:` : Makefile

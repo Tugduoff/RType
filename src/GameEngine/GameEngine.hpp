@@ -15,11 +15,16 @@
     #include <typeindex>
     #include <iostream>
 
+/**
+ * @namespace Engine
+ * 
+ * @brief Namespace for the game Engine
+ */
 namespace Engine {
     /**
      * @class GameEngine
      * 
-     * @brief Class that manages the game engine and stores the loaders of all plugins.
+     * @brief Engine class that stores the loaders of all plugins.
      */
     class GameEngine {
         public:
@@ -53,7 +58,9 @@ namespace Engine {
 
                 std::cout << "Component ID: " << componentID << " registered!" << std::endl;
                 __components.emplace(componentID, std::make_unique<Component>());
-                return __registry.componentManager().registerComponent<Component>();
+                return __registry
+                    .componentManager()
+                    .registerComponent<Component>(loader.getFunctionPointer<Component *>("entryPoint"));
             }
 
             /**

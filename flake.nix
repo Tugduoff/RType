@@ -35,6 +35,8 @@
           criterion
           sfml
           libconfig
+          doxygen
+          doxygen_gui
         ];
 
         shellHook = ''

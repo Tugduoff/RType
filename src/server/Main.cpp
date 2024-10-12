@@ -15,6 +15,7 @@
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
+#include "plugins/components/controllable/Controllable.hpp"
 
 void displayComponents(ECS::Registry &reg)
 {
@@ -50,6 +51,7 @@ int main() {
     ECS::Entity entity = reg.entityManager().spawnEntity();
 
     try {
+        engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable");
         engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
 
         std::unique_ptr<Components::Position> position = engine.newComponent<Components::Position>(10, 20, 1);
