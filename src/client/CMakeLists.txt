@@ -1,6 +1,7 @@
 # Add an executable for the client project
 add_executable(client
     Main.cpp
+    Window.cpp
 
     ../ECS/system/SystemManager.cpp
     ../GameEngine/GameEngine.cpp
