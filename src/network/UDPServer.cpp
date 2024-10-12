@@ -105,6 +105,8 @@ void UDPServer::send_components_infos() {
         i++;
     }
 
+    /* v TESTS THAT MUST NOT BE MERGED v */
+
     // Test entity creation
     Engine::GameEngine gameEngine;
     ECS::Registry& reg = gameEngine.getRegistry();
@@ -156,7 +158,7 @@ void UDPServer::checking_client(const udp::endpoint& client) {
 void UDPServer::send_ping(const udp::endpoint& client) {
     std::string ping_message = "ping";
     socket_.async_send_to(boost::asio::buffer(ping_message), client,
-        [this, client](boost::system::error_code ec, std::size_t size_max) {
+        [this, client](boost::system::error_code ec, std::size_t) {
             if (!ec) {
                 std::cout << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
                 start_pong_timer(client);
@@ -192,7 +194,7 @@ void UDPServer::remove_client(const udp::endpoint& client) {
 
         std::string deconnection_message = "You have been disconnected :(";
         socket_.async_send_to(boost::asio::buffer(deconnection_message), client,
-            [this, client](boost::system::error_code ec, std::size_t size_max) {
+            [this, client](boost::system::error_code ec, std::size_t) {
                 if (!ec)
                     std::cout << "Client " << client.address().to_string() << ":" << client.port() << " is now aware of their disconnection" << std::endl;
             }
@@ -274,8 +276,40 @@ void UDPServer::attach_component(ECS::Entity &entity, Components::IComponent &co
     );
 }
 
-void UDPServer::update_component() {
-    return;
+void UDPServer::update_component(ECS::Entity &entity, Components::IComponent &component) {
+    uint8_t opcode = 0x3;
+    uint16_t entity_id = static_cast<uint16_t>(entity);
+    entity_id = htons(entity_id);
+
+    const std::string component_name = component.getId();
+
+    auto it = std::find(__component_names.begin(), __component_names.end(), component_name);
+    if (it == __component_names.end()) {
+        std::cerr << "Error 0x2: Component '" << component_name << "' not found." << std::endl;
+        return;
+    }
+
+    uint8_t index = static_cast<uint8_t>(std::distance(__component_names.begin(), it));
+    uint16_t component_id = index;
+    component_id = htons(component_id);
+
+    // add component data
+
+    std::array<uint8_t, 5> message;
+    message[0] = opcode;
+    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
+    std::memcpy(&message[3], &component_id, sizeof(component_id));
+
+    socket_.async_send_to(
+        boost::asio::buffer(message), remote_endpoint_,
+        [this, entity_id, component_id](boost::system::error_code ec, std::size_t) {
+            if (!ec) {
+                uint16_t e_id = ntohs(entity_id);
+                uint16_t c_id = ntohs(component_id);
+                std::cout << "update component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
+            }
+        }
+    );
 }
 
 void UDPServer::detach_component(ECS::Entity &entity, Components::IComponent &component) {
