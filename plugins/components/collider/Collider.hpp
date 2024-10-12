@@ -29,12 +29,17 @@ namespace Components {
         /**
          * @brief Constructor using configuration.
          * 
-         * Initializes the rectangle collider based on config settings.
+         * Initializes the rectangle collider based on config settings, with default values
+         * if lookupValue fails.
          */
-        Collider(libconfig::Setting &config) : AComponent("Collider") {
-            config.lookupValue("width", width);
-            config.lookupValue("height", height);
-        }
+        Collider(libconfig::Setting &config) : AComponent(std::string("Collider")) {
+            if (!config.lookupValue("width", width)) {
+                width = 1.0f;
+            }
+            if (!config.lookupValue("height", height)) {
+                height = 1.0f;
+            }
+        }        
 
         /**
          * @brief Serialize the collider data
