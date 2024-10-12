@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2024
+** RType
+** File description:
+** Collider.cpp file
+*/
+
 #include "Collider.hpp"
 #include "library_entrypoint.hpp"
 

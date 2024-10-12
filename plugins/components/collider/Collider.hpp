@@ -6,14 +6,14 @@
 */
 
 #ifndef COLLIDER_HPP
-#define COLLIDER_HPP
+    #define COLLIDER_HPP
 
-#include "plugins/components/AComponent.hpp"
-#include "GameEngine/GameEngine.hpp"
-#include <vector>
-#include <stdexcept>
-#include <cstdint>
-#include <libconfig.h++>
+    #include "plugins/components/AComponent.hpp"
+    #include "GameEngine/GameEngine.hpp"
+    #include <vector>
+    #include <stdexcept>
+    #include <cstdint>
+    #include <libconfig.h++>
 
 namespace Components {
 
