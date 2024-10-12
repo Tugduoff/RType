@@ -35,7 +35,7 @@ namespace Components {
  * an entity should be displayed in the game. This component can be serialized and
  * deserialized for network transmission.
  */
-class Visible : public AComponent {
+class Visible : public AComponent<Visible> {
 public:
     /**
      * @brief Default constructor for the Visible component.

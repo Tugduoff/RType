@@ -26,7 +26,7 @@ namespace Components {
      * This class represents the velocity of an entity, storing the x and y components,
      * and provides methods to serialize and deserialize the data.
      */
-    class Velocity : public AComponent {
+    class Velocity : public AComponent<Velocity> {
     public:
         /**
          * @brief Default constructor for the Velocity component.

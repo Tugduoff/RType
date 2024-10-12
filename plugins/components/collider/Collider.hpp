@@ -17,7 +17,7 @@
 
 namespace Components {
 
-    class Collider : public AComponent {
+    class Collider : public AComponent<Collider> {
     public:
         /**
          * @brief Default constructor

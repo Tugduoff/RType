@@ -29,7 +29,7 @@ namespace Components {
      * This class represents the health of an entity, storing both current and maximum health values.
      * It provides methods for serialization and deserialization to allow for network transmission or storage.
      */
-    class Health : public AComponent {
+    class Health : public AComponent<Health> {
     public:
 
         /**

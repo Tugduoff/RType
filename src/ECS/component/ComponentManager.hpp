@@ -61,12 +61,28 @@ namespace ECS {
             template <class Component>
             SparseArray<Component> &getComponents()
             {
-                std::type_index typeIndex = std::type_index(typeid(Component));
+                return std::any_cast
+                    <SparseArray<Component> &>
+                    (getComponents(typeid(Component)));
+            }
 
-                if (!__components.contains(typeIndex))
+            /**
+             * @brief Get components
+             * 
+             * @tparam type : the type index of the component
+             * 
+             * @return std::any &: the components sparseArray containing all instances as std::any
+             * 
+             * @note This function will retrieve all components from the same type given as template parameter.
+             * @note Mostly used in systems to iterate over all components of a specific type.
+             */
+            std::any &getComponents(std::type_index type)
+            {
+                if (!__components.contains(type)) {
                     throw std::runtime_error("Component type not registered in component manager");
+                }
 
-                return std::any_cast<SparseArray<Component> &>(__components.at(typeIndex));
+                return __components.at(type);
             }
 
             /**
