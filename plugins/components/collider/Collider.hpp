@@ -24,7 +24,7 @@ namespace Components {
          * 
          * Initializes the rectangle collider with default width and height of 0.
          */
-        Collider(float width = 0.0f, float height = 0.0f) : AComponent(std::string("Collider")), width(width), height(height) {};
+        Collider(float width = 1.0f, float height = 1.0f) : AComponent(std::string("Collider")), width(width), height(height) {};
 
         /**
          * @brief Constructor using configuration.
@@ -108,15 +108,22 @@ namespace Components {
          * @param config The configuration setting to extract the component data from.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            float width = 0.0f, height = 0.0f;
+        float width = 0.0f;
+        float height = 0.0f;
 
-            if (!config.lookupValue("width", width) || !config.lookupValue("height", height)) {
-                throw std::invalid_argument("Failed to retrieve values for 'width' and 'height'");
-            }
+        if (!config.lookupValue("width", width)) {
+            std::cerr << "Warning: 'width' not found in config. Using default value: 1.0f\n";
+            width = 1.0f;
+        }
+        
+        if (!config.lookupValue("height", height)) {
+            std::cerr << "Warning: 'height' not found in config. Using default value: 1.0f\n";
+            height = 1.0f;
+        }
+        std::unique_ptr<Components::Collider> collider = engine.newComponent<Components::Collider>(width, height);
+        engine.getRegistry().componentManager().addComponent<Components::Collider>(to, std::move(collider));
+    }
 
-            std::unique_ptr<Components::Collider> collider = engine.newComponent<Components::Collider>(width, height);
-            engine.getRegistry().componentManager().addComponent<Components::Collider>(to, std::move(collider));
-        };
 
         float width;
         float height;
