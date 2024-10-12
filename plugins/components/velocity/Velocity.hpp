@@ -33,8 +33,12 @@ namespace Components {
          * 
          * Initializes the velocity components (x and y) to zero.
          */
-        Velocity() : x(0), y(0) {};
-        Velocity(libconfig::Setting &config);
+        Velocity() : AComponent("Velocity"), x(0), y(0) {};
+        Velocity(libconfig::Setting &config) : AComponent("Velocity")
+        {
+            config.lookupValue("x", x);
+            config.lookupValue("y", y);
+        }
 
         /**
          * @brief Parameterized constructor for the Velocity component.
@@ -44,7 +48,7 @@ namespace Components {
          * @param x The X component of the velocity.
          * @param y The Y component of the velocity.
          */
-        Velocity(uint32_t x, uint32_t y) : x(x), y(y) {};
+        Velocity(uint32_t x, uint32_t y) : AComponent("Velocity"), x(x), y(y) {};
 
         /**
          * @brief Default destructor for the Velocity component.
