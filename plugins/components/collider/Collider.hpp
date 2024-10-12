@@ -77,14 +77,8 @@ namespace Components {
             if (data.size() != getSize())
                 throw std::runtime_error("Invalid data size for Collider component");
 
-            uint32_t widthBits = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
-            uint32_t heightBits = (data[4] << 24) | (data[5] << 16) | (data[6] << 8) | data[7];
-
-            widthBits = ntohl(widthBits);
-            heightBits = ntohl(heightBits);
-
-            width = *reinterpret_cast<uint32_t *>(&widthBits);
-            height = *reinterpret_cast<uint32_t *>(&heightBits);
+            width = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
+            height = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
         }
 
         /**
