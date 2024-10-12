@@ -41,4 +41,5 @@ std::ostream &operator<<(std::ostream &os, Key key)
             return os;
         }
     }
+    return os;
 }

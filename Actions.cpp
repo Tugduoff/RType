@@ -41,4 +41,5 @@ std::ostream &operator<<(std::ostream &os, Action action)
             return os;
         }
     }
+    return os;
 }
