@@ -10,6 +10,8 @@
 
     #include <unordered_map>
     #include <string>
+    #include <iostream>
+    #include <iosfwd>
 
 enum class Action {
     FORWARD, BACKWARD, LEFT, RIGHT,
