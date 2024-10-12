@@ -95,7 +95,7 @@ class UDPServer {
     
         void delete_entity(ECS::Entity &entity);
     
-        void attach_component();
+        void attach_component(ECS::Entity &entity, Components::IComponent &component);
     
         void update_component();
     

@@ -107,6 +107,10 @@ void UDPServer::send_components_infos() {
     create_entity(entity_test);
     create_entity(entity_test2);
     create_entity(entity_test);
+
+    for (const auto& component : __components) {
+        attach_component(entity_test2, *(component.second));
+    }
 }
 
 std::size_t UDPServer::get_size_max() {
@@ -196,7 +200,7 @@ void UDPServer::create_entity(ECS::Entity &entity) {
         boost::asio::buffer(message), remote_endpoint_,
         [this, entity_id](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t id = ntohs(entity_id); 
+                uint16_t id = ntohs(entity_id);
                 std::cout << "Entity " << static_cast<int>(id) << " created." << std::endl;
             }
         }
@@ -214,15 +218,60 @@ void UDPServer::delete_entity(ECS::Entity &entity) {
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t) {
-            if (!ec)
-                std::cout << "Entity delete sent to client." << std::endl;
+        [this, entity_id](boost::system::error_code ec, std::size_t) {
+            if (!ec) {
+                uint16_t id = ntohs(entity_id);
+                std::cout << "Entity " << static_cast<int>(id) << " delete." << std::endl;
+            }
         }
     );
 }
 
-void UDPServer::attach_component() {
-    return;
+void UDPServer::attach_component(ECS::Entity &entity, Components::IComponent &component) {
+    uint8_t opcode = 0x2;
+    uint16_t entity_id = static_cast<uint16_t>(entity);
+    entity_id = htons(entity_id);
+    
+    // get component name
+    // std::string component_name = component.getId();
+    // for (const auto& comp : __components) {
+    //     if (comp.second.get() == &component) {
+    //         component_name = comp.first;
+    //         std::cout << "COMPONENT NAME : " << component_name << std::endl;
+    //         break;
+    //     }
+    // }
+    // if (component_name.empty()) {
+    //     std::cerr << "Error 0x2: Component not found." << std::endl;
+    //     return;
+    // }
+
+    // get id from name
+    auto it = __components.find(omponent.getId());
+    if (it == __components.end()) {
+        std::cerr << "Error 0x2: Component '" << omponent.getId() << "' not found." << std::endl;
+        return;
+    } else {
+        std::cout << "Component name :'" << omponent.getId() << "'" << std::endl;
+    }
+    uint16_t component_id = static_cast<uint16_t>(reinterpret_cast<uintptr_t>(it->second.get()));
+    component_id = htons(component_id);
+
+    std::array<uint8_t, 5> message;
+    message[0] = opcode;
+    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
+    std::memcpy(&message[3], &component_id, sizeof(component_id));
+
+    socket_.async_send_to(
+        boost::asio::buffer(message), remote_endpoint_,
+        [this, entity_id, component_id](boost::system::error_code ec, std::size_t) {
+            if (!ec) {
+                uint16_t e_id = ntohs(entity_id);
+                uint16_t c_id = ntohs(component_id);
+                std::cout << "Attach component [" << static_cast<int>(c_id) << "] to entity [" << static_cast<int>(e_id) << "]." << std::endl;
+            }
+        }
+    );
 }
 
 void UDPServer::update_component() {
