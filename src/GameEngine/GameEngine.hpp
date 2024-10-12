@@ -15,11 +15,16 @@
     #include <typeindex>
     #include <iostream>
 
+/**
+ * @namespace Engine
+ * 
+ * @brief Namespace for the game Engine
+ */
 namespace Engine {
     /**
      * @class GameEngine
      * 
-     * @brief Class that manages the game engine and stores the loaders of all plugins.
+     * @brief Engine class that stores the loaders of all plugins.
      */
     class GameEngine {
         public:

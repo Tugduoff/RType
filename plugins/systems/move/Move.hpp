@@ -16,6 +16,13 @@ namespace Engine {
 }
 
 namespace Systems {
+    /**
+     * @class MoveSystem
+     * 
+     * @brief System class from Systems that moves entities.
+     * 
+     * This system is responsible for moving entities based on their velocity and position components.
+     */
     class MoveSystem : public ASystem {
         public:
             MoveSystem() = default;

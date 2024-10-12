@@ -17,7 +17,7 @@
     #include "ValueIterator.hpp"
 
 /** @class SparseArray
- * @brief A sparse array that can hold components of a specific type
+ * @brief A sparse array that can hold Components of a specific type
  *
  * @tparam Component The type of component to store in the array
  *

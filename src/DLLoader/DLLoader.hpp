@@ -20,6 +20,14 @@
     #include <iostream>
     #include <libconfig.h++>
 
+/**
+ * @class DLLoader
+ * 
+ * @brief A class to load dynamic libraries and retrieve symbols from them.
+ * 
+ * This class provides a simple interface to load dynamic libraries and retrieve symbols from them.
+ * It can be used to load plugins at runtime and create instances of classes from them.
+ */
 class DLLoader {
     public:
 
