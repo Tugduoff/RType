@@ -13,7 +13,7 @@
     #include <iostream>
     #include <iosfwd>
 
-enum class Key {
+enum Key {
     A = 0, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
     UP_KEY, DOWN_KEY, LEFT_KEY, RIGHT_KEY,
     SPACE, ENTER, ESCAPE, DELETE_KEY, BACKSPACE,

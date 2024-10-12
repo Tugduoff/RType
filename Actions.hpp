@@ -13,8 +13,8 @@
     #include <iostream>
     #include <iosfwd>
 
-enum class Action {
-    FORWARD, BACKWARD, LEFT, RIGHT,
+enum Action {
+    FORWARD = 0, BACKWARD, LEFT, RIGHT,
     ACTION1, ACTION2, ACTION3, ACTION4,
     ACTION5, ACTION6, ACTION7, ACTION8,
     ACTION9, ACTION10,
