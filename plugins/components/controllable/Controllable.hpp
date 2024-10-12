@@ -231,10 +231,10 @@ namespace Components {
             newKeyBindings[Action::LEFT] = strToKey.at(left);
             newKeyBindings[Action::RIGHT] = strToKey.at(right);
 
-            std::cout << "Forward: " << newKeyBindings[Action::FORWARD] << std::endl;
-            std::cout << "Backward: " << newKeyBindings[Action::BACKWARD] << std::endl;
-            std::cout << "Left: " << newKeyBindings[Action::LEFT] << std::endl;
-            std::cout << "Right: " << newKeyBindings[Action::RIGHT] << std::endl;
+            std::cout << "FORWARD: " << newKeyBindings[Action::FORWARD] << std::endl;
+            std::cout << "BACKWARD: " << newKeyBindings[Action::BACKWARD] << std::endl;
+            std::cout << "LEFT: " << newKeyBindings[Action::LEFT] << std::endl;
+            std::cout << "RIGHT: " << newKeyBindings[Action::RIGHT] << std::endl;
 
             for (int i = 0; i < 10; i++) {
                 std::string actionKey = "ACTION" + std::to_string(i + 1);
