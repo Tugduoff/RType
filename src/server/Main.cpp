@@ -41,6 +41,8 @@ void displayComponents(ECS::Registry &reg)
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
 {
+    int i = 0;
+
     for (auto it = begin; it != end; ++it) {
         std::type_index &idx = *it;
 
@@ -54,8 +56,12 @@ void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
 
         for (auto const &comp : sparseArray) {
             std::cout << "    " << comp->getId() << ": {";
+            i = 0;
             for (const auto &byte : comp->serialize()) {
-                std::cout << (int)byte << ", ";
+                if (i != 0)
+                    std::cout << ", ";
+                std::cout << (int)byte;
+                i++;
             }
             std::cout << "}" << std::endl;
         }
@@ -74,7 +80,11 @@ int main() {
     ECS::Registry &reg = engine.getRegistry();
     ECS::Entity entity = reg.entityManager().spawnEntity();
 
-    std::vector<std::type_index> types = {typeid(Components::Velocity), typeid(Components::Position)};
+    std::vector<std::type_index> types = {
+        typeid(Components::Velocity),
+        typeid(Components::Position),
+        typeid(Components::Controllable)
+    };
 
     try {
         engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable");
@@ -90,7 +100,6 @@ int main() {
 
         displayPolymorphic(engine, types.begin(), types.end());
 
-        engine.runSystems();
         engine.runSystems();
     } catch (std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
