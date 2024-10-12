@@ -11,7 +11,7 @@
     #include <unordered_map>
     #include <string>
 
-enum Key {
+enum class Key : int {
     A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
     UP_KEY, DOWN_KEY, LEFT_KEY, RIGHT_KEY,
     SPACE, ENTER, ESCAPE, DELETE, BACKSPACE,
