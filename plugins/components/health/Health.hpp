@@ -39,12 +39,25 @@ namespace Components {
          */
         Health(uint32_t currentHealth = 100, uint32_t maxHealth = 100) : AComponent(std::string("Health")) {}
 
+        /**
+         * @brief Constructs a Health component with values from the configuration.
+         *
+         * This constructor initializes the Health component by attempting to read 
+         * `currentHealth` and `maxHealth` from the provided configuration. If these 
+         * values are not found in the config, default values of 100 are used.
+         *
+         * @param config The configuration settings to retrieve health values from.
+         *
+         * @note If the `currentHealth` or `maxHealth` values are missing from the 
+         *       configuration, they will be defaulted to 100.
+         */
         Health(libconfig::Setting &config) : AComponent(std::string("Health")) {
-            if (!config.lookupValue("width", currentHealth))
+            if (!config.lookupValue("currentHealth", currentHealth))
                 currentHealth = 100;
-            if (!config.lookupValue("height", maxHealth))
+            if (!config.lookupValue("maxHealth", maxHealth))
                 maxHealth = 100;
-        };
+        }
+
 
         /**
          * @brief Serializes the health values into a byte vector.
