@@ -95,7 +95,7 @@ void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_
     uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
     uint16_t componentId = uint16From2Uint8(operation[3], operation[4]);
     std::string &strCompId = _compNames[componentId];
-    std::type_index &compTypeIndex = engine.getIdStringToType().at(strCompId);
+    std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
     
     auto &compInstance = engine.getComponentFromId(strCompId);
     auto &sparseArray = compInstance->any_cast(
@@ -109,7 +109,7 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
     uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
     uint16_t componentId = uint16From2Uint8(operation[3], operation[4]);
     std::string strCompId = _compNames[componentId];
-    std::type_index &compTypeIndex = engine.getIdStringToType().at(strCompId);
+    std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
     
     auto &compInstance = engine.getComponentFromId(compTypeIndex);
     auto &sparseArray = compInstance->any_cast(
@@ -124,7 +124,7 @@ void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_
     uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
     uint16_t componentId = uint16From2Uint8(operation[3], operation[4]);
     std::string strCompId = _compNames[componentId];
-    std::type_index &compTypeIndex = engine.getIdStringToType().at(strCompId);
+    std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
     
     auto &compInstance = engine.getComponentFromId(compTypeIndex);
     auto &sparseArray = compInstance->any_cast(
