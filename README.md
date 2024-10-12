@@ -65,7 +65,8 @@ To start the game, first go into the `rtype` directory, then, run the server:
 ```
 - **Linux** : 
 ```bash
-./r-type_server.sh -h 127.0.0.0 -p 4242
+./r-type_client.sh -h 127.0.0.0 -p 4242
 ```
+Replace the `127.0.0.0` by the ip adress of the machine on which you launched the server. If you launched the server on the machine from where you are launching the client, you can leave `127.0.0.0`.
 
 Here you go, you can now enjoy playing our game !
