@@ -29,7 +29,7 @@ SO_FILES=(
 echo "R-Type Compilation..."
 
 mkdir -p $BUILD_DIR
-cd $BUILD_DIR && cmake .. && cd ../..
+cd $BUILD_DIR && cmake .. -DCMAKE_BUILD_TYPE=Release && cd ../..
 cmake --build $BUILD_DIR
 
 if [ $? -ne 0 ]; then
