@@ -9,9 +9,15 @@
 #include "library_entrypoint.hpp"
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint()
+Components::IComponent *buildDefault()
 {
     return new Components::Controllable();
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *buildWithParams(std::unordered_map<enum Action, enum Key> &keyBindings)
+{
+    return new Components::Controllable(keyBindings);
 }
 
 LIBRARY_ENTRYPOINT

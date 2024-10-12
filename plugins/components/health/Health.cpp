@@ -9,12 +9,18 @@
 #include "library_entrypoint.hpp"
 
 LIBRARY_ENTRYPOINT
-char const *componentName = "Health";
+char const *const componentName = "Health";
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint()
+Components::IComponent *buildDefault()
 {
     return new Components::Health();
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *buildWithParams(uint32_t currentHealth, uint32_t maxHealth)
+{
+    return new Components::Health(currentHealth, maxHealth);
 }
 
 LIBRARY_ENTRYPOINT

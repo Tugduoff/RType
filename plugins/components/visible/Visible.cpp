@@ -9,12 +9,18 @@
 #include "library_entrypoint.hpp"
 
 LIBRARY_ENTRYPOINT
-char const *componentName = "Visible";
+char const *const componentName = "Visible";
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint()
+Components::IComponent *buildDefault()
 {
     return new Components::Visible();
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *buildWithParams(bool isVisible)
+{
+    return new Components::Visible(isVisible);
 }
 
 LIBRARY_ENTRYPOINT
