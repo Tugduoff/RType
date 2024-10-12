@@ -36,4 +36,4 @@ Components::IComponent *entryConfig(libconfig::Setting &config)
 }
 
 LIBRARY_ENTRYPOINT
-char const *componentName = "Controllable";
+char const *const componentName = "Controllable";
