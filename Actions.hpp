@@ -5,8 +5,8 @@
 ** Actions.hpp file
 */
 
-#ifndef ACTIONS_HPP
-    #define ACTIONS_HPP
+#ifndef ACTIONS_HPP_
+    #define ACTIONS_HPP_
 
     #include <unordered_map>
     #include <string>
@@ -55,4 +55,4 @@ Action stringToAction(const std::string &actionString);
  */
 std::ostream &operator<<(std::ostream &os, Action action);
 
-#endif // ACTIONS_HPP
+#endif // ACTIONS_HPP_

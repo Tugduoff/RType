@@ -5,8 +5,8 @@
 ** Keys.hpp file
 */
 
-#ifndef KEYS_HPP
-    #define KEYS_HPP
+#ifndef KEYS_HPP_
+    #define KEYS_HPP_
 
     #include <unordered_map>
     #include <string>
@@ -55,4 +55,4 @@ Key stringToKey(const std::string &keyString);
  */
 std::ostream &operator<<(std::ostream &os, Key key);
 
-#endif // KEYS_HPP
+#endif // KEYS_HPP_
