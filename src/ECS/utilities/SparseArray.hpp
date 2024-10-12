@@ -71,6 +71,7 @@ class SparseArray {
          */
         SparseArray &operator=(const SparseArray &other) = default;
         SparseArray &operator=(SparseArray &&other) = default;
+
         std::unique_ptr<Component> &operator[](std::size_t index) {
             if (index >= __data.size())
                 throw std::out_of_range("Index out of range");
@@ -138,6 +139,24 @@ class SparseArray {
          */
         void clearNulls() {
             std::erase_if(__data, [](auto const &it) { return !it.second; });
+        }
+
+        /**
+         * @brief Register a function that will be called
+         * @brief each time a component is created
+         */
+        void registerCreateCallback(CreateCallback cb)
+        {
+            __createCallbacks.push_back(std::move(cb));
+        }
+
+        /**
+         * @brief Register a function that will be called
+         * @brief each time a component is removed
+         */
+        void registerRemoveCallback(RemoveCallback cb)
+        {
+            __removeCallbacks.push_back(std::move(cb));
         }
 
     private:
