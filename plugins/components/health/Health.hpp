@@ -37,7 +37,8 @@ namespace Components {
          * 
          * Initializes current and max health to default values of 100.
          */
-        Health(uint32_t currentHealth = 100, uint32_t maxHealth = 100) : AComponent(std::string("Health")) {}
+        Health(uint32_t currentHealth = 100, uint32_t maxHealth = 100) :
+            AComponent(std::string("Health")), currentHealth(currentHealth), maxHealth(maxHealth) {};
 
         /**
          * @brief Constructs a Health component with values from the configuration.
@@ -56,8 +57,7 @@ namespace Components {
                 currentHealth = 100;
             if (!config.lookupValue("maxHealth", maxHealth))
                 maxHealth = 100;
-        }
-
+        };
 
         /**
          * @brief Serializes the health values into a byte vector.
@@ -140,8 +140,12 @@ namespace Components {
                 std::cerr << "Warning: 'maxVal' not found in config. Using default value: 1.0f\n";
                 maxVal = 100;
             }
+
+            std::cout << "currentVal: " << currentVal << " maxVal: " << maxVal << std::endl;
+
             std::unique_ptr<Components::Health> health = engine.newComponent<Components::Health>(static_cast<uint32_t>(currentVal), static_cast<uint32_t>(maxVal));
             engine.getRegistry().componentManager().addComponent<Components::Health>(to, std::move(health));
+            std::cout << std::endl;
         };
 
         uint32_t currentHealth;
