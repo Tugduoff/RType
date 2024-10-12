@@ -40,8 +40,10 @@ namespace Components {
         Health(uint32_t currentHealth = 100, uint32_t maxHealth = 100) : AComponent(std::string("Health")) {}
 
         Health(libconfig::Setting &config) : AComponent(std::string("Health")) {
-            config.lookupValue("currentHealth", currentHealth);
-            config.lookupValue("maxHealth", maxHealth);
+            if (!config.lookupValue("width", currentHealth))
+                currentHealth = 100;
+            if (!config.lookupValue("height", maxHealth))
+                maxHealth = 100;
         };
 
         /**
