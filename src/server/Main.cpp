@@ -19,6 +19,7 @@
 #include "plugins/components/health/Health.hpp"
 #include "plugins/components/collider/Collider.hpp"
 #include "plugins/components/acceleration/Acceleration.hpp"
+#include "plugins/components/gun/Gun.hpp"
 
 #include <exception>
 #include <iostream>
@@ -84,7 +85,8 @@ int main() {
         typeid(Components::Visible),
         typeid(Components::Health),
         typeid(Components::Collider),
-        typeid(Components::Acceleration)
+        typeid(Components::Acceleration),
+        typeid(Components::Gun)
     };
 
     try {

@@ -19,18 +19,23 @@
 #include <stdexcept>
 
 void shootAction(Engine::GameEngine &engine, size_t entityIndex) {
+    
     auto &reg = engine.getRegistry();
-    auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
-    auto &gun = gunComponents[entityIndex];
+    
+    try {
+        auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
+        auto &gun = gunComponents[entityIndex];
 
-    if (gun) {
-        if (gun->canShoot()) {
-            std::cout << "Entity " << entityIndex << " fired a shot!" << std::endl;
-            gun->shoot();
-            engine.updateComponent(entityIndex, gun->getId(), gun->serialize());
-        } else {
-            std::cout << "Gun is on cooldown." << std::endl;
+        if (gun) {
+            if (gun->chrono.getElapsedTime() >= gun->fireRate) {
+                std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
+                gun->chrono.restart();
+            } else {
+                std::cerr << "Gun is on cooldown." << std::endl;
+            }
         }
+    } catch (std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 }
 
