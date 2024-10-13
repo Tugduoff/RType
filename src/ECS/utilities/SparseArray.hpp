@@ -161,12 +161,18 @@ class SparseArray {
 
     private:
 
+        /**
+         * @brief Calls all registered create callbacks
+         */
         void __callAllCreate(size_t index) {
             for (auto const &callback : __createCallbacks) {
                 callback(typeid(Component), index);
             }
         }
 
+        /**
+         * @brief Calls all registered remove callbacks
+         */
         void __callAllRemove(size_t index) {
             for (auto const &callback : __removeCallbacks) {
                 callback(typeid(Component), index);
