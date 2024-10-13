@@ -45,6 +45,7 @@ void UDPServer::start_receive() {
                         client_responses[remote_endpoint_] = true;
                         is_disconnected[remote_endpoint_] = false;
                         checking_client(remote_endpoint_);
+                    }
                 } else {
                     client_responses[remote_endpoint_] = true;
                 }

@@ -31,8 +31,6 @@ namespace Engine {
     class GameEngine {
         public:
 
-            GameEngine() {};
-
             GameEngine(std::function<void(size_t, std::string, std::vector<uint8_t>)> updateComponent) : __updateComponent(updateComponent) {};
 
             /**
