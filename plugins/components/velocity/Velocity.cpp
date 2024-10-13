@@ -15,9 +15,9 @@ Components::IComponent *buildDefault()
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(uint32_t x, uint32_t y)
+Components::IComponent *buildWithParams(int32_t x, int32_t y, uint8_t factor)
 {
-    return new Components::Velocity(x, y);
+    return new Components::Velocity(x, y, factor);
 }
 
 LIBRARY_ENTRYPOINT
