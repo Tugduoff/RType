@@ -9,7 +9,7 @@
 #include "library_entrypoint.hpp"
 
 LIBRARY_ENTRYPOINT
-char const *componentName = "Gun";
+char const *const componentName = "Gun";
 
 LIBRARY_ENTRYPOINT
 Components::IComponent *entryPoint(float damage, float fireRate) {

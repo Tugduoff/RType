@@ -38,7 +38,7 @@ namespace Components {
          * 
          * Initializes the damage and fire rate to default values.
          */
-        Gun(uint32_t damage = 10, uint32_t fireRate = 2) : AComponent("Gun") {}
+        Gun(uint32_t damage = 10, uint32_t fireRate = 500) : AComponent("Gun") {}
 
         /**
          * @brief Constructor that initializes the Gun component from a configuration.
@@ -47,9 +47,9 @@ namespace Components {
          */
         Gun(libconfig::Setting &config) : AComponent("Gun") {
             if (!config.lookupValue("damage", damage))
-                damage = 10.0f;
+                damage = 10;
             if (!config.lookupValue("fireRate", fireRate))
-                fireRate = 1.0f;
+                fireRate = 500;
         }
 
         /**
@@ -114,8 +114,8 @@ namespace Components {
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
             if (!config.lookupValue("damage", damage) || !config.lookupValue("fireRate", fireRate)) {
-                damage = 10.0f; // Default damage
-                fireRate = 1.0f; // Default fire rate
+                damage = 10;
+                fireRate = 500;
                 std::cout << "Using default values: damage = " << damage << ", fireRate = " << fireRate << std::endl;
             }
             std::unique_ptr<Components::Gun> gun = engine.newComponent<Components::Gun>(damage, fireRate);
