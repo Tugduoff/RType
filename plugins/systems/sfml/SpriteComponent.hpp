@@ -7,8 +7,6 @@
 
 #include <SFML/Graphics/Sprite.hpp>
 
-// TODO choose an appropriate namespace
-
 namespace Components {
     class SpriteComponent {
         public:
