@@ -66,20 +66,6 @@ namespace Components {
          */
         ~Gun() = default;
 
-        bool canShoot() {
-            return chrono.getElapsedTime() >= fireRate;
-        }
-
-        void shoot() {
-            if (canShoot()) {
-                std::cout << "Gun fired! Damage: " << damage << std::endl;
-                chrono.restart();  // Restart the cooldown timer after shooting
-            } else {
-                std::cout << "Gun is on cooldown. Time remaining: "
-                          << (fireRate - chrono.getElapsedTime()) << " ms" << std::endl;
-            }
-        }
-
         /**
          * @brief Serializes the gun's data into a byte vector.
          * 
@@ -136,14 +122,14 @@ namespace Components {
          * @param config The configuration setting to extract the component data from.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            uint32_t damage;
-            uint32_t fireRate;
+            int damage;
+            int fireRate;
 
             if (!config.lookupValue("damage", damage))
                 damage = 10;
-            if ( !config.lookupValue("fireRate", fireRate))
+            if (!config.lookupValue("fireRate", fireRate))
                 fireRate = 500;
-            std::unique_ptr<Components::Gun> gun = engine.newComponent<Components::Gun>(damage, fireRate);
+            std::unique_ptr<Components::Gun> gun = engine.newComponent<Components::Gun>(static_cast<uint32_t>(damage), static_cast<uint32_t>(fireRate));
             engine.getRegistry().componentManager().addComponent<Components::Gun>(to, std::move(gun));
         }
 
