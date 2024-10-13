@@ -37,7 +37,7 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
             engine.updateComponent(i, pos->getId(), pos->serialize());
             if (vel->diminishingFactor == 0)
                 continue;
-            int factor = vel->diminishingFactor / 100;
+            float factor = (float)vel->diminishingFactor / 100;
             vel->x *= factor;
             vel->y *= factor;
             engine.updateComponent(i, vel->getId(), vel->serialize());
