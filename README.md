@@ -42,7 +42,7 @@ You can either do it via :
 You should now have a `rtype` directory, in this folder you will find on : 
 - **Windows** : `r-type_server.exe`, `r-type_client.exe` and a bunch of `.dll` and `.pdb` files
 
-- **Linux** : `r-type_server.sh`, `r-type_client.sh` and a `lib` folder in which a bunch of `.so` files
+- **Linux** : `r-type_server.sh`, `r-type_client.sh` and a bunch of `.so` files
 
 
 ## Running the Game
