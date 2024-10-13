@@ -5,16 +5,16 @@
 ** udp server
 */
 
-#ifndef UDP_SERVER_HPP
-    #define UDP_SERVER_HPP
-    #include <algorithm>
-    #include <map>
-    #include <chrono>
-    #include <memory>
-    #include "boost/asio.hpp"
-    #include "../GameEngine/GameEngine.hpp"
+#include <boost/asio.hpp>
+#include <algorithm>
+#include <map>
+#include <chrono>
+#include <memory>
 
 using boost::asio::ip::udp;
+
+#ifndef UDP_SERVER_HPP
+    #define UDP_SERVER_HPP
 
 class UDPServer {
     public:
@@ -26,7 +26,7 @@ class UDPServer {
         * @param io_context The Boost.Asio context for managing asynchronous operations.
         * @param port The port number on which the server will listen for incoming connections.
         */
-        UDPServer(boost::asio::io_context& io_context, short port, std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &components);
+        UDPServer(boost::asio::io_context& io_context, short port);
 
     private:
         udp::socket socket_;
@@ -34,7 +34,7 @@ class UDPServer {
         boost::asio::io_context& io_context_;
         std::array<char, 1024> recv_buffer_;
         std::size_t size_max;
-        std::vector<std::string> __component_names;
+        // std::unordered_map<std::string, std::shared_ptr<Components::IComponent>> __components;
         std::vector<udp::endpoint> client_endpoints;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;
@@ -48,17 +48,22 @@ class UDPServer {
         */
         void start_receive();
 
-        /**
-        * @brief Sends the list of component informations to the connected client.
-        */
-        void send_components_infos();
+        // /**
+        // * @brief Sends the list of component informations to the connected client.
+        // */
+        // void send_components_infos();
 
         /**
-        * @brief Gets the maximum size of the component names.
-        * 
-        * @return The size of the longest component name.
+        * @brief Sends the list of component names to the connected client.
         */
-        std::size_t get_size_max();
+        void send_init_sequence();
+
+        /**
+        // * @brief Gets the maximum size of the component names.
+        // * 
+        // * @return The size of the longest component name.
+        // */
+        // std::size_t get_size_max();
 
         /**
         * @brief Check the response status of a client.
@@ -87,16 +92,6 @@ class UDPServer {
         * @param client The UDP endpoint of the client to be removed.
         */
         void remove_client(const udp::endpoint& client);
-
-        void create_entity(ECS::Entity &entity);
-    
-        void delete_entity(ECS::Entity &entity);
-    
-        void attach_component(ECS::Entity &entity, Components::IComponent &component);
-    
-        void update_component(ECS::Entity &entity, Components::IComponent &component);
-    
-        void detach_component(ECS::Entity &entity, Components::IComponent &component);
 };
 
 #endif /* !UDP_SERVER_HPP_ */

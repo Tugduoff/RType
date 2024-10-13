@@ -5,25 +5,23 @@
 ** Main.cpp file
 */
 
+
+#include <exception>
+#include <iostream>
+#include <typeindex>
+#include <vector>
+#include "network/UDPServer.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
 #include "ECS/utilities/SparseArray.hpp"
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
-<<<<<<< HEAD
-#include "network/UDPServer.hpp"
-=======
 #include "plugins/components/controllable/Controllable.hpp"
 #include "plugins/components/visible/Visible.hpp"
 #include "plugins/components/health/Health.hpp"
 #include "plugins/components/collider/Collider.hpp"
 #include "plugins/components/acceleration/Acceleration.hpp"
->>>>>>> main
-#include <exception>
-#include <iostream>
-#include <typeindex>
-#include <vector>
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -125,7 +123,6 @@ int main() {
         UDPServer server(io_context, 8080, engine.getComponents());
         io_context.run();
 
-        displayComponents(reg);
         engine.getRegistry().componentManager().getComponents<Components::Controllable>()[0]->inputs[(int)Action::FORWARD] = true;
 
         displayPolymorphic(engine, types.begin(), types.end());

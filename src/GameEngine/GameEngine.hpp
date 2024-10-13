@@ -150,8 +150,6 @@ namespace Engine {
                 return __components.at(typeIndex);
             }
 
-            std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &getComponents() { return __components; }
-
             /**
              * @brief Get the registry
              * 
@@ -176,6 +174,23 @@ namespace Engine {
             {
                 __updateComponent(index, componentId, data);
             }
+
+            /**
+             * @brief This function return the typeID corresponding to a component
+             * 
+             * @param componentId : the string id of the component
+             * 
+             * @note This function return a typeID contained in __idStringToType
+=             */
+            std::type_index getTypeIndexFromString(const std::string &componentId)
+            {
+                if (__idStringToType.find(componentId) == __idStringToType.end())
+                    throw std::runtime_error("Component not found");
+                return __idStringToType.at(componentId);
+            }
+
+            std::unordered_map<std::type_index, std::unique_ptr<Components::IComponent>> &getComponents() { return __components; }
+            std::unordered_map<std::string, std::type_index> &getIdStringToType() { return __idStringToType; }
 
         private:
 
