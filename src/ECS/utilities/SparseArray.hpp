@@ -10,10 +10,12 @@
 
     #include <cstddef>
     #include <functional>
+    #include <typeindex>
     #include <unordered_map>
     #include <stdexcept>
     #include <algorithm>
     #include <memory>
+    #include <vector>
     #include "ValueIterator.hpp"
 
 /** @class SparseArray
@@ -43,6 +45,9 @@ class SparseArray {
         using value_iterator = ValueIterator<iterator>;
         using const_value_iterator = ValueIterator<const_iterator>;
 
+        using CreateCallback = std::function<void(std::type_index type, size_t index)>;
+        using RemoveCallback = std::function<void(std::type_index type, size_t index)>;
+
         SparseArray(comp_ctor constructor) : __ctor(std::move(constructor)) {}
         SparseArray(const SparseArray<Component> &other)
         : __data(), __ctor(other.__ctor) {
@@ -66,6 +71,7 @@ class SparseArray {
          */
         SparseArray &operator=(const SparseArray &other) = default;
         SparseArray &operator=(SparseArray &&other) = default;
+
         std::unique_ptr<Component> &operator[](std::size_t index) {
             if (index >= __data.size())
                 throw std::out_of_range("Index out of range");
@@ -93,6 +99,7 @@ class SparseArray {
          */
         void erase(std::size_t index) {
             __data.erase(index);
+            __callAllRemove(index);
         }
 
         /**
@@ -103,6 +110,7 @@ class SparseArray {
          */
         void insertAt(std::size_t index, std::unique_ptr<Component> &&component) {
             __data[index] = std::move(component);
+            __callAllCreate(index);
         }
 
         /**
@@ -112,13 +120,16 @@ class SparseArray {
          * @param index The index at which to construct a new component
          */
         void constructAt(std::size_t index) {
-            __data[index] = std::unique_ptr<Component>(__ctor());;
+            this->insertAt(index, std::unique_ptr<Component>(__ctor()));
         }
 
         /**
          * @brief Clears the SparseArray's internal map of all it's components
          */
         void clear() {
+            for (auto const &[index, _] : __data) {
+                __callAllRemove(index);
+            }
             __data.clear();
         }
 
@@ -127,13 +138,53 @@ class SparseArray {
          * @brief been left in the internal map
          */
         void clearNulls() {
-            std::erase_if(__data, [](auto const &it) { return !*it; });
+            std::erase_if(__data, [](auto const &it) { return !it.second; });
+        }
+
+        /**
+         * @brief Register a function that will be called
+         * @brief each time a component is created
+         */
+        void registerCreateCallback(CreateCallback cb)
+        {
+            __createCallbacks.push_back(std::move(cb));
+        }
+
+        /**
+         * @brief Register a function that will be called
+         * @brief each time a component is removed
+         */
+        void registerRemoveCallback(RemoveCallback cb)
+        {
+            __removeCallbacks.push_back(std::move(cb));
         }
 
     private:
 
+        /**
+         * @brief Calls all registered create callbacks
+         */
+        void __callAllCreate(size_t index) {
+            for (auto const &callback : __createCallbacks) {
+                callback(typeid(Component), index);
+            }
+        }
+
+        /**
+         * @brief Calls all registered remove callbacks
+         */
+        void __callAllRemove(size_t index) {
+            for (auto const &callback : __removeCallbacks) {
+                callback(typeid(Component), index);
+            }
+        }
+
         std::unordered_map<std::size_t, std::unique_ptr<Component>> __data;
         comp_ctor __ctor;
+
+        std::vector<CreateCallback> __createCallbacks;
+        std::vector<RemoveCallback> __removeCallbacks;
+
 };
 
 #endif // SPARSE_ARRAY_HPP
