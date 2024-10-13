@@ -11,7 +11,7 @@
     #include <cstddef>
     #include <functional>
     #include <typeindex>
-    #include <unordered_map>
+    #include <map>
     #include <stdexcept>
     #include <algorithm>
     #include <memory>
@@ -39,7 +39,7 @@ class SparseArray {
         using comp_ctor = std::function<Component *()>;
 
         using value_type = std::unique_ptr<Component>;
-        using map_type = std::unordered_map<std::size_t, value_type>;
+        using map_type = std::map<std::size_t, value_type>;
         using iterator = map_type::iterator;
         using const_iterator = map_type::const_iterator;
         using value_iterator = ValueIterator<iterator>;
@@ -179,7 +179,7 @@ class SparseArray {
             }
         }
 
-        std::unordered_map<std::size_t, std::unique_ptr<Component>> __data;
+        std::map<std::size_t, std::unique_ptr<Component>> __data;
         comp_ctor __ctor;
 
         std::vector<CreateCallback> __createCallbacks;

@@ -81,12 +81,13 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                     std::cerr << "Error: Sprite component not found for this entity, creating it..." << std::endl;
                     std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
                     reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
+                    return;
                 }
                 auto &sprite = spriteComponents[i];
 
                 if (!pos || !spriteId || !sprite)
                     continue;
-            
+
                 sprite->sprite.setPosition(pos->x, pos->y);
                 if (sprite->textureLoaded) {
                     window.draw(sprite->sprite);

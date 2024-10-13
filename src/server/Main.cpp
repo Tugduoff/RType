@@ -28,6 +28,7 @@
 #include "plugins/components/acceleration/Acceleration.hpp"
 #include "plugins/components/gun/Gun.hpp"
 #include "plugins/components/damage/Damage.hpp"
+#include "plugins/components/deathRange/DeathRange.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -90,7 +91,8 @@ int main() {
         typeid(Components::Collider),
         typeid(Components::Acceleration),
         typeid(Components::Gun),
-        typeid(Components::Damage)
+        typeid(Components::Damage),
+        typeid(Components::DeathRange)
     };
 
     try {
@@ -98,12 +100,12 @@ int main() {
         engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
         engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
 
-        engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
+        engine.loadSystems("./src/server/configServer.cfg");
 
         // we'll probably have to move it elsewhere
-        boost::asio::io_context io_context;
-        UDPServer server(io_context, 8080, engine.getIdStringToType());
-        io_context.run();
+        // boost::asio::io_context io_context;
+        // UDPServer server(io_context, 8080, engine.getIdStringToType());
+        // io_context.run();
 
         displayPolymorphic(engine, types.begin(), types.end());
 
