@@ -120,11 +120,13 @@ namespace Components {
          * @param config The configuration setting to extract the component data from.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            if (!config.lookupValue("damage", damage) || !config.lookupValue("fireRate", fireRate)) {
+            uint32_t damage;
+            uint32_t fireRate;
+
+            if (!config.lookupValue("damage", damage))
                 damage = 10;
+            if ( !config.lookupValue("fireRate", fireRate))
                 fireRate = 500;
-                std::cout << "Using default values: damage = " << damage << ", fireRate = " << fireRate << std::endl;
-            }
             std::unique_ptr<Components::Gun> gun = engine.newComponent<Components::Gun>(damage, fireRate);
             engine.getRegistry().componentManager().addComponent<Components::Gun>(to, std::move(gun));
         }
