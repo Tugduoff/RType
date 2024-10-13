@@ -9,7 +9,13 @@
 #include "library_entrypoint.hpp"
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint(uint32_t x, uint32_t y, uint32_t layer)
+Components::IComponent *buildDefault()
+{
+    return new Components::Position();
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *buildWithParams(uint32_t x, uint32_t y, uint32_t layer)
 {
     return new Components::Position(x, y, layer);
 }
@@ -21,4 +27,4 @@ Components::IComponent *entryConfig(libconfig::Setting &config)
 }
 
 LIBRARY_ENTRYPOINT
-char const *componentName = "Position";
+char const *const componentName = "Position";

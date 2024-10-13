@@ -26,7 +26,7 @@
 
 namespace Components {
     /**
-     * @brief Controllable component class for ECS.
+     * @brief Controllable component class in Components.
      * 
      * This class is a component that can be added to an entity to make it controllable by user inputs.
      * It holds a list of key bindings for movement and up to 10 different actions.
@@ -42,18 +42,17 @@ namespace Components {
      *    ...
      * }
      */
-    class Controllable : public AComponent {
+    class Controllable : public AComponent<Controllable> {
     public:
+
         /**
-         * @brief Default constructor for the Controllable component.
+         * @brief Constructor with key bindings.
          * 
-         * Initializes all inputs (forward, backward, left, right, and actions) to false.
+         * @param keyBindings A map of key bindings for movement and actions.
+         * 
+         * Initializes the Controllable component with the provided key bindings.
          */
-        Controllable() :
-            AComponent("Controllable"),
-            inputs{false},
-            actions{false},
-            keyBindings({
+        Controllable(std::unordered_map<enum Action, enum Key> keyBindings = {
                 {Action::FORWARD, Key::Z},
                 {Action::BACKWARD, Key::S},
                 {Action::LEFT, Key::Q},
@@ -68,16 +67,7 @@ namespace Components {
                 {Action::ACTION8, Key::NUM_4},
                 {Action::ACTION9, Key::NUM_5},
                 {Action::ACTION10, Key::NUM_6}
-            }) {};
-
-        /**
-         * @brief Constructor with key bindings.
-         * 
-         * @param keyBindings A map of key bindings for movement and actions.
-         * 
-         * Initializes the Controllable component with the provided key bindings.
-         */
-        Controllable(std::unordered_map<enum Action, enum Key> keyBindings) :
+            }) :
             AComponent("Controllable"),
             inputs{false},
             actions{false},

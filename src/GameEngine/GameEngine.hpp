@@ -11,15 +11,22 @@
     #include "ECS/registry/Registry.hpp"
     #include "DLLoader/DLLoader.hpp"
     #include "plugins/components/IComponent.hpp"
+    #include <memory>
+    #include <string>
     #include <unordered_map>
     #include <typeindex>
     #include <iostream>
 
+/**
+ * @namespace Engine
+ * 
+ * @brief Namespace for the game Engine
+ */
 namespace Engine {
     /**
      * @class GameEngine
      * 
-     * @brief Class that manages the game engine and stores the loaders of all plugins.
+     * @brief Engine class that stores the loaders of all plugins.
      */
     class GameEngine {
         public:
@@ -52,10 +59,15 @@ namespace Engine {
                 std::string componentID = loader.getSymbolValue<const char *>("componentName");
 
                 std::cout << "Component ID: " << componentID << " registered!" << std::endl;
-                __components.emplace(componentID, std::make_unique<Component>());
+
+                auto compCtor = loader.getFunctionPointer<Component *>("buildDefault");
+
+                __components.emplace(typeIndex, std::unique_ptr<Component>(compCtor()));
+                __idStringToType.emplace(std::move(componentID), typeIndex);
+
                 return __registry
                     .componentManager()
-                    .registerComponent<Component>(loader.getFunctionPointer<Component *>("entryPoint"));
+                    .registerComponent<Component>(compCtor);
             }
 
             /**
@@ -112,7 +124,7 @@ namespace Engine {
                     throw std::runtime_error("Component type not registered");
 
                 DLLoader &loader = __componentLoaders.at(typeIndex);
-                auto componentInstance = loader.getUniqueInstance<Component>("entryPoint", std::forward<Args>(args)...);
+                auto componentInstance = loader.getUniqueInstance<Component>("buildWithParams", std::forward<Args>(args)...);
 
                 if (!componentInstance)
                     throw std::runtime_error("Failed to load component from shared object");
@@ -122,9 +134,18 @@ namespace Engine {
 
             std::unique_ptr<Components::IComponent> &getComponentFromId(const std::string &componentId)
             {
-                if (!__components.contains(componentId))
+                if (!__idStringToType.contains(componentId))
                     throw std::runtime_error("Component not found");
-                return __components.at(componentId);
+
+                return __components.at(__idStringToType.at(componentId));
+            }
+
+            std::unique_ptr<Components::IComponent> &getComponentFromId(const std::type_index &typeIndex)
+            {
+                if (!__components.contains(typeIndex))
+                    throw std::runtime_error("Component not found");
+
+                return __components.at(typeIndex);
             }
 
             /**
@@ -156,7 +177,8 @@ namespace Engine {
 
             std::unordered_map<std::type_index, DLLoader> __componentLoaders;
             std::vector<DLLoader> __systemLoaders;
-            std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> __components;
+            std::unordered_map<std::type_index, std::unique_ptr<Components::IComponent>> __components;
+            std::unordered_map<std::string, std::type_index> __idStringToType;
             ECS::Registry __registry;
             std::function<void(size_t, std::string, std::vector<uint8_t>)> __updateComponent;
 

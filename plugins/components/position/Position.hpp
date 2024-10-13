@@ -23,13 +23,13 @@
 
 namespace Components {
     /**
-     * @brief Position component class for ECS.
+     * @brief Position component class in Components.
      * 
      * This class represents the position of an entity, storing the x and y coordinates,
      * as well as a layer to manage the entity's depth in the rendering order. It also provides
      * methods to serialize and deserialize the position data.
      */
-    class Position : public AComponent {
+    class Position : public AComponent<Position> {
     public:
         /**
          * @brief Default constructor for the Position component.
@@ -39,9 +39,9 @@ namespace Components {
         Position() : AComponent("Position"), x(0), y(0), layer(0) {};
         Position(libconfig::Setting &config) : AComponent("Position")
         {
-            config.lookupValue("x", x);
-            config.lookupValue("y", y);
-            config.lookupValue("layer", layer);
+            if (!config.lookupValue("x", x)) x = 0;
+            if (!config.lookupValue("y", y)) y = 0;
+            if (!config.lookupValue("layer", layer)) layer = 1;
         }
 
         /**
@@ -126,13 +126,21 @@ namespace Components {
          * @note The configuration setting should contain the keys 'x', 'y', and 'layer'.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            int xVal = 0, yVal = 0, layerVal = 0;
+            int xVal = 0, yVal = 0, layerVal = 1;
 
-            if (
-                !config.lookupValue("x", xVal) ||
-                !config.lookupValue("y", yVal) ||
-                !config.lookupValue("layer", layerVal)) {
-                throw std::invalid_argument("Failed to retrieve values for 'x', 'y', or 'layer'");
+            if (!config.lookupValue("x", xVal)) {
+                std::cerr << "Warning: 'x' not found in config. Using default value: 0\n";
+                xVal = 0;
+            }
+
+            if (!config.lookupValue("y", yVal)) {
+                std::cerr << "Warning: 'y' not found in config. Using default value: 0\n";
+                yVal = 0;
+            }
+
+            if (!config.lookupValue("layer", layerVal)) {
+                std::cerr << "Warning: 'layer' not found in config. Using default value: 1\n";
+                layerVal = 1;
             }
 
             std::cout << "x: " << xVal << " y: " << yVal << " layer: " << layerVal << std::endl;

@@ -20,6 +20,14 @@
     #include <iostream>
     #include <libconfig.h++>
 
+/**
+ * @class DLLoader
+ * 
+ * @brief A class to load dynamic libraries and retrieve symbols from them.
+ * 
+ * This class provides a simple interface to load dynamic libraries and retrieve symbols from them.
+ * It can be used to load plugins at runtime and create instances of classes from them.
+ */
 class DLLoader {
     public:
 
@@ -76,7 +84,7 @@ class DLLoader {
         * @tparam T The type of the object to create.
         * @tparam Args The types of the arguments to pass to the function.
         *
-        * @param entryPointName The name of the function to retrieve from the library (default: "entryPoint").
+        * @param entryPointName The name of the function to retrieve from the library (default: "buildDefault").
         * @param args The arguments to pass to the function.
         *
         * @return A pointer to a new instance of type T.
@@ -84,7 +92,7 @@ class DLLoader {
         * @throw DLLExceptions If the function pointer cannot be retrieved.
         */
         template<typename T, typename... Args>
-        std::unique_ptr<T> getUniqueInstance(const std::string &entryPointName = "entryPoint", Args&&... args) {
+        std::unique_ptr<T> getUniqueInstance(const std::string &entryPointName = "buildDefault", Args&&... args) {
             return std::unique_ptr<T>(callFunction<T *, Args...>(entryPointName, args...));
         };
 
