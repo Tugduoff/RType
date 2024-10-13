@@ -9,9 +9,15 @@
 #include "library_entrypoint.hpp"
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint(uint32_t x, uint32_t y)
+Components::IComponent *buildDefault()
 {
-    return new Components::Velocity(x, y);
+    return new Components::Velocity();
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *buildWithParams(int32_t x, int32_t y, uint8_t factor)
+{
+    return new Components::Velocity(x, y, factor);
 }
 
 LIBRARY_ENTRYPOINT
@@ -21,4 +27,4 @@ Components::IComponent *entryConfig(libconfig::Setting &config)
 }
 
 LIBRARY_ENTRYPOINT
-char const *componentName = "Velocity";
+char const *const componentName = "Velocity";
