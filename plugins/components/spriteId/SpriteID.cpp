@@ -9,9 +9,15 @@
 #include "library_entrypoint.hpp"
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint(unsigned int id)
+Components::IComponent *buildWithParams(uint32_t id)
 {
     return new Components::SpriteIDComponent((Components::SpriteID)id);
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *buildDefault()
+{
+    return new Components::SpriteIDComponent();
 }
 
 LIBRARY_ENTRYPOINT
@@ -21,4 +27,4 @@ Components::IComponent *entryConfig(libconfig::Setting &config)
 }
 
 LIBRARY_ENTRYPOINT
-char const *componentName = "SpriteID";
+char const *const componentName = "SpriteID";

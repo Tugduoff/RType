@@ -34,10 +34,10 @@ namespace Components {
         {SpriteID::Unknown, "Unknown"}
     };
 
-    class SpriteIDComponent : public Components::AComponent {
+    class SpriteIDComponent : public AComponent<SpriteIDComponent> {
     public:
         SpriteIDComponent(SpriteID id = SpriteID::Unknown)
-        :   Components::AComponent("SpriteID"),
+        :   AComponent("SpriteID"),
             id(id)
         {
         }
@@ -83,10 +83,19 @@ namespace Components {
             Engine::GameEngine &engine,
             libconfig::Setting &config
         ) override {
+            int id = 0;
+
+            if (!config.lookupValue("id", id)) {
+                std::cerr << "Warning: 'id' not found in config. Using default value: 0\n";
+                id = 0;
+            }
+
+            std::unique_ptr<Components::SpriteIDComponent> spriteId = engine.newComponent<Components::SpriteIDComponent>(static_cast<uint32_t>(id));
             engine
                 .getRegistry()
                 .componentManager()
-                .addComponent(to, std::make_unique<SpriteIDComponent>(config));
+                .addComponent<Components::SpriteIDComponent>(to, std::move(spriteId));
+            std::cerr << std::endl;
         }
 
         SpriteID id;
