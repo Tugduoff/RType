@@ -4,8 +4,8 @@ add_executable(server
 
     ../ECS/system/SystemManager.cpp
     ../GameEngine/GameEngine.cpp
-    ../../Actions.cpp
-    ../../Keys.cpp
+    ../../plugins/components/controllable/Actions.cpp
+    ../../plugins/components/controllable/Keys.cpp
 )
 
 # Set the output name for the server binary
