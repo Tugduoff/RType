@@ -61,35 +61,6 @@ void UDPServer::send_components_infos() {
     send_total_components();
     send_size_max();
     send_components();
-
-    /* v TESTS THAT MUST NOT BE MERGED v */
-
-    Engine::GameEngine gameEngine;
-    ECS::Registry& reg = gameEngine.getRegistry();
-    ECS::Entity entity_test = reg.entityManager().spawnEntity();
-    ECS::Entity entity_test2 = reg.entityManager().spawnEntity();
-    create_entity(entity_test);
-    create_entity(entity_test2);
-    create_entity(entity_test);
-
-    gameEngine.loadSystems("./plugins/bin/systems/configSystems.cfg");
-
-    std::unique_ptr<Components::Position> position = gameEngine.newComponent<Components::Position>(10, 20, 1);
-    std::unique_ptr<Components::Velocity> velocity = gameEngine.newComponent<Components::Velocity>(2, 1);
-
-    reg.componentManager().addComponent<Components::Position>(entity_test, std::move(position));
-    reg.componentManager().addComponent<Components::Velocity>(entity_test2, std::move(velocity));
-
-    for (const auto& component : gameEngine.getComponents())
-        attach_component(entity_test2, *(component.second));
-
-    for (const auto& component : gameEngine.getComponents())
-        update_component(entity_test2, *(component.second));
-    
-    for (const auto& component : gameEngine.getComponents())
-        detach_component(entity_test2, *(component.second));
-
-    /* ^ TESTS THAT MUST NOT BE MERGED ^ */
 }
 
 std::size_t UDPServer::get_size_max() {
