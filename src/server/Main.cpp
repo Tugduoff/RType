@@ -17,6 +17,7 @@
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
+#include "network/UDPServer.hpp"
 #include "plugins/components/controllable/Controllable.hpp"
 #include "plugins/components/visible/Visible.hpp"
 #include "plugins/components/health/Health.hpp"
