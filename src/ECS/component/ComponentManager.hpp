@@ -11,11 +11,13 @@
     #include "ECS/entity/Entity.hpp"
     #include "ECS/utilities/SparseArray.hpp"
     #include <functional>
+    #include <stdexcept>
     #include <unordered_map>
     #include <typeindex>
     #include <any>
     #include <utility>
     #include <memory>
+    #include <vector>
 
 namespace ECS {
     /**
@@ -25,6 +27,9 @@ namespace ECS {
      */
     class ComponentManager {
         public:
+
+            using CreateCallback = SparseArray<void>::CreateCallback;
+            using RemoveCallback = SparseArray<void>::RemoveCallback;
 
             /**
              * @brief Register a component
@@ -45,6 +50,16 @@ namespace ECS {
                     return (false);
 
                 __components.emplace(typeIndex, std::make_any<SparseArray<Component>>(ctor));
+                auto &sparseArr = std::any_cast<SparseArray<Component> &>(__components.at(typeIndex));
+
+                auto dtor = [&sparseArr](const Entity &entity) {
+                    sparseArr.erase(entity);
+                };
+                __compDestructors.emplace(typeIndex, std::move(dtor));
+
+                __registerAllCreate(sparseArr);
+                __registerAllRemove(sparseArr);
+
                 return (true);
             }
 
@@ -134,9 +149,96 @@ namespace ECS {
                 sparseArray.erase(from);
             }
 
+
+            /**
+             * @brief Remove a component from an entity
+             * 
+             * @param type : the component type index
+             * @param from : the entity to remove the component from
+             * 
+             * @note This function will remove a component from an entity.
+             */
+            void removeComponent(std::type_index type, Entity const &from)
+            {
+                if (!__compDestructors.contains(type)) {
+                    throw std::runtime_error("Component type not registered in component manager");
+                }
+
+                __compDestructors.at(type)(from);
+            }
+
+
+            /**
+             * @brief Remove all components from an entity
+             * 
+             * @param from : the entity to remove all components from
+             * 
+             * @note This function will remove all components from an entity.
+             */
+            void removeAllFromEntity(Entity const &from)
+            {
+                for (auto const &[_, dtor] : __compDestructors) {
+                    dtor(from);
+                }
+            }
+
+            /**
+             * @brief Register a create callback that will be registered
+             * @brief in all subsequently created SparseArrays
+             *
+             * @param callback A function that will be called when a new
+             * @param callback component instance is created
+             *
+             * @note The callback will only take effect on component types
+             * @note which will be loaded after this function call
+             */
+            void registerGlobalCreateCallback(CreateCallback callback)
+            {
+                __globalCreateCallbacks.push_back(std::move(callback));
+            }
+
+            /**
+             * @brief Register a remove callback that will be registered
+             * @brief in all subsequently created SparseArrays
+             *
+             * @param callback A function that will be called when a new
+             * @param callback component instance is removed
+             *
+             * @note The callback will only take effect on component types
+             * @note which will be loaded after this function call
+             */
+            void registerGlobalRemoveCallback(RemoveCallback callback)
+            {
+                __globalRemoveCallbacks.push_back(std::move(callback));
+            }
+
         private:
 
+            template<typename Component>
+            void __registerAllCreate(SparseArray<Component> &sparseArr)
+            {
+                for (auto const &callback : __globalCreateCallbacks) {
+                    sparseArr.registerCreateCallback(callback);
+                }
+            }
+
+            template<typename Component>
+            void __registerAllRemove(SparseArray<Component> &sparseArr)
+            {
+                for (auto const &callback : __globalRemoveCallbacks) {
+                    sparseArr.registerRemoveCallback(callback);
+                }
+            }
+
             std::unordered_map<std::type_index, std::any> __components;
+
+            std::unordered_map<
+                std::type_index,
+                std::function<void(const Entity &e)>
+            > __compDestructors;
+
+            std::vector<CreateCallback> __globalCreateCallbacks;
+            std::vector<RemoveCallback> __globalRemoveCallbacks;
 
     };
 };
