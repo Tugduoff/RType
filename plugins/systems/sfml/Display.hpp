@@ -13,6 +13,13 @@
     #include "GameEngine/GameEngine.hpp"
 
 namespace Systems {
+    /**
+     * @class Display
+     * 
+     * @brief System class from Systems that displays entities.
+     * 
+     * This system is responsible for displaying entities on the screen.
+     */
     class Display {
         public:
 
