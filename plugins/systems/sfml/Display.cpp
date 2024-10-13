@@ -27,7 +27,8 @@ void Systems::Display::init(Engine::GameEngine &engine, sf::RenderWindow &window
         std::cerr << "Error: Could not register Position component in system Display" << std::endl;
     if (!engine.registerComponent<Components::SpriteIDComponent>("./plugins/bin/components/", "SpriteID"))
         std::cerr << "Error: Could not register SpriteID component in system Display" << std::endl;
-    if (!manager.registerComponent<Components::SpriteComponent>())
+    auto ctor = []() -> Components::SpriteComponent * { return new Components::SpriteComponent(); };
+    if (!manager.registerComponent<Components::SpriteComponent>(ctor))
         std::cerr << "Error: Could not register SpriteComponent component in system Display" << std::endl;
 
     sf::Texture playerTexture;
@@ -57,16 +58,24 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         size_t i = 0;
         for (i = 0;
             i < posComponents.size() &&
-            i < spriteComponents.size() &&
             i < spriteIdComponents.size();
             i++)
         {
             auto &pos = posComponents[i];
-            auto &sprite = spriteComponents[i];
             auto &spriteId = spriteIdComponents[i];
+            try {
+                auto &sprite = spriteComponents[i];
+                (void)sprite;
+            } catch (std::exception &) {
+                std::cerr << "Error: Sprite component not found for this entity, creating it..." << std::endl;
+                std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
+                reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
+            }
+            auto &sprite = spriteComponents[i];
 
-            if (!pos || !sprite || !spriteId)
+            if (!pos || !spriteId || !sprite)
                 continue;
+        
             sprite->sprite.setPosition(pos->x, pos->y);
             if (sprite->textureLoaded) {
                 window.draw(sprite->sprite);
