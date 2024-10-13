@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2024
 ** RType
 ** File description:
-** UDPConnection
+** UDPConnection.hpp
 */
 
 #ifndef UDP_CONNECTION_HPP_

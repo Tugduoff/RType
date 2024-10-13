@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2024
 ** RType
 ** File description:
-** UDPConnection
+** UDPConnection.cpp
 */
 
 #include "UDPConnection.hpp"

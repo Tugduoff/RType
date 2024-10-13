@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2024
 ** RType
 ** File description:
-** RTypeClient
+** RTypeClient.cpp
 */
 
 #include <stdlib.h>
