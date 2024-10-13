@@ -23,6 +23,7 @@
     #include <stdexcept>
     #include <libconfig.h++>
     #include <array>
+    #include <map>
 
 namespace Components {
     /**
@@ -52,7 +53,7 @@ namespace Components {
          * 
          * Initializes the Controllable component with the provided key bindings.
          */
-        Controllable(std::unordered_map<enum Action, enum Key> keyBindings = {
+        Controllable(std::map<enum Action, enum Key> keyBindings = {
                 {Action::FORWARD, Key::Z},
                 {Action::BACKWARD, Key::S},
                 {Action::LEFT, Key::Q},
@@ -176,7 +177,7 @@ namespace Components {
             if (args.size() != 1)
                 throw std::runtime_error("Invalid number of arguments for Controllable component");
 
-            std::unordered_map<enum Action, enum Key> newKeyBindings = std::any_cast<std::unordered_map<enum Action, enum Key>>(args[0]);
+            std::map<enum Action, enum Key> newKeyBindings = std::any_cast<std::map<enum Action, enum Key>>(args[0]);
             std::unique_ptr<Components::Controllable> ctrl = engine.newComponent<Components::Controllable>(newKeyBindings);
             engine
                 .getRegistry()
@@ -199,7 +200,7 @@ namespace Components {
             if (!config.lookupValue("LEFT", left)) left = "Q";
             if (!config.lookupValue("RIGHT", right)) right = "D";
 
-            std::unordered_map<enum Action, enum Key> newKeyBindings = {
+            std::map<enum Action, enum Key> newKeyBindings = {
                 {Action::FORWARD, Key::Z},
                 {Action::BACKWARD, Key::S},
                 {Action::LEFT, Key::Q},
@@ -251,7 +252,7 @@ namespace Components {
 
         std::array<bool, 4> inputs;   // { forward, backward, left, right }
         std::array<bool, 10> actions; // Actions from 1 to 10
-        std::unordered_map<enum Action, enum Key> keyBindings; // Key bindings for movement and actions
+        std::map<enum Action, enum Key> keyBindings; // Key bindings for movement and actions
 
     private:
         union {
