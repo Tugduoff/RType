@@ -158,9 +158,3 @@ uint8_t RTypeClient::receiveUint8()
     }
     return data[0];
 }
-
-void RTypeClient::sendEvent(enum EventType event)
-{
-    std::vector<uint8_t> data = {(uint8_t)event};
-    send(data);
-}
