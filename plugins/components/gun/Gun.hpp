@@ -31,7 +31,7 @@
  */
 namespace Components {
 
-    class Gun : public AComponent {
+    class Gun : public AComponent<Gun> {
     public:
         /**
          * @brief Default constructor for the Gun component.
