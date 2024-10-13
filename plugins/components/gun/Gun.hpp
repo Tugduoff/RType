@@ -11,6 +11,7 @@
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
+    #include "Chrono.hpp"
 
     #ifdef _WIN32
         #include <windows.h>
@@ -45,7 +46,7 @@ namespace Components {
          * 
          * Initializes the damage and fire rate to default values.
          */
-        Gun(uint32_t damage = 10, uint32_t fireRate = 500) : AComponent("Gun") {}
+        Gun(uint32_t damage = 10, uint32_t fireRate = 500) : AComponent("Gun"), damage(damage), fireRate(fireRate), chrono() {}
 
         /**
          * @brief Constructor that initializes the Gun component from a configuration.
@@ -57,12 +58,27 @@ namespace Components {
                 damage = 10;
             if (!config.lookupValue("fireRate", fireRate))
                 fireRate = 500;
+            chrono.restart();
         }
 
         /**
          * @brief Default destructor for the Gun component.
          */
         ~Gun() = default;
+
+        bool canShoot() {
+            return chrono.getElapsedTime() >= fireRate;
+        }
+
+        void shoot() {
+            if (canShoot()) {
+                std::cout << "Gun fired! Damage: " << damage << std::endl;
+                chrono.restart();  // Restart the cooldown timer after shooting
+            } else {
+                std::cout << "Gun is on cooldown. Time remaining: "
+                          << (fireRate - chrono.getElapsedTime()) << " ms" << std::endl;
+            }
+        }
 
         /**
          * @brief Serializes the gun's data into a byte vector.
@@ -133,6 +149,7 @@ namespace Components {
 
         uint32_t damage;
         uint32_t fireRate;
+        Chrono chrono;
 
     private:
         union {

@@ -11,9 +11,33 @@
 #include "components/acceleration/Acceleration.hpp"
 #include "components/velocity/Velocity.hpp"
 #include "components/controllable/Controllable.hpp"
+#include "components/gun/Gun.hpp"
+#include "components/position/Position.hpp"
+#include "components/collider/Collider.hpp"
 #include "library_entrypoint.hpp"
 #include <iostream>
 #include <stdexcept>
+
+void shootAction(Engine::GameEngine &engine, size_t entityIndex) {
+    auto &reg = engine.getRegistry();
+    auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
+    auto &gun = gunComponents[entityIndex];
+
+    if (gun) {
+        if (gun->canShoot()) {
+            std::cout << "Entity " << entityIndex << " fired a shot!" << std::endl;
+            gun->shoot();
+            engine.updateComponent(entityIndex, gun->getId(), gun->serialize());
+        } else {
+            std::cout << "Gun is on cooldown." << std::endl;
+        }
+    }
+}
+
+std::unordered_map<int, std::function<void(Engine::GameEngine&, size_t)>> actionTable = {
+    {1, shootAction},
+    // Add more actions here
+};
 
 Systems::InputSystem::InputSystem(libconfig::Setting &)
 {
@@ -59,6 +83,11 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
             for (int j = 0; j < 10; j++) {
                 if (controllable->actions[j]) {
                     std::cout << "Action " << j + 1 << " triggered" << std::endl;
+                    if (actionTable.find(j + 1) != actionTable.end()) {
+                        actionTable[j + 1](engine, i);
+                    } else {
+                        std::cout << "No action mapped for Action " << j + 1 << std::endl;
+                    }
                 }
             }
         }
@@ -75,6 +104,9 @@ void Systems::InputSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Controllable component in system Input" << std::endl;
     if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity"))
         std::cerr << "Error: Could not register Velocity component in system Input" << std::endl;
+    if (!engine.registerComponent<Components::Gun>("./plugins/bin/components/", "Gun"))
+        std::cerr << "Error: Could not register Gun component in system Input" << std::endl;
+
 }
 
 LIBRARY_ENTRYPOINT
