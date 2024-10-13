@@ -27,15 +27,15 @@
 /**
  * @brief Gun component class for ECS.
  * 
- * This class represents a gun component for an entity, storing damage and fire rate
+ * This class represents a gun component for an entity, storing bulletDamage and fire rate
  * values. It also provides methods to serialize and deserialize the gun data.
  */
 namespace Components {
 
     /**
-     * @brief A component representing a gun with damage and fire rate attributes.
+     * @brief A component representing a gun with bulletDamage and fire rate attributes.
      * 
-     * This class stores the gun's damage and fire rate, allowing it to be 
+     * This class stores the gun's bulletDamage and fire rate, allowing it to be 
      * serialized and deserialized for network transmission. It also provides 
      * methods for initializing the component from configuration settings.
      */
@@ -44,9 +44,9 @@ namespace Components {
         /**
          * @brief Default constructor for the Gun component.
          * 
-         * Initializes the damage and fire rate to default values.
+         * Initializes the bulletDamage, fire rate and bulletVelocity to default values.
          */
-        Gun(uint32_t damage = 10, uint32_t fireRate = 500) : AComponent("Gun"), damage(damage), fireRate(fireRate), chrono() {}
+        Gun(uint32_t bulletDamage = 10, uint32_t fireRate = 500, uint32_t bulletVelocity = 8) : AComponent("Gun"), bulletDamage(bulletDamage), fireRate(fireRate), bulletVelocity(bulletVelocity), chrono() {}
 
         /**
          * @brief Constructor that initializes the Gun component from a configuration.
@@ -54,10 +54,12 @@ namespace Components {
          * @param config The configuration setting to extract the component data from.
          */
         Gun(libconfig::Setting &config) : AComponent("Gun") {
-            if (!config.lookupValue("damage", damage))
-                damage = 10;
+            if (!config.lookupValue("bulletDamage", bulletDamage))
+                bulletDamage = 10;
             if (!config.lookupValue("fireRate", fireRate))
                 fireRate = 500;
+            if (!config.lookupValue("bulletVelocity", bulletVelocity))
+                bulletVelocity = 8;
             chrono.restart();
         }
 
@@ -72,8 +74,9 @@ namespace Components {
          * @return A vector of bytes representing the serialized gun data.
          */
         std::vector<uint8_t> serialize() override {
-            __network.damage = htonl(*reinterpret_cast<uint32_t*>(&damage));
+            __network.bulletDamage = htonl(*reinterpret_cast<uint32_t*>(&bulletDamage));
             __network.fireRate = htonl(*reinterpret_cast<uint32_t*>(&fireRate));
+            __network.bulletVelocity = htonl(*reinterpret_cast<uint32_t*>(&bulletVelocity));
             return std::vector<uint8_t>(__data, __data + sizeof(__data));
         }
 
@@ -86,8 +89,9 @@ namespace Components {
         void deserialize(std::vector<uint8_t> &data) override {
             if (data.size() != sizeof(__data))
                 throw std::runtime_error("Invalid data size for Gun component");
-            damage = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
+            bulletDamage = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
             fireRate = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
+            bulletVelocity = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 8));
         }
 
         /**
@@ -109,9 +113,10 @@ namespace Components {
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
             if (args.size() != 2)
                 throw std::runtime_error("Invalid number of arguments for Gun component");
-            uint32_t damage = std::any_cast<uint32_t>(args[0]);
+            uint32_t bulletDamage = std::any_cast<uint32_t>(args[0]);
             uint32_t fireRate = std::any_cast<uint32_t>(args[1]);
-            engine.getRegistry().componentManager().addComponent<Components::Gun>(to, engine.newComponent<Components::Gun>(damage, fireRate));
+            uint32_t bulletVelocity = std::any_cast<uint32_t>(args[2]);
+            engine.getRegistry().componentManager().addComponent<Components::Gun>(to, engine.newComponent<Components::Gun>(bulletDamage, fireRate, bulletVelocity));
         }
 
         /**
@@ -122,28 +127,33 @@ namespace Components {
          * @param config The configuration setting to extract the component data from.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            int damage;
+            int bulletDamage;
             int fireRate;
+            int bulletVelocity;
 
-            if (!config.lookupValue("damage", damage))
-                damage = 10;
+            if (!config.lookupValue("bulletDamage", bulletDamage))
+                bulletDamage = 10;
             if (!config.lookupValue("fireRate", fireRate))
                 fireRate = 500;
-            std::unique_ptr<Components::Gun> gun = engine.newComponent<Components::Gun>(static_cast<uint32_t>(damage), static_cast<uint32_t>(fireRate));
+            if (!config.lookupValue("bulletVelocity", bulletVelocity))
+                bulletVelocity = 8;
+            std::unique_ptr<Components::Gun> gun = engine.newComponent<Components::Gun>(static_cast<uint32_t>(bulletDamage), static_cast<uint32_t>(fireRate), static_cast<uint32_t>(bulletVelocity));
             engine.getRegistry().componentManager().addComponent<Components::Gun>(to, std::move(gun));
         }
 
-        uint32_t damage;
+        uint32_t bulletDamage;
         uint32_t fireRate;
+        uint32_t bulletVelocity;
         Chrono chrono;
 
     private:
         union {
             struct {
-                uint32_t damage;
+                uint32_t bulletDamage;
                 uint32_t fireRate;
+                uint32_t bulletVelocity;
             } __network;
-            uint8_t __data[8];
+            uint8_t __data[12];
         };
     };
 };

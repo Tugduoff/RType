@@ -36,11 +36,11 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
                 if (position) {
                     int projectilePosX = position->x + 35;
                     int projectilePosY = position->y;
-                    int projectileVelX = 8; // add velocity to gun component 
+                    int projectileVelX = gun->bulletVelocity;
                     int projectileVelY = 0;
                     int projectileColliderWidth = 10;
                     int projectileColliderHeight = 10;
-                    int projectileDamage = gun->damage;
+                    int projectileDamage = gun->bulletDamage;
                     enum Components::SpriteID spriteId = Components::SpriteID::ProjectileRight;
 
                     createProjectile(engine, projectilePosX, projectilePosY, 
