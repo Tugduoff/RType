@@ -13,9 +13,16 @@
     #include "systems/ASystem.hpp"
     #include "Display.hpp"
     #include "Input.hpp"
-    #include "Chrono.hpp"
 
 namespace Systems {
+    /**
+     * @class Sfml
+     * 
+     * @brief System class from Systems that handles the SFML window and input.
+     * 
+     * This system is responsible for creating the SFML window and handling input events.
+     * Thus, it is responsible for running the Display and Input systems.
+     */
     class Sfml : public ASystem {
         public:
 
@@ -32,7 +39,7 @@ namespace Systems {
         private:
 
             sf::RenderWindow __window;
-            Chrono __chrono;
+
     };
 };
 
