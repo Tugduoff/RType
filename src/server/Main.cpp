@@ -5,11 +5,18 @@
 ** Main.cpp file
 */
 
+
+#include <exception>
+#include <iostream>
+#include <typeindex>
+#include <vector>
+#include "network/UDPServer.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
 #include "ECS/utilities/SparseArray.hpp"
 #include "Chrono.hpp"
 
+#include "network/UDPServer.hpp"
 #include "plugins/components/IComponent.hpp"
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
@@ -19,11 +26,6 @@
 #include "plugins/components/health/Health.hpp"
 #include "plugins/components/collider/Collider.hpp"
 #include "plugins/components/acceleration/Acceleration.hpp"
-
-#include <exception>
-#include <iostream>
-#include <typeindex>
-#include <vector>
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -93,6 +95,11 @@ int main() {
         engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
 
         engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
+
+        // we'll probably have to move it elsewhere
+        boost::asio::io_context io_context;
+        UDPServer server(io_context, 8080, engine.getIdStringToType());
+        io_context.run();
 
         displayPolymorphic(engine, types.begin(), types.end());
 
