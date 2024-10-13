@@ -12,6 +12,7 @@
     #include "plugins/systems/ASystem.hpp"
     #include <string>
     #include <libconfig.h++>
+    #include "Chrono.hpp"
 
 namespace Engine {
     class GameEngine;
@@ -46,6 +47,7 @@ namespace Systems {
             ConfigStruct config;
             libconfig::Config cfg;
             std::string __configFilePath;
+            Chrono __chrono;
     };
 };
 
