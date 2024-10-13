@@ -26,35 +26,35 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
 // --- Loop --- //
 
 void UDPServer::start_receive() {
-    socket_.async_receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t bytes_recvd) {
-            if (!ec && bytes_recvd > 0) {
-                std::string message(recv_buffer_.data(), bytes_recvd);
-                std::cout << "Received message from client (" << remote_endpoint_.address().to_string() 
-                            << ":" << remote_endpoint_.port() << "): " << message << std::endl;
+    std::cout << "--- listening ---" << std::endl;
+    boost::system::error_code ec;
+    std::size_t bytes_recvd = socket_.receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 0, ec);
 
-                if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
-                    if (message == "start") {
-                        client_endpoints.push_back(remote_endpoint_);
-                        std::cout << "New client added: " << remote_endpoint_.address().to_string() 
-                                    << ":" << remote_endpoint_.port() << std::endl;
-                        client_responses[remote_endpoint_] = true;
-                        is_disconnected[remote_endpoint_] = false;
-                        checking_client(remote_endpoint_);
-                    }
-                } else {
-                    client_responses[remote_endpoint_] = true;
-                }
+    if (!ec && bytes_recvd > 0) {
+        std::string message(recv_buffer_.data(), bytes_recvd);
+        std::cout << "Received message from client (" << remote_endpoint_.address().to_string() 
+                    << ":" << remote_endpoint_.port() << "): " << message << std::endl;
 
-                if (message == "pong") {
-                    std::cout << "Received pong from client: " << remote_endpoint_.address().to_string() 
-                                << ":" << remote_endpoint_.port() << std::endl;
-                    client_responses[remote_endpoint_] = true;
-                }
-                send_components_infos();
+        if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
+            if (message == "start") {
+                client_endpoints.push_back(remote_endpoint_);
+                std::cout << "New client added: " << remote_endpoint_.address().to_string() 
+                            << ":" << remote_endpoint_.port() << std::endl;
+                client_responses[remote_endpoint_] = true;
+                is_disconnected[remote_endpoint_] = false;
+                checking_client(remote_endpoint_);
             }
-            start_receive();
-        });
+        } else {
+            client_responses[remote_endpoint_] = true;
+        }
+
+        if (message == "pong") {
+            std::cout << "Received pong from client: " << remote_endpoint_.address().to_string() 
+                        << ":" << remote_endpoint_.port() << std::endl;
+            client_responses[remote_endpoint_] = true;
+        }
+        send_components_infos();
+    }
 }
 
 // --- Helpers --- //
