@@ -16,10 +16,9 @@ using boost::asio::ip::udp;
 // --- PUBLIC --- //
 
 UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
-                     std::unordered_map<std::string,  std::unique_ptr<Components::IComponent>> &components)
+                     std::unordered_map<std::string, std::type_index> &idStringToType)
     : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context) {
-    for (auto& component : components)
-        __component_names.push_back(component.first);
+    __idStringToType = idStringToType;
 
     size_max = get_size_max();
     std::cout << "--- Server started on port " << port << ", package size_max = " << size_max << std::endl;
@@ -60,7 +59,7 @@ void UDPServer::start_receive() {
 
 void UDPServer::send_components_infos() {
     // Total components
-    uint16_t total_components = static_cast<uint16_t>(__component_names.size());
+    uint16_t total_components = static_cast<uint16_t>(__idStringToType.size());
     total_components = htons(total_components);
 
     socket_.async_send_to(
@@ -73,8 +72,8 @@ void UDPServer::send_components_infos() {
 
     // Size max
     std::size_t max_name_length = 0;
-    for (const auto& component_name : __component_names) {
-        max_name_length = std::max(max_name_length, component_name.size());
+    for (const auto& component_name : __idStringToType) {
+        max_name_length = std::max(max_name_length, component_name.first.size());
     }
     uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
 
@@ -88,18 +87,18 @@ void UDPServer::send_components_infos() {
 
     // Components
     int i = 0;
-    for (const auto& component_name : __component_names) {
+    for (const auto& component_name : __idStringToType) {
         uint8_t index = static_cast<uint8_t>(i);
 
-        std::vector<uint8_t> buffer(1 + component_name.size());
+        std::vector<uint8_t> buffer(1 + component_name.first.size());
         buffer[0] = index;
-        std::memcpy(buffer.data() + 1, component_name.data(), component_name.size());
+        std::memcpy(buffer.data() + 1, component_name.first.data(), component_name.first.size());
 
         socket_.async_send_to(
             boost::asio::buffer(buffer), remote_endpoint_,
             [this, index, component_name](boost::system::error_code ec, std::size_t) {
                 if (!ec)
-                    std::cout << "Sent index: " << static_cast<int>(index) << ", component name: " << component_name << std::endl;
+                    std::cout << "Sent index: " << static_cast<int>(index) << ", component name: " << component_name.first << std::endl;
             }
         );
         i++;
@@ -129,12 +128,12 @@ void UDPServer::send_components_infos() {
 }
 
 std::size_t UDPServer::get_size_max() {
-    auto max_name_length = std::max_element(__component_names.begin(), __component_names.end(),
+    auto max_name_length = std::max_element(__idStringToType.begin(), __idStringToType.end(),
         [](const auto& a, const auto& b) {
-            return a.size() < b.size();
+            return a.first.size() < b.first.size();
         });
 
-    return max_name_length != __component_names.end() ? max_name_length->size() : 0;
+    return max_name_length != __idStringToType.end() ? max_name_length->first.size() : 0;
 }
 
 void UDPServer::checking_client(const udp::endpoint& client) {
@@ -249,13 +248,16 @@ void UDPServer::attach_component(ECS::Entity &entity, Components::IComponent &co
 
     const std::string component_name = component.getId();
 
-    auto it = std::find(__component_names.begin(), __component_names.end(), component_name);
-    if (it == __component_names.end()) {
+    auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
+    [&component_name](const auto& pair) {
+        return pair.first == component_name;
+    });
+    if (it == __idStringToType.end()) {
         std::cerr << "Error 0x2: Component '" << component_name << "' not found." << std::endl;
         return;
     }
 
-    uint8_t index = static_cast<uint8_t>(std::distance(__component_names.begin(), it));
+    uint8_t index = static_cast<uint8_t>(std::distance(__idStringToType.begin(), it));
     uint16_t component_id = index;
     component_id = htons(component_id);
 
@@ -283,13 +285,16 @@ void UDPServer::update_component(ECS::Entity &entity, Components::IComponent &co
 
     const std::string component_name = component.getId();
 
-    auto it = std::find(__component_names.begin(), __component_names.end(), component_name);
-    if (it == __component_names.end()) {
-        std::cerr << "Error 0x2: Component '" << component_name << "' not found." << std::endl;
+    auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
+    [&component_name](const auto& pair) {
+        return pair.first == component_name;
+    });
+    if (it == __idStringToType.end()) {
+        std::cerr << "Error 0x3: Component '" << component_name << "' not found." << std::endl;
         return;
     }
 
-    uint8_t index = static_cast<uint8_t>(std::distance(__component_names.begin(), it));
+    uint8_t index = static_cast<uint8_t>(std::distance(__idStringToType.begin(), it));
     uint16_t component_id = index;
     component_id = htons(component_id);
 
@@ -321,13 +326,16 @@ void UDPServer::detach_component(ECS::Entity &entity, Components::IComponent &co
 
     const std::string component_name = component.getId();
 
-    auto it = std::find(__component_names.begin(), __component_names.end(), component_name);
-    if (it == __component_names.end()) {
-        std::cerr << "Error 0x2: Component '" << component_name << "' not found." << std::endl;
+    auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
+    [&component_name](const auto& pair) {
+        return pair.first == component_name;
+    });
+    if (it == __idStringToType.end()) {
+        std::cerr << "Error 0x4: Component '" << component_name << "' not found." << std::endl;
         return;
     }
 
-    uint8_t index = static_cast<uint8_t>(std::distance(__component_names.begin(), it));
+    uint8_t index = static_cast<uint8_t>(std::distance(__idStringToType.begin(), it));
     uint16_t component_id = index;
     component_id = htons(component_id);
 

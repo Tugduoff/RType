@@ -11,6 +11,7 @@
     #include <map>
     #include <chrono>
     #include <memory>
+    #include <typeindex>
     #include "boost/asio.hpp"
     #include "../GameEngine/GameEngine.hpp"
 
@@ -26,7 +27,8 @@ class UDPServer {
         * @param io_context The Boost.Asio context for managing asynchronous operations.
         * @param port The port number on which the server will listen for incoming connections.
         */
-        UDPServer(boost::asio::io_context& io_context, short port, std::unordered_map<std::string, std::unique_ptr<Components::IComponent>> &components);
+        UDPServer(boost::asio::io_context& io_context, short port,
+                 std::unordered_map<std::string, std::type_index> &idStringToType);
 
     private:
         udp::socket socket_;
@@ -34,12 +36,32 @@ class UDPServer {
         boost::asio::io_context& io_context_;
         std::array<char, 1024> recv_buffer_;
         std::size_t size_max;
-        std::vector<std::string> __component_names;
+        std::unordered_map<std::string, std::type_index> __idStringToType;
         std::vector<udp::endpoint> client_endpoints;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;
         std::map<udp::endpoint, bool> client_responses;
         std::map<udp::endpoint, bool> is_disconnected;
+
+        /**
+        * @brief This function returns the string ID corresponding to a type_index
+        * 
+        * @param typeIndex : the type_index of the component
+        * 
+        * @note This function returns a string ID contained in __idStringToType
+        */
+        std::string getStringFromTypeIndex(const std::type_index &typeIndex)
+        {
+            auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
+                [&typeIndex](const auto &pair) {
+                    return pair.second == typeIndex;
+                });
+
+            if (it == __idStringToType.end())
+                throw std::runtime_error("Type index not found");
+
+            return it->first;
+        }
 
         /**
         * @brief Starts receiving data from clients. Asynchronously waits for data from any client.

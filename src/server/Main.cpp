@@ -121,7 +121,7 @@ int main() {
         reg.componentManager().addComponent<Components::Position>(entity, std::move(pos));
 
         boost::asio::io_context io_context;
-        UDPServer server(io_context, 8080, engine.getComponents());
+        UDPServer server(io_context, 8080, engine.getIdStringToType());
         io_context.run();
 
         engine.getRegistry().componentManager().getComponents<Components::Controllable>()[0]->inputs[(int)Action::FORWARD] = true;
