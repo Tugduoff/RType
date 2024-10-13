@@ -1,5 +1,5 @@
 # CONTRIBUTING
-The following section declare how you could contribute to the project
+Here you can find informations on how you could contribute to the project
 
 ## Pull requests
 If you want to contribute to the project, you should do so with a pull request.
@@ -8,6 +8,8 @@ If you want your pull request to be validated, it sould respect the following co
 - The description of the pull request **must** be self-sufficient and **must** explain what is implemented in it. You should also mention issues related to the pull request (if any) in the description (e.g. `close #23`).
 - The code **must** be documented with Doxygen-like comment. Every class, methods and functions must have its documentation to explain what it does.
 - The commits **must** respect the [commit norm](#commit-norm) mentionned below.
+
+If you respected all the conditions listed, one of the main developper of the project will read your pull request and either approve or request changes.
 
 ## Commit norm
 ### Repository changes
@@ -43,3 +45,11 @@ If you want your pull request to be validated, it sould respect the following co
 
 ### Extra
 - 🚀 `:rocket:` : Final commit
+
+## Releases
+
+Here we will explain how to files located in the [release page](https://github.com/Tugduoff/RType/releases) of Github are  produced
+
+#### Windows
+
+#### Linux
