@@ -11,6 +11,14 @@
     #include "ISystem.hpp"
 
 namespace Systems {
+    /**
+     * @class ASystem
+     * 
+     * @brief Abstract class for all our Systems.
+     * 
+     * This class is an abstract class for all ECS systems.
+     * It does not provide any additional methods yet.
+     */
     class ASystem : public ISystem {
         public:
             ASystem() = default;

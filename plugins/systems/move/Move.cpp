@@ -35,6 +35,12 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
             pos->x += vel->x;
             pos->y += vel->y;
             engine.updateComponent(i, pos->getId(), pos->serialize());
+            if (vel->diminishingFactor == 0)
+                continue;
+            float factor = (float)vel->diminishingFactor / 100;
+            vel->x *= factor;
+            vel->y *= factor;
+            engine.updateComponent(i, vel->getId(), vel->serialize());
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
