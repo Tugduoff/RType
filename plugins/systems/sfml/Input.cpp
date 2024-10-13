@@ -5,6 +5,7 @@
 ** Input.cpp file
 */
 
+#define NOMINMAX
 #include "components/position/Position.hpp"
 #include "components/spriteId/SpriteID.hpp"
 #include "SpriteComponent.hpp"

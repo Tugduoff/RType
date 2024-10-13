@@ -10,6 +10,7 @@
 
     #include <SFML/Graphics.hpp>
     #include <SFML/Window.hpp>
+    #include <SFML/System.hpp>
     #include <libconfig.h++>
     #include "Keys.hpp"
     #include "GameEngine/GameEngine.hpp"
@@ -69,21 +70,21 @@ namespace Systems {
             void handleInputReleased(std::array<bool, 4> &inputs, std::array<bool, 10> &actions, int index);
 
             const std::unordered_map<sf::Keyboard::Key, enum Key> __sfmlToKey = {
-                {sf::Keyboard::Z, Key::Z}, {sf::Keyboard::Q, Key::Q}, {sf::Keyboard::S, Key::S}, {sf::Keyboard::D, Key::D},
-                {sf::Keyboard::Escape, Key::ESCAPE}, {sf::Keyboard::Space, Key::SPACE}, {sf::Keyboard::Enter, Key::ENTER},
-                {sf::Keyboard::BackSpace, Key::BACKSPACE}, {sf::Keyboard::Delete, Key::DELETE_KEY},
-                {sf::Keyboard::Up, Key::UP_KEY}, {sf::Keyboard::Down, Key::DOWN_KEY},
-                {sf::Keyboard::Left, Key::LEFT_KEY}, {sf::Keyboard::Right, Key::RIGHT_KEY},
-                {sf::Keyboard::A, Key::A}, {sf::Keyboard::E, Key::E}, {sf::Keyboard::R, Key::R}, {sf::Keyboard::T, Key::T},
-                {sf::Keyboard::Y, Key::Y}, {sf::Keyboard::U, Key::U}, {sf::Keyboard::I, Key::I}, {sf::Keyboard::O, Key::O},
-                {sf::Keyboard::P, Key::P}, {sf::Keyboard::F, Key::F}, {sf::Keyboard::G, Key::G}, {sf::Keyboard::H, Key::H},
-                {sf::Keyboard::J, Key::J}, {sf::Keyboard::K, Key::K}, {sf::Keyboard::L, Key::L}, {sf::Keyboard::M, Key::M},
-                {sf::Keyboard::W, Key::W}, {sf::Keyboard::X, Key::X}, {sf::Keyboard::C, Key::C}, {sf::Keyboard::V, Key::V},
-                {sf::Keyboard::B, Key::B}, {sf::Keyboard::N, Key::N},
-                {sf::Keyboard::Num0, Key::NUM_0}, {sf::Keyboard::Num1, Key::NUM_1}, {sf::Keyboard::Num2, Key::NUM_2},
-                {sf::Keyboard::Num3, Key::NUM_3}, {sf::Keyboard::Num4, Key::NUM_4}, {sf::Keyboard::Num5, Key::NUM_5},
-                {sf::Keyboard::Num6, Key::NUM_6}, {sf::Keyboard::Num7, Key::NUM_7}, {sf::Keyboard::Num8, Key::NUM_8},
-                {sf::Keyboard::Num9, Key::NUM_9},
+                {sf::Keyboard::Key::Z, Key::Z}, {sf::Keyboard::Key::Q, Key::Q}, {sf::Keyboard::Key::S, Key::S}, {sf::Keyboard::Key::D, Key::D},
+                {sf::Keyboard::Key::Escape, Key::ESCAPE}, {sf::Keyboard::Key::Space, Key::SPACE}, {sf::Keyboard::Key::Enter, Key::ENTER},
+                {sf::Keyboard::Key::BackSpace, Key::BACKSPACE}, {sf::Keyboard::Key::Delete, Key::DELETE_KEY},
+                {sf::Keyboard::Key::Up, Key::UP_KEY}, {sf::Keyboard::Key::Down, Key::DOWN_KEY},
+                {sf::Keyboard::Key::Left, Key::LEFT_KEY}, {sf::Keyboard::Key::Right, Key::RIGHT_KEY},
+                {sf::Keyboard::Key::A, Key::A}, {sf::Keyboard::Key::E, Key::E}, {sf::Keyboard::Key::R, Key::R}, {sf::Keyboard::Key::T, Key::T},
+                {sf::Keyboard::Key::Y, Key::Y}, {sf::Keyboard::Key::U, Key::U}, {sf::Keyboard::Key::I, Key::I}, {sf::Keyboard::Key::O, Key::O},
+                {sf::Keyboard::Key::P, Key::P}, {sf::Keyboard::Key::F, Key::F}, {sf::Keyboard::Key::G, Key::G}, {sf::Keyboard::Key::H, Key::H},
+                {sf::Keyboard::Key::J, Key::J}, {sf::Keyboard::Key::K, Key::K}, {sf::Keyboard::Key::L, Key::L}, {sf::Keyboard::Key::M, Key::M},
+                {sf::Keyboard::Key::W, Key::W}, {sf::Keyboard::Key::X, Key::X}, {sf::Keyboard::Key::C, Key::C}, {sf::Keyboard::Key::V, Key::V},
+                {sf::Keyboard::Key::B, Key::B}, {sf::Keyboard::Key::N, Key::N},
+                {sf::Keyboard::Key::Num0, Key::NUM_0}, {sf::Keyboard::Key::Num1, Key::NUM_1}, {sf::Keyboard::Key::Num2, Key::NUM_2},
+                {sf::Keyboard::Key::Num3, Key::NUM_3}, {sf::Keyboard::Key::Num4, Key::NUM_4}, {sf::Keyboard::Key::Num5, Key::NUM_5},
+                {sf::Keyboard::Key::Num6, Key::NUM_6}, {sf::Keyboard::Key::Num7, Key::NUM_7}, {sf::Keyboard::Key::Num8, Key::NUM_8},
+                {sf::Keyboard::Key::Num9, Key::NUM_9},
             };
     };
 };

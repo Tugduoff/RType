@@ -5,6 +5,7 @@
 ** Sfml.cpp file
 */
 
+#define NOMINMAX
 #include "GameEngine/GameEngine.hpp"
 #include "components/position/Position.hpp"
 #include "components/spriteId/SpriteID.hpp"
