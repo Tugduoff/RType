@@ -58,39 +58,12 @@ void UDPServer::start_receive() {
 }
 
 void UDPServer::send_components_infos() {
-    // Total components
-    uint16_t total_components = static_cast<uint16_t>(__idStringToType.size());
-    total_components = htons(total_components);
-
-    std::vector<uint8_t> message(2);
-    std::memcpy(message.data(), &total_components, sizeof(total_components));
-    send_message(message);
-
-    // Size max
-    std::size_t max_name_length = 0;
-    for (const auto& component_name : __idStringToType)
-        max_name_length = std::max(max_name_length, component_name.first.size());
-    uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
-
-    std::vector<uint8_t> message2(1);
-    message2[0] = max_name_length_byte;
-    send_message(message2);
-
-    // Components
-    int i = 0;
-    for (const auto& component_name : __idStringToType) {
-        uint8_t index = static_cast<uint8_t>(i);
-        std::vector<uint8_t> buffer(1 + component_name.first.size());
-        buffer[0] = index;
-        std::memcpy(buffer.data() + 1, component_name.first.data(), component_name.first.size());
-
-        send_message(buffer);
-        i++;
-    }
+    send_total_components();
+    send_size_max();
+    send_components();
 
     /* v TESTS THAT MUST NOT BE MERGED v */
 
-    // Test entity creation
     Engine::GameEngine gameEngine;
     ECS::Registry& reg = gameEngine.getRegistry();
     ECS::Entity entity_test = reg.entityManager().spawnEntity();
@@ -115,6 +88,8 @@ void UDPServer::send_components_infos() {
     
     for (const auto& component : gameEngine.getComponents())
         detach_component(entity_test2, *(component.second));
+
+    /* ^ TESTS THAT MUST NOT BE MERGED ^ */
 }
 
 std::size_t UDPServer::get_size_max() {
@@ -188,6 +163,39 @@ void UDPServer::remove_client(const udp::endpoint& client) {
                     std::cout << "Client " << client.address().to_string() << ":" << client.port() << " is now aware of their disconnection" << std::endl;
             }
         );
+    }
+}
+
+void UDPServer::send_total_components() {
+    uint16_t total_components = static_cast<uint16_t>(__idStringToType.size());
+    total_components = htons(total_components);
+
+    std::vector<uint8_t> message(2);
+    std::memcpy(message.data(), &total_components, sizeof(total_components));
+    send_message(message);
+}
+
+void UDPServer::send_size_max() {
+    std::size_t max_name_length = 0;
+    for (const auto& component_name : __idStringToType)
+        max_name_length = std::max(max_name_length, component_name.first.size());
+    uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
+
+    std::vector<uint8_t> message2(1);
+    message2[0] = max_name_length_byte;
+    send_message(message2);
+}
+
+void UDPServer::send_components() {
+    int i = 0;
+    for (const auto& component_name : __idStringToType) {
+        uint8_t index = static_cast<uint8_t>(i);
+        std::vector<uint8_t> buffer(1 + component_name.first.size());
+        buffer[0] = index;
+        std::memcpy(buffer.data() + 1, component_name.first.data(), component_name.first.size());
+
+        send_message(buffer);
+        i++;
     }
 }
 

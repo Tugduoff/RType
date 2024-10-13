@@ -122,6 +122,12 @@ class UDPServer {
 
         void send_message(const std::vector<uint8_t>& message);
 
+        void send_total_components();
+
+        void send_size_max();
+
+        void send_components();
+
 };
 
 #endif /* !UDP_SERVER_HPP_ */
