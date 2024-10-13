@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2024
+** RType
+** File description:
+** Main.cpp
+*/
+
 #include <SFML/Graphics.hpp>
 #include "Window.hpp"
 #include "network/RTypeClient.hpp"
