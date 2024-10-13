@@ -53,6 +53,14 @@ namespace Components {
                 return *reinterpret_cast<SparseArray<IComponent> *>(sparseArray);
             }
 
+            /**
+             * @class BadSparseArrayCast
+             * 
+             * @brief Exception thrown when a SparseArray cast fails.
+             * 
+             * This exception is thrown when a SparseArray cast fails.
+             * It is a subclass of std::bad_any_cast.
+             */
             class BadSparseArrayCast : public std::bad_any_cast {
                 char const *what() const noexcept override {
                     return std::bad_any_cast::what();

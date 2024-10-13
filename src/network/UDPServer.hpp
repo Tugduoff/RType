@@ -94,9 +94,9 @@ class UDPServer {
     
         void attach_component(ECS::Entity &entity, Components::IComponent &component);
     
-        void update_component();
+        void update_component(ECS::Entity &entity, Components::IComponent &component);
     
-        void detach_component();
+        void detach_component(ECS::Entity &entity, Components::IComponent &component);
 };
 
 #endif /* !UDP_SERVER_HPP_ */

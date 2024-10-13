@@ -10,13 +10,24 @@
 
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
+    #ifdef _WIN32
+        #include <windows.h>
+        #pragma comment(lib, "ws2_32.lib")
+    #else
+        #include <arpa/inet.h>
+    #endif
     #include <vector>
     #include <stdexcept>
     #include <cstdint>
     #include <libconfig.h++>
 
 namespace Components {
-
+    /**
+     * @brief Collider component class in Components.
+     * 
+     * This class represents a rectangle collider for an entity, storing the width and height of the collider.
+     * It provides methods to serialize and deserialize the collider data for network transmission or storage.
+     */
     class Collider : public AComponent<Collider> {
     public:
         /**
@@ -24,7 +35,7 @@ namespace Components {
          * 
          * Initializes the rectangle collider with default width and height of 0.
          */
-        Collider(float width = 1.0f, float height = 1.0f) : AComponent(std::string("Collider")), width(width), height(height) {};
+        Collider(uint32_t width = 1, uint32_t height = 1) : AComponent(std::string("Collider")), width(width), height(height) {};
 
         /**
          * @brief Constructor using configuration.
@@ -34,10 +45,10 @@ namespace Components {
          */
         Collider(libconfig::Setting &config) : AComponent(std::string("Collider")) {
             if (!config.lookupValue("width", width)) {
-                width = 1.0f;
+                width = 1;
             }
             if (!config.lookupValue("height", height)) {
-                height = 1.0f;
+                height = 1;
             }
         }        
 
@@ -49,11 +60,10 @@ namespace Components {
          * @return std::vector<uint8_t> Serialized data.
          */
         std::vector<uint8_t> serialize() override {
-            std::vector<uint8_t> data;
-            appendToData(data, width);
-            appendToData(data, height);
-            return data;
-        };
+            __network.width = htonl(width);
+            __network.height = htonl(height);
+            return std::vector<uint8_t>(__data, __data + sizeof(__data));
+        }
 
         /**
          * @brief Deserialize the collider data
@@ -64,12 +74,12 @@ namespace Components {
          * @throws std::runtime_error If the data size is invalid.
          */
         void deserialize(std::vector<uint8_t> &data) override {
-            if (data.size() != getConstantSize())
+            if (data.size() != getSize())
                 throw std::runtime_error("Invalid data size for Collider component");
 
-            width = *reinterpret_cast<float *>(&data[0]);
-            height = *reinterpret_cast<float *>(&data[sizeof(float)]);
-        };
+            width = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
+            height = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
+        }
 
         /**
          * @brief Get the fixed size of the serialized data
@@ -77,7 +87,7 @@ namespace Components {
          * @return size_t Size in bytes
          */
         size_t getSize() const override {
-            return getConstantSize();
+            return sizeof(__data);
         }
 
         /**
@@ -93,8 +103,8 @@ namespace Components {
             if (args.size() != 2)
                 throw std::runtime_error("Invalid number of arguments for Collider component");
 
-            float width = std::any_cast<float>(args[0]);
-            float height = std::any_cast<float>(args[1]);
+            uint32_t width = std::any_cast<uint32_t>(args[0]);
+            uint32_t height = std::any_cast<uint32_t>(args[1]);
 
             auto collider = engine.newComponent<Components::Collider>(width, height);
             engine.getRegistry().componentManager().addComponent<Components::Collider>(to, std::move(collider));
@@ -108,47 +118,36 @@ namespace Components {
          * @param config The configuration setting to extract the component data from.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-        float width = 0.0f;
-        float height = 0.0f;
+            int width = 0, height = 0; 
 
-        if (!config.lookupValue("width", width)) {
-            std::cerr << "Warning: 'width' not found in config. Using default value: 1.0f\n";
-            width = 1.0f;
+            if (!config.lookupValue("width", width)) {
+                std::cerr << "Warning: 'width' not found in config. Using default value: 1\n";
+                width = 1;
+            }
+
+            if (!config.lookupValue("height", height)) {
+                std::cerr << "Warning: 'height' not found in config. Using default value: 1\n";
+                height = 1;
+            }
+
+            std::cout << "width: " << width << " height: " << height << std::endl;
+
+            std::unique_ptr<Components::Collider> collider = engine.newComponent<Components::Collider>(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+            engine.getRegistry().componentManager().addComponent<Components::Collider>(to, std::move(collider));
+            std::cout << std::endl;
         }
-        
-        if (!config.lookupValue("height", height)) {
-            std::cerr << "Warning: 'height' not found in config. Using default value: 1.0f\n";
-            height = 1.0f;
-        }
-        std::unique_ptr<Components::Collider> collider = engine.newComponent<Components::Collider>(width, height);
-        engine.getRegistry().componentManager().addComponent<Components::Collider>(to, std::move(collider));
-    }
 
-
-        float width;
-        float height;
-        char const *componentName;
+        uint32_t width;
+        uint32_t height;
 
     private:
-        /**
-         * @brief Returns the constant size of the serialized data.
-         * 
-         * @return size_t The fixed size of the serialized Collider data.
-         */
-        size_t getConstantSize() const {
-            return 2 * sizeof(float);
-        }
-        
-        /**
-         * @brief Helper function to append a float value to a byte vector.
-         * 
-         * @param data The byte vector to append to.
-         * @param value The float value to append.
-         */
-        void appendToData(std::vector<uint8_t> &data, float value) {
-            auto bytes = reinterpret_cast<uint8_t *>(&value);
-            data.insert(data.end(), bytes, bytes + sizeof(float));
-        }
+        union {
+            struct {
+                uint32_t width;
+                uint32_t height;
+            } __network;
+            uint8_t __data[8];
+        };
     };
 };
 

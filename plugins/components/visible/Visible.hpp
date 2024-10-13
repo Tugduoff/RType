@@ -65,7 +65,7 @@ public:
      * @return A vector of bytes representing the serialized visibility state.
      */
     std::vector<uint8_t> serialize() override {
-        return { static_cast<uint8_t>(isVisible) };
+        return { (isVisible ? (uint8_t)1 : (uint8_t)0) };
     }
 
     /**
@@ -93,7 +93,7 @@ public:
      * @return The size of the serialized component, in bytes.
      */
     size_t getSize() const override {
-        return (sizeof(__data));
+        return 1;
     }
 
     /**
@@ -111,7 +111,7 @@ public:
             throw std::runtime_error("Invalid number of arguments for Visible component");
         
         bool visibility = std::any_cast<bool>(args[0]);
-        engine.getRegistry().componentManager().addComponent<Components::Visible>(to, engine.newComponent<Components::Visible>(visibility));
+        engine.getRegistry().componentManager().addComponent<Components::Visible>(to, engine.newComponent<Components::Visible>(static_cast<uint8_t>(visibility)));
     }
 
     /**
@@ -133,7 +133,7 @@ public:
 
         std::cout << "isVisible: " << isVisibleConfig << std::endl;
 
-        std::unique_ptr<Components::Visible> visibilityComponent = engine.newComponent<Components::Visible>(isVisibleConfig);
+        std::unique_ptr<Components::Visible> visibilityComponent = engine.newComponent<Components::Visible>(static_cast<uint8_t>(isVisibleConfig));
         engine.getRegistry().componentManager().addComponent<Components::Visible>(to, std::move(visibilityComponent));
         std::cout << std::endl;
     }
@@ -142,18 +142,7 @@ public:
      * @brief Indicates whether the entity is visible or not.
      */
     bool isVisible;
-    char const *componentName;
 
-private:
-    /**
-     * @brief Network packet representation for the Visible component.
-     */
-    union {
-        struct {
-            uint8_t isVisible;
-        } __network;
-        uint8_t __data[1];
-    };
 };
 
 }; // namespace Components

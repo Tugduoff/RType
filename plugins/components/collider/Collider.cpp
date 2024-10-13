@@ -18,7 +18,7 @@ Components::IComponent *buildDefault()
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(float width, float height)
+Components::IComponent *buildWithParams(uint32_t width, uint32_t height)
 {
     return new Components::Collider(width, height);
 }
