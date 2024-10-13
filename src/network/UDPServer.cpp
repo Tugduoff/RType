@@ -27,6 +27,8 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
 
 // --- PRIVATE --- //
 
+// --- Loop --- //
+
 void UDPServer::start_receive() {
     socket_.async_receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_,
         [this](boost::system::error_code ec, std::size_t bytes_recvd) {
@@ -57,11 +59,7 @@ void UDPServer::start_receive() {
         });
 }
 
-void UDPServer::send_components_infos() {
-    send_total_components();
-    send_size_max();
-    send_components();
-}
+// --- Helpers --- //
 
 std::size_t UDPServer::get_size_max() {
     auto max_name_length = std::max_element(__idStringToType.begin(), __idStringToType.end(),
@@ -71,6 +69,62 @@ std::size_t UDPServer::get_size_max() {
 
     return max_name_length != __idStringToType.end() ? max_name_length->first.size() : 0;
 }
+
+void UDPServer::send_message(const std::vector<uint8_t>& message) {
+    socket_.async_send_to(
+        boost::asio::buffer(message), remote_endpoint_,
+        [this](boost::system::error_code ec, std::size_t bytes_sent) {
+            if (!ec) {
+                std::cout << "Sent message of size " << bytes_sent << " bytes." << std::endl;
+            } else {
+                std::cerr << "Error sending message: " << ec.message() << std::endl;
+            }
+        }
+    );
+}
+
+// --- Client Init --- //
+
+void UDPServer::send_components_infos() {
+    send_total_components();
+    send_size_max();
+    send_components();
+}
+
+void UDPServer::send_total_components() {
+    uint16_t total_components = static_cast<uint16_t>(__idStringToType.size());
+    total_components = htons(total_components);
+
+    std::vector<uint8_t> message(2);
+    std::memcpy(message.data(), &total_components, sizeof(total_components));
+    send_message(message);
+}
+
+void UDPServer::send_size_max() {
+    std::size_t max_name_length = 0;
+    for (const auto& component_name : __idStringToType)
+        max_name_length = std::max(max_name_length, component_name.first.size());
+    uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
+
+    std::vector<uint8_t> message2(1);
+    message2[0] = max_name_length_byte;
+    send_message(message2);
+}
+
+void UDPServer::send_components() {
+    int i = 0;
+    for (const auto& component_name : __idStringToType) {
+        uint8_t index = static_cast<uint8_t>(i);
+        std::vector<uint8_t> buffer(1 + component_name.first.size());
+        buffer[0] = index;
+        std::memcpy(buffer.data() + 1, component_name.first.data(), component_name.first.size());
+
+        send_message(buffer);
+        i++;
+    }
+}
+
+// --- Client Activity --- //
 
 void UDPServer::checking_client(const udp::endpoint& client) {
     std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(60)));
@@ -137,51 +191,7 @@ void UDPServer::remove_client(const udp::endpoint& client) {
     }
 }
 
-void UDPServer::send_total_components() {
-    uint16_t total_components = static_cast<uint16_t>(__idStringToType.size());
-    total_components = htons(total_components);
-
-    std::vector<uint8_t> message(2);
-    std::memcpy(message.data(), &total_components, sizeof(total_components));
-    send_message(message);
-}
-
-void UDPServer::send_size_max() {
-    std::size_t max_name_length = 0;
-    for (const auto& component_name : __idStringToType)
-        max_name_length = std::max(max_name_length, component_name.first.size());
-    uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
-
-    std::vector<uint8_t> message2(1);
-    message2[0] = max_name_length_byte;
-    send_message(message2);
-}
-
-void UDPServer::send_components() {
-    int i = 0;
-    for (const auto& component_name : __idStringToType) {
-        uint8_t index = static_cast<uint8_t>(i);
-        std::vector<uint8_t> buffer(1 + component_name.first.size());
-        buffer[0] = index;
-        std::memcpy(buffer.data() + 1, component_name.first.data(), component_name.first.size());
-
-        send_message(buffer);
-        i++;
-    }
-}
-
-void UDPServer::send_message(const std::vector<uint8_t>& message) {
-    socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t bytes_sent) {
-            if (!ec) {
-                std::cout << "Sent message of size " << bytes_sent << " bytes." << std::endl;
-            } else {
-                std::cerr << "Error sending message: " << ec.message() << std::endl;
-            }
-        }
-    );
-}
+// --- Entity --- //
 
 void UDPServer::create_entity(ECS::Entity &entity) {
     uint8_t opcode = 0x0;
@@ -222,6 +232,8 @@ void UDPServer::delete_entity(ECS::Entity &entity) {
         }
     );
 }
+
+// --- Component --- //
 
 void UDPServer::attach_component(ECS::Entity &entity, Components::IComponent &component) {
     uint8_t opcode = 0x2;
