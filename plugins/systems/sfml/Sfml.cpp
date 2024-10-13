@@ -11,12 +11,10 @@
 #include "SpriteComponent.hpp"
 #include "Sfml.hpp"
 #include "library_entrypoint.hpp"
-#include "Chrono.hpp"
 
 Systems::Sfml::Sfml(libconfig::Setting &config) :
     displaySystem(config),
-    inputSystem(config),
-    __chrono()
+    inputSystem(config)
 {
     int width;
     int height;
@@ -27,37 +25,35 @@ Systems::Sfml::Sfml(libconfig::Setting &config) :
     config.lookupValue("title", title);
 
     __window.create(sf::VideoMode(width, height), title);
+    sf::View view(sf::FloatRect(0, 0, 1920, 1080));
+    __window.setView(view);
 }
 
 Systems::Sfml::Sfml() :
     displaySystem(),
     inputSystem(),
-    __window(sf::VideoMode(1920, 1080, 32), "RType"),
-    __chrono()
+    __window(sf::VideoMode(1920, 1080, 32), "RType")
 {
+    sf::View view(sf::FloatRect(0, 0, 1920, 1080));
+    __window.setView(view);
 }
 
 void Systems::Sfml::init(Engine::GameEngine &engine)
 {
     std::cout << "Init Sfml" << std::endl;
     displaySystem.init(engine, __window);
-    inputSystem.init(engine, __window);
+    inputSystem.init(engine);
     std::cout << "Init Sfml done" << std::endl;
 }
 
 void Systems::Sfml::run(Engine::GameEngine &engine)
 {
-    std::cout << "Run Sfml" << std::endl;
-    if (__chrono.getElapsedTime() > 25) {
-        displaySystem.run(engine, __window);
-        __chrono.restart();
-    }
+    displaySystem.run(engine, __window);
     inputSystem.run(engine, __window);
     if (!__window.isOpen()) {
         std::cout << "Send exit" << std::endl;
         exit(0);
     }
-    std::cout << "Run Sfml done" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT
