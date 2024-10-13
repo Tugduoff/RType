@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2024
-** BsRtype
+** Rtype
 ** File description:
 ** Registry.hpp file
 */
@@ -12,8 +12,8 @@
     #include "ECS/entity/Entity.hpp"
     #include "ECS/entity/EntityManager.hpp"
     #include "ECS/system/SystemManager.hpp"
-#include <functional>
-#include <vector>
+    #include <functional>
+    #include <vector>
 
 /**
  * @namespace ECS
