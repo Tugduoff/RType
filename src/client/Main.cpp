@@ -43,7 +43,7 @@ int main()
 
     try
     {
-        engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
+        engine.loadSystems("./src/client/configClient.cfg");
         // Check that you have the same components here with the map in RTypeClient
         while (conn.gameEnd != true) {
             if (conn.dataFromServer()) {

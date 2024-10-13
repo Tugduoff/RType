@@ -17,17 +17,19 @@
 #include "Chrono.hpp"
 
 #include "network/UDPServer.hpp"
-#include "plugins/components/IComponent.hpp"
-#include "plugins/components/position/Position.hpp"
-#include "plugins/components/velocity/Velocity.hpp"
-#include "plugins/components/spriteId/SpriteID.hpp"
-#include "plugins/components/controllable/Controllable.hpp"
-#include "plugins/components/visible/Visible.hpp"
-#include "plugins/components/health/Health.hpp"
-#include "plugins/components/collider/Collider.hpp"
-#include "plugins/components/acceleration/Acceleration.hpp"
-#include "plugins/components/gun/Gun.hpp"
-#include "plugins/components/damage/Damage.hpp"
+
+#include "components/IComponent.hpp"
+#include "components/position/Position.hpp"
+#include "components/velocity/Velocity.hpp"
+#include "components/spriteId/SpriteID.hpp"
+#include "components/controllable/Controllable.hpp"
+#include "components/visible/Visible.hpp"
+#include "components/health/Health.hpp"
+#include "components/collider/Collider.hpp"
+#include "components/acceleration/Acceleration.hpp"
+#include "components/gun/Gun.hpp"
+#include "components/damage/Damage.hpp"
+#include "components/scale/Scale.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -90,7 +92,8 @@ int main() {
         typeid(Components::Collider),
         typeid(Components::Acceleration),
         typeid(Components::Gun),
-        typeid(Components::Damage)
+        typeid(Components::Damage),
+        typeid(Components::Scale)
     };
 
     try {
@@ -98,12 +101,12 @@ int main() {
         engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
         engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
 
-        engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
+        engine.loadSystems("./src/server/configServer.cfg");
 
         // we'll probably have to move it elsewhere
-        boost::asio::io_context io_context;
-        UDPServer server(io_context, 8080, engine.getIdStringToType());
-        io_context.run();
+        // boost::asio::io_context io_context;
+        // UDPServer server(io_context, 8080, engine.getIdStringToType());
+        // io_context.run();
 
         displayPolymorphic(engine, types.begin(), types.end());
 
