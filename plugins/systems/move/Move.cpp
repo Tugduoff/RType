@@ -38,8 +38,10 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
             if (vel->diminishingFactor == 0)
                 continue;
             float factor = (float)vel->diminishingFactor / 100;
-            vel->x *= factor;
-            vel->y *= factor;
+            vel->floatX *= factor;
+            vel->floatY *= factor;
+            vel->x = (int)vel->floatX;
+            vel->y = (int)vel->floatY;
             engine.updateComponent(i, vel->getId(), vel->serialize());
         }
     } catch (std::runtime_error &e) {
