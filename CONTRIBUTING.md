@@ -1,7 +1,17 @@
 # CONTRIBUTING
+The following section declare how you could contribute to the project
 
-# Repository changes
-- 🔨 `:hammer:` : Makefile
+## Pull requests
+If you want to contribute to the project, you should do so with a pull request.
+
+If you want your pull request to be validated, it sould respect the following conditions :
+- The description of the pull request **must** be self-sufficient and **must** explain what is implemented in it. You should also mention issues related to the pull request (if any) in the description (e.g. `close #23`).
+- The code **must** be documented with Doxygen-like comment. Every class, methods and functions must have its documentation to explain what it does.
+- The commits **must** respect the [commit norm](#commit-norm) mentionned below.
+
+## Commit norm
+### Repository changes
+- 🔨 `:hammer:` : CMake-related
 - 🔝 `:top:` : Header files
 - 📚 `:books:` : Lib-related changes
 
@@ -18,9 +28,7 @@
 - 👷 `:construction_worker:` : Add or update automation tools
 - 💚 `:green_heart:` : Fix CI build
 
-- 🍌 `:banana:` : Norm
-
-# Code changes
+### Code changes
 - ✨ `:sparkles:` : New feature of the project
 - ✨✨ `:sparkles::sparkles:` : Major New features
 
@@ -33,5 +41,5 @@
 - ➖ `:heavy_minus_sign:` : Deletion of some code
 - ♻️ `:recycle:` : Refactor code
 
-# Extra
+### Extra
 - 🚀 `:rocket:` : Final commit
