@@ -28,9 +28,7 @@ SO_FILES=(
 # Compile the R-Type project
 echo "R-Type Compilation..."
 
-mkdir -p $BUILD_DIR
-cd $BUILD_DIR && cmake .. && cd ../..
-cmake --build $BUILD_DIR
+./build_rtype.sh
 
 if [ $? -ne 0 ]; then
   echo "Compilation failed"
@@ -68,9 +66,9 @@ done
 
 # cp ./launch_server.sh $BINARY_DIR
 # cp ./launch_client.sh $BINARY_DIR
-find "./build_scripts" -type f -name "launch*.sh" -exec cp {} $BINARY_DIR \;
-chmod +x $BINARY_DIR/launch_server.sh
-chmod +x $BINARY_DIR/launch_client.sh
+find "./build_scripts" -type f -name "r-type_*.sh" -exec cp {} $BINARY_DIR \;
+chmod +x $BINARY_DIR/r-type_server.sh
+chmod +x $BINARY_DIR/r-type_client.sh
 
 echo "Creating archive fedora_build.tar which will contain the application"
 tar -cf fedora_build.tar $BINARY_DIR

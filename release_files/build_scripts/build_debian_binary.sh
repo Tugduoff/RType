@@ -28,9 +28,6 @@ SO_FILES=(
 # Compile the R-Type project
 echo "R-Type Compilation..."
 
-# mkdir -p $BUILD_DIR
-# cd $BUILD_DIR && cmake .. && cd ../..
-# cmake --build $BUILD_DIR
 ./build_rtype.sh
 
 if [ $? -ne 0 ]; then
@@ -79,5 +76,5 @@ find "./build_scripts" -type f -name "r-type_*.sh" -exec cp {} $BINARY_DIR \;
 chmod +x $BINARY_DIR/r-type_server.sh
 chmod +x $BINARY_DIR/r-type_client.sh
 
-echo "Creating archive ubuntu_build.tar which will contain the application"
+echo "Creating archive debian_build.tar which will contain the application"
 tar -cf debian_build.tar $BINARY_DIR
