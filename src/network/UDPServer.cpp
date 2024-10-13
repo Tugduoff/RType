@@ -38,12 +38,13 @@ void UDPServer::start_receive() {
                             << ":" << remote_endpoint_.port() << "): " << message << std::endl;
 
                 if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
-                    client_endpoints.push_back(remote_endpoint_);
-                    std::cout << "New client added: " << remote_endpoint_.address().to_string() 
-                                << ":" << remote_endpoint_.port() << std::endl;
-                    client_responses[remote_endpoint_] = true;
-                    is_disconnected[remote_endpoint_] = false;
-                    checking_client(remote_endpoint_);
+                    if (message == "start") {
+                        client_endpoints.push_back(remote_endpoint_);
+                        std::cout << "New client added: " << remote_endpoint_.address().to_string() 
+                                    << ":" << remote_endpoint_.port() << std::endl;
+                        client_responses[remote_endpoint_] = true;
+                        is_disconnected[remote_endpoint_] = false;
+                        checking_client(remote_endpoint_);
                 } else {
                     client_responses[remote_endpoint_] = true;
                 }
