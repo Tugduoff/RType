@@ -15,7 +15,7 @@ Components::IComponent *buildDefault()
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(uint32_t forward, uint32_t backward, uint32_t right, uint32_t left)
+Components::IComponent *buildWithParams(int32_t forward, int32_t backward, int32_t right, int32_t left)
 {
     return new Components::Acceleration(forward, backward, right, left);
 }

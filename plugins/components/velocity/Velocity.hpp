@@ -55,7 +55,7 @@ namespace Components {
          * @param y The Y component of the velocity.
          * @param factor The diminishing factor for the velocity.
          */
-        Velocity(uint32_t x = 0, uint32_t y = 0, uint8_t factor = 0) :
+        Velocity(int32_t x = 0, int32_t y = 0, uint8_t factor = 0) :
             AComponent("Velocity"), x(x), y(y), diminishingFactor(factor) {
                 std::cout << "Velocity component created with x: " << x << " y: " << y << " factor: " << diminishingFactor << std::endl;
             };
@@ -90,8 +90,8 @@ namespace Components {
         void deserialize(std::vector<uint8_t> &data) override {
             if (data.size() != sizeof(__data))
                 throw std::runtime_error("Invalid data size for position component");
-            x = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
-            y = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
+            x = ntohl(*reinterpret_cast<int32_t *>(data.data()));
+            y = ntohl(*reinterpret_cast<int32_t *>(data.data() + 4));
             diminishingFactor = *reinterpret_cast<uint8_t *>(data.data() + 8);
         };
 
@@ -112,14 +112,14 @@ namespace Components {
          * @param args The arguments to pass to the component constructor.
          * 
          * @note This function will add the component to the entity.
-         * @note The arguments should be a pair of uint32_t values representing the x and y components of the velocity.
+         * @note The arguments should be a pair of int32_t values representing the x and y components of the velocity.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
             if (args.size() != 3)
                 throw std::runtime_error("Invalid number of arguments for Velocity component");
 
-            uint32_t x = std::any_cast<uint32_t>(args[0]);
-            uint32_t y = std::any_cast<uint32_t>(args[1]);
+            int32_t x = std::any_cast<int32_t>(args[0]);
+            int32_t y = std::any_cast<int32_t>(args[1]);
             uint8_t diminishingFactor = std::any_cast<uint8_t>(args[2]);
 
             engine.getRegistry().componentManager().addComponent<Components::Velocity>(to, engine.newComponent<Components::Velocity>(x, y, diminishingFactor));
@@ -136,7 +136,8 @@ namespace Components {
          * @note The configuration settings should contain the x and y components of the velocity.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            int xVal = 0, yVal = 0, factor = 0;
+            int xVal = 0, yVal = 0;
+            unsigned int factor = 0;
 
             if (!config.lookupValue("x", xVal)) {
                 std::cerr << "Warning: 'x' not found in config. Using default value: 0\n";
@@ -157,20 +158,20 @@ namespace Components {
 
             uint8_t diminishingFactor = static_cast<uint8_t>(factor);
 
-            std::unique_ptr<Components::Velocity> pos = engine.newComponent<Components::Velocity>(static_cast<uint32_t>(xVal), static_cast<uint32_t>(yVal), static_cast<uint8_t>(diminishingFactor));
+            std::unique_ptr<Components::Velocity> pos = engine.newComponent<Components::Velocity>(static_cast<int32_t>(xVal), static_cast<int32_t>(yVal), static_cast<uint8_t>(diminishingFactor));
             engine.getRegistry().componentManager().addComponent<Components::Velocity>(to, std::move(pos));
             std::cout << std::endl;
         };
 
-        uint32_t x;
-        uint32_t y;
+        int32_t x;
+        int32_t y;
         uint8_t diminishingFactor;
 
     private:
         union {
             struct {
-                uint32_t x;
-                uint32_t y;
+                int32_t x;
+                int32_t y;
                 uint8_t diminishingFactor;
             } __network;
             uint8_t __data[9];

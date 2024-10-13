@@ -57,7 +57,7 @@ namespace Components {
          * @param right The right acceleration value.
          * @param left The left acceleration value.
          */
-        Acceleration(uint32_t forward = 2, uint32_t backward = 1, uint32_t right = 1, uint32_t left = 1) :
+        Acceleration(int32_t forward = 2, int32_t backward = 1, int32_t right = 1, int32_t left = 1) :
             AComponent("Acceleration"), forward(forward), backward(backward), right(right), left(left) {
                 std::cout << "Acceleration component created with forward: "
                 << forward << " backward: "
@@ -99,10 +99,10 @@ namespace Components {
             if (data.size() != sizeof(__data))
                 throw std::runtime_error("Invalid data size for position component");
 
-            forward = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
-            backward = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
-            right = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 8));
-            left = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 12));
+            forward = ntohl(*reinterpret_cast<int32_t *>(data.data()));
+            backward = ntohl(*reinterpret_cast<int32_t *>(data.data() + 4));
+            right = ntohl(*reinterpret_cast<int32_t *>(data.data() + 8));
+            left = ntohl(*reinterpret_cast<int32_t *>(data.data() + 12));
         };
 
         /**
@@ -122,16 +122,16 @@ namespace Components {
          * @param args The arguments to pass to the component constructor.
          * 
          * @note This function will add the component to the entity.
-         * @note The arguments should be the forward, backward, right, and left acceleration values, all uint32_t.
+         * @note The arguments should be the forward, backward, right, and left acceleration values, all int32_t.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
             if (args.size() != 4)
                 throw std::runtime_error("Invalid number of arguments for Acceleration component");
 
-            uint32_t forward = std::any_cast<uint32_t>(args[0]);
-            uint32_t backward = std::any_cast<uint32_t>(args[1]);
-            uint32_t right = std::any_cast<uint32_t>(args[2]);
-            uint32_t left = std::any_cast<uint32_t>(args[3]);
+            int32_t forward = std::any_cast<int32_t>(args[0]);
+            int32_t backward = std::any_cast<int32_t>(args[1]);
+            int32_t right = std::any_cast<int32_t>(args[2]);
+            int32_t left = std::any_cast<int32_t>(args[3]);
 
             engine.getRegistry().componentManager().addComponent<Components::Acceleration>(to, engine.newComponent<Components::Acceleration>(forward, backward, right, left));
         };
@@ -171,23 +171,23 @@ namespace Components {
 
             std::cout << "forward: " << forwardVal << " backward: " << backwardVal << " right: " << rightVal << " left: " << leftVal << std::endl;
 
-            std::unique_ptr<Components::Acceleration> pos = engine.newComponent<Components::Acceleration>(static_cast<uint32_t>(forwardVal), static_cast<uint32_t>(backwardVal), static_cast<uint32_t>(rightVal), static_cast<uint32_t>(leftVal));
+            std::unique_ptr<Components::Acceleration> pos = engine.newComponent<Components::Acceleration>(static_cast<int32_t>(forwardVal), static_cast<int32_t>(backwardVal), static_cast<int32_t>(rightVal), static_cast<int32_t>(leftVal));
             engine.getRegistry().componentManager().addComponent<Components::Acceleration>(to, std::move(pos));
             std::cout << std::endl;
         };
 
-        uint32_t forward;
-        uint32_t backward;
-        uint32_t right;
-        uint32_t left;
+        int32_t forward;
+        int32_t backward;
+        int32_t right;
+        int32_t left;
 
     private:
         union {
             struct {
-                uint32_t forward;
-                uint32_t backward;
-                uint32_t right;
-                uint32_t left;
+                int32_t forward;
+                int32_t backward;
+                int32_t right;
+                int32_t left;
             } __network;
             uint8_t __data[16];
         };
