@@ -20,6 +20,7 @@ void updateComponent(size_t id, std::string name, std::vector<uint8_t> data, RTy
     for (const auto &compId : conn.getCompNames()) {
         if (compId.second == name) {
             updateOperation[3] = (uint16_t)compId.first;
+            break;
         }
     }
     // add a verification that a compId matched with name
