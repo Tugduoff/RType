@@ -17,8 +17,9 @@
 #include "library_entrypoint.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <unordered_map>
 
-void shootAction(Engine::GameEngine &engine, size_t entityIndex) {
+void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entityIndex) {
     auto &reg = engine.getRegistry();
     
     try {
@@ -28,27 +29,27 @@ void shootAction(Engine::GameEngine &engine, size_t entityIndex) {
         if (gun) {
             if (gun->chrono.getElapsedTime() >= gun->fireRate) {
                 std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
+                gun->chrono.restart();
                 auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
                 auto &position = positionComponents[entityIndex];
 
                 if (position) {
-                    float projectilePosX = position->x;
-                    float projectilePosY = position->y;
-                    float projectileVelX = 5;
-                    float projectileVelY = 0.0f;
-                    float projectileColliderWidth = 10.0f;
-                    float projectileColliderHeight = 10.0f;
-                    int projectileDamage = gun ->damage;
+                    int projectilePosX = position->x + 35;
+                    int projectilePosY = position->y;
+                    int projectileVelX = 8; // add velocity to gun component 
+                    int projectileVelY = 0;
+                    int projectileColliderWidth = 10;
+                    int projectileColliderHeight = 10;
+                    int projectileDamage = gun->damage;
+                    enum Components::SpriteID spriteId = Components::SpriteID::ProjectileRight;
 
-                    Systems::InputSystem inputSystem;
-                    inputSystem.createProjectile(engine, projectilePosX, projectilePosY, 
+                    createProjectile(engine, projectilePosX, projectilePosY, 
                         projectileVelX, projectileVelY, 
-                        projectileColliderWidth, projectileColliderHeight, projectileDamage);
+                        projectileColliderWidth, projectileColliderHeight, projectileDamage, spriteId);
                 } else {
                     std::cerr << "Position component missing for entity " << entityIndex << std::endl;
                 }
 
-                gun->chrono.restart();
             } else {
                 std::cerr << "Gun is on cooldown." << std::endl;
             }
@@ -57,11 +58,6 @@ void shootAction(Engine::GameEngine &engine, size_t entityIndex) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
 }
-
-std::unordered_map<int, std::function<void(Engine::GameEngine&, size_t)>> actionTable = {
-    {1, shootAction},
-    // Add more actions here
-};
 
 Systems::InputSystem::InputSystem(libconfig::Setting &)
 {
@@ -111,8 +107,8 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
             for (int j = 0; j < 10; j++) {
                 if (controllable->actions[j]) {
                     std::cout << "Action " << j + 1 << " triggered" << std::endl;
-                    if (actionTable.find(j + 1) != actionTable.end()) {
-                        actionTable[j + 1](engine, i);
+                    if (j == 0) {
+                        shootAction(engine, i);
                     } else {
                         std::cout << "No action mapped for Action " << j + 1 << std::endl;
                     }
@@ -140,6 +136,8 @@ void Systems::InputSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Position component in system Input" << std::endl;
     if (!engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider"))
         std::cerr << "Error: Could not register Collider component in system Input" << std::endl;
+    if (!engine.registerComponent<Components::SpriteIDComponent>("./plugins/bin/components/", "SpriteID"))
+        std::cerr << "Error: Could not register SpriteID component in system Input" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT
