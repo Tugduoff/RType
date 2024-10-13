@@ -7,6 +7,7 @@
 
 #ifndef RTYPE_CLIENT_HPP_
     #define RTYPE_CLIENT_HPP_
+
     #include <unordered_map>
     #include "UDPConnection.hpp"
     #include "GameEngine/GameEngine.hpp"
