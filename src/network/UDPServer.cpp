@@ -62,45 +62,29 @@ void UDPServer::send_components_infos() {
     uint16_t total_components = static_cast<uint16_t>(__idStringToType.size());
     total_components = htons(total_components);
 
-    socket_.async_send_to(
-        boost::asio::buffer(&total_components, 2), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t) {
-            if (!ec)
-                std::cout << "Total components sent to client." << std::endl;
-        }
-    );
+    std::vector<uint8_t> message(2);
+    std::memcpy(message.data(), &total_components, sizeof(total_components));
+    send_message(message);
 
     // Size max
     std::size_t max_name_length = 0;
-    for (const auto& component_name : __idStringToType) {
+    for (const auto& component_name : __idStringToType)
         max_name_length = std::max(max_name_length, component_name.first.size());
-    }
     uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
 
-    socket_.async_send_to(
-        boost::asio::buffer(&max_name_length_byte, 1), remote_endpoint_,
-        [this, max_name_length_byte](boost::system::error_code ec, std::size_t) {
-            if (!ec)
-                std::cout << "Size max sent to client: " << static_cast<int>(max_name_length_byte) << std::endl;
-        }
-    );
+    std::vector<uint8_t> message2(1);
+    message2[0] = max_name_length_byte;
+    send_message(message2);
 
     // Components
     int i = 0;
     for (const auto& component_name : __idStringToType) {
         uint8_t index = static_cast<uint8_t>(i);
-
         std::vector<uint8_t> buffer(1 + component_name.first.size());
         buffer[0] = index;
         std::memcpy(buffer.data() + 1, component_name.first.data(), component_name.first.size());
 
-        socket_.async_send_to(
-            boost::asio::buffer(buffer), remote_endpoint_,
-            [this, index, component_name](boost::system::error_code ec, std::size_t) {
-                if (!ec)
-                    std::cout << "Sent index: " << static_cast<int>(index) << ", component name: " << component_name.first << std::endl;
-            }
-        );
+        send_message(buffer);
         i++;
     }
 
@@ -125,6 +109,12 @@ void UDPServer::send_components_infos() {
 
     for (const auto& component : gameEngine.getComponents())
         attach_component(entity_test2, *(component.second));
+
+    for (const auto& component : gameEngine.getComponents())
+        update_component(entity_test2, *(component.second));
+    
+    for (const auto& component : gameEngine.getComponents())
+        detach_component(entity_test2, *(component.second));
 }
 
 std::size_t UDPServer::get_size_max() {
@@ -199,6 +189,19 @@ void UDPServer::remove_client(const udp::endpoint& client) {
             }
         );
     }
+}
+
+void UDPServer::send_message(const std::vector<uint8_t>& message) {
+    socket_.async_send_to(
+        boost::asio::buffer(message), remote_endpoint_,
+        [this](boost::system::error_code ec, std::size_t bytes_sent) {
+            if (!ec) {
+                std::cout << "Sent message of size " << bytes_sent << " bytes." << std::endl;
+            } else {
+                std::cerr << "Error sending message: " << ec.message() << std::endl;
+            }
+        }
+    );
 }
 
 void UDPServer::create_entity(ECS::Entity &entity) {

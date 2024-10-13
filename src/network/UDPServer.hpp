@@ -119,6 +119,9 @@ class UDPServer {
         void update_component(ECS::Entity &entity, Components::IComponent &component);
     
         void detach_component(ECS::Entity &entity, Components::IComponent &component);
+
+        void send_message(const std::vector<uint8_t>& message);
+
 };
 
 #endif /* !UDP_SERVER_HPP_ */
