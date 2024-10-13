@@ -26,6 +26,8 @@
 #include "plugins/components/health/Health.hpp"
 #include "plugins/components/collider/Collider.hpp"
 #include "plugins/components/acceleration/Acceleration.hpp"
+#include "plugins/components/gun/Gun.hpp"
+#include "plugins/components/damage/Damage.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -86,7 +88,9 @@ int main() {
         typeid(Components::Visible),
         typeid(Components::Health),
         typeid(Components::Collider),
-        typeid(Components::Acceleration)
+        typeid(Components::Acceleration),
+        typeid(Components::Gun),
+        typeid(Components::Damage)
     };
 
     try {

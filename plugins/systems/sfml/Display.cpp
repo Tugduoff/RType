@@ -40,9 +40,14 @@ void Systems::Display::init(Engine::GameEngine &engine, sf::RenderWindow &window
     if (!enemyTexture.loadFromFile("./assets/enemy.png")) {
         std::cerr << "Error: Failed to load enemyTexture from file" << std::endl;
     }
+    sf::Texture shotTexture;
+    if (!shotTexture.loadFromFile("./assets/shot1.png")) {
+        std::cerr << "Error: Failed to load shotTexture from file" << std::endl;
+    }
 
     __textures.push_back(playerTexture);
     __textures.push_back(enemyTexture);
+    __textures.push_back(shotTexture);
 }
 
 void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
@@ -57,38 +62,48 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteIDComponent>();
 
         size_t i = 0;
-        for (i = 0;
-            i < posComponents.size() &&
-            i < spriteIdComponents.size();
-            i++)
-        {
-            auto &pos = posComponents[i];
-            auto &spriteId = spriteIdComponents[i];
-            try {
+        for (int l = 0; l < 10; l++) {
+            for (i = 0;
+                i < posComponents.size() &&
+                i < spriteIdComponents.size();
+                i++)
+            {
+                auto &pos = posComponents[i];
+                if (!pos)
+                    continue;
+                if ((int)pos->layer != l)
+                    continue;
+                auto &spriteId = spriteIdComponents[i];
+                try {
+                    auto &sprite = spriteComponents[i];
+                    (void)sprite;
+                } catch (std::exception &) {
+                    std::cerr << "Error: Sprite component not found for this entity, creating it..." << std::endl;
+                    std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
+                    reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
+                }
                 auto &sprite = spriteComponents[i];
-                (void)sprite;
-            } catch (std::exception &) {
-                std::cerr << "Error: Sprite component not found for this entity, creating it..." << std::endl;
-                std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
-                reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
-            }
-            auto &sprite = spriteComponents[i];
 
-            if (!pos || !spriteId || !sprite)
-                continue;
-        
-            sprite->sprite.setPosition(pos->x, pos->y);
-            if (sprite->textureLoaded) {
+                if (!pos || !spriteId || !sprite)
+                    continue;
+            
+                sprite->sprite.setPosition(pos->x, pos->y);
+                if (sprite->textureLoaded) {
+                    window.draw(sprite->sprite);
+                    continue;
+                }
+                if (spriteId->id == Components::SpriteID::Player) {
+                    sprite->sprite.setTexture(__textures[0]);
+                } else if (spriteId->id == Components::SpriteID::Enemy) {
+                    sprite->sprite.setTexture(__textures[1]);
+                } else if (spriteId->id == Components::SpriteID::ProjectileRight) {
+                    sprite->sprite.setTexture(__textures[2]);
+                }
+                sprite->textureLoaded = true;
+                sf::IntRect textrect = sprite->sprite.getTextureRect();
+                sprite->sprite.setOrigin(textrect.width / 2, textrect.height / 2);
                 window.draw(sprite->sprite);
-                continue;
             }
-            if (spriteId->id == Components::SpriteID::Player) {
-                sprite->sprite.setTexture(__textures[0]);
-            } else if (spriteId->id == Components::SpriteID::Enemy) {
-                sprite->sprite.setTexture(__textures[1]);
-            }
-            sprite->textureLoaded = true;
-            window.draw(sprite->sprite);
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
