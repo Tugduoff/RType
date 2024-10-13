@@ -15,7 +15,7 @@ Components::IComponent *buildDefault()
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(std::unordered_map<enum Action, enum Key> &keyBindings)
+Components::IComponent *buildWithParams(std::map<enum Action, enum Key> &keyBindings)
 {
     return new Components::Controllable(keyBindings);
 }
