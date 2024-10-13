@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2024
+** Rtype
+** File description:
+** Registry.cpp file
+*/
+
 #include "Registry.hpp"
 #include "ECS/entity/Entity.hpp"
 
