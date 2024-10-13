@@ -31,7 +31,6 @@ int main()
 {
     RTypeClient conn("127.0.0.1", "8080");
     Engine::GameEngine engine(
-        // updateComponent
         [&conn](size_t id, std::string name, std::vector<uint8_t> data) { updateComponent(id, name, data, conn); }
     );
 
