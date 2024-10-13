@@ -14,7 +14,6 @@
 #include "plugins/components/position/Position.hpp"
 #include "plugins/components/velocity/Velocity.hpp"
 #include "plugins/components/spriteId/SpriteID.hpp"
-#include "plugins/systems/sfml/SpriteComponent.hpp"
 #include "plugins/components/controllable/Controllable.hpp"
 #include "plugins/components/visible/Visible.hpp"
 #include "plugins/components/health/Health.hpp"
