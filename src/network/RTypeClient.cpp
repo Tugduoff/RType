@@ -67,7 +67,8 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
             detachComponent(engine, operation);
             break;
         default:
-            std::cerr << "Error: Unknown opcode : " << int(operation[0]) << std::endl;
+            std::cerr << "Error: Unknown opcode : " << int(operation[0]) << ". Full command is : " << std::endl;
+            std::cerr << binaryToStr(operation) << std::endl;
             return;
     }
 }
