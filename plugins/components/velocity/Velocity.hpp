@@ -43,6 +43,9 @@ namespace Components {
             if (!config.lookupValue("y", y)) y = 0;
             if (!config.lookupValue("factor", factor)) factor = 0;
 
+            floatX = static_cast<float>(x);
+            floatY = static_cast<float>(y);
+
             diminishingFactor = static_cast<uint8_t>(factor);
         }
 
@@ -56,7 +59,7 @@ namespace Components {
          * @param factor The diminishing factor for the velocity.
          */
         Velocity(int32_t x = 0, int32_t y = 0, uint8_t factor = 0) :
-            AComponent("Velocity"), x(x), y(y), diminishingFactor(factor) {
+            AComponent("Velocity"), x(x), y(y), floatX(x), floatY(y), diminishingFactor(factor) {
                 std::cout << "Velocity component created with x: " << x << " y: " << y << " factor: " << diminishingFactor << std::endl;
             };
 
@@ -165,6 +168,8 @@ namespace Components {
 
         int32_t x;
         int32_t y;
+        float floatX;
+        float floatY;
         uint8_t diminishingFactor;
 
     private:

@@ -70,13 +70,28 @@ namespace ECS {
              *
              * @param entity The entity to kill
              */
-            void killEntity(const Entity &entity);
+            void killEntity(const Entity &entity)
+            {
+                this->__componentManager.removeAllFromEntity(entity);
+                this->__entityManager.killEntity(entity);
+                for (auto const &cb : this->__killCallbacks) {
+                    cb(entity);
+                }
+            }
 
             /**
              * @brief Create an entity and notify all registered
              * @brief callbacks for that event
              */
-            Entity createEntity();
+            Entity createEntity()
+            {
+                Entity entity = this->__entityManager.spawnEntity();
+
+                for (auto const &cb : this->__createCallbacks) {
+                    cb(entity);
+                }
+                return entity;
+            }
 
             /**
              * @brief Register a callback that will be called everytime an
