@@ -90,7 +90,23 @@ int main() {
 
         engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
 
-        std::unique_ptr<Components::Controllable> ctrl = engine.newComponent<Components::Controllable>();
+        std::unordered_map<enum Action, enum Key> keyBindings = {
+            {Action::FORWARD, Key::Z},
+            {Action::BACKWARD, Key::S},
+            {Action::LEFT, Key::Q},
+            {Action::RIGHT, Key::D},
+            {Action::ACTION1, Key::LEFT_CLICK},
+            {Action::ACTION2, Key::RIGHT_CLICK},
+            {Action::ACTION3, Key::MIDDLE_CLICK},
+            {Action::ACTION4, Key::NUM_0},
+            {Action::ACTION5, Key::NUM_1},
+            {Action::ACTION6, Key::NUM_2},
+            {Action::ACTION7, Key::NUM_3},
+            {Action::ACTION8, Key::NUM_4},
+            {Action::ACTION9, Key::NUM_5},
+            {Action::ACTION10, Key::NUM_6}
+        };
+        std::unique_ptr<Components::Controllable> ctrl = engine.newComponent<Components::Controllable>(keyBindings);
         std::unique_ptr<Components::Velocity> vel = engine.newComponent<Components::Velocity>(0, 0, (uint8_t)90);
         std::unique_ptr<Components::Acceleration> accel = engine.newComponent<Components::Acceleration>(5, -5, 5, -5);
         std::unique_ptr<Components::Position> pos = engine.newComponent<Components::Position>(10, 20, 1);
