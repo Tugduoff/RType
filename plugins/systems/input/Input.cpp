@@ -19,7 +19,6 @@
 #include <stdexcept>
 
 void shootAction(Engine::GameEngine &engine, size_t entityIndex) {
-    
     auto &reg = engine.getRegistry();
     
     try {
@@ -29,6 +28,26 @@ void shootAction(Engine::GameEngine &engine, size_t entityIndex) {
         if (gun) {
             if (gun->chrono.getElapsedTime() >= gun->fireRate) {
                 std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
+                auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
+                auto &position = positionComponents[entityIndex];
+
+                if (position) {
+                    float projectilePosX = position->x;
+                    float projectilePosY = position->y;
+                    float projectileVelX = 5;
+                    float projectileVelY = 0.0f;
+                    float projectileColliderWidth = 10.0f;
+                    float projectileColliderHeight = 10.0f;
+                    int projectileDamage = gun ->damage;
+
+                    Systems::InputSystem inputSystem;
+                    inputSystem.createProjectile(engine, projectilePosX, projectilePosY, 
+                        projectileVelX, projectileVelY, 
+                        projectileColliderWidth, projectileColliderHeight, projectileDamage);
+                } else {
+                    std::cerr << "Position component missing for entity " << entityIndex << std::endl;
+                }
+
                 gun->chrono.restart();
             } else {
                 std::cerr << "Gun is on cooldown." << std::endl;
@@ -115,7 +134,12 @@ void Systems::InputSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Velocity component in system Input" << std::endl;
     if (!engine.registerComponent<Components::Gun>("./plugins/bin/components/", "Gun"))
         std::cerr << "Error: Could not register Gun component in system Input" << std::endl;
-
+    if (!engine.registerComponent<Components::Damage>("./plugins/bin/components/", "Damage"))
+        std::cerr << "Error: Could not register Damage component in system Input" << std::endl;
+    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
+        std::cerr << "Error: Could not register Position component in system Input" << std::endl;
+    if (!engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider"))
+        std::cerr << "Error: Could not register Collider component in system Input" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT
