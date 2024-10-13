@@ -26,6 +26,7 @@ void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
 {
     int i = 0;
 
+    std::cout << std::endl;
     for (auto it = begin; it != end; ++it) {
         std::type_index &idx = *it;
 
@@ -116,15 +117,19 @@ int main() {
         reg.componentManager().addComponent<Components::Acceleration>(entity, std::move(accel));
         reg.componentManager().addComponent<Components::Position>(entity, std::move(pos));
 
-        displayPolymorphic(engine, types.begin(), types.end());
-
-        std::cout << "#######################################" << std::endl;
-
         engine.getRegistry().componentManager().getComponents<Components::Controllable>()[0]->inputs[(int)Action::FORWARD] = true;
 
-        engine.runSystems();
+        displayPolymorphic(engine, types.begin(), types.end());
 
-        displayPolymorphic(engine, types.begin(), types.end()); // This crashes the program
+        std::cout << "####################################### iteration 0\n" << std::endl;
+
+        std::string input;
+        unsigned int i = 1;
+        while (std::getline(std::cin, input)) {
+            engine.runSystems();
+            displayPolymorphic(engine, types.begin(), types.end());
+            std::cout << "####################################### iteration: " << i++ << "\n" << std::endl;
+        }
 
     } catch (std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
