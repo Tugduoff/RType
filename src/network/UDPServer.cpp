@@ -293,12 +293,14 @@ void UDPServer::update_component(ECS::Entity &entity, Components::IComponent &co
     uint16_t component_id = index;
     component_id = htons(component_id);
 
-    // add component data
+    std::vector<uint8_t> component_data = component.serialize();
+    size_t component_size = component_data.size();
 
-    std::array<uint8_t, 5> message;
+    std::vector<uint8_t> message(5 + component_size);
     message[0] = opcode;
     std::memcpy(&message[1], &entity_id, sizeof(entity_id));
     std::memcpy(&message[3], &component_id, sizeof(component_id));
+    std::memcpy(&message[5], component_data.data(), component_size);
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
@@ -306,7 +308,7 @@ void UDPServer::update_component(ECS::Entity &entity, Components::IComponent &co
             if (!ec) {
                 uint16_t e_id = ntohs(entity_id);
                 uint16_t c_id = ntohs(component_id);
-                std::cout << "update component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
+                std::cout << "Updated component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
         }
     );
