@@ -12,7 +12,12 @@ LIBRARY_ENTRYPOINT
 char const *const componentName = "Gun";
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint(float damage, float fireRate) {
+Components::IComponent *buildDefault() {
+    return new Components::Gun();
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *buildWithParams(uint32_t damage, uint32_t fireRate) {
     return new Components::Gun(damage, fireRate);
 }
 

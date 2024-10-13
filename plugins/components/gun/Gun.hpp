@@ -6,22 +6,22 @@
 */
 
 #ifndef GUN_HPP
-#define GUN_HPP
+    #define GUN_HPP
 
-#include "plugins/components/AComponent.hpp"
-#include "GameEngine/GameEngine.hpp"
-#include "components/AComponent.hpp"
+    #include "plugins/components/AComponent.hpp"
+    #include "GameEngine/GameEngine.hpp"
+    #include "components/AComponent.hpp"
 
-#ifdef _WIN32
-    #include <windows.h>
-    #pragma comment(lib, "ws2_32.lib")
-#else
-    #include <arpa/inet.h>
-#endif
+    #ifdef _WIN32
+        #include <windows.h>
+        #pragma comment(lib, "ws2_32.lib")
+    #else
+        #include <arpa/inet.h>
+    #endif
 
-#include <vector>
-#include <stdexcept>
-#include <libconfig.h++>
+    #include <vector>
+    #include <stdexcept>
+    #include <libconfig.h++>
 
 /**
  * @brief Gun component class for ECS.
@@ -31,6 +31,13 @@
  */
 namespace Components {
 
+    /**
+     * @brief A component representing a gun with damage and fire rate attributes.
+     * 
+     * This class stores the gun's damage and fire rate, allowing it to be 
+     * serialized and deserialized for network transmission. It also provides 
+     * methods for initializing the component from configuration settings.
+     */
     class Gun : public AComponent<Gun> {
     public:
         /**
