@@ -145,7 +145,7 @@ uint16_t RTypeClient::receiveUint16()
     if (data.size() < 2) {
         throw std::runtime_error("Received data is too short to make an uint16");
     }
-    uint16_t result = (static_cast<uint16_t>(data[0]) << 8) | static_cast<uint16_t>(data[1]);
+    uint16_t result = uint16From2Uint8(data[0], data[1]);
     return result;
 }
 
