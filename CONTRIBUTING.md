@@ -19,12 +19,12 @@ You will then have either a `r-type_server` and a `r-type_client` for linux, or 
 ## Pull requests
 If you want to contribute to the project, you should do so with a pull request.
 
-If you want your pull request to be validated, it sould respect the following conditions :
+If you want your pull request to be validated, it should respect the following conditions :
 - The description of the pull request **must** be self-sufficient and **must** explain what is implemented in it. You should also mention issues related to the pull request (if any) in the description (e.g. `close #23`).
-- The code **must** be documented with Doxygen-like comment. Every class, methods and functions must have its documentation to explain what it does.
+- The code **must** be documented with Doxygen-like comment. All class, methods and functions must have their documentation to explain what it does.
 - The commits **must** respect the [commit norm](#commit-norm) mentionned below.
 
-If you respected all the conditions listed, one of the main developper of the project will read your pull request and either approve or request changes.
+If you respected all the conditions listed, one of the current maintainer of the project will read your pull request and either approve or request changes.
 
 ## Commit norm
 ### Repository changes
@@ -63,7 +63,7 @@ If you respected all the conditions listed, one of the main developper of the pr
 
 ## Releases
 
-Here we will explain how the files located in the [release page](https://github.com/Tugduoff/RType/releases) of Github are  produced
+Here we will explain how the files located in the [release page](https://github.com/Tugduoff/RType/releases) of Github are produced
 
 #### Windows
 On windows we simply launch the build script (`windows_build_rtype.bat`), and then zip the produced bin folder.
