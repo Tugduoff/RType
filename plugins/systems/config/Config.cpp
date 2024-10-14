@@ -215,9 +215,8 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
                 entity.components.push_back({componentName, args});
             }
             if (entity.type != "") {
-                std::cerr << "Entity type: " << entity.type << " name: " << entity.name << "loaded!" << std::endl;
+                std::cerr << "Entity type: " << entity.type << " name: " << entity.name << " loaded!" << std::endl;
                 for (const auto &component : config.entityTemplates.at(entity.type).components) {
-                    // Check if the component is already loaded
                     bool alreadyLoaded = false;
                     for (const auto &loadedComponent : entity.components) {
                         if (loadedComponent.id == component.id) {

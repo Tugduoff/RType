@@ -2,29 +2,29 @@
 ** EPITECH PROJECT, 2024
 ** RType
 ** File description:
-** SpriteID.cpp file
+** Type.cpp file
 */
 
-#include "SpriteID.hpp"
+#include "Type.hpp"
 #include "library_entrypoint.hpp"
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(std::string id)
+Components::IComponent *buildWithParams(enum Components::TypeID &id)
 {
-    return new Components::SpriteID(id);
+    return new Components::Type(id);
 }
 
 LIBRARY_ENTRYPOINT
 Components::IComponent *buildDefault()
 {
-    return new Components::SpriteID();
+    return new Components::Type();
 }
 
 LIBRARY_ENTRYPOINT
 Components::IComponent *entryConfig(libconfig::Setting &config)
 {
-    return new Components::SpriteID(config);
+    return new Components::Type(config);
 }
 
 LIBRARY_ENTRYPOINT
-char const *const componentName = "SpriteID";
+char const *const componentName = "Type";

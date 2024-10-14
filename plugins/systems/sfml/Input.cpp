@@ -72,7 +72,6 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     index++;
                 }
             } catch (std::exception &e) {
-                std::cerr << "HandleInput Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -96,7 +95,6 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     index++;
                 }
             } catch (std::exception &e) {
-                std::cerr << "HandleInput Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -116,7 +114,6 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     index++;
                 }
             } catch (std::exception &e) {
-                std::cerr << "HandleInput Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -136,7 +133,6 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     index++;
                 }
             } catch (std::exception &e) {
-                std::cerr << "HandleInput Error: " << e.what() << std::endl;
                 continue;
             }
         }

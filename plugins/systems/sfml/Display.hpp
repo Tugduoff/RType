@@ -11,6 +11,7 @@
     #include <SFML/Graphics.hpp>
     #include <libconfig.h++>
     #include "GameEngine/GameEngine.hpp"
+    #include <unordered_map>
 
 namespace Systems {
     /**
@@ -32,7 +33,10 @@ namespace Systems {
 
         private:
 
-            std::vector<sf::Texture> __textures;
+            void loadConfig(const std::string &filepath);
+
+            std::unordered_map<std::string, sf::Texture> __textures;
+            std::string __configFilePath;
     };
 };
 
