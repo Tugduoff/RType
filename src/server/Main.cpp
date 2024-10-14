@@ -78,7 +78,9 @@ void updateComponent(size_t id, std::string name, std::vector<uint8_t> data)
 }
 
 int main() {
-    Engine::GameEngine engine(updateComponent);
+    Engine::GameEngine engine(
+        [](size_t id, std::string name, std::vector<uint8_t> data) { std::cout << "Empty update component" << std::endl; }
+    );
     Chrono chrono;
 
     std::vector<std::type_index> types = {
@@ -98,12 +100,29 @@ int main() {
         engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
         engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
 
-        engine.loadSystems("./plugins/bin/systems/configSystems.cfg");
+        engine.loadSystems("./src/server/configServer.cfg");
 
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
         UDPServer server(io_context, 8080, engine.getIdStringToType());
-        io_context.run();
+
+        engine.getRegistry().addEntityCreateCallback(
+            [&server](const ECS::Entity &e) { server.create_entity(e); }
+        );
+        engine.getRegistry().addEntityKillCallback(
+            [&server](const ECS::Entity &e) { server.delete_entity(e); }
+        );
+
+        engine.getRegistry().componentManager().registerGlobalCreateCallback(
+            [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
+        );
+        engine.getRegistry().componentManager().registerGlobalRemoveCallback(
+            [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
+        );
+
+        engine.setUpdateComponent(
+            [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
+        );
 
         displayPolymorphic(engine, types.begin(), types.end());
 
