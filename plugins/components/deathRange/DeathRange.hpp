@@ -124,9 +124,9 @@ namespace Components {
             int maximum;
             int minimum;
 
-            if (!config.lookupValue("maximum", maximum))
+            if (!config.lookupValue("max", maximum))
                 maximum = 2000;
-            if (!config.lookupValue("minimum", minimum))
+            if (!config.lookupValue("min", minimum))
                 minimum = 0;
             std::unique_ptr<Components::DeathRange> DeathRange = engine.newComponent<Components::DeathRange>(static_cast<uint32_t>(maximum), static_cast<uint32_t>(minimum));
             engine.getRegistry().componentManager().addComponent<Components::DeathRange>(to, std::move(DeathRange));
