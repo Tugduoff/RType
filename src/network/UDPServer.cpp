@@ -26,7 +26,6 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
 // --- Loop --- //
 
 void UDPServer::start_receive() {
-    std::cout << "--- listening ---" << std::endl;
     boost::system::error_code ec;
     std::size_t bytes_recvd = socket_.receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 0, ec);
 
