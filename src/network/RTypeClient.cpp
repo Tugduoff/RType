@@ -52,18 +52,24 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
 
     switch (operation[0]) {
         case 0x0:
+            std::cout << "Create Entity" << std::endl;
             createEntity(engine, operation);
             break;
         case 0x1:
+            std::cout << "Delete Entity" << std::endl;
             deleteEntity(engine, operation);
             break;
         case 0x2:
+            std::cout << "Attach Component" << std::endl;
             attachComponent(engine, operation);
             break;
         case 0x3:
+            std::cout << "Update Component" << std::endl;
+            std::cout << "Component n°" << uint16From2Uint8(operation[3], operation[4]) << std::endl;
             updateComponent(engine, operation);
             break;
         case 0x4:
+            std::cout << "Detach Component" << std::endl;
             detachComponent(engine, operation);
             break;
         default:
@@ -74,6 +80,7 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
             }
             return;
     }
+    std::cout << std::endl;
 }
 
 void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
@@ -126,7 +133,14 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
         engine.getRegistry().componentManager().getComponents(compTypeIndex)
     );
     std::vector<uint8_t> serializedData = std::vector<uint8_t>(operation.begin() + 5, operation.end());
+    if (sparseArray.size() == entityId) {
+        std::cout << "Component " << strCompId << " was not attached for entity n°" << entityId << " so created it" << std::endl;
+        sparseArray.constructAt(entityId);
+        std::cout << "After construct at" << std::endl;
+    }
+    std::cout << "Before deserialize" << std::endl;
     sparseArray[entityId]->deserialize(serializedData);
+    std::cout << "After deserialize" << std::endl;
 }
 
 void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
