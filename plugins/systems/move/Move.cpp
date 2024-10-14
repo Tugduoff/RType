@@ -49,16 +49,11 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
                 continue;
             }
         }
-        // std::cerr << "DeathRange size: " << deathRangeComponent.size() << std::endl;
-        // std::cerr << "Position size: " << posComponents.size() << std::endl;
         for (i = 0; i < posComponents.size() && i < deathRangeComponent.size(); i++) {
-            std::cerr << "Checking death range for entity " << i << std::endl;
             try {
                 auto &drange = deathRangeComponent[i];
                 auto &pos = posComponents[i];
 
-                if (!pos || !drange)
-                    continue;
                 if (pos->x > drange->maximum || pos->x < drange->minimum) {
                     reg.killEntity((ECS::Entity)i);
                     std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
@@ -68,7 +63,6 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
                 continue;
             }
         }
-        std::cerr << "End of move system" << std::endl;
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }

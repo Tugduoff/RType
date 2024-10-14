@@ -65,7 +65,6 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
     window.clear();
 
     try {
-        std::cerr << "DisplaySystem running" << std::endl;
         auto &posComponents = reg.componentManager().getComponents<Components::Position>();
         auto &spriteComponents = reg.componentManager().getComponents<Components::SpriteComponent>();
         auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteIDComponent>();
@@ -102,9 +101,7 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                     reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
                     break;
                 }
-                std::cerr << "Entity " << i << " has a sprite component" << std::endl;
                 auto &sprite = spriteComponents[i];
-                std::cerr << "yu" << std::endl;
 
                 sprite->sprite.setPosition(pos->x, pos->y);
                 if (sprite->textureLoaded) {
@@ -135,7 +132,6 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                 window.draw(sprite->sprite);
             }
         }
-        std::cerr << "End of display system" << std::endl;
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }

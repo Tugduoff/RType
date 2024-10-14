@@ -69,7 +69,6 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
     auto &reg = engine.getRegistry();
 
     try {
-        std::cerr << "Running InputSystem" << std::endl;
         auto &controllableComponents = reg.componentManager().getComponents<Components::Controllable>();
         auto &accelerationComponents = reg.componentManager().getComponents<Components::Acceleration>();
         auto &velocityComponents = reg.componentManager().getComponents<Components::Velocity>();
@@ -119,7 +118,6 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
                 continue;
             }
         }
-        std::cerr << "InputSystem done" << std::endl;
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
