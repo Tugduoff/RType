@@ -9,6 +9,19 @@
 #include "Window.hpp"
 #include "network/RTypeClient.hpp"
 #include "GameEngine/GameEngine.hpp"
+#include "components/IComponent.hpp"
+#include "components/position/Position.hpp"
+#include "components/velocity/Velocity.hpp"
+#include "components/spriteId/SpriteID.hpp"
+#include "components/controllable/Controllable.hpp"
+#include "components/visible/Visible.hpp"
+#include "components/health/Health.hpp"
+#include "components/collider/Collider.hpp"
+#include "components/acceleration/Acceleration.hpp"
+#include "components/gun/Gun.hpp"
+#include "components/damage/Damage.hpp"
+#include "components/scale/Scale.hpp"
+#include "components/deathRange/DeathRange.hpp"
 
 void updateComponent(size_t id, std::string name, std::vector<uint8_t> data, RTypeClient &conn)
 {
@@ -34,6 +47,14 @@ int main()
     Engine::GameEngine engine(
         [&conn](size_t id, std::string name, std::vector<uint8_t> data) { updateComponent(id, name, data, conn); }
     );
+
+    // Hard coded register for now
+    engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
+    engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
+    engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
+    engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
+    engine.registerComponent<Components::Acceleration>("./plugins/bin/components/", "Acceleration");
+
 
     conn.engineInit();
     std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();

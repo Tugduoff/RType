@@ -52,11 +52,11 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
 
     switch (operation[0]) {
         case 0x0:
-            std::cout << "Create Entity" << std::endl;
+            std::cout << "Create Entity n°" << uint16From2Uint8(operation[1], operation[2]) << std::endl;
             createEntity(engine, operation);
             break;
         case 0x1:
-            std::cout << "Delete Entity" << std::endl;
+            std::cout << "Delete Entity n°" << uint16From2Uint8(operation[1], operation[2]) << std::endl;
             deleteEntity(engine, operation);
             break;
         case 0x2:
@@ -85,10 +85,11 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
 
 void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
-    uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
+    uint16_t entityId = ntohs(uint16From2Uint8(operation[1], operation[2]));
 
     std::cout << "Creating entity n°" << entityId << " from network" << std::endl;
     ECS::Entity entity = engine.getRegistry().entityManager().spawnEntity();
+    // ECS::Entity entity = engine.getRegistry().entityManager().spawnEntityWithId(entityId);
     std::cout << "Created entity n°" << entity << " in local" << std::endl;
     if ((size_t)entityId != entity) {
         std::cerr << "Error: Entity created does not have the same id as received in the network" << std::endl;
@@ -97,12 +98,15 @@ void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 
 void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
-    uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
-    ECS::Entity entity = engine.getRegistry().entityManager().entityFromIndex(entityId);
+    uint16_t entityId = ntohs(uint16From2Uint8(operation[1], operation[2]));
 
-    std::cout << "Deleting entity n°" << entityId << " from network" << std::endl;
-    engine.getRegistry().entityManager().killEntity(entity);
-    std::cout << "Deleted entity n°" << entity << " in local" << std::endl;
+    try {
+        ECS::Entity entity = engine.getRegistry().entityManager().entityFromIndex(entityId);
+        
+        std::cout << "Deleting entity n°" << entityId << " from network" << std::endl;
+        engine.getRegistry().entityManager().killEntity(entity);
+        std::cout << "Deleted entity n°" << entity << " in local" << std::endl;
+    } catch (std::exception e) {}
 }
 
 void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
@@ -133,14 +137,13 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
         engine.getRegistry().componentManager().getComponents(compTypeIndex)
     );
     std::vector<uint8_t> serializedData = std::vector<uint8_t>(operation.begin() + 5, operation.end());
-    if (sparseArray.size() == entityId) {
+    try {
+        sparseArray[entityId]->getId();
+    } catch (std::exception &e) {
         std::cout << "Component " << strCompId << " was not attached for entity n°" << entityId << " so created it" << std::endl;
         sparseArray.constructAt(entityId);
-        std::cout << "After construct at" << std::endl;
     }
-    std::cout << "Before deserialize" << std::endl;
     sparseArray[entityId]->deserialize(serializedData);
-    std::cout << "After deserialize" << std::endl;
 }
 
 void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)

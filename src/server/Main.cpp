@@ -142,7 +142,7 @@ int main() {
             if (chrono.getElapsedTime() < 17)
                 continue;
             engine.runSystems();
-            displayPolymorphic(engine, types.begin(), types.end());
+            // displayPolymorphic(engine, types.begin(), types.end());
             std::cout << "####################################### iteration: " << i++ << "\n" << std::endl;
             chrono.restart();
        }
