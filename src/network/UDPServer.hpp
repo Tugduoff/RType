@@ -39,6 +39,7 @@ class UDPServer {
         std::array<char, 1024> recv_buffer_;
         std::size_t size_max;
         std::unordered_map<std::string, std::type_index> __idStringToType;
+        // std::unordered_map<std::type_index, std::uint8_t> __newtorkCompIndex;
         std::vector<udp::endpoint> client_endpoints;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;
@@ -126,6 +127,8 @@ class UDPServer {
         void remove_client(const udp::endpoint& client);
 
 
+    public:
+
         // --- Entity --- //
 
         /**
@@ -133,14 +136,14 @@ class UDPServer {
         * 
         * @param entity A reference to the entity being created.
         */
-        void create_entity(ECS::Entity &entity);
+        void create_entity(const ECS::Entity &entity);
     
         /**
         * @brief Deletes an existing entity on the server.
         * 
         * @param entity A reference to the entity being deleted.
         */
-        void delete_entity(ECS::Entity &entity);
+        void delete_entity(const ECS::Entity &entity);
 
 
         // --- Component --- //
@@ -151,7 +154,7 @@ class UDPServer {
         * @param entity A reference to the entity receiving the component.
         * @param component A reference to the component being attached.
         */
-        void attach_component(ECS::Entity &entity, Components::IComponent &component);
+        void attach_component(size_t entity, std::type_index component);
     
         /**
         * @brief Updates the component of an entity.
@@ -159,7 +162,7 @@ class UDPServer {
         * @param entity A reference to the entity whose component is being updated.
         * @param component A reference to the updated component.
         */
-        void update_component(ECS::Entity &entity, Components::IComponent &component);
+        void update_component(size_t entity, std::string name, std::vector<uint8_t> data);
     
         /**
         * @brief Detaches a component from an entity.
@@ -167,7 +170,7 @@ class UDPServer {
         * @param entity A reference to the entity losing the component.
         * @param component A reference to the component being detached.
         */
-        void detach_component(ECS::Entity &entity, Components::IComponent &component);
+        void detach_component(size_t entity, std::type_index component);
 };
 
 #endif /* !UDP_SERVER_HPP_ */
