@@ -9,7 +9,7 @@
 #include "Collision.hpp"
 #include "components/position/Position.hpp"
 #include "components/collider/Collider.hpp"
-#include "components/spriteId/SpriteID.hpp"
+#include "components/type/Type.hpp"
 #include "components/damage/Damage.hpp"
 #include "components/health/Health.hpp"
 #include "library_entrypoint.hpp"
@@ -38,8 +38,8 @@ void Systems::Collision::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Position component in system Collision" << std::endl;
     if (!engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider"))
         std::cerr << "Error: Could not register Collider component in system Collision" << std::endl;
-    if (!engine.registerComponent<Components::SpriteIDComponent>("./plugins/bin/components/", "SpriteID"))
-        std::cerr << "Error: Could not register SpriteID component in system Collision" << std::endl;
+    if (!engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type"))
+        std::cerr << "Error: Could not register Type component in system Collision" << std::endl;
     if (!engine.registerComponent<Components::Damage>("./plugins/bin/components/", "Damage"))
         std::cerr << "Error: Could not register Damage component in system Collision" << std::endl;
     if (!engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health"))
@@ -59,7 +59,7 @@ Systems::ISystem *entryConfig(libconfig::Setting &config)
 }
 
 void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &reg) {
-    auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteIDComponent>();
+    auto &typeComponents = reg.componentManager().getComponents<Components::Type>();
     auto &posComponents = reg.componentManager().getComponents<Components::Position>();
     auto &colliderComponents = reg.componentManager().getComponents<Components::Collider>();
     auto &damageComponents = reg.componentManager().getComponents<Components::Damage>();
@@ -69,13 +69,13 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
     std::vector<ECS::Entity> projectiles;
 
     size_t i = 0;
-    for (i = 0; i < spriteIdComponents.size(); i++) {
+    for (i = 0; i < typeComponents.size(); i++) {
         try {
-            auto &spriteId = spriteIdComponents[i];
+            auto &type = typeComponents[i];
 
-            if (spriteId->id == Components::SpriteID::Enemy) {
+            if (type->id == Components::TypeID::ENEMY) {
                 enemies.push_back((ECS::Entity)i);
-            } else if (spriteId->id == Components::SpriteID::ProjectileRight) {
+            } else if (type->id == Components::TypeID::ALLY_PROJECTILE) {
                 projectiles.push_back((ECS::Entity)i);
             }
         } catch (std::exception &e) {
@@ -109,7 +109,6 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
                     reg.killEntity(proj);
                 }
             } catch (std::exception &e) {
-                std::cerr << "Collision Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -117,7 +116,7 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
 }
 
 void Systems::Collision::checkEnemyProjectileToPlayerCollision(ECS::Registry &reg) {
-    auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteIDComponent>();
+    auto &typeComponents = reg.componentManager().getComponents<Components::Type>();
     auto &posComponents = reg.componentManager().getComponents<Components::Position>();
     auto &colliderComponents = reg.componentManager().getComponents<Components::Collider>();
     auto &damageComponents = reg.componentManager().getComponents<Components::Damage>();
@@ -127,13 +126,13 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(ECS::Registry &re
     std::vector<ECS::Entity> projectiles;
 
     size_t i = 0;
-    for (i = 0; i < spriteIdComponents.size(); i++) {
+    for (i = 0; i < typeComponents.size(); i++) {
         try {
-            auto &spriteId = spriteIdComponents[i];
+            auto &type = typeComponents[i];
 
-            if (spriteId->id == Components::SpriteID::Player) {
+            if (type->id == Components::TypeID::ALLY) {
                 players.push_back((ECS::Entity)i);
-            } else if (spriteId->id == Components::SpriteID::ProjectileLeft) {
+            } else if (type->id == Components::TypeID::ENEMY_PROJECTILE) {
                 projectiles.push_back((ECS::Entity)i);
             }
         } catch (std::exception &e) {
@@ -167,7 +166,6 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(ECS::Registry &re
                     reg.killEntity(proj);
                 }
             } catch (std::exception &e) {
-                std::cerr << "Collision Error: " << e.what() << std::endl;
                 continue;
             }
         }
