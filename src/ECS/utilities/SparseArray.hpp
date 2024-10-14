@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2024
+** Rtype
+** File description:
+** SparseArray.hpp file
+*/
+
 #ifndef SPARSE_ARRAY_HPP
     #define SPARSE_ARRAY_HPP
 
