@@ -17,20 +17,6 @@
 #include "Chrono.hpp"
 
 #include "network/UDPServer.hpp"
-<<<<<<< HEAD
-#include "plugins/components/IComponent.hpp"
-#include "plugins/components/position/Position.hpp"
-#include "plugins/components/velocity/Velocity.hpp"
-#include "plugins/components/spriteId/SpriteID.hpp"
-#include "plugins/components/controllable/Controllable.hpp"
-#include "plugins/components/visible/Visible.hpp"
-#include "plugins/components/health/Health.hpp"
-#include "plugins/components/collider/Collider.hpp"
-#include "plugins/components/acceleration/Acceleration.hpp"
-#include "plugins/components/gun/Gun.hpp"
-#include "plugins/components/damage/Damage.hpp"
-#include "plugins/components/deathRange/DeathRange.hpp"
-=======
 
 #include "components/IComponent.hpp"
 #include "components/position/Position.hpp"
@@ -44,7 +30,7 @@
 #include "components/gun/Gun.hpp"
 #include "components/damage/Damage.hpp"
 #include "components/scale/Scale.hpp"
->>>>>>> main
+#include "components/deathRange/DeathRange.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
