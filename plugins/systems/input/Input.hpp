@@ -73,7 +73,7 @@ namespace Systems {
                     std::make_unique<Components::SpriteIDComponent>(spriteId);
                 reg.componentManager().addComponent(projectile, std::move(spriteComponent));
                 std::unique_ptr<Components::DeathRange> deathRangeComponent =
-                    std::make_unique<Components::DeathRange>(2000, 0);
+                    std::make_unique<Components::DeathRange>(1920, 0);
                 reg.componentManager().addComponent(projectile, std::move(deathRangeComponent));
                 return;
             }
