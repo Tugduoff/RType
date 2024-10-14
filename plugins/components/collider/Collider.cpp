@@ -9,10 +9,16 @@
 #include "library_entrypoint.hpp"
 
 LIBRARY_ENTRYPOINT
-char const *componentName = "Collider";
+char const *const componentName = "Collider";
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *entryPoint(float width, float height)
+Components::IComponent *buildDefault()
+{
+    return new Components::Collider();
+}
+
+LIBRARY_ENTRYPOINT
+Components::IComponent *buildWithParams(uint32_t width, uint32_t height)
 {
     return new Components::Collider(width, height);
 }

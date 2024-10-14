@@ -21,7 +21,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(BINARY_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/../bin)
 
 # Set the binary output directory to a custom path
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BINARY_OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${BINARY_OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BINARY_OUTPUT_DIR}/release)
 
@@ -53,9 +52,10 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-    NAME asio
-    GIT_REPOSITORY "https://github.com/boostorg/asio"
-    GIT_TAG "boost-1.86.0"
+  NAME Boost
+  VERSION 1.86.0
+  URL https://github.com/boostorg/boost/releases/download/boost-1.86.0/boost-1.86.0-cmake.tar.xz
+  OPTIONS "BOOST_ENABLE_CMAKE ON" "BOOST_INCLUDE_LIBRARIES asio"
 )
 
 if (WIN32)

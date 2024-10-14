@@ -11,11 +11,14 @@
 #include <exception>
 #include <iostream>
 
-Systems::ConfigLoader::ConfigLoader(const std::string &configFilePath) : __configFilePath(configFilePath)
+Systems::ConfigLoader::ConfigLoader(const std::string &configFilePath) :
+    __configFilePath(configFilePath),
+    __chrono()
 {
 }
 
-Systems::ConfigLoader::ConfigLoader(libconfig::Setting &config)
+Systems::ConfigLoader::ConfigLoader(libconfig::Setting &config) :
+    __chrono()
 {
     config.lookupValue("path", __configFilePath);
 }
@@ -27,8 +30,29 @@ void Systems::ConfigLoader::init(Engine::GameEngine &engine)
 
 void Systems::ConfigLoader::run(Engine::GameEngine &engine)
 {
-    // Do smth
+    for (auto it = config.entities.begin(); it != config.entities.end(); ) {
+        auto &entity = *it;
 
+        if ((size_t)entity.spawnTime <= __chrono.getElapsedTime()) {
+            std::cerr << "Spawning entity of type: " << entity.type << " with name: " << entity.name << std::endl;
+            ECS::Entity newEntity = engine.getRegistry().createEntity();
+            std::cerr << "New entity created with ID: " << newEntity << std::endl;
+
+            for (const auto &component : entity.components) {
+                std::cerr << "Adding component: \"" << component.id << "\" to entity ID: " << newEntity << std::endl;
+                try {
+                    std::unique_ptr<Components::IComponent> &comp = engine.getComponentFromId(component.id);
+                    comp->addTo(newEntity, engine, component.args);
+                } catch (std::exception &e) {
+                    std::cerr << "Component with ID: \"" << component.id << "\" not found!" << std::endl;
+                    continue;
+                }
+            }
+
+            it = config.entities.erase(it);
+        } else
+            ++it;
+    }
 }
 
 std::string Systems::ConfigLoader::difficultyToString(enum Difficulty difficulty)
@@ -117,7 +141,6 @@ void Systems::ConfigLoader::loadConfig(const std::string &filepath, Engine::Game
 
 void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::GameEngine &engine)
 {
-        // Extract level information
     if (root.exists("level")) {
         libconfig::Setting &level = root["level"];
         level.lookupValue("name", config.level.name);
@@ -133,7 +156,6 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
         }
         level.lookupValue("background_music", config.level.backgroundMusic);
 
-        // Extract nested structures (map_size, view_port)
         libconfig::Setting &map_size = level["map_size"];
         map_size.lookupValue("x", config.level.mapSize.x);
         map_size.lookupValue("y", config.level.mapSize.y);
@@ -148,11 +170,39 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
         std::cout << "\nLevel: " << config.level.name << " loaded!" << std::endl;
     }
 
-    // Extract entities
+    if (root.exists("templates")) {
+        libconfig::Setting &templates = root["templates"];
+        for (int i = 0; i < templates.getLength(); ++i) {
+            ConfigStruct::EntityTemplate entityTemplate;
+            std::string templateName;
+            templates[i].lookupValue("name", templateName);
+
+            libconfig::Setting &templateComponents = templates[i]["components"];
+            for (int j = 0; j < templateComponents.getLength(); ++j) {
+                libconfig::Setting &component = templateComponents[j];
+                std::string componentName;
+                component.lookupValue("name", componentName);
+
+                libconfig::Setting &args = component["args"];
+
+                entityTemplate.components.push_back({componentName, args});
+            }
+            config.entityTemplates.insert({templateName, entityTemplate});
+        }
+        std::cout << "Templates loaded: " << config.entityTemplates.size() << "\n" << std::endl;
+    }
+
     if (root.exists("entities")) {
         libconfig::Setting &entities = root["entities"];
         for (int i = 0; i < entities.getLength(); ++i) {
             ConfigStruct::Entity entity;
+            entity.type = "";
+            entity.spawnTime = 0;
+            entity.name = "entity";
+
+            entities[i].lookupValue("spawnTime", entity.spawnTime);
+            entities[i].lookupValue("type", entity.type);
+            entities[i].lookupValue("name", entity.name);
 
             libconfig::Setting &entityComponents = entities[i]["components"];
             for (int j = 0; j < entityComponents.getLength(); ++j) {
@@ -160,42 +210,38 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
                 std::string componentName;
                 component.lookupValue("name", componentName);
 
-                // Extract the args array
                 libconfig::Setting &args = component["args"];
 
-                // Store the component in the entity
                 entity.components.push_back({componentName, args});
             }
+            if (entity.type != "") {
+                std::cerr << "Entity type: " << entity.type << " name: " << entity.name << "loaded!" << std::endl;
+                for (const auto &component : config.entityTemplates.at(entity.type).components) {
+                    // Check if the component is already loaded
+                    bool alreadyLoaded = false;
+                    for (const auto &loadedComponent : entity.components) {
+                        if (loadedComponent.id == component.id) {
+                            std::cerr << "Component: " << component.id << " already defined locally!" << std::endl;
+                            alreadyLoaded = true;
+                        }
+                    }
+                    if (alreadyLoaded)
+                        continue;
+                    entity.components.push_back(component);
+                    std::cerr << "Component: " << component.id << " loaded!" << std::endl;
+                }
+            } else {
+                std::cerr << "ERROR: Entity type not found! Entity doesnt depend on a template" << std::endl;
+            };
             config.entities.push_back(entity);
         }
         std::cout << "Entities loaded: " << config.entities.size() << "\n" << std::endl;
-    }
-
-    // Create the entities
-    for (const auto &entity : config.entities) {
-        // Create the entity based on the type and components
-        // Add cases for other entity types
-        ECS::Entity newEntity = engine.getRegistry().entityManager().spawnEntity();
-        std::cout << "New entity created with ID: " << newEntity << std::endl;
-        // call engine to create the entity
-
-        for (const auto &component : entity.components) {
-            std::cout << "Adding component: \"" << component.id << "\" to entity ID: " << newEntity << std::endl;
-            try {
-                std::unique_ptr<Components::IComponent> &comp = engine.getComponentFromId(component.id);
-                comp->addTo(newEntity, engine, component.args);
-            } catch (std::exception &e) {
-                std::cerr << "Component with ID: \"" << component.id << "\" not found!" << std::endl;
-                continue;
-            }
-        }
     }
 }
 
 LIBRARY_ENTRYPOINT
 Systems::ISystem *entryPoint(const char *configFilePath)
 {
-    std::cout << "entryPoint called with configFilePath: " << configFilePath << std::endl;
     return new Systems::ConfigLoader(configFilePath);
 }
 
