@@ -42,13 +42,14 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
                 int projectileColliderWidth = 10;
                 int projectileColliderHeight = 10;
                 int projectileDamage = gun->bulletDamage;
-                enum Components::SpriteID spriteId = Components::SpriteID::ProjectileRight;
+                enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
+                std::string spriteId = gun->spriteId;
 
                 auto &deathRangeComponents = reg.componentManager().getComponents<Components::DeathRange>();
                 std::cerr << "deathRangeComponents size: " << deathRangeComponents.size() << std::endl;
                 createProjectile(engine, projectilePosX, projectilePosY, 
                     projectileVelX, projectileVelY, 
-                    projectileColliderWidth, projectileColliderHeight, projectileDamage, spriteId);
+                    projectileColliderWidth, projectileColliderHeight, projectileDamage, type, spriteId);
                 std::cerr << "deathRangeComponents size: " << deathRangeComponents.size() << std::endl;
 
             } else {
@@ -114,7 +115,6 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
                     }
                 }
             } catch (std::exception &e) {
-                std::cerr << "Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -139,8 +139,10 @@ void Systems::InputSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Position component in system Input" << std::endl;
     if (!engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider"))
         std::cerr << "Error: Could not register Collider component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::SpriteIDComponent>("./plugins/bin/components/", "SpriteID"))
+    if (!engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID"))
         std::cerr << "Error: Could not register SpriteID component in system Input" << std::endl;
+    if (!engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type"))
+        std::cerr << "Error: Could not register Type component in system Input" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT
