@@ -27,8 +27,12 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
 
 void UDPServer::start_receive() {
     boost::system::error_code ec;
-    std::size_t bytes_recvd = socket_.receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 0, ec);
+    std::size_t bytes_recvd;
 
+    if (!socket_.available()) {
+        return;
+    }
+    bytes_recvd = socket_.receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 0, ec);
     if (!ec && bytes_recvd > 0) {
         std::string message(recv_buffer_.data(), bytes_recvd);
         std::cout << "Received message from client (" << remote_endpoint_.address().to_string() 
