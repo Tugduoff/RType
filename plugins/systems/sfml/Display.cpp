@@ -72,6 +72,8 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                 try {
                     auto &pos = posComponents[i];
                     auto &spriteId = spriteIdComponents[i];
+                    (void)pos;
+                    (void)spriteId;
                 } catch (std::exception &e) {
                     std::cerr << "Display err: " << e.what() << std::endl;
                     continue;
