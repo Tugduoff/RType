@@ -17,8 +17,8 @@ Components::IComponent *buildDefault() {
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(uint32_t maximum, uint32_t minimum) {
-    return new Components::DeathRange(maximum, minimum);
+Components::IComponent *buildWithParams(uint32_t maxX, uint32_t maxY, uint32_t minX, uint32_t minY) {
+    return new Components::DeathRange(maxX, maxY, minX, minY);
 }
 
 LIBRARY_ENTRYPOINT
