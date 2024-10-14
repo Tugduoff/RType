@@ -47,8 +47,10 @@ void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 
 void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
 {
+    auto &ctrlComponents = engine.getRegistry().componentManager().getComponents<Components::Controllable>();
+
     if (event.type == sf::Event::KeyPressed) {
-        for (auto &ctrl : engine.getRegistry().componentManager().getComponents<Components::Controllable>()) {
+        for (auto &ctrl : ctrlComponents) {
             Key key = Key::UNKNOWN;
             try {
                 key = __sfmlToKey.at(event.key.code);
@@ -66,7 +68,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
         }
     }
     if (event.type == sf::Event::KeyReleased) {
-        for (auto &ctrl : engine.getRegistry().componentManager().getComponents<Components::Controllable>()) {
+        for (auto &ctrl : ctrlComponents) {
             Key key = Key::UNKNOWN;
             try {
                 key = __sfmlToKey.at(event.key.code);
@@ -84,7 +86,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
         }
     }
     if (event.type == sf::Event::MouseButtonPressed) {
-        for (auto &ctrl : engine.getRegistry().componentManager().getComponents<Components::Controllable>()) {
+        for (auto &ctrl : ctrlComponents) {
             int index = 0;
             for (auto &[action, actionKey] : ctrl->keyBindings) {
                 if ((actionKey == Key::LEFT_CLICK && event.mouseButton.button == sf::Mouse::Left) ||
@@ -98,7 +100,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
         }
     }
     if (event.type == sf::Event::MouseButtonReleased) {
-        for (auto &ctrl : engine.getRegistry().componentManager().getComponents<Components::Controllable>()) {
+        for (auto &ctrl : ctrlComponents) {
             int index = 0;
             for (auto &[action, actionKey] : ctrl->keyBindings) {
                 if ((actionKey == Key::LEFT_CLICK && event.mouseButton.button == sf::Mouse::Left) ||
