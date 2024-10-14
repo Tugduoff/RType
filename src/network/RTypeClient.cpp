@@ -80,7 +80,9 @@ void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 {
     uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
 
+    std::cout << "Creating entity n°" << entityId << " from network" << std::endl;
     ECS::Entity entity = engine.getRegistry().entityManager().spawnEntity();
+    std::cout << "Created entity n°" << entity << " in local" << std::endl;
     if ((size_t)entityId != entity) {
         std::cerr << "Error: Entity created does not have the same id as received in the network" << std::endl;
     }
@@ -91,7 +93,9 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
     uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
     ECS::Entity entity = engine.getRegistry().entityManager().entityFromIndex(entityId);
 
+    std::cout << "Deleting entity n°" << entityId << " from network" << std::endl;
     engine.getRegistry().entityManager().killEntity(entity);
+    std::cout << "Deleted entity n°" << entity << " in local" << std::endl;
 }
 
 void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
@@ -101,6 +105,7 @@ void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_
     std::string &strCompId = _compNames[componentId];
     std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
     
+    std::cout << "Attaching Component n°" << componentId << ": " << strCompId << " to entity n°" << entityId << std::endl;
     auto &compInstance = engine.getComponentFromId(strCompId);
     auto &sparseArray = compInstance->any_cast(
         engine.getRegistry().componentManager().getComponents(compTypeIndex)
@@ -115,6 +120,7 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
     std::string strCompId = _compNames[componentId];
     std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
     
+    std::cout << "Updating Component n°" << componentId << ": " << strCompId << " of entity n°" << entityId << std::endl;
     auto &compInstance = engine.getComponentFromId(compTypeIndex);
     auto &sparseArray = compInstance->any_cast(
         engine.getRegistry().componentManager().getComponents(compTypeIndex)
@@ -130,6 +136,7 @@ void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_
     std::string strCompId = _compNames[componentId];
     std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
     
+    std::cout << "Detaching Component n°" << componentId << ": " << strCompId << " of entity n°" << entityId << std::endl;
     auto &compInstance = engine.getComponentFromId(compTypeIndex);
     auto &sparseArray = compInstance->any_cast(
         engine.getRegistry().componentManager().getComponents(compTypeIndex)
