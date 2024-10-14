@@ -24,7 +24,7 @@ void RTypeClient::engineInit()
     std::cout << "CompNb : " << (int)compNb << "." << std::endl;
     std::cout << "CompNameMaxSize : " << (int)compNameMaxSize << "." << std::endl;
 
-    for (uint16_t i; i < compNb; i++) {
+    for (uint16_t i = 0; i < compNb; i++) {
         std::vector<uint8_t> compName = blockingReceive();
         std::string strCompName = std::string(compName.begin() + 1, compName.end());
         // uint16_t CompId = (static_cast<uint16_t>(compName[0]) << 8) | static_cast<uint16_t>(compName[1]);
@@ -69,6 +69,9 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
         default:
             std::cerr << "Error: Unknown opcode : " << int(operation[0]) << ". Full command is : " << std::endl;
             std::cerr << binaryToStr(operation) << std::endl;
+            if (binaryToStr(operation).find("You have been disconnected :(") != std::string::npos) {
+                gameEnd = true;
+            }
             return;
     }
 }
