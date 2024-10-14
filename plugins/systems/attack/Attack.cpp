@@ -23,33 +23,32 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
     try {
         auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
         auto &posComponents = reg.componentManager().getComponents<Components::Position>();
-        auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteIDComponent>();
+        auto &typeComponents = reg.componentManager().getComponents<Components::Type>();
 
         size_t i = 0;
         for (i = 0;
             i < gunComponents.size() &&
             i < posComponents.size() &&
-            i < spriteIdComponents.size(); i++) {
+            i < typeComponents.size(); i++) {
             try {
                 auto &gun = gunComponents[i];
                 auto &pos = posComponents[i];
-                auto &spr = spriteIdComponents[i];
+                auto &spr = typeComponents[i];
                 (void)gun;
                 (void)pos;
                 (void)spr;
             } catch (std::exception &e) {
-                std::cerr << "Attack err: " << e.what() << std::endl;
                 continue;
             }
             auto &gun = gunComponents[i];
             auto &pos = posComponents[i];
-            auto &spr = spriteIdComponents[i];
+            auto &spr = typeComponents[i];
 
             if (!gun || !pos)
                 continue;
             if (gun->chrono.getElapsedTime() < gun->fireRate)
                 continue;
-            if (spr->id == Components::SpriteID::Player)
+            if (spr->id == Components::TypeID::ALLY)
                 continue;
             gun->chrono.restart();
 
@@ -60,7 +59,8 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
             int projectileColliderWidth = 10;
             int projectileColliderHeight = 10;
             int projectileDamage = gun->bulletDamage;
-            enum Components::SpriteID spriteId = Components::SpriteID::ProjectileLeft;
+            enum Components::TypeID type = Components::TypeID::ENEMY_PROJECTILE;
+            std::string spriteID = gun->spriteId;
 
             createProjectile(
                 engine,
@@ -71,7 +71,8 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 projectileColliderWidth,
                 projectileColliderHeight,
                 projectileDamage,
-                spriteId);
+                type,
+                spriteID);
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
@@ -90,8 +91,10 @@ void Systems::AttackSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Position component in system Input" << std::endl;
     if (!engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider"))
         std::cerr << "Error: Could not register Collider component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::SpriteIDComponent>("./plugins/bin/components/", "SpriteID"))
+    if (!engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID"))
         std::cerr << "Error: Could not register SpriteID component in system Input" << std::endl;
+    if (!engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type"))
+        std::cerr << "Error: Could not register Type component in system Input" << std::endl;
     if (!engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange"))
         std::cerr << "Error: Could not register DeathRange component in system Input" << std::endl;
 }
