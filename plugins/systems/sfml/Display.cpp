@@ -8,6 +8,7 @@
 #define NOMINMAX
 #include "components/position/Position.hpp"
 #include "components/spriteId/SpriteID.hpp"
+#include "components/scale/Scale.hpp"
 #include "SpriteComponent.hpp"
 #include "Display.hpp"
 
@@ -28,6 +29,8 @@ void Systems::Display::init(Engine::GameEngine &engine, sf::RenderWindow &window
         std::cerr << "Error: Could not register Position component in system Display" << std::endl;
     if (!engine.registerComponent<Components::SpriteIDComponent>("./plugins/bin/components/", "SpriteID"))
         std::cerr << "Error: Could not register SpriteID component in system Display" << std::endl;
+    if (!engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale"))
+        std::cerr << "Error: Could not register Scale component in system Display" << std::endl;
     auto ctor = []() -> Components::SpriteComponent * { return new Components::SpriteComponent(); };
     if (!manager.registerComponent<Components::SpriteComponent>(ctor))
         std::cerr << "Error: Could not register SpriteComponent component in system Display" << std::endl;
@@ -40,14 +43,19 @@ void Systems::Display::init(Engine::GameEngine &engine, sf::RenderWindow &window
     if (!enemyTexture.loadFromFile("./assets/enemy.png")) {
         std::cerr << "Error: Failed to load enemyTexture from file" << std::endl;
     }
-    sf::Texture shotTexture;
-    if (!shotTexture.loadFromFile("./assets/shot1.png")) {
-        std::cerr << "Error: Failed to load shotTexture from file" << std::endl;
+    sf::Texture playerBullet;
+    if (!playerBullet.loadFromFile("./assets/shot1.png")) {
+        std::cerr << "Error: Failed to load playerBullet from file" << std::endl;
+    }
+    sf::Texture enemyBullet;
+    if (!enemyBullet.loadFromFile("./assets/shot2.png")) {
+        std::cerr << "Error: Failed to load enemyBullet from file" << std::endl;
     }
 
     __textures.push_back(playerTexture);
     __textures.push_back(enemyTexture);
-    __textures.push_back(shotTexture);
+    __textures.push_back(playerBullet);
+    __textures.push_back(enemyBullet);
 }
 
 void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
@@ -61,6 +69,7 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         auto &posComponents = reg.componentManager().getComponents<Components::Position>();
         auto &spriteComponents = reg.componentManager().getComponents<Components::SpriteComponent>();
         auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteIDComponent>();
+        auto &scaleComponents = reg.componentManager().getComponents<Components::Scale>();
 
         size_t i = 0;
         for (int l = 0; l < 10; l++) {
@@ -108,10 +117,21 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                     sprite->sprite.setTexture(__textures[1]);
                 } else if (spriteId->id == Components::SpriteID::ProjectileRight) {
                     sprite->sprite.setTexture(__textures[2]);
+                } else if (spriteId->id == Components::SpriteID::ProjectileLeft) {
+                    sprite->sprite.setTexture(__textures[3]);
+                } else {
+                    std::cerr << "Error: Unknown sprite ID" << std::endl;
+                    continue;
                 }
                 sprite->textureLoaded = true;
                 sf::IntRect textrect = sprite->sprite.getTextureRect();
                 sprite->sprite.setOrigin(textrect.width / 2, textrect.height / 2);
+                try {
+                    auto &scale = scaleComponents[i];
+                    sprite->sprite.setScale((float)scale->width / 100, (float)scale->height / 100);
+                } catch (std::exception &) {
+                    sprite->sprite.setScale(1, 1);
+                }
                 window.draw(sprite->sprite);
             }
         }
