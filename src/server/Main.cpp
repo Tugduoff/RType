@@ -30,6 +30,7 @@
 #include "components/gun/Gun.hpp"
 #include "components/damage/Damage.hpp"
 #include "components/scale/Scale.hpp"
+#include "components/deathRange/DeathRange.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -95,7 +96,8 @@ int main() {
         typeid(Components::Acceleration),
         typeid(Components::Gun),
         typeid(Components::Damage),
-        typeid(Components::Scale)
+        typeid(Components::DeathRange),
+        typeid(Components::Scale),
     };
 
     try {

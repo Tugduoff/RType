@@ -11,11 +11,10 @@
     #include <utility>
 
 /**
- * @brief Helper class for iterating over the values of a map
+ * @brief Helper class for iterating over the values of a container (e.g., a vector)
  *
- * @tparam The iterator type, for example: `std::map<int, int>::iterator`
+ * @tparam The iterator type, for example: `std::vector<std::unique_ptr<Component>>::iterator`
  *
- * Inspired by https://stackoverflow.com/a/23608376
  */
 template<typename It>
 struct ValueIterator : public It {
@@ -23,7 +22,7 @@ struct ValueIterator : public It {
 
     auto &operator*() const
     {
-        return It::operator*().second;
+        return It::operator*();
     }
 };
 

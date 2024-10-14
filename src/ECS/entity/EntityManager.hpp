@@ -26,6 +26,11 @@ namespace ECS {
              * @brief Spawn a new entity
              */
             Entity spawnEntity() {
+                if (__deadEntities.size() > 0) {
+                    Entity e = __deadEntities.back();
+                    __deadEntities.pop_back();
+                    return e;
+                }
                 __entities.push_back(Entity(__nextEntityId++));
                 return __entities.back();
             }
@@ -51,6 +56,7 @@ namespace ECS {
              * @param e : the entity
              */
             void killEntity(Entity const &e) {
+                __deadEntities.push_back(e);
                 __entities.erase(std::remove(__entities.begin(), __entities.end(), e), __entities.end());
             }
 
@@ -58,6 +64,7 @@ namespace ECS {
 
             std::vector<Entity> __entities;
             size_t __nextEntityId = 0;
+            std::vector<Entity> __deadEntities;
     };
 };
 
