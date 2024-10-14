@@ -71,7 +71,7 @@ class SparseArray {
 
         std::unique_ptr<Component> &operator[](std::size_t index) {
             if (index >= __data.size() || !__data[index])
-                throw std::out_of_range("SparseArray index out of range: " + std::to_string(index));
+                throw std::out_of_range("SparseArray index out of range");
             return __data.at(index);
         }
 
