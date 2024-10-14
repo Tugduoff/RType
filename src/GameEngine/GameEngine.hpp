@@ -187,6 +187,8 @@ namespace Engine {
                 return __idStringToType.at(componentId);
             }
 
+            void setUpdateComponent(std::function<void(size_t, std::string, std::vector<uint8_t>)> updateComponent) { __updateComponent = updateComponent; }
+
             std::unordered_map<std::type_index, std::unique_ptr<Components::IComponent>> &getComponents() { return __components; }
             std::unordered_map<std::string, std::type_index> &getIdStringToType() { return __idStringToType; }
 

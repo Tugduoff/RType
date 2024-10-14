@@ -81,7 +81,9 @@ void updateComponent(size_t id, std::string name, std::vector<uint8_t> data)
 }
 
 int main() {
-    Engine::GameEngine engine(updateComponent);
+    Engine::GameEngine engine(
+        []([[maybe_unused]]size_t id, [[maybe_unused]]std::string name, [[maybe_unused]]std::vector<uint8_t> data) { std::cout << "Empty update component" << std::endl; }
+    );
     Chrono chrono;
 
     std::vector<std::type_index> types = {
@@ -108,6 +110,25 @@ int main() {
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
         UDPServer server(io_context, 8080, engine.getIdStringToType());
+
+        engine.getRegistry().addEntityCreateCallback(
+            [&server](const ECS::Entity &e) { server.create_entity(e); }
+        );
+        engine.getRegistry().addEntityKillCallback(
+            [&server](const ECS::Entity &e) { server.delete_entity(e); }
+        );
+
+        engine.getRegistry().componentManager().registerGlobalCreateCallback(
+            [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
+        );
+        engine.getRegistry().componentManager().registerGlobalRemoveCallback(
+            [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
+        );
+
+        engine.setUpdateComponent(
+            [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
+        );
+
         while(server.client_endpoints.empty())
             server.start_receive();
 
