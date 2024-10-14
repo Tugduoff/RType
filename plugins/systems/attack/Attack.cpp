@@ -30,6 +30,17 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
             i < gunComponents.size() &&
             i < posComponents.size() &&
             i < spriteIdComponents.size(); i++) {
+            try {
+                auto &gun = gunComponents[i];
+                auto &pos = posComponents[i];
+                auto &spr = spriteIdComponents[i];
+                (void)gun;
+                (void)pos;
+                (void)spr;
+            } catch (std::exception &e) {
+                std::cerr << "Attack err: " << e.what() << std::endl;
+                continue;
+            }
             auto &gun = gunComponents[i];
             auto &pos = posComponents[i];
             auto &spr = spriteIdComponents[i];
@@ -81,6 +92,8 @@ void Systems::AttackSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Collider component in system Input" << std::endl;
     if (!engine.registerComponent<Components::SpriteIDComponent>("./plugins/bin/components/", "SpriteID"))
         std::cerr << "Error: Could not register SpriteID component in system Input" << std::endl;
+    if (!engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange"))
+        std::cerr << "Error: Could not register DeathRange component in system Input" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT

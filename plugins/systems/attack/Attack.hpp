@@ -15,6 +15,7 @@
     #include "components/collider/Collider.hpp"
     #include "components/damage/Damage.hpp"
     #include "components/spriteId/SpriteID.hpp"
+    #include "components/deathRange/DeathRange.hpp"
 
 namespace Engine {
     class GameEngine;
@@ -64,6 +65,9 @@ namespace Systems {
                 std::unique_ptr<Components::SpriteIDComponent> spriteComponent =
                     std::make_unique<Components::SpriteIDComponent>(spriteId);
                 reg.componentManager().addComponent(projectile, std::move(spriteComponent));
+                std::unique_ptr<Components::DeathRange> deathRangeComponent =
+                    std::make_unique<Components::DeathRange>(1920, 0);
+                reg.componentManager().addComponent(projectile, std::move(deathRangeComponent));
                 return;
             }
     };
