@@ -97,7 +97,7 @@ int main() {
         typeid(Components::Gun),
         typeid(Components::Damage),
         typeid(Components::DeathRange),
-        typeid(Components::Scale),
+        // typeid(Components::Scale),
     };
 
     try {
