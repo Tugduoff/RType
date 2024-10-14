@@ -20,17 +20,15 @@ SO_FILES=(
   "libudev.so.1"
   "libfreetype.so.6"
   "libpng16.so.16"
-  "libbrotlidec.so.1"
-  "libbrotlicommon.so.1"
+  "libharfbuzz.so.0"
+  "libgraphite2.so.3"
 )
 
 
 # Compile the R-Type project
 echo "R-Type Compilation..."
 
-mkdir -p $BUILD_DIR
-cd $BUILD_DIR && cmake .. -DCMAKE_BUILD_TYPE=Release && cd ../..
-cmake --build $BUILD_DIR
+./build_rtype.sh
 
 if [ $? -ne 0 ]; then
   echo "Compilation failed"
@@ -55,28 +53,22 @@ done
 echo "Symbolic links of SFML .so created."
 
 
-# apt-file update
 # Find all sfml dependencies .so files and copy them to the binary directory
 for SO_FILE in "${SO_FILES[@]}"; do
   # Check if the file exists in /usr/lib64
-  # SO_PATH=`apt-file search $SO_FILE | sed -E ':a;N;$!ba;s/^[^ ]+ ([^ ]+).*/\1/'`
-  SO_APTFILE_SEARCH=`apt-file search $SO_FILE | tr '\n' ' '`
-  SO_PATH=`echo $SO_APTFILE_SEARCH | sed -E 's/^[^ ]+ ([^ ]+).*/\1/'`
-  echo "apt-file search $SO_FILE : `echo $SO_APTFILE_SEARCH`"
-  if [ -f $SO_PATH ]; then
+  if [ -f "/usr/lib64/$SO_FILE" ]; then
     echo "Copying $SO_FILE to $BINARY_DIR"
-    cp "$SO_PATH" "$BINARY_DIR"
+    cp "/usr/lib64/$SO_FILE" "$BINARY_DIR"
   else
-    echo "$SO_FILE not found"
-    echo "SO_PATH : '$SO_PATH'"
+    echo "$SO_FILE not found in /usr/lib64"
   fi
 done
 
 # cp ./launch_server.sh $BINARY_DIR
 # cp ./launch_client.sh $BINARY_DIR
-find "./build_scripts" -type f -name "launch*.sh" -exec cp {} $BINARY_DIR \;
-chmod +x $BINARY_DIR/launch_server.sh
-chmod +x $BINARY_DIR/launch_client.sh
+find "./build_scripts" -type f -name "r-type_*.sh" -exec cp {} $BINARY_DIR \;
+chmod +x $BINARY_DIR/r-type_server.sh
+chmod +x $BINARY_DIR/r-type_client.sh
 
-echo "Creating archive ubuntu_build.tar which will contain the application"
-tar -cf debian_build.tar $BINARY_DIR
+echo "Creating archive fedora_build.tar which will contain the application"
+tar -cf fedora_build.tar $BINARY_DIR
