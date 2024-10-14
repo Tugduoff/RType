@@ -15,6 +15,7 @@
     #include "components/collider/Collider.hpp"
     #include "components/damage/Damage.hpp"
     #include "components/spriteId/SpriteID.hpp"
+    #include "components/deathRange/DeathRange.hpp"
     #include <unordered_map>
 
 namespace Engine {
@@ -54,6 +55,8 @@ namespace Systems {
                 auto &reg = engine.getRegistry();
                 ECS::Entity projectile = reg.createEntity();
 
+                std::cerr << "New entity for projectile" << projectile << std::endl;
+
                 std::unique_ptr<Components::Position> positionComponent =
                     std::make_unique<Components::Position>(posX, posY, 1);
                 reg.componentManager().addComponent(projectile, std::move(positionComponent));
@@ -69,6 +72,9 @@ namespace Systems {
                 std::unique_ptr<Components::SpriteIDComponent> spriteComponent =
                     std::make_unique<Components::SpriteIDComponent>(spriteId);
                 reg.componentManager().addComponent(projectile, std::move(spriteComponent));
+                std::unique_ptr<Components::DeathRange> deathRangeComponent =
+                    std::make_unique<Components::DeathRange>(1920, 0);
+                reg.componentManager().addComponent(projectile, std::move(deathRangeComponent));
                 return;
             }
     };
