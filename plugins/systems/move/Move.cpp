@@ -54,7 +54,8 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
                 auto &drange = deathRangeComponent[i];
                 auto &pos = posComponents[i];
 
-                if (pos->x > drange->maximum || pos->x < drange->minimum) {
+                if (pos->x > drange->maxX || pos->x < drange->minX ||
+                    pos->y > drange->maxY || pos->y < drange->minY) {
                     reg.killEntity((ECS::Entity)i);
                     std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
                 }
