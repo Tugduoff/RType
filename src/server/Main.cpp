@@ -127,12 +127,16 @@ int main() {
             [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
         );
 
+        while(server.client_endpoints.empty())
+            server.start_receive();
+
         displayPolymorphic(engine, types.begin(), types.end());
 
         std::cout << "####################################### iteration 0\n" << std::endl;
 
         unsigned int i = 1;
         while (true) {
+            server.start_receive();
             if (chrono.getElapsedTime() < 17)
                 continue;
             engine.runSystems();

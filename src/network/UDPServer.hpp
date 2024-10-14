@@ -32,6 +32,15 @@ class UDPServer {
         UDPServer(boost::asio::io_context& io_context, short port,
                  std::unordered_map<std::string, std::type_index> &idStringToType);
 
+        /**
+        * @brief Starts receiving data from clients asynchronously.
+        * 
+        * Continuously waits for incoming messages from any client. When a message is received, processes it and recursively calls itself.
+        */
+        void start_receive();
+
+        std::vector<udp::endpoint> client_endpoints;
+
     private:
         udp::socket socket_;
         udp::endpoint remote_endpoint_;
@@ -39,21 +48,10 @@ class UDPServer {
         std::array<char, 1024> recv_buffer_;
         std::size_t size_max;
         std::unordered_map<std::string, std::type_index> __idStringToType;
-        // std::unordered_map<std::type_index, std::uint8_t> __newtorkCompIndex;
-        std::vector<udp::endpoint> client_endpoints;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;
         std::map<udp::endpoint, bool> client_responses;
         std::map<udp::endpoint, bool> is_disconnected;
-
-        // --- Loop --- //
-
-        /**
-        * @brief Starts receiving data from clients asynchronously.
-        * 
-        * Continuously waits for incoming messages from any client. When a message is received, processes it and recursively calls itself.
-        */
-        void start_receive();
 
 
         // --- Helpers --- //
