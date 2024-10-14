@@ -17,50 +17,41 @@
 #include <unordered_map>
 
 namespace Components {
-
-    enum SpriteID : std::uint8_t {
-        Player = 0,
-        Enemy,
-        ProjectileRight,
-        ProjectileLeft,
-        Unknown,
-    };
-
-    static const std::unordered_map<SpriteID, std::string> SpriteIDToString = {
-        {SpriteID::Player, "Player"},
-        {SpriteID::Enemy, "Enemy"},
-        {SpriteID::ProjectileRight, "ProjectileRight"},
-        {SpriteID::ProjectileLeft, "ProjectileLeft"},
-        {SpriteID::Unknown, "Unknown"}
-    };
-
-    class SpriteIDComponent : public AComponent<SpriteIDComponent> {
+    /**
+     * @class SpriteID
+     * 
+     * @brief The SpriteID class is a component that holds the ID of a sprite.
+     */
+    class SpriteID : public AComponent<SpriteID> {
     public:
-        SpriteIDComponent(SpriteID id = SpriteID::Unknown)
+        SpriteID(const std::string &id = "enemy")
         :   AComponent("SpriteID"),
             id(id)
         {
         }
 
-        SpriteIDComponent(const libconfig::Setting &) : SpriteIDComponent()
+        SpriteID(const libconfig::Setting &config) : SpriteID()
         {
-            std::cerr << "Building SpriteID from config is not supported yet" << std::endl;
+            if (!config.lookupValue("id", id)) {
+                std::cerr << "Warning: 'id' not found in config. Using default value: enemy\n";
+                id = "enemy";
+            }
         }
 
         std::size_t getSize() const override { return 1; }
 
         virtual std::vector<uint8_t> serialize() override {
-            return {static_cast<uint8_t>(id)};
+            std::vector<uint8_t> data(id.begin(), id.end());
+            return data;
         }
 
+        /**
+         * @brief Deserializes the sprite ID from a vector of bytes.
+         * 
+         * @param data A vector of bytes to deserialize into a string.
+         */
         virtual void deserialize(std::vector<uint8_t> &data) override {
-            uint8_t byte = data[0];
-
-            if (byte >= SpriteID::Unknown) {
-                id = SpriteID::Unknown;
-            } else {
-                id = static_cast<SpriteID>(byte);
-            }
+            id = std::string(data.begin(), data.end());
         }
 
         virtual void addTo(
@@ -71,11 +62,11 @@ namespace Components {
             if (args.size() < 1) {
                 throw std::runtime_error("Invalid number of arguments for SpriteID component");
             }
-            SpriteID id = std::any_cast<SpriteID>(args[0]);
+            std::string id = std::any_cast<std::string>(args[0]);
             engine
                 .getRegistry()
                 .componentManager()
-                .addComponent(to, std::make_unique<SpriteIDComponent>(id));
+                .addComponent(to, std::make_unique<SpriteID>(id));
         }
 
         virtual void addTo(
@@ -83,21 +74,20 @@ namespace Components {
             Engine::GameEngine &engine,
             libconfig::Setting &config
         ) override {
-            int id = 0;
+            std::string spriteId = "enemy";
 
-            if (!config.lookupValue("id", id)) {
-                std::cerr << "Warning: 'id' not found in config. Using default value: 0\n";
-                id = 0;
+            if (!config.lookupValue("id", spriteId)) {
+                std::cerr << "Warning: 'id' not found in config. Using default value: 'enemy'\n";
             }
 
-            std::unique_ptr<Components::SpriteIDComponent> spriteId = engine.newComponent<Components::SpriteIDComponent>(static_cast<uint32_t>(id));
+            std::unique_ptr<Components::SpriteID> spriteIdComponent =
+                engine.newComponent<Components::SpriteID>(spriteId);
             engine
                 .getRegistry()
                 .componentManager()
-                .addComponent<Components::SpriteIDComponent>(to, std::move(spriteId));
-            std::cerr << std::endl;
+                .addComponent<Components::SpriteID>(to, std::move(spriteIdComponent));
         }
 
-        SpriteID id;
+        std::string id;
     };
 }
