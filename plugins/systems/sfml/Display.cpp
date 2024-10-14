@@ -57,6 +57,7 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
     window.clear();
 
     try {
+        std::cerr << "DisplaySystem running" << std::endl;
         auto &posComponents = reg.componentManager().getComponents<Components::Position>();
         auto &spriteComponents = reg.componentManager().getComponents<Components::SpriteComponent>();
         auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteIDComponent>();
@@ -68,12 +69,19 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                 i < spriteIdComponents.size();
                 i++)
             {
-                auto &pos = posComponents[i];
-                if (!pos)
+                try {
+                    auto &pos = posComponents[i];
+                    auto &spriteId = spriteIdComponents[i];
+                } catch (std::exception &e) {
+                    std::cerr << "Display err: " << e.what() << std::endl;
                     continue;
+                }
+
+                auto &pos = posComponents[i];
+                auto &spriteId = spriteIdComponents[i];
+
                 if ((int)pos->layer != l)
                     continue;
-                auto &spriteId = spriteIdComponents[i];
                 try {
                     auto &sprite = spriteComponents[i];
                     (void)sprite;
@@ -81,12 +89,11 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                     std::cerr << "Error: Sprite component not found for this entity, creating it..." << std::endl;
                     std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
                     reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
-                    return;
+                    break;
                 }
+                std::cerr << "Entity " << i << " has a sprite component" << std::endl;
                 auto &sprite = spriteComponents[i];
-
-                if (!pos || !spriteId || !sprite)
-                    continue;
+                std::cerr << "yu" << std::endl;
 
                 sprite->sprite.setPosition(pos->x, pos->y);
                 if (sprite->textureLoaded) {
@@ -106,6 +113,7 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                 window.draw(sprite->sprite);
             }
         }
+        std::cerr << "End of display system" << std::endl;
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
