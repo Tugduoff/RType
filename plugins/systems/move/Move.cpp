@@ -29,34 +29,46 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
 
         size_t i = 0;
         for (i = 0; i < posComponents.size() && i < velComponents.size(); i++) {
-            auto &pos = posComponents[i];
-            auto &vel = velComponents[i];
+            try {
+                auto &pos = posComponents[i];
+                auto &vel = velComponents[i];
 
-            if (!pos || !vel)
+                pos->x += vel->x;
+                pos->y += vel->y;
+                engine.updateComponent(i, pos->getId(), pos->serialize());
+                if (vel->diminishingFactor == 0)
+                    continue;
+                float factor = (float)vel->diminishingFactor / 100;
+                vel->floatX *= factor;
+                vel->floatY *= factor;
+                vel->x = (int)vel->floatX;
+                vel->y = (int)vel->floatY;
+                engine.updateComponent(i, vel->getId(), vel->serialize());
+            } catch (std::exception &e) {
+                std::cerr << "Error: " << e.what() << std::endl;
                 continue;
-            pos->x += vel->x;
-            pos->y += vel->y;
-            engine.updateComponent(i, pos->getId(), pos->serialize());
-            if (vel->diminishingFactor == 0)
-                continue;
-            float factor = (float)vel->diminishingFactor / 100;
-            vel->floatX *= factor;
-            vel->floatY *= factor;
-            vel->x = (int)vel->floatX;
-            vel->y = (int)vel->floatY;
-            engine.updateComponent(i, vel->getId(), vel->serialize());
-        }
-        for (i = 0; i < posComponents.size() && i < deathRangeComponent.size(); i++) {
-            auto &drange = deathRangeComponent[i];
-            auto &pos = posComponents[i];
-
-            if (!pos || !drange)
-                continue;
-            if (pos->x >= drange->maximum || pos->x <= drange->minimum) {
-                reg.killEntity((ECS::Entity)i);
-                std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
             }
         }
+        // std::cerr << "DeathRange size: " << deathRangeComponent.size() << std::endl;
+        // std::cerr << "Position size: " << posComponents.size() << std::endl;
+        for (i = 0; i < posComponents.size() && i < deathRangeComponent.size(); i++) {
+            std::cerr << "Checking death range for entity " << i << std::endl;
+            try {
+                auto &drange = deathRangeComponent[i];
+                auto &pos = posComponents[i];
+
+                if (!pos || !drange)
+                    continue;
+                if (pos->x > drange->maximum || pos->x < drange->minimum) {
+                    reg.killEntity((ECS::Entity)i);
+                    std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
+                }
+            } catch (std::exception &e) {
+                std::cerr << "Error: " << e.what() << std::endl;
+                continue;
+            }
+        }
+        std::cerr << "End of move system" << std::endl;
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
