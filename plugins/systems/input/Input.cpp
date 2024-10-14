@@ -33,22 +33,23 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
                 auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
                 auto &position = positionComponents[entityIndex];
 
-                if (position) {
-                    int projectilePosX = position->x + 35;
-                    int projectilePosY = position->y;
-                    int projectileVelX = gun->bulletVelocity;
-                    int projectileVelY = 0;
-                    int projectileColliderWidth = 10;
-                    int projectileColliderHeight = 10;
-                    int projectileDamage = gun->bulletDamage;
-                    enum Components::SpriteID spriteId = Components::SpriteID::ProjectileRight;
+                std::cerr << "Entity " << entityIndex << " fired a shot pos!" << std::endl;
 
-                    createProjectile(engine, projectilePosX, projectilePosY, 
-                        projectileVelX, projectileVelY, 
-                        projectileColliderWidth, projectileColliderHeight, projectileDamage, spriteId);
-                } else {
-                    std::cerr << "Position component missing for entity " << entityIndex << std::endl;
-                }
+                int projectilePosX = position->x + 35;
+                int projectilePosY = position->y;
+                int projectileVelX = gun->bulletVelocity;
+                int projectileVelY = 0;
+                int projectileColliderWidth = 10;
+                int projectileColliderHeight = 10;
+                int projectileDamage = gun->bulletDamage;
+                enum Components::SpriteID spriteId = Components::SpriteID::ProjectileRight;
+
+                auto &deathRangeComponents = reg.componentManager().getComponents<Components::DeathRange>();
+                std::cerr << "deathRangeComponents size: " << deathRangeComponents.size() << std::endl;
+                createProjectile(engine, projectilePosX, projectilePosY, 
+                    projectileVelX, projectileVelY, 
+                    projectileColliderWidth, projectileColliderHeight, projectileDamage, spriteId);
+                std::cerr << "deathRangeComponents size: " << deathRangeComponents.size() << std::endl;
 
             } else {
                 std::cerr << "Gun is on cooldown." << std::endl;
@@ -68,6 +69,7 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
     auto &reg = engine.getRegistry();
 
     try {
+        std::cerr << "Running InputSystem" << std::endl;
         auto &controllableComponents = reg.componentManager().getComponents<Components::Controllable>();
         auto &accelerationComponents = reg.componentManager().getComponents<Components::Acceleration>();
         auto &velocityComponents = reg.componentManager().getComponents<Components::Velocity>();
@@ -77,44 +79,47 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
             i < controllableComponents.size() &&
             i < accelerationComponents.size() &&
             i < velocityComponents.size(); i++) {
-            auto &controllable = controllableComponents[i];
-            auto &acceleration = accelerationComponents[i];
-            auto &velocity = velocityComponents[i];
+            try {
+                auto &controllable = controllableComponents[i];
+                auto &acceleration = accelerationComponents[i];
+                auto &velocity = velocityComponents[i];
 
-            if (!controllable || !acceleration || !velocity)
-                continue;
-
-            if (controllable->inputs[(int)Action::FORWARD]) {
-                velocity->x = acceleration->forward;
-                std::cout << "Forward triggered" << std::endl;
-                engine.updateComponent(i, velocity->getId(), velocity->serialize());
-            }
-            if (controllable->inputs[(int)Action::BACKWARD]) {
-                velocity->x = acceleration->backward;
-                std::cout << "Backward triggered" << std::endl;
-                engine.updateComponent(i, velocity->getId(), velocity->serialize());
-            }
-            if (controllable->inputs[(int)Action::RIGHT]) {
-                velocity->y = acceleration->right;
-                std::cout << "Right triggered" << std::endl;
-                engine.updateComponent(i, velocity->getId(), velocity->serialize());
-            }
-            if (controllable->inputs[(int)Action::LEFT]) {
-                velocity->y = acceleration->left;
-                std::cout << "Left triggered" << std::endl;
-                engine.updateComponent(i, velocity->getId(), velocity->serialize());
-            }
-            for (int j = 0; j < 10; j++) {
-                if (controllable->actions[j]) {
-                    std::cout << "Action " << j + 1 << " triggered" << std::endl;
-                    if (j == 0) {
-                        shootAction(engine, i);
-                    } else {
-                        std::cout << "No action mapped for Action " << j + 1 << std::endl;
+                if (controllable->inputs[(int)Action::FORWARD]) {
+                    velocity->x = acceleration->forward;
+                    std::cout << "Forward triggered" << std::endl;
+                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
+                }
+                if (controllable->inputs[(int)Action::BACKWARD]) {
+                    velocity->x = acceleration->backward;
+                    std::cout << "Backward triggered" << std::endl;
+                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
+                }
+                if (controllable->inputs[(int)Action::RIGHT]) {
+                    velocity->y = acceleration->right;
+                    std::cout << "Right triggered" << std::endl;
+                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
+                }
+                if (controllable->inputs[(int)Action::LEFT]) {
+                    velocity->y = acceleration->left;
+                    std::cout << "Left triggered" << std::endl;
+                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
+                }
+                for (int j = 0; j < 10; j++) {
+                    if (controllable->actions[j]) {
+                        std::cout << "Action " << j + 1 << " triggered" << std::endl;
+                        if (j == 0) {
+                            shootAction(engine, i);
+                        } else {
+                            std::cout << "No action mapped for Action " << j + 1 << std::endl;
+                        }
                     }
                 }
+            } catch (std::exception &e) {
+                std::cerr << "Error: " << e.what() << std::endl;
+                continue;
             }
         }
+        std::cerr << "InputSystem done" << std::endl;
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
