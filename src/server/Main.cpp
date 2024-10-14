@@ -104,9 +104,10 @@ int main() {
         engine.loadSystems("./src/server/configServer.cfg");
 
         // we'll probably have to move it elsewhere
-        // boost::asio::io_context io_context;
-        // UDPServer server(io_context, 8080, engine.getIdStringToType());
-        // io_context.run();
+        boost::asio::io_context io_context;
+        UDPServer server(io_context, 8080, engine.getIdStringToType());
+        while(server.client_endpoints.empty())
+            server.start_receive();
 
         displayPolymorphic(engine, types.begin(), types.end());
 
@@ -114,6 +115,7 @@ int main() {
 
         unsigned int i = 1;
         while (true) {
+            server.start_receive();
             if (chrono.getElapsedTime() < 17)
                 continue;
             engine.runSystems();
