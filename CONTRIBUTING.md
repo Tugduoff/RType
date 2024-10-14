@@ -1,6 +1,21 @@
 # CONTRIBUTING
 Here you can find informations on how you could contribute to the project
 
+## Compile the project
+To compile the project, you must have CMake installed on your machine and then launch the build script corresponding to your operating system :
+
+#### Windows
+```powershell
+.\windows_build_rtype.bat
+```
+
+#### Linux
+```bash
+./build_rtype.sh
+```
+
+You will then have either a `r-type_server` and a `r-type_client` for linux, or a `r-type_server.exe` and a `r-type_client.exe` for windows.
+
 ## Pull requests
 If you want to contribute to the project, you should do so with a pull request.
 
@@ -48,8 +63,10 @@ If you respected all the conditions listed, one of the main developper of the pr
 
 ## Releases
 
-Here we will explain how to files located in the [release page](https://github.com/Tugduoff/RType/releases) of Github are  produced
+Here we will explain how the files located in the [release page](https://github.com/Tugduoff/RType/releases) of Github are  produced
 
 #### Windows
+On windows we simply launch the build script (`windows_build_rtype.bat`), and then zip the produced bin folder.
 
 #### Linux
+On Linux you have to launch the build script named `build_and_fetch_binaries.sh` which will build the project inside a Debian and Fedora docker container and which will the get the .tar archive produced.
