@@ -25,7 +25,7 @@ class ZipperIterator {
     using it_reference_t = typename iterator_t<Container>::reference;
 
 public:
-    using value_type = std::tuple<typename iterator_t<Containers>::value_type &...>;
+    using value_type = std::tuple<typename iterator_t<Containers>::value_type::value_type &...>;
     using reference = value_type;
     using pointer = void;
     using difference_type = size_t;
@@ -103,14 +103,14 @@ private:
     template<std::size_t... Is>
     bool all_set(std::index_sequence<Is...>)
     {
-        return ((... && (std::get<Is>(this->to_value(_seq)).has_value())));
+        return (... && (*std::get<Is>(_current)));
     }
 
     // return a tuple of reference to components .
     template<size_t... Is>
     value_type to_value(std::index_sequence<Is...>)
     {
-        return std::tie(*std::get<Is>(_current)...);
+        return std::tie(**std::get<Is>(_current)...);
     }
 
 private:

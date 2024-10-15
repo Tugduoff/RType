@@ -32,10 +32,9 @@ int main()
         5
     };
 
-    for (auto &&[str, num] : Zipper(stringVec, intVec)) {
-        if (!str || !num) {
-            std::cerr << "Oops, zipper failed" << std::endl;
-        }
-        std::cout << *str << " " << *num << std::endl;
+    std::vector<std::optional<char>> empty{};
+
+    for (auto &&[str, num, z] : Zipper(stringVec, intVec, empty)) {
+        std::cout << str << " " << num << std::endl;
     }
 }
