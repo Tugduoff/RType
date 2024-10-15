@@ -95,7 +95,8 @@ private:
     {
         do {
             std::make_tuple(++(std::get<Is>(_current))...);
-        } while (_idx > _max && !this->all_set(_seq));
+            _idx++;
+        } while (_idx < _max && !this->all_set(_seq));
     }
 
     // check if every std::optional are set .
