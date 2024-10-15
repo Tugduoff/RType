@@ -25,7 +25,7 @@ class ZipperIterator {
     using it_reference_t = typename iterator_t<Container>::reference;
 
 public:
-    using value_type = std::tuple<typename iterator_t<Containers>::value_type::value_type &...>;
+    using value_type = std::tuple<decltype(*std::declval<typename iterator_t<Containers>::value_type>()) &...>;
     using reference = value_type;
     using pointer = void;
     using difference_type = size_t;
