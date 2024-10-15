@@ -39,8 +39,8 @@ namespace Systems {
 
         private:
 
-            void loadConfig(const std::string &filepath, Engine::GameEngine &engine);
-            void extractConfig(libconfig::Setting &root, Engine::GameEngine &engine);
+            void loadConfig(const std::string &filepath);
+            void extractConfig(libconfig::Setting &root);
             void displayConfig();
             std::string difficultyToString(enum Difficulty difficulty);
 

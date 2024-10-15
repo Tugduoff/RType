@@ -30,17 +30,90 @@ void Systems::Display::loadConfig(const std::string &filepath)
         libconfig::Setting &root = cfg.getRoot();
         libconfig::Setting &textures = root["textures"];
         for (int i = 0; i < textures.getLength(); i++) {
+            std::string type;
             std::string texturePath;
-            textures[i].lookupValue("path", texturePath);
             std::string textureName;
+            std::string actionName;
+            sf::IntRect rect;
+            unsigned updateRate = 0;
+            unsigned rectX = 0;
+            unsigned rectY = 0;
+
+            textures[i].lookupValue("type", type);
             textures[i].lookupValue("name", textureName);
-            std::cerr << "Loading texture: " << textureName << " from path: " << texturePath << std::endl;
-            sf::Texture texture;
-            if (!texture.loadFromFile(texturePath)) {
-                std::cerr << "Error: Could not load texture " << textureName << "from path: " << texturePath << std::endl;
+            if (type == "static") {
+                textures[i].lookupValue("path", texturePath);
+
+                std::vector<Texture> textures;
+
+                sf::Texture tempTexture;
+                if (!tempTexture.loadFromFile(texturePath)) {
+                    std::cerr << "Error: Could not load texture from path: " << texturePath << std::endl;
+                }
+                Texture texture(0, tempTexture.getSize().x, tempTexture.getSize().y, texturePath, "IDLE", false, false);
+                textures.push_back(texture);
+                __textures.insert({textureName, textures});
                 continue;
             }
-            __textures.insert({textureName, texture});
+            if (type == "animated") {
+                bool repeat = false;
+                bool resetBeforeEnd = false;
+
+                textures[i].lookupValue("path", texturePath);
+                textures[i].lookupValue("updateRate", updateRate);
+                textures[i].lookupValue("repeat", repeat);
+                textures[i].lookupValue("resetBeforeEnd", resetBeforeEnd);
+
+                libconfig::Setting &rectSetting = textures[i]["textureRect"];
+                rectSetting.lookupValue("x", rectX);
+                rectSetting.lookupValue("y", rectY);
+
+                std::vector<Texture> textures;
+                Texture texture(updateRate, rectX, rectY, texturePath, "IDLE", repeat, resetBeforeEnd);
+                textures.push_back(texture);
+                __textures.insert({textureName, textures});
+                continue;
+            }
+            if (type == "actions") {
+                libconfig::Setting &actions = textures[i]["actions"];
+                std::vector<Texture> textures;
+
+                for (int j = 0; j < actions.getLength(); j++) {
+                    libconfig::Setting &action = actions[j];
+                    action.lookupValue("type", type);
+
+                    if (type == "static") {
+                        action.lookupValue("path", texturePath);
+                        action.lookupValue("action", actionName);
+
+                        sf::Texture tempTexture;
+                        if (!tempTexture.loadFromFile(texturePath)) {
+                            std::cerr << "Error: Could not load texture from path: " << texturePath << std::endl;
+                        }
+                        Texture texture(0, tempTexture.getSize().x, tempTexture.getSize().y, texturePath, actionName, false, false);
+                        textures.push_back(texture);
+                        continue;
+                    } else if (type == "animated") {
+                        bool repeat = false;
+                        bool resetBeforeEnd = false;
+
+                        action.lookupValue("path", texturePath);
+                        action.lookupValue("action", actionName);
+                        action.lookupValue("updateRate", updateRate);
+                        action.lookupValue("repeat", repeat);
+                        action.lookupValue("resetBeforeEnd", resetBeforeEnd);
+
+                        libconfig::Setting &rectSetting = action["textureRect"];
+                        rectSetting.lookupValue("x", rectX);
+                        rectSetting.lookupValue("y", rectY);
+                        Texture texture(updateRate, rectX, rectY, texturePath, actionName, repeat, resetBeforeEnd);
+                        textures.push_back(texture);
+                        std::cerr << "Successfully loaded texture: " << textureName << " for action: " << actionName << std::endl;
+                        continue;
+                    }
+                }
+                __textures.insert({textureName, textures});
+            }
         }
     } catch (libconfig::ParseException &e) {
         std::cerr << "Error while parsing file: "
@@ -58,11 +131,10 @@ Systems::Display::Display()
 {
 }
 
-void Systems::Display::init(Engine::GameEngine &engine, sf::RenderWindow &window)
+void Systems::Display::init(Engine::GameEngine &engine)
 {
     auto &manager = engine.getRegistry().componentManager();
 
-    window.clear();
     if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
         std::cerr << "Error: Could not register Position component in system Display" << std::endl;
     if (!engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID"))
@@ -96,8 +168,10 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                 try {
                     auto &pos = posComponents[i];
                     auto &spriteId = spriteIdComponents[i];
-                    (void)pos;
                     (void)spriteId;
+
+                    if ((int)pos->layer != l)
+                        continue;
                 } catch (std::exception &e) {
                     continue;
                 }
@@ -105,39 +179,25 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                 auto &pos = posComponents[i];
                 auto &spriteId = spriteIdComponents[i];
 
-                if ((int)pos->layer != l)
-                    continue;
                 try {
                     auto &sprite = spriteComponents[i];
-                    (void)sprite;
-                } catch (std::exception &) {
-                    std::cerr << "Error: Sprite component not found for this entity, creating it..." << std::endl;
-                    std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
-                    reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
-                    break;
-                }
-                auto &sprite = spriteComponents[i];
-
-                sprite->sprite.setPosition(pos->x, pos->y);
-                if (sprite->textureLoaded) {
+                    sprite->sprite.setPosition(pos->x, pos->y);
+                    sprite->update();
                     window.draw(sprite->sprite);
-                    continue;
-                }
-                if (__textures.find(spriteId->id) == __textures.end()) {
-                    std::cerr << "Error: Could not find texture with name: " << spriteId->id << std::endl;
-                    continue;
-                }
-                sprite->sprite.setTexture(__textures[spriteId->id]);
-                sprite->textureLoaded = true;
-                sf::IntRect textrect = sprite->sprite.getTextureRect();
-                sprite->sprite.setOrigin(textrect.width / 2, textrect.height / 2);
-                try {
-                    auto &scale = scaleComponents[i];
-                    sprite->sprite.setScale((float)scale->width / 100, (float)scale->height / 100);
                 } catch (std::exception &) {
-                    sprite->sprite.setScale(1, 1);
+                    std::cerr << "Error: Sprite component not found for entity: " << i << " spriteID: " << spriteId->id << std::endl;
+                    std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
+                    for (auto &texture : __textures[spriteId->id]) {
+                        spriteComp->addTexture(texture);
+                    }
+                    try {
+                        auto &scale = scaleComponents[i];
+                        spriteComp->sprite.setScale((float)scale->width / 100, (float)scale->height / 100);
+                    } catch (std::exception &) {
+                        spriteComp->sprite.setScale(1, 1);
+                    }
+                    reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
                 }
-                window.draw(sprite->sprite);
             }
         }
     } catch (std::runtime_error &e) {

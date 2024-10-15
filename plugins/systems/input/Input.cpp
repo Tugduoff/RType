@@ -33,9 +33,7 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
                 auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
                 auto &position = positionComponents[entityIndex];
 
-                std::cerr << "Entity " << entityIndex << " fired a shot pos!" << std::endl;
-
-                int projectilePosX = position->x + 35;
+                int projectilePosX = position->x;
                 int projectilePosY = position->y;
                 int projectileVelX = gun->bulletVelocity;
                 int projectileVelY = 0;
@@ -45,19 +43,16 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
                 enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
                 std::string spriteId = gun->spriteId;
 
-                auto &deathRangeComponents = reg.componentManager().getComponents<Components::DeathRange>();
-                std::cerr << "deathRangeComponents size: " << deathRangeComponents.size() << std::endl;
                 createProjectile(engine, projectilePosX, projectilePosY, 
                     projectileVelX, projectileVelY, 
                     projectileColliderWidth, projectileColliderHeight, projectileDamage, type, spriteId);
-                std::cerr << "deathRangeComponents size: " << deathRangeComponents.size() << std::endl;
 
             } else {
                 std::cerr << "Gun is on cooldown." << std::endl;
             }
         }
     } catch (std::exception &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Input Error: " << e.what() << std::endl;
     }
 }
 
@@ -84,22 +79,27 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
                 auto &acceleration = accelerationComponents[i];
                 auto &velocity = velocityComponents[i];
 
-                if (controllable->inputs[(int)Action::FORWARD]) {
+                bool inputForward = controllable->inputs[(int)Action::FORWARD];
+                bool inputBackward = controllable->inputs[(int)Action::BACKWARD];
+                bool inputRight = controllable->inputs[(int)Action::RIGHT];
+                bool inputLeft = controllable->inputs[(int)Action::LEFT];
+
+                if (inputForward && !inputBackward) {
                     velocity->x = acceleration->forward;
                     std::cout << "Forward triggered" << std::endl;
                     engine.updateComponent(i, velocity->getId(), velocity->serialize());
                 }
-                if (controllable->inputs[(int)Action::BACKWARD]) {
+                if (inputBackward && !inputForward) {
                     velocity->x = acceleration->backward;
                     std::cout << "Backward triggered" << std::endl;
                     engine.updateComponent(i, velocity->getId(), velocity->serialize());
                 }
-                if (controllable->inputs[(int)Action::RIGHT]) {
+                if (inputRight && !inputLeft) {
                     velocity->y = acceleration->right;
                     std::cout << "Right triggered" << std::endl;
                     engine.updateComponent(i, velocity->getId(), velocity->serialize());
                 }
-                if (controllable->inputs[(int)Action::LEFT]) {
+                if (inputLeft && !inputRight) {
                     velocity->y = acceleration->left;
                     std::cout << "Left triggered" << std::endl;
                     engine.updateComponent(i, velocity->getId(), velocity->serialize());

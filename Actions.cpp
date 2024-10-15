@@ -26,3 +26,13 @@ std::ostream &operator<<(std::ostream &os, Action action)
     }
     return os;
 }
+
+std::string actionToString(const Action &action)
+{
+    for (const auto &pair : strToAction) {
+        if (pair.second == action) {
+            return pair.first;  // Return the string by value
+        }
+    }
+    return "UNKNOWN";  // Return "UNKNOWN" as a value
+}

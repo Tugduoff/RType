@@ -28,7 +28,7 @@ void Systems::Collision::run(Engine::GameEngine &engine)
         checkPlayerProjectileToEnemyCollision(reg);
         checkEnemyProjectileToPlayerCollision(reg);
     } catch (std::runtime_error &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Collision Error: " << e.what() << std::endl;
     }
 }
 
@@ -79,20 +79,17 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
                 projectiles.push_back((ECS::Entity)i);
             }
         } catch (std::exception &e) {
-            std::cerr << "Error: " << e.what() << std::endl;
             continue;
         }
     }
     for (auto &proj : projectiles) {
         for (auto &enemy : enemies) {
             try {
-                std::cerr << "Checking collision between projectile " << proj << " and enemy " << enemy << std::endl;
                 auto &projPos = posComponents[proj];
                 auto &projCollider = colliderComponents[proj];
                 auto &enemyPos = posComponents[enemy];
                 auto &enemyCollider = colliderComponents[enemy];
-                std::cerr << "Values are for proj : " << projPos->x << " " << projPos->y << " " << projCollider->width << " " << projCollider->height << std::endl;
-                std::cerr << "Values are for enemy : " << enemyPos->x << " " << enemyPos->y << " " << enemyCollider->width << " " << enemyCollider->height << std::endl;
+
                 if (projPos->x - projCollider->width / 2 < enemyPos->x + enemyCollider->width / 2 &&
                     projPos->x + projCollider->width / 2 > enemyPos->x - enemyCollider->width / 2 &&
                     projPos->y - projCollider->height / 2 < enemyPos->y + enemyCollider->height / 2 &&
@@ -102,7 +99,7 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
 
                     enemyHealth->currentHealth -= projDamage->damage;
 
-                    std::cerr << "Projectile hit enemy. Enemy health: " << enemyHealth->currentHealth << std::endl;
+                    std::cerr << "Projectile: " << proj << " hit enemy. Enemy health: " << enemyHealth->currentHealth << std::endl;
                     if (enemyHealth->currentHealth <= 0) {
                         reg.killEntity(enemy);
                     }
@@ -136,20 +133,17 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(ECS::Registry &re
                 projectiles.push_back((ECS::Entity)i);
             }
         } catch (std::exception &e) {
-            std::cerr << "Error: " << e.what() << std::endl;
             continue;
         }
     }
     for (auto &proj : projectiles) {
         for (auto &player : players) {
             try {
-                std::cerr << "Checking collision between projectile " << proj << " and player " << player << std::endl;
                 auto &projPos = posComponents[proj];
                 auto &projCollider = colliderComponents[proj];
                 auto &playerPos = posComponents[player];
                 auto &playerCollider = colliderComponents[player];
-                std::cerr << "Values are for proj : " << projPos->x << " " << projPos->y << " " << projCollider->width << " " << projCollider->height << std::endl;
-                std::cerr << "Values are for player : " << playerPos->x << " " << playerPos->y << " " << playerCollider->width << " " << playerCollider->height << std::endl;
+
                 if (projPos->x - projCollider->width / 2 < playerPos->x + playerCollider->width / 2 &&
                     projPos->x + projCollider->width / 2 > playerPos->x - playerCollider->width / 2 &&
                     projPos->y - projCollider->height / 2 < playerPos->y + playerCollider->height / 2 &&
@@ -159,7 +153,7 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(ECS::Registry &re
 
                     playerHealth->currentHealth -= projDamage->damage;
 
-                    std::cerr << "Projectile hit player. Player health: " << playerHealth->currentHealth << std::endl;
+                    std::cerr << "Projectile: " << proj << " hit player. Player health: " << playerHealth->currentHealth << std::endl;
                     if (playerHealth->currentHealth <= 0) {
                         reg.killEntity(player);
                     }
