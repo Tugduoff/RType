@@ -25,7 +25,7 @@ class ZipperIterator {
     using it_reference_t = typename iterator_t<Container>::reference;
 
 public:
-    using value_type = std::tuple<it_reference_t<Containers>&...>;
+    using value_type = std::tuple<typename iterator_t<Containers>::value_type &...>;
     using reference = value_type;
     using pointer = void;
     using difference_type = size_t;
@@ -52,7 +52,7 @@ public:
 
     ZipperIterator &operator++()
     {
-        incr_all();
+        incr_all(_seq);
         return *this;
     }
 
@@ -60,18 +60,18 @@ public:
     {
         auto ret = *this;
 
-        incr_all();
+        incr_all(_seq);
         return ret;
     }
 
     value_type operator*()
     {
-        return this->to_value();
+        return this->to_value(_seq);
     }
 
     value_type operator->()
     {
-        return this->to_value();
+        return this->to_value(_seq);
     }
 
     friend bool operator==(ZipperIterator const &lhs, ZipperIterator const &rhs)
@@ -91,23 +91,23 @@ private:
     // value if one of the pointed to std::optional does not contains a
     // value.
     template<std::size_t... Is>
-    void incr_all(std::index_sequence<Is...> = _seq)
+    void incr_all(std::index_sequence<Is...>)
     {
-        for (; _idx < _max && !this->all_set(); _idx++) {
-            void(++(std::get<Is>(_current))...);
-        }
+        do {
+            std::make_tuple(++(std::get<Is>(_current))...);
+        } while (_idx > _max && !this->all_set(_seq));
     }
 
     // check if every std::optional are set .
     template<std::size_t... Is>
-    bool all_set(std::index_sequence<Is...> = _seq)
+    bool all_set(std::index_sequence<Is...>)
     {
-        return ((... && (std::get<Is>(this->to_value()))));
+        return ((... && (std::get<Is>(this->to_value(_seq)).has_value())));
     }
 
     // return a tuple of reference to components .
     template<size_t... Is>
-    value_type to_value(std::index_sequence<Is...> = _seq)
+    value_type to_value(std::index_sequence<Is...>)
     {
         return std::tie(*std::get<Is>(_current)...);
     }
