@@ -75,7 +75,7 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 spriteID);
         }
     } catch (std::runtime_error &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Attack Error: " << e.what() << std::endl;
     }
 }
 
