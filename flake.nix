@@ -33,6 +33,7 @@
           libvorbis
           freetype
           criterion
+          gcovr
           sfml
           libconfig
           doxygen
