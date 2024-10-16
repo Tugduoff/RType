@@ -85,6 +85,47 @@ namespace Components {
             return sizeof(__data);
         }
 
+        /**
+         * @brief Adds the Ai component to an entity.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param args The arguments to pass to the component constructor.
+         * 
+         * @note The arguments should be a tuple containing the width and height.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+            if (args.size() != 1)
+                throw std::runtime_error("Invalid number of arguments for Ai component");
+
+            uint32_t behavior = std::any_cast<uint32_t>(args[0]);
+
+            auto Ai = engine.newComponent<Components::Ai>(behavior);
+            engine.getRegistry().componentManager().addComponent<Components::Ai>(to, std::move(Ai));
+        };
+
+        /**
+         * @brief Adds the Ai component to an entity from a configuration setting.
+         * 
+         * @param to The entity to add the component to.
+         * @param engine The game engine.
+         * @param config The configuration setting to extract the component data from.
+         */
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
+            int behavior = 0; 
+
+            if (!config.lookupValue("behavior", behavior)) {
+                std::cerr << "Warning: 'behavior' not found in config. Using default value: 1\n";
+                behavior = 0;
+            }
+
+            std::cout << "behavior: " << behavior << std::endl;
+
+            std::unique_ptr<Components::Ai> Ai = engine.newComponent<Components::Ai>(static_cast<uint32_t>(behavior));
+            engine.getRegistry().componentManager().addComponent<Components::Ai>(to, std::move(Ai));
+            std::cout << std::endl;
+        }
+
         uint32_t behavior;
 
     private:
