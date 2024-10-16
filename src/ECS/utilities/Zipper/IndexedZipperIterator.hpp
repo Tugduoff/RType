@@ -40,6 +40,9 @@ public:
         _max(max),
         _idx(0)
     {
+        if (_idx < _max && !all_set(_seq)) {
+            incr_all(_seq);
+        }
     }
 
 public:
