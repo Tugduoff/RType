@@ -45,7 +45,7 @@ namespace Components {
          */
         Ai(libconfig::Setting &config) : AComponent(std::string("Ai")) {
             if (!config.lookupValue("behavior", behavior)) {
-                behavior = 1;
+                behavior = 0;
             }
         }        
 
