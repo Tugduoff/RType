@@ -12,6 +12,15 @@
     #include "GenericZipper.hpp"
 
 template<class... Containers>
-using Zipper = GenericZipper<ZipperIterator<Containers...>, Containers...>;
+class Zipper : public GenericZipper<
+    ZipperIterator<Containers...>, 
+    Containers...
+> {
+public:
+    Zipper(Containers &...cs) : GenericZipper<
+        ZipperIterator<Containers...>, 
+        Containers...
+    >(cs...) {}
+};
 
 #endif /* ZIPPER_HPP */

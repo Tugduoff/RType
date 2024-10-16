@@ -12,6 +12,15 @@
     #include "GenericZipper.hpp"
 
 template<class... Containers>
-using IndexedZipper = GenericZipper<IndexedZipperIterator<Containers...>, Containers...>;
+class IndexedZipper : public GenericZipper<
+    IndexedZipperIterator<Containers...>, 
+    Containers...
+> {
+public:
+    IndexedZipper(Containers &...cs) : GenericZipper<
+        IndexedZipperIterator<Containers...>, 
+        Containers...
+    >(cs...) {}
+};
 
 #endif /* INDEXED_ZIPPER_HPP */
