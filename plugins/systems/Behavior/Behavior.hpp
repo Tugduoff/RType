@@ -2,11 +2,11 @@
 ** EPITECH PROJECT, 2024
 ** RType
 ** File description:
-** AiSystem.hpp file
+** Behavior.hpp file
 */
 
-#ifndef AiSystem_HPP
-    #define AiSystem_HPP
+#ifndef BEHAVIOR_HPP
+    #define BEHAVIOR_HPP
 
     #include <libconfig.h++>
     #include "systems/ASystem.hpp"
@@ -31,11 +31,11 @@ namespace Systems {
      * 
      * This system is responsible for handling the attack of entities.
      */
-    class AiSystem : public ASystem {
+    class BehaviorSystem : public ASystem {
         public:
-            AiSystem() = default;
-            AiSystem(libconfig::Setting &config);
-            ~AiSystem() = default;
+            BehaviorSystem() = default;
+            BehaviorSystem(libconfig::Setting &config);
+            ~BehaviorSystem() = default;
 
             void run(Engine::GameEngine &engine) override;
             void init(Engine::GameEngine &engine) override;
@@ -43,4 +43,4 @@ namespace Systems {
     };
 };
 
-#endif // AiSystem_HPP
+#endif // BEHAVIOR_HPP

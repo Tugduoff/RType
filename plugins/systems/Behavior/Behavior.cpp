@@ -6,22 +6,22 @@
 */
 
 #include "GameEngine/GameEngine.hpp"
-#include "Ai.hpp"
+#include "Behavior.hpp"
 #include "components/gun/Gun.hpp"
 #include "library_entrypoint.hpp"
 #include <iostream>
 #include <stdexcept>
 
-Systems::AiSystem::AiSystem(libconfig::Setting &)
+Systems::BehaviorSystem::BehaviorSystem(libconfig::Setting &)
 {
 }
 
-void Systems::AiSystem::run(Engine::GameEngine &engine)
+void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
 {
     auto &reg = engine.getRegistry();
 }
 
-void Systems::AiSystem::init(Engine::GameEngine &engine)
+void Systems::BehaviorSystem::init(Engine::GameEngine &engine)
 {
     if (!engine.registerComponent<Components::Ai>("./plugins/bin/components/", "Ai"))
         std::cerr << "Error: Could not register Ai component in system Input" << std::endl;
@@ -30,11 +30,11 @@ void Systems::AiSystem::init(Engine::GameEngine &engine)
 LIBRARY_ENTRYPOINT
 Systems::ISystem *entryPoint()
 {
-    return new Systems::AiSystem();
+    return new Systems::BehaviorSystem();
 }
 
 LIBRARY_ENTRYPOINT
 Systems::ISystem *entryConfig(libconfig::Setting &config)
 {
-    return new Systems::AiSystem(config);
+    return new Systems::BehaviorSystem(config);
 }
