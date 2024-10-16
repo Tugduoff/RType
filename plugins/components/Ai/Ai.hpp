@@ -47,6 +47,42 @@ namespace Components {
             if (!config.lookupValue("behavior", behavior)) {
                 behavior = 1;
             }
+        }        
+
+        /**
+         * @brief Serialize the Ai data
+         * 
+         * Serializes the width and height into a byte vector for transmission or storage.
+         * 
+         * @return std::vector<uint8_t> Serialized data.
+         */
+        std::vector<uint8_t> serialize() override {
+            __network.behavior = htonl(behavior);
+            return std::vector<uint8_t>(__data, __data + sizeof(__data));
+        }
+
+        /**
+         * @brief Deserialize the Ai data
+         * 
+         * Deserializes the width and height from the provided byte vector.
+         * 
+         * @param data The byte vector containing serialized data.
+         * @throws std::runtime_error If the data size is invalid.
+         */
+        void deserialize(std::vector<uint8_t> &data) override {
+            if (data.size() != getSize())
+                throw std::runtime_error("Invalid data size for Ai component");
+
+            behavior = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
+        }
+
+        /**
+         * @brief Get the fixed size of the serialized data
+         * 
+         * @return size_t Size in bytes
+         */
+        size_t getSize() const override {
+            return sizeof(__data);
         }
 
         uint32_t behavior;
