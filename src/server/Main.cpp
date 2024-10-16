@@ -31,6 +31,7 @@
 #include "components/damage/Damage.hpp"
 #include "components/scale/Scale.hpp"
 #include "components/deathRange/DeathRange.hpp"
+#include "components/Ai/Ai.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -98,6 +99,7 @@ int main() {
         typeid(Components::Damage),
         typeid(Components::DeathRange),
         typeid(Components::Scale),
+        typeid(Components::Ai),
     };
 
     try {
@@ -108,29 +110,29 @@ int main() {
         engine.loadSystems("./src/server/configServer.cfg");
 
         // we'll probably have to move it elsewhere
-        boost::asio::io_context io_context;
-        UDPServer server(io_context, 8080, engine.getIdStringToType());
+        // boost::asio::io_context io_context;
+        // UDPServer server(io_context, 8080, engine.getIdStringToType());
 
-        engine.getRegistry().addEntityCreateCallback(
-            [&server](const ECS::Entity &e) { server.create_entity(e); }
-        );
-        engine.getRegistry().addEntityKillCallback(
-            [&server](const ECS::Entity &e) { server.delete_entity(e); }
-        );
+        // engine.getRegistry().addEntityCreateCallback(
+        //     [&server](const ECS::Entity &e) { server.create_entity(e); }
+        // );
+        // engine.getRegistry().addEntityKillCallback(
+        //     [&server](const ECS::Entity &e) { server.delete_entity(e); }
+        // );
 
-        engine.getRegistry().componentManager().registerGlobalCreateCallback(
-            [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
-        );
-        engine.getRegistry().componentManager().registerGlobalRemoveCallback(
-            [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
-        );
+        // engine.getRegistry().componentManager().registerGlobalCreateCallback(
+        //     [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
+        // );
+        // engine.getRegistry().componentManager().registerGlobalRemoveCallback(
+        //     [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
+        // );
 
-        engine.setUpdateComponent(
-            [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
-        );
+        // engine.setUpdateComponent(
+        //     [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
+        // );
 
-        while(server.client_endpoints.empty())
-            server.start_receive();
+        // while(server.client_endpoints.empty())
+        //     server.start_receive();
 
         displayPolymorphic(engine, types.begin(), types.end());
 
@@ -138,7 +140,7 @@ int main() {
 
         unsigned int i = 1;
         while (true) {
-            server.start_receive();
+            // server.start_receive();
             if (chrono.getElapsedTime() < 17)
                 continue;
             engine.runSystems();
