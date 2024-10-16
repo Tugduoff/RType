@@ -1,6 +1,6 @@
 NAME	:=	unit_tests
 
-TEST_FILES	:= Zipper_tests.cpp	\
+TEST_FILES	:= zipper_tests.cpp	\
 
 TESTED_SRC	:=
 
