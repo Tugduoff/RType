@@ -23,25 +23,29 @@
 
 namespace Components {
     /**
-     * @brief Ai component class in Components.
+     * @brief AI component class in Components.
      * 
-     * This class represents a rectangle Ai for an entity, storing the width and height of the Ai.
-     * It provides methods to serialize and deserialize the Ai data for network transmission or storage.
+     * This class represents an AI behavior for an entity, storing the behavior value.
+     * It provides methods to serialize and deserialize AI behavior data for network transmission or storage.
      */
     class Ai : public AComponent<Ai> {
     public:
         /**
-         * @brief Default constructor
+         * @brief Constructor to initialize AI with a behavior.
          * 
-         * Initializes the rectangle Ai with default width and height of 0.
+         * Initializes the AI component with a given behavior value.
+         * 
+         * @param behavior The AI behavior identifier (default is 0).
          */
         Ai(uint32_t behavior = 0) : AComponent(std::string("Ai")), behavior(behavior) {};
 
         /**
-         * @brief Constructor using configuration.
+         * @brief Constructor using configuration settings.
          * 
-         * Initializes the rectangle Ai based on config settings, with default values
-         * if lookupValue fails.
+         * Initializes the AI component based on values retrieved from a configuration.
+         * If the "behavior" setting is missing, it will default to 0.
+         * 
+         * @param config The libconfig::Setting containing the configuration data.
          */
         Ai(libconfig::Setting &config) : AComponent(std::string("Ai")) {
             if (!config.lookupValue("behavior", behavior)) {
@@ -50,11 +54,11 @@ namespace Components {
         }        
 
         /**
-         * @brief Serialize the Ai data
+         * @brief Serialize the AI behavior.
          * 
-         * Serializes the width and height into a byte vector for transmission or storage.
+         * Serializes the behavior into a byte vector for transmission or storage.
          * 
-         * @return std::vector<uint8_t> Serialized data.
+         * @return std::vector<uint8_t> Serialized behavior data.
          */
         std::vector<uint8_t> serialize() override {
             __network.behavior = htonl(behavior);
@@ -62,12 +66,12 @@ namespace Components {
         }
 
         /**
-         * @brief Deserialize the Ai data
+         * @brief Deserialize the AI behavior from data.
          * 
-         * Deserializes the width and height from the provided byte vector.
+         * Deserializes the behavior value from a byte vector.
          * 
-         * @param data The byte vector containing serialized data.
-         * @throws std::runtime_error If the data size is invalid.
+         * @param data The byte vector containing serialized behavior data.
+         * @throws std::runtime_error If the data size is incorrect.
          */
         void deserialize(std::vector<uint8_t> &data) override {
             if (data.size() != getSize())
@@ -86,13 +90,15 @@ namespace Components {
         }
 
         /**
-         * @brief Adds the Ai component to an entity.
+         * @brief Adds the AI component to an entity.
          * 
-         * @param to The entity to add the component to.
-         * @param engine The game engine.
-         * @param args The arguments to pass to the component constructor.
+         * Adds an AI component to the specified entity with the given behavior value.
          * 
-         * @note The arguments should be a tuple containing the width and height.
+         * @param to The entity to add the AI component to.
+         * @param engine The game engine managing the components.
+         * @param args A vector containing the behavior value (as a uint32_t).
+         * 
+         * @throws std::runtime_error If the arguments are invalid.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
             if (args.size() != 1)
@@ -105,11 +111,13 @@ namespace Components {
         };
 
         /**
-         * @brief Adds the Ai component to an entity from a configuration setting.
+         * @brief Adds the AI component to an entity using a configuration.
          * 
-         * @param to The entity to add the component to.
-         * @param engine The game engine.
-         * @param config The configuration setting to extract the component data from.
+         * Adds an AI component to the specified entity based on the configuration settings.
+         * 
+         * @param to The entity to add the AI component to.
+         * @param engine The game engine managing the components.
+         * @param config The configuration settings for initializing the component.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
             int behavior = 0; 
