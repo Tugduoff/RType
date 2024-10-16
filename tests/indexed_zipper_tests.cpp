@@ -30,7 +30,7 @@ static const std::array<std::function<void(std::size_t, int, char)>, 4> expected
     }),
 };
 
-Test(zipper_tests, basic_zipper_test)
+Test(indexed_zipper_tests, basic_indexed_zipper_test)
 {
     std::vector<std::optional<int>> v1 = {1, nullopt, 2, 84, nullopt, nullopt, 3};
     std::vector<std::optional<char>> v2 = {1, 84, 2, nullopt, 84, nullopt, 3};
@@ -42,7 +42,7 @@ Test(zipper_tests, basic_zipper_test)
     }
 }
 
-Test(zipper_tests, unique_zipper)
+Test(indexed_zipper_tests, unique_indexed_zipper)
 {
     std::array<int *, 7> vals1 = {new int(1), nullptr, new int(2), new int(84), nullptr, nullptr, new int(3),};
     std::array<char *, 7> vals2 = {new char(1), new char(84), new char(2), nullptr, new char(84), nullptr, new char(3),};

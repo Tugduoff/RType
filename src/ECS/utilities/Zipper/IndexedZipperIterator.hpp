@@ -30,7 +30,7 @@ public:
     using pointer = void;
     using difference_type = size_t;
     using iterator_category = std::forward_iterator_tag;
-    using iterator_tuple = std::tuple<std::size_t, iterator_t<Containers>...>;
+    using iterator_tuple = std::tuple<iterator_t<Containers>...>;
 
     // If we want indexed_zipper_iterator to be built by indexed_zipper only.
     friend IndexedZipper<Containers...>;
