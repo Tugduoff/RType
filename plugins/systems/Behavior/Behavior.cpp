@@ -19,6 +19,25 @@ Systems::BehaviorSystem::BehaviorSystem(libconfig::Setting &)
 void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
 {
     auto &reg = engine.getRegistry();
+    
+    try {
+        auto &aiComponent = reg.componentManager().getComponents<Components::Ai>();
+        size_t i = 0;
+        try {
+            for (i = 0; i < aiComponent.size(); i++) {
+                auto &aiBehavior = aiComponent[i];
+                if (aiBehavior->behavior == 0)
+                    continue;
+                if (aiBehavior->behavior == 1) {
+                    std::cerr << "Entity " << i << " has behavior 1" << std::endl;   
+                }
+            }
+        } catch (std::exception &e) {
+            std::cerr << "IA Error: " << e.what() << std::endl;
+        }
+    } catch (std::exception &e) {
+        std::cerr << " IA Error: " << e.what() << std::endl;
+    }
 }
 
 void Systems::BehaviorSystem::init(Engine::GameEngine &engine)
