@@ -33,7 +33,7 @@ public:
 
     iterator end()
     {
-        return {_end, _size};
+        return {_end, 0};
     }
 
 private:
