@@ -1,6 +1,7 @@
 NAME	:=	unit_tests
 
-TEST_FILES	:= zipper_tests.cpp	\
+TEST_FILES :=	zipper_tests.cpp	\
+		indexed_zipper_tests.cpp
 
 TESTED_SRC	:=
 
