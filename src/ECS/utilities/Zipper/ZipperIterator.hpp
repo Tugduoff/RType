@@ -13,8 +13,8 @@
     #include <tuple>
     #include <utility>
 
-template<class... Containers>
-class Zipper;
+template<class ZipIt, class... Containers>
+class GenericZipper;
 
 template<class... Containers>
 class ZipperIterator {
@@ -33,7 +33,7 @@ public:
     using iterator_tuple = std::tuple<iterator_t<Containers>...>;
 
     // If we want zipper_iterator to be built by zipper only.
-    friend Zipper<Containers...>;
+    friend GenericZipper<ZipperIterator, Containers...>;
 
     ZipperIterator(iterator_tuple const &it_tuple, size_t max)
     :   _current(it_tuple),
