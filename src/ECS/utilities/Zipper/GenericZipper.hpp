@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2024
 ** RType
 ** File description:
-** Zipper.hpp file
+** GenericZipper.hpp file
 */
 
 #ifndef GENERIC_ZIPPER_HPP

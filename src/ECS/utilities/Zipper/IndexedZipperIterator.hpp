@@ -5,8 +5,8 @@
 ** IndexedZipperIterator.hpp file
 */
 
-#ifndef INDEXED_Zipper_Iterator_HPP
-    #define INDEXED_Zipper_Iterator_HPP
+#ifndef INDEXED_Zipper_ITERATOR_HPP
+    #define INDEXED_Zipper_ITERATOR_HPP
 
     #include <cstddef>
     #include <iterator>
@@ -120,4 +120,4 @@ private:
     static constexpr std::index_sequence_for<Containers...> _seq {};
 };
 
-#endif /* Indexed_Zipper_Iterator_HPP */
+#endif /* Indexed_Zipper_ITERATOR_HPP */
