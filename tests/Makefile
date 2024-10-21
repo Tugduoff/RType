@@ -9,7 +9,7 @@ SRC	:= $(TEST_FILES) $(TESTED_SRC)
 
 EXT	:=	cpp
 
-CXXFLAGS	+=	-Wall -Wextra --coverage -std=c++20
+CXXFLAGS	+=	-Wall -Wextra --coverage -std=c++20 -I../src/
 LDFLAGS		+=	-lcriterion
 
 sinclude ./oneBin.mk
