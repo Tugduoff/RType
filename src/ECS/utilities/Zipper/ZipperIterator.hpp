@@ -18,6 +18,7 @@ class GenericZipper;
 
 template<class... Containers>
 class ZipperIterator {
+protected:
     template<class Container>
     using iterator_t = decltype(std::declval<Container>().begin());
 
@@ -109,6 +110,8 @@ private:
         return (*std::get<Is>(_current) && ...);
     }
 
+protected:
+
     // return a tuple of reference to components .
     template<size_t... Is>
     value_type to_value(std::index_sequence<Is...>)
@@ -116,7 +119,7 @@ private:
         return std::tie(**std::get<Is>(_current)...);
     }
 
-private:
+protected:
     iterator_tuple _current;
     size_t _max; // compare this value to _idx to prevent infinite loop .
     size_t _idx;
