@@ -5,28 +5,14 @@
 ** IndexedZipperIterator.hpp file
 */
 
-#ifndef INDEXED_Zipper_ITERATOR_HPP
-    #define INDEXED_Zipper_ITERATOR_HPP
+#ifndef INDEXED_ZIPPER_ITERATOR_HPP
+    #define INDEXED_ZIPPER_ITERATOR_HPP
 
     #include "ZipperIterator.hpp"
+    #include "ECS/utilities/TupleUtils.hpp"
     #include <cstddef>
     #include <tuple>
     #include <utility>
-
-template <typename... tups>
-using NtupleCombination = decltype(std::tuple_cat(std::declval<tups>()...));
-
-template <typename Tup, typename... types>
-using prependTupleType = NtupleCombination<
-    decltype(std::make_tuple(std::declval<types>()...)),
-    decltype(std::declval<Tup>())
->;
-
-template <typename Tup, typename... types>
-using appendTupleType = NtupleCombination<
-    decltype(std::declval<Tup>()),
-    decltype(std::make_tuple(std::declval<types>()...))
->;
 
 template<class ZipIt, class... Containers>
 class GenericZipper;
@@ -115,4 +101,4 @@ private:
     static constexpr std::index_sequence_for<Containers...> _seq {};
 };
 
-#endif /* Indexed_Zipper_ITERATOR_HPP */
+#endif /* INDEXED_ZIPPER_ITERATOR_HPP */
