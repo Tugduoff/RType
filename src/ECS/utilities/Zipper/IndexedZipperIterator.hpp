@@ -31,41 +31,74 @@ using appendTupleType = NtupleCombination<
 template<class ZipIt, class... Containers>
 class GenericZipper;
 
+/**
+ * @class IndexedZipperIterator
+ *
+ * @brief Iterator helper class for the IndexedZipper pseudo-container
+ * @brief Iterates over several containers, returning valid tuples and their index
+ *
+ * @tparam Containers The container types to iterate over
+ *
+ * @see ZipperIterator the non-indexed zipper which implement the zip logic
+ *
+ * @see IndexedZipper the pseudo-container which uses this iterator
+ */
 template<class... Containers>
 class IndexedZipperIterator : public ZipperIterator<Containers...> {
-    using this_t = IndexedZipperIterator<Containers...>;
     using parent = ZipperIterator<Containers...>;
 
-    template<class Container>
-    using iterator_t = parent::template iterator_t<Container>;
-
 public:
+
+    /**
+     * @brief Type returned by the iterator's operator*
+     */
     using value_type = prependTupleType<typename parent::value_type, std::size_t>;
+
     using reference = value_type;
     using pointer = parent::pointer;
     using difference_type = parent::difference_type;
     using iterator_category = parent::iterator_category;
     using iterator_tuple = parent::iterator_tuple;
 
-    // If we want indexed_zipper_iterator to be built by indexed_zipper only.
+    // This allows only GenericZipper to construct an IndexedZipperIterator
     friend GenericZipper<IndexedZipperIterator, Containers...>;
 
+    /**
+     * @brief Constructor for an IndexedZipperIterator
+     *
+     * @param it_tuple The iterators to zip
+     * @param max The maximum length of passed iterators
+     */
     IndexedZipperIterator(iterator_tuple const &it_tuple, size_t max)
     :   parent(it_tuple, max)
     {
     }
 
 public:
+
+    /**
+     * @brief Copy constructor for an IndexedZipper
+     */
     IndexedZipperIterator(IndexedZipperIterator const &other)
     :   parent(other)
     {
     }
 
+    /**
+     * @brief Dereference operator
+     *
+     * @returns A tuple of references to zipped values
+     */
     value_type operator*()
     {
         return this->to_value(_seq);
     }
 
+    /**
+     * @brief Dereference member-access operator
+     *
+     * @returns A tuple of references to zipped values
+     */
     value_type operator->()
     {
         return this->to_value(_seq);

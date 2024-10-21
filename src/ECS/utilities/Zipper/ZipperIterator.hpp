@@ -16,6 +16,18 @@
 template<class ZipIt, class... Containers>
 class GenericZipper;
 
+/**
+ * @class ZipperIterator
+ *
+ * @brief Helper class to iterate over valid tuples of
+ * @brief values in multiple containers
+ *
+ * @tparam Containers the types of zipped containers
+ *
+ * @see Zipper, the pseudo-container which uses ZipperIterator
+ *
+ * @see IndexedZipperIterator, providing similar functionality
+ */
 template<class... Containers>
 class ZipperIterator {
 protected:
@@ -26,16 +38,29 @@ protected:
     using it_reference_t = typename iterator_t<Container>::reference;
 
 public:
+    /**
+     * @brief Type returned by the iterator's operator*
+     */
     using value_type = std::tuple<decltype(*std::declval<typename iterator_t<Containers>::value_type>()) &...>;
+
     using reference = value_type;
     using pointer = void;
     using difference_type = size_t;
     using iterator_category = std::forward_iterator_tag;
     using iterator_tuple = std::tuple<iterator_t<Containers>...>;
 
-    // If we want zipper_iterator to be built by zipper only.
+    // This allows only GenericZipper to use private members of ZipperIterator
     friend GenericZipper<ZipperIterator, Containers...>;
 
+    /**
+     * @brief Contructor for a ZipperIterator
+     *
+     * @param it_tuple A tuple of iterators to zip
+     * @param max The maximum index to use in zipped iterators
+     *
+     * @note This constructor is private, so it can only be called
+     * @note by GenericZipper, because it is a friend
+     */
     ZipperIterator(iterator_tuple const &it_tuple, size_t max)
     :   _current(it_tuple),
         _max(max),
@@ -47,6 +72,9 @@ public:
     }
 
 public:
+    /**
+     * @brief Copy contructor for a ZipperIterator
+     */
     ZipperIterator(ZipperIterator const &other)
     :   _current(other._current),
         _max(other._max),
@@ -54,12 +82,24 @@ public:
     {
     }
 
+    /**
+     * @brief Prefix increment operator used to increment the zipper
+     * @brief to the next valid tuple of values
+     *
+     * @returns A reference to this iterator
+     */
     ZipperIterator &operator++()
     {
         incr_all(_seq);
         return *this;
     }
 
+    /**
+     * @brief Postfix increment operator used to increment the zipper
+     * @brief to the next valid tuple of values
+     *
+     * @returns A copy of this iterator, before the increment has been done
+     */
     ZipperIterator operator++(int)
     {
         auto ret = *this;
@@ -68,21 +108,41 @@ public:
         return ret;
     }
 
+    /**
+     * @brief Dereference operator
+     *
+     * @returns A tuple of references to zipped values
+     */
     value_type operator*()
     {
         return this->to_value(_seq);
     }
 
+    /**
+     * @brief Dereference member-access operator
+     *
+     * @returns A tuple of references to zipped values
+     */
     value_type operator->()
     {
         return this->to_value(_seq);
     }
 
+    /**
+     * @brief Equality operator
+     *
+     * @returns whether the two compared iterators contain the same references
+     */
     friend bool operator==(ZipperIterator const &lhs, ZipperIterator const &rhs)
     {
         return lhs._current == rhs._current;
     }
 
+    /**
+     * @brief Inequality operator
+     *
+     * @returns whether the two compared iterators contain different references
+     */
     friend bool operator!=(ZipperIterator const &lhs, ZipperIterator const &rhs)
     {
         return !(lhs == rhs);
