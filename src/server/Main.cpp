@@ -101,11 +101,6 @@ int main() {
     };
 
     try {
-        engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
-        engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
-        engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
-
-        engine.loadSystems("./src/server/configServer.cfg");
 
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
@@ -129,8 +124,18 @@ int main() {
             [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
         );
 
+        engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
+        engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
+        engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
+
+        engine.loadSystems("./src/server/configServer.cfg");
+
+        server.updateIdStringToType(engine.getIdStringToType());
+
+        // engine.getRegistry().componentManager().
         while(server.client_endpoints.empty())
             server.start_receive();
+
 
         displayPolymorphic(engine, types.begin(), types.end());
 
