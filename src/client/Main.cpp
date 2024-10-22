@@ -48,6 +48,7 @@ int main()
         [&conn](size_t id, std::string name, std::vector<uint8_t> data) { updateComponent(id, name, data, conn); }
     );
 
+    engine.loadSystems("./src/client/configClient.cfg");
     // Hard coded register for now
     engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
     engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
@@ -64,7 +65,6 @@ int main()
 
     try
     {
-        engine.loadSystems("./src/client/configClient.cfg");
         // Check that you have the same components here with the map in RTypeClient
         while (conn.gameEnd != true) {
             if (conn.dataFromServer()) {

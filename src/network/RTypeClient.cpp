@@ -112,6 +112,11 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
         std::cout << "Deleting entity n°" << entityId << " from network" << std::endl;
         engine.getRegistry().entityManager().killEntity(entity);
         std::cout << "Deleted entity n°" << entity << " in local" << std::endl;
+        if (entityId != entity) {
+            std::cout << "\033[0;31m";
+            std::cout << "Deleted entity from network (" << entityId << ") and deleted entity in local (" << entity << ") are differents" << std::endl;
+            std::cout << "\033[0;37m";
+        }
     } catch (std::exception &e) {
         std::cout << "\033[0;31m";
         std::cout << "Could not delete entity n°" << entityId << std::endl;
