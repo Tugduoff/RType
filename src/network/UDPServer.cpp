@@ -27,8 +27,12 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
 
 void UDPServer::start_receive() {
     boost::system::error_code ec;
-    std::size_t bytes_recvd = socket_.receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 0, ec);
+    std::size_t bytes_recvd;
 
+    if (!socket_.available()) {
+        return;
+    }
+    bytes_recvd = socket_.receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 0, ec);
     if (!ec && bytes_recvd > 0) {
         std::string message(recv_buffer_.data(), bytes_recvd);
         std::cout << "Received message from client (" << remote_endpoint_.address().to_string() 
@@ -41,7 +45,7 @@ void UDPServer::start_receive() {
                             << ":" << remote_endpoint_.port() << std::endl;
                 client_responses[remote_endpoint_] = true;
                 is_disconnected[remote_endpoint_] = false;
-                checking_client(remote_endpoint_);
+                // checking_client(remote_endpoint_);
             }
         } else {
             client_responses[remote_endpoint_] = true;
@@ -68,16 +72,19 @@ std::size_t UDPServer::get_size_max() {
 }
 
 void UDPServer::send_message(const std::vector<uint8_t>& message) {
-    socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t bytes_sent) {
-            if (!ec) {
-                std::cout << "Sent message of size " << bytes_sent << " bytes." << std::endl;
-            } else {
-                std::cerr << "Error sending message: " << ec.message() << std::endl;
-            }
-        }
-    );
+    boost::system::error_code ec;
+    std::size_t bytes_sent = socket_.send_to(boost::asio::buffer(message), remote_endpoint_, 0, ec);
+    
+    std::cout << "/// Message to be sent: ";
+    for (size_t i = 0; i < message.size(); i++)
+        std::cout << static_cast<int>(message[i]) << (i < message.size() - 1 ? ", " : "");
+    std::cout << std::endl;
+
+    if (!ec) {
+        std::cout << "- Sent message of size " << bytes_sent << " bytes." << std::endl;
+    } else {
+        std::cerr << "- Error sending message: " << ec.message() << std::endl;
+    }
 }
 
 // --- Client Init --- //
@@ -143,14 +150,14 @@ void UDPServer::checking_client(const udp::endpoint& client) {
 
 void UDPServer::send_ping(const udp::endpoint& client) {
     std::string ping_message = "ping";
-    socket_.async_send_to(boost::asio::buffer(ping_message), client,
-        [this, client](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                std::cout << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
-                start_pong_timer(client);
-            }
-        }
-    );
+    boost::system::error_code ec;
+    socket_.send_to(boost::asio::buffer(ping_message), client, 0, ec);
+
+    if (!ec) {
+        std::cout << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
+    } else {
+        std::cerr << "Error sending ping: " << ec.message() << std::endl;
+    }
 }
 
 void UDPServer::start_pong_timer(const udp::endpoint& client) {
@@ -199,15 +206,14 @@ void UDPServer::create_entity(const ECS::Entity &entity) {
     message[0] = opcode;
     std::memcpy(&message[1], &entity_id, sizeof(entity_id));
 
-    socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                uint16_t id = ntohs(entity_id);
-                std::cout << "Entity " << static_cast<int>(id) << " created." << std::endl;
-            }
-        }
-    );
+    boost::system::error_code ec;
+    std::size_t bytes_sent = socket_.send_to(boost::asio::buffer(message), remote_endpoint_, 0, ec);
+
+    if (!ec) {
+        std::cout << "Entity " << static_cast<int>(ntohs(entity_id)) << " created. Bytes sent: " << bytes_sent << std::endl;
+    } else {
+        std::cerr << "Error sending entity creation message: " << ec.message() << std::endl;
+    }
 }
 
 void UDPServer::delete_entity(const ECS::Entity &entity) {
@@ -219,32 +225,43 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
     message[0] = opcode;
     std::memcpy(&message[1], &entity_id, sizeof(entity_id));
 
-    socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                uint16_t id = ntohs(entity_id);
-                std::cout << "Entity " << static_cast<int>(id) << " delete." << std::endl;
-            }
-        }
-    );
+    boost::system::error_code ec;
+    std::size_t bytes_sent = socket_.send_to(boost::asio::buffer(message), remote_endpoint_, 0, ec);
+
+    if (!ec) {
+        std::cout << "Entity " << ntohs(entity_id) << " deleted. Bytes sent: " << bytes_sent << std::endl;
+    } else {
+        std::cerr << "Error deleting entity: " << ec.message() << std::endl;
+    }
 }
 
 // --- Component --- //
 
 void UDPServer::attach_component(size_t entity, std::type_index component) {
+    std::cout << "Attaching component..." << std::endl;
+
     uint8_t opcode = 0x2;
     uint16_t entity_id = static_cast<uint16_t>(entity);
     entity_id = htons(entity_id);
 
     auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
-    [&component](const auto& pair) {
-        return pair.second == component;
-    });
+        [&component](const auto& pair) {
+            return pair.second == component;
+        });
+
     if (it == __idStringToType.end()) {
-        std::cerr << "Error 0x2: Component '" << component.name() << "' not found." << std::endl;
+        std::cerr << "Error: Component '" << component.name() << "' not found." << std::endl;
         return;
     }
+
+    // std::cout << "--- updating shared map ---" << std::endl;
+
+    // std::cout << "shared map size: " << __compIds.size() << " | Setting value on index: " << __compIds.size() + 1 << std::endl;
+
+    // __compIds[static_cast<uint16_t>(__compIds.size() + 1)] = static_cast<uint16_t>(std::distance(__idStringToType.begin(), it));
+    // uint16_t component_id = static_cast<uint16_t>(__compIds.size() + 1);
+
+    // std::cout << "shared map updated" << std::endl;
 
     uint8_t index = static_cast<uint8_t>(std::distance(__idStringToType.begin(), it));
     uint16_t component_id = index;
@@ -255,16 +272,13 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
     std::memcpy(&message[1], &entity_id, sizeof(entity_id));
     std::memcpy(&message[3], &component_id, sizeof(component_id));
 
-    socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id, component_id](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                uint16_t e_id = ntohs(entity_id);
-                uint16_t c_id = ntohs(component_id);
-                std::cout << "Attach component [" << static_cast<int>(c_id) << "] to entity [" << static_cast<int>(e_id) << "]." << std::endl;
-            }
-        }
-    );
+    boost::system::error_code ec;
+    std::size_t bytes_sent = socket_.send_to(boost::asio::buffer(message), remote_endpoint_, 0, ec);
+
+    if (!ec)
+        std::cout << "Component attached successfully. Bytes sent: " << bytes_sent << std::endl;
+    else
+        std::cerr << "Error attaching component: " << ec.message() << std::endl;
 }
 
 void UDPServer::update_component(size_t entity, std::string name, std::vector<uint8_t> data) {
@@ -293,29 +307,29 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
     std::memcpy(&message[3], &component_id, sizeof(component_id));
     std::memcpy(&message[5], data.data(), component_size);
 
-    socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id, component_id](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                uint16_t e_id = ntohs(entity_id);
-                uint16_t c_id = ntohs(component_id);
-                std::cout << "Updated component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
-            }
-        }
-    );
+    boost::system::error_code ec;
+    std::size_t bytes_sent = socket_.send_to(boost::asio::buffer(message), remote_endpoint_, 0, ec);
+
+    if (!ec) {
+        std::cout << "Component updated successfully. Bytes sent: " << bytes_sent << std::endl;
+    } else {
+        std::cerr << "Error updating component: " << ec.message() << std::endl;
+    }
 }
 
 void UDPServer::detach_component(size_t entity, std::type_index component) {
+    std::cout << "Detaching component..." << std::endl;
     uint8_t opcode = 0x4;
     uint16_t entity_id = static_cast<uint16_t>(entity);
     entity_id = htons(entity_id);
 
     auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
-    [&component](const auto& pair) {
-        return pair.second == component;
-    });
+        [&component](const auto& pair) {
+            return pair.second == component;
+        });
+
     if (it == __idStringToType.end()) {
-        std::cerr << "Error 0x4: Component '" << component.name() << "' not found." << std::endl;
+        std::cerr << "Error: Component '" << component.name() << "' not found." << std::endl;
         return;
     }
 
@@ -328,14 +342,12 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
     std::memcpy(&message[1], &entity_id, sizeof(entity_id));
     std::memcpy(&message[3], &component_id, sizeof(component_id));
 
-    socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id, component_id](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                uint16_t e_id = ntohs(entity_id);
-                uint16_t c_id = ntohs(component_id);
-                std::cout << "Detach component [" << static_cast<int>(c_id) << "] from entity [" << static_cast<int>(e_id) << "]." << std::endl;
-            }
-        }
-    );
+    boost::system::error_code ec;
+    std::size_t bytes_sent = socket_.send_to(boost::asio::buffer(message), remote_endpoint_, 0, ec);
+
+    if (!ec) {
+        std::cout << "Component detached successfully. Bytes sent: " << bytes_sent << std::endl;
+    } else {
+        std::cerr << "Error detaching component: " << ec.message() << std::endl;
+    }
 }
