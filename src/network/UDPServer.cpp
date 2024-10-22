@@ -196,18 +196,22 @@ void UDPServer::remove_client(const udp::endpoint& client) {
 
 void UDPServer::create_entity(const ECS::Entity &entity) {
     uint8_t opcode = 0x0;
-    uint16_t entity_id = static_cast<uint16_t>(entity);
-    entity_id = htons(entity_id);
+    uint32_t networkId = _nextNetworkId;
+    _nextNetworkId++;
+    _entitiesNetworkId.insert({entity, networkId});
+    // uint16_t entity_id = static_cast<uint16_t>(entity);
+    
+    networkId = htonl(networkId);
 
-    std::array<uint8_t, 3> message;
+    std::array<uint8_t, 5> message;
     message[0] = opcode;
-    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
+    std::memcpy(&message[1], &networkId, sizeof(networkId));
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id](boost::system::error_code ec, std::size_t) {
+        [this, networkId](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t id = ntohs(entity_id);
+                uint32_t id = ntohl(networkId);
                 std::cout << "Entity " << static_cast<int>(id) << " created." << std::endl;
             }
         }
@@ -216,18 +220,20 @@ void UDPServer::create_entity(const ECS::Entity &entity) {
 
 void UDPServer::delete_entity(const ECS::Entity &entity) {
     uint8_t opcode = 0x1;
-    uint16_t entity_id = static_cast<uint16_t>(entity);
-    entity_id = htons(entity_id);
+    uint32_t networkId = _entitiesNetworkId.at(entity);
+    networkId = htonl(networkId);
 
-    std::array<uint8_t, 3> message;
+    _entitiesNetworkId.erase(entity);
+
+    std::array<uint8_t, 5> message;
     message[0] = opcode;
-    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
+    std::memcpy(&message[1], &networkId, sizeof(networkId));
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id](boost::system::error_code ec, std::size_t) {
+        [this, networkId](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t id = ntohs(entity_id);
+                uint16_t id = ntohl(networkId);
                 std::cout << "Entity " << static_cast<int>(id) << " delete." << std::endl;
             }
         }
@@ -238,8 +244,8 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
 
 void UDPServer::attach_component(size_t entity, std::type_index component) {
     uint8_t opcode = 0x2;
-    uint16_t entity_id = static_cast<uint16_t>(entity);
-    entity_id = htons(entity_id);
+    uint32_t networkId = _entitiesNetworkId.at(entity);
+    networkId = htonl(networkId);
 
     auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
     [&component](const auto& pair) {
@@ -254,16 +260,16 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
     uint16_t component_id = index;
     component_id = htons(component_id);
 
-    std::array<uint8_t, 5> message;
+    std::array<uint8_t, 7> message;
     message[0] = opcode;
-    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
-    std::memcpy(&message[3], &component_id, sizeof(component_id));
+    std::memcpy(&message[1], &networkId, sizeof(networkId));
+    std::memcpy(&message[5], &component_id, sizeof(component_id));
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id, component_id](boost::system::error_code ec, std::size_t) {
+        [this, networkId, component_id](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t e_id = ntohs(entity_id);
+                uint16_t e_id = ntohl(networkId);
                 uint16_t c_id = ntohs(component_id);
                 std::cout << "Attach component [" << static_cast<int>(c_id) << "] to entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
@@ -273,8 +279,8 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
 
 void UDPServer::update_component(size_t entity, std::string name, std::vector<uint8_t> data) {
     uint8_t opcode = 0x3;
-    uint16_t entity_id = static_cast<uint16_t>(entity);
-    entity_id = htons(entity_id);
+    uint32_t networkId = _entitiesNetworkId.at(entity);
+    networkId = htonl(networkId);
 
     auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
     [&name](const auto& pair) {
@@ -291,17 +297,17 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
 
     size_t component_size = data.size();
 
-    std::vector<uint8_t> message(5 + component_size);
+    std::vector<uint8_t> message(7 + component_size);
     message[0] = opcode;
-    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
-    std::memcpy(&message[3], &component_id, sizeof(component_id));
-    std::memcpy(&message[5], data.data(), component_size);
+    std::memcpy(&message[1], &networkId, sizeof(networkId));
+    std::memcpy(&message[5], &component_id, sizeof(component_id));
+    std::memcpy(&message[7], data.data(), component_size);
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id, component_id](boost::system::error_code ec, std::size_t) {
+        [this, networkId, component_id](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t e_id = ntohs(entity_id);
+                uint16_t e_id = ntohl(networkId);
                 uint16_t c_id = ntohs(component_id);
                 std::cout << "Updated component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
@@ -311,8 +317,8 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
 
 void UDPServer::detach_component(size_t entity, std::type_index component) {
     uint8_t opcode = 0x4;
-    uint16_t entity_id = static_cast<uint16_t>(entity);
-    entity_id = htons(entity_id);
+    uint32_t networkId = _entitiesNetworkId.at(entity);
+    networkId = htonl(networkId);
 
     auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
     [&component](const auto& pair) {
@@ -327,16 +333,16 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
     uint16_t component_id = index;
     component_id = htons(component_id);
 
-    std::array<uint8_t, 5> message;
+    std::array<uint8_t, 7> message;
     message[0] = opcode;
-    std::memcpy(&message[1], &entity_id, sizeof(entity_id));
-    std::memcpy(&message[3], &component_id, sizeof(component_id));
+    std::memcpy(&message[1], &networkId, sizeof(networkId));
+    std::memcpy(&message[5], &component_id, sizeof(component_id));
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this, entity_id, component_id](boost::system::error_code ec, std::size_t) {
+        [this, networkId, component_id](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t e_id = ntohs(entity_id);
+                uint16_t e_id = ntohl(networkId);
                 uint16_t c_id = ntohs(component_id);
                 std::cout << "Detach component [" << static_cast<int>(c_id) << "] from entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
