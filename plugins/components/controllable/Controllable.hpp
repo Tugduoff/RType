@@ -222,10 +222,10 @@ namespace Components {
             newKeyBindings[Action::LEFT] = strToKey.at(left);
             newKeyBindings[Action::RIGHT] = strToKey.at(right);
 
-            std::cout << "FORWARD: " << newKeyBindings[Action::FORWARD] << std::endl;
-            std::cout << "BACKWARD: " << newKeyBindings[Action::BACKWARD] << std::endl;
-            std::cout << "LEFT: " << newKeyBindings[Action::LEFT] << std::endl;
-            std::cout << "RIGHT: " << newKeyBindings[Action::RIGHT] << std::endl;
+            std::cerr << "FORWARD: " << newKeyBindings[Action::FORWARD] << std::endl;
+            std::cerr << "BACKWARD: " << newKeyBindings[Action::BACKWARD] << std::endl;
+            std::cerr << "LEFT: " << newKeyBindings[Action::LEFT] << std::endl;
+            std::cerr << "RIGHT: " << newKeyBindings[Action::RIGHT] << std::endl;
 
             for (int i = 0; i < 10; i++) {
                 std::string actionKey = "ACTION" + std::to_string(i + 1);
@@ -234,12 +234,12 @@ namespace Components {
 
                 if (!config.lookupValue(actionKey, actionValue)) {
                     newKeyBindings[action] = Key::UNKNOWN;
-                    std::cout << actionKey << ": UNKNOWN" << std::endl;
+                    std::cerr << actionKey << ": UNKNOWN" << std::endl;
                     continue;
                 }
 
                 newKeyBindings[action] = strToKey.at(actionValue);
-                std::cout << actionKey << ": " << newKeyBindings[action] << std::endl;
+                std::cerr << actionKey << ": " << newKeyBindings[action] << std::endl;
             }
 
             std::unique_ptr<Components::Controllable> ctrl = engine.newComponent<Components::Controllable>(newKeyBindings);

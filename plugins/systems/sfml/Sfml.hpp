@@ -9,6 +9,7 @@
     #define SFML_HPP
 
     #include <SFML/Graphics.hpp>
+    #include <SFML/Audio/Music.hpp>
     #include <libconfig.h++>
     #include "systems/ASystem.hpp"
     #include "Display.hpp"
@@ -39,6 +40,7 @@ namespace Systems {
         private:
 
             sf::RenderWindow __window;
+            sf::Music __music;
 
     };
 };

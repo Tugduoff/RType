@@ -51,6 +51,15 @@ Action stringToAction(const std::string &actionString);
 /**
  * @brief Converts an Action enum value to a string.
  * 
+ * @param action The Action enum value to convert to a string.
+ * 
+ * @return The string representation of the Action enum value.
+ */
+std::string actionToString(const Action &action);
+
+/**
+ * @brief Converts an Action enum value to a string.
+ * 
  * @param os The output stream to write to.
  * 
  * @param action The Action enum value to convert to a string.

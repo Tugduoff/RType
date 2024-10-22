@@ -23,9 +23,9 @@ Systems::ConfigLoader::ConfigLoader(libconfig::Setting &config) :
     config.lookupValue("path", __configFilePath);
 }
 
-void Systems::ConfigLoader::init(Engine::GameEngine &engine)
+void Systems::ConfigLoader::init(Engine::GameEngine &)
 {
-    loadConfig(__configFilePath, engine);
+    loadConfig(__configFilePath);
 }
 
 void Systems::ConfigLoader::run(Engine::GameEngine &engine)
@@ -120,13 +120,13 @@ void Systems::ConfigLoader::displayConfig()
     }
 }
 
-void Systems::ConfigLoader::loadConfig(const std::string &filepath, Engine::GameEngine &engine)
+void Systems::ConfigLoader::loadConfig(const std::string &filepath)
 {
     try {
         cfg.readFile(filepath);
         std::cout << "\nConfig file loaded: " << filepath << std::endl;
         libconfig::Setting &root = cfg.getRoot();
-        extractConfig(root, engine);
+        extractConfig(root);
     } catch (libconfig::ParseException &e) {
         std::cerr << "Error while parsing file: "
             << e.getFile() << " in line: "
@@ -139,7 +139,7 @@ void Systems::ConfigLoader::loadConfig(const std::string &filepath, Engine::Game
     }
 }
 
-void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::GameEngine &engine)
+void Systems::ConfigLoader::extractConfig(libconfig::Setting &root)
 {
     if (root.exists("level")) {
         libconfig::Setting &level = root["level"];
@@ -215,9 +215,8 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root, Engine::Game
                 entity.components.push_back({componentName, args});
             }
             if (entity.type != "") {
-                std::cerr << "Entity type: " << entity.type << " name: " << entity.name << "loaded!" << std::endl;
+                std::cerr << "Entity type: " << entity.type << " name: " << entity.name << " loaded!" << std::endl;
                 for (const auto &component : config.entityTemplates.at(entity.type).components) {
-                    // Check if the component is already loaded
                     bool alreadyLoaded = false;
                     for (const auto &loadedComponent : entity.components) {
                         if (loadedComponent.id == component.id) {

@@ -17,8 +17,8 @@ Components::IComponent *buildDefault() {
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(uint32_t bulletDamage, uint32_t fireRate, uint32_t bulletVelocity) {
-    return new Components::Gun(bulletDamage, fireRate, bulletVelocity);
+Components::IComponent *buildWithParams(uint32_t bulletDamage, uint32_t fireRate, uint32_t bulletVelocity, std::string spriteId) {
+    return new Components::Gun(bulletDamage, fireRate, bulletVelocity, spriteId);
 }
 
 LIBRARY_ENTRYPOINT

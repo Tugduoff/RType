@@ -51,7 +51,8 @@ void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 
 void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
 {
-    auto &ctrlComponents = engine.getRegistry().componentManager().getComponents<Components::Controllable>();
+    auto &ctrlComponents = engine.getRegistry().componentManager().getComponents<Components::Controllable>();   
+    auto &spriteComponents = engine.getRegistry().componentManager().getComponents<Components::SpriteComponent>();
 
     if (event.type == sf::Event::KeyPressed) {
         for (size_t i = 0; i < ctrlComponents.size(); i++) {
@@ -67,12 +68,42 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                 for (auto &[action, actionKey] : ctrl->keyBindings) {
                     if (actionKey == key) {
                         handleInputPressed(ctrl->inputs, ctrl->actions, index);
+                        try {
+                            auto &sprite = spriteComponents[i];
+
+                            bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
+                            bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
+                            bool rightInput = ctrl->inputs[(int)Action::RIGHT];
+                            bool leftInput = ctrl->inputs[(int)Action::LEFT];
+
+                            if ((action == Action::FORWARD && rightInput) ||
+                                (action == Action::RIGHT && forwardInput))
+                                sprite->loadTextureForAction("FORWARD_RIGHT");
+                            else if ((action == Action::FORWARD && leftInput) ||
+                                (action == Action::LEFT && forwardInput))
+                                sprite->loadTextureForAction("FORWARD_LEFT");
+                            else if ((action == Action::BACKWARD && rightInput) ||
+                                (action == Action::RIGHT && backwardInput))
+                                sprite->loadTextureForAction("BACKWARD_RIGHT");
+                            else if ((action == Action::BACKWARD && leftInput) ||
+                                (action == Action::LEFT && backwardInput))
+                                sprite->loadTextureForAction("BACKWARD_LEFT");
+                            else if (action == Action::FORWARD)
+                                sprite->loadTextureForAction("FORWARD");
+                            else if (action == Action::BACKWARD)
+                                sprite->loadTextureForAction("BACKWARD");
+                            else if (action == Action::RIGHT)
+                                sprite->loadTextureForAction("RIGHT");
+                            else if (action == Action::LEFT)
+                                sprite->loadTextureForAction("LEFT");
+                        } catch (std::exception &e) {
+                            std::cerr << "Sprite not found" << std::endl;
+                        }
                         return;
                     }
                     index++;
                 }
             } catch (std::exception &e) {
-                std::cerr << "HandleInput Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -91,12 +122,36 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                 for (auto &[action, actionKey] : ctrl->keyBindings) {
                     if (actionKey == key) {
                         handleInputReleased(ctrl->inputs, ctrl->actions, index);
+                        try {
+                            auto &sprite = spriteComponents[i];
+
+                            bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
+                            bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
+                            bool rightInput = ctrl->inputs[(int)Action::RIGHT];
+                            bool leftInput = ctrl->inputs[(int)Action::LEFT];
+
+                            if ((action == Action::FORWARD && rightInput) ||
+                                (action == Action::BACKWARD && rightInput))
+                                sprite->loadTextureForAction("RIGHT");
+                            else if ((action == Action::FORWARD && leftInput) ||
+                                (action == Action::BACKWARD && leftInput))
+                                sprite->loadTextureForAction("LEFT");
+                            else if ((action == Action::RIGHT && forwardInput) ||
+                                (action == Action::LEFT && forwardInput))
+                                sprite->loadTextureForAction("FORWARD");
+                            else if ((action == Action::RIGHT && backwardInput) ||
+                                (action == Action::LEFT && backwardInput))
+                                sprite->loadTextureForAction("BACKWARD");
+                            else
+                                sprite->loadTextureForAction("IDLE");
+                        } catch (std::exception &e) {
+                            std::cerr << "Sprite Component not found" << std::endl;
+                        }
                         return;
                     }
                     index++;
                 }
             } catch (std::exception &e) {
-                std::cerr << "HandleInput Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -111,12 +166,42 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
                         (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
                             handleInputPressed(ctrl->inputs, ctrl->actions, index);
+                            try {
+                                auto &sprite = spriteComponents[i];
+                                
+                                bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
+                                bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
+                                bool rightInput = ctrl->inputs[(int)Action::RIGHT];
+                                bool leftInput = ctrl->inputs[(int)Action::LEFT];
+
+                                if ((action == Action::FORWARD && rightInput) ||
+                                    (action == Action::RIGHT && forwardInput))
+                                    sprite->loadTextureForAction("FORWARD_RIGHT");
+                                else if ((action == Action::FORWARD && leftInput) ||
+                                    (action == Action::LEFT && forwardInput))
+                                    sprite->loadTextureForAction("FORWARD_LEFT");
+                                else if ((action == Action::BACKWARD && rightInput) ||
+                                    (action == Action::RIGHT && backwardInput))
+                                    sprite->loadTextureForAction("BACKWARD_RIGHT");
+                                else if ((action == Action::BACKWARD && leftInput) ||
+                                    (action == Action::LEFT && backwardInput))
+                                    sprite->loadTextureForAction("BACKWARD_LEFT");
+                                else if (action == Action::FORWARD)
+                                    sprite->loadTextureForAction("FORWARD");
+                                else if (action == Action::BACKWARD)
+                                    sprite->loadTextureForAction("BACKWARD");
+                                else if (action == Action::RIGHT)
+                                    sprite->loadTextureForAction("RIGHT");
+                                else if (action == Action::LEFT)
+                                    sprite->loadTextureForAction("LEFT");
+                            } catch (std::exception &e) {
+                                std::cerr << "Sprite Component not found" << std::endl;
+                            }
                             return;
                     }
                     index++;
                 }
             } catch (std::exception &e) {
-                std::cerr << "HandleInput Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -131,12 +216,36 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
                         (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
                             handleInputReleased(ctrl->inputs, ctrl->actions, index);
+                            try {
+                                auto &sprite = spriteComponents[i];
+
+                                bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
+                                bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
+                                bool rightInput = ctrl->inputs[(int)Action::RIGHT];
+                                bool leftInput = ctrl->inputs[(int)Action::LEFT];
+
+                                if ((action == Action::FORWARD && rightInput) ||
+                                    (action == Action::BACKWARD && rightInput))
+                                    sprite->loadTextureForAction("RIGHT");
+                                else if ((action == Action::FORWARD && leftInput) ||
+                                    (action == Action::BACKWARD && leftInput))
+                                    sprite->loadTextureForAction("LEFT");
+                                else if ((action == Action::RIGHT && forwardInput) ||
+                                    (action == Action::LEFT && forwardInput))
+                                    sprite->loadTextureForAction("FORWARD");
+                                else if ((action == Action::RIGHT && backwardInput) ||
+                                    (action == Action::LEFT && backwardInput))
+                                    sprite->loadTextureForAction("BACKWARD");
+                                else
+                                    sprite->loadTextureForAction("IDLE");
+                            } catch (std::exception &e) {
+                                std::cerr << "Sprite Component not found" << std::endl;
+                            }
                             return;
                     }
                     index++;
                 }
             } catch (std::exception &e) {
-                std::cerr << "HandleInput Error: " << e.what() << std::endl;
                 continue;
             }
         }
