@@ -172,6 +172,10 @@ class UDPServer {
         * @param component A reference to the component being detached.
         */
         void detach_component(size_t entity, std::type_index component);
+
+        void updateIdStringToType(std::unordered_map<std::string, std::type_index> &idStringToType) {
+            __idStringToType = idStringToType;
+        }
 };
 
 #endif /* !UDP_SERVER_HPP_ */
