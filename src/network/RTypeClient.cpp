@@ -15,14 +15,14 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 
 void RTypeClient::engineInit()
 {
-    std::cout << "Init Game" << std::endl;
+    std::cerr << "Init Game" << std::endl;
     send("start");
 
     uint16_t compNb = receiveUint16();
     uint8_t compNameMaxSize = receiveUint8();
 
-    std::cout << "CompNb : " << (int)compNb << "." << std::endl;
-    std::cout << "CompNameMaxSize : " << (int)compNameMaxSize << "." << std::endl;
+    std::cerr << "CompNb : " << (int)compNb << "." << std::endl;
+    std::cerr << "CompNameMaxSize : " << (int)compNameMaxSize << "." << std::endl;
 
     for (uint16_t i = 0; i < compNb; i++) {
         std::vector<uint8_t> compName = blockingReceive();
@@ -52,29 +52,29 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
 
     switch (operation[0]) {
         case 0x0:
-            std::cout << "Create Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
+            std::cerr << "Create Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
             createEntity(engine, operation);
-            std::cout << std::endl;
+            std::cerr << std::endl;
             break;
         case 0x1:
-            std::cout << "Delete Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
+            std::cerr << "Delete Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
             deleteEntity(engine, operation);
-            std::cout << std::endl;
+            std::cerr << std::endl;
             break;
         case 0x2:
-            std::cout << "Attach Component" << std::endl;
+            std::cerr << "Attach Component" << std::endl;
             attachComponent(engine, operation);
-            std::cout << std::endl;
+            std::cerr << std::endl;
             break;
         case 0x3:
-            std::cout << "Update Component" << std::endl;
-            std::cout << "Component n°" << uint16From2Uint8(operation[5], operation[6]) << std::endl;
+            std::cerr << "Update Component" << std::endl;
+            std::cerr << "Component n°" << uint16From2Uint8(operation[5], operation[6]) << " of Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
             updateComponent(engine, operation);
             break;
         case 0x4:
-            std::cout << "Detach Component" << std::endl;
+            std::cerr << "Detach Component" << std::endl;
             detachComponent(engine, operation);
-            std::cout << std::endl;
+            std::cerr << std::endl;
             break;
         default:
             std::cerr << "Error: Unknown opcode : " << int(operation[0]) << ". Full command is : " << std::endl;
@@ -84,7 +84,7 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
             }
             return;
     }
-    // std::cout << std::endl;
+    // std::cerr << std::endl;
 }
 
 void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
@@ -93,7 +93,7 @@ void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 
     ECS::Entity entity = engine.getRegistry().entityManager().spawnEntity();
     _entitiesNetworkId.insert({networkId, entity});
-    std::cout << "Created entity n°" << entity << " in local with network id n°" << networkId << std::endl;
+    std::cerr << "Created entity n°" << entity << " in local with network id n°" << networkId << std::endl;
 } 
 
 void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
@@ -105,15 +105,15 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
         try {
             engine.getRegistry().entityManager().killEntity(entity);
             _entitiesNetworkId.erase(networkId);
-            std::cout << "Deleted entity n°" << entity << " in local" << std::endl;
+            std::cerr << "Deleted entity n°" << entity << " in local" << std::endl;
         } catch (std::exception &e) {
-            std::cout << "\033[0;31m";
-            std::cout << "Could not delete entity n°" << entity << std::endl;
-            std::cout << "\033[0;37m";
+            std::cerr << "\033[0;31m";
+            std::cerr << "Could not delete entity n°" << entity << std::endl;
+            std::cerr << "\033[0;37m";
         }
     }
     catch(const std::exception &) {
-
+        std::cerr << "Could not delete entity. Couldnt find network id" << std::endl;
     }
 }
 
@@ -126,7 +126,7 @@ void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_
         std::string &strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
-        std::cout << "Attaching Component n°" << componentId << ": " << strCompId << " to entity n°" << entity << std::endl;
+        std::cerr << "Attaching Component n°" << componentId << ": " << strCompId << " to entity n°" << entity << std::endl;
         auto &compInstance = engine.getComponentFromId(strCompId);
         auto &sparseArray = compInstance->any_cast(
             engine.getRegistry().componentManager().getComponents(compTypeIndex)
@@ -147,7 +147,7 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
         std::string strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
-        // std::cout << "Updating Component n°" << componentId << ": " << strCompId << " of entity n°" << entityId << std::endl;
+        std::cerr << "Updating Component n°" << componentId << ": " << strCompId << " of entity n°" << networkId << " network n°" << entity << std::endl;
         auto &compInstance = engine.getComponentFromId(compTypeIndex);
         auto &sparseArray = compInstance->any_cast(
             engine.getRegistry().componentManager().getComponents(compTypeIndex)
@@ -156,9 +156,9 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
         try {
             sparseArray[entity]->getId();
         } catch (std::exception &e) {
-            std::cout << "\033[0;35m";
-            std::cout << "Component " << strCompId << " was not attached for entity n°" << entity << " so created it" << std::endl;
-            std::cout << "\033[0;37m";
+            std::cerr << "\033[0;35m";
+            std::cerr << "Component " << strCompId << " was not attached for entity n°" << entity << " so created it" << std::endl;
+            std::cerr << "\033[0;37m";
 
             sparseArray.constructAt(entity);
         }
@@ -178,7 +178,7 @@ void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_
         std::string strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
-        std::cout << "Detaching Component n°" << componentId << ": " << strCompId << " of entity n°" << entity << std::endl;
+        std::cerr << "Detaching Component n°" << componentId << ": " << strCompId << " of entity n°" << entity << std::endl;
         auto &compInstance = engine.getComponentFromId(compTypeIndex);
         auto &sparseArray = compInstance->any_cast(
             engine.getRegistry().componentManager().getComponents(compTypeIndex)
@@ -213,7 +213,7 @@ uint16_t RTypeClient::receiveUint16()
 uint8_t RTypeClient::receiveUint8()
 {
     std::vector<uint8_t> data = blockingReceive();
-    std::cout << "data size : " << data.size() << std::endl;
+    std::cerr << "data size : " << data.size() << std::endl;
     if (data.size() < 1) {
         throw std::runtime_error("Received data is too short to make an uint8");
     }

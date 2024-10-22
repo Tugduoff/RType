@@ -17,7 +17,7 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
     __idStringToType = idStringToType;
 
     size_max = get_size_max();
-    std::cout << "--- Server started on port " << port << ", package size_max = " << size_max << std::endl;
+    std::cerr << "--- Server started on port " << port << ", package size_max = " << size_max << std::endl;
     start_receive();
 }
 
@@ -35,13 +35,13 @@ void UDPServer::start_receive() {
     bytes_recvd = socket_.receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 0, ec);
     if (!ec && bytes_recvd > 0) {
         std::string message(recv_buffer_.data(), bytes_recvd);
-        std::cout << "Received message from client (" << remote_endpoint_.address().to_string() 
+        std::cerr << "Received message from client (" << remote_endpoint_.address().to_string() 
                     << ":" << remote_endpoint_.port() << "): " << message << std::endl;
 
         if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
             if (message == "start") {
                 client_endpoints.push_back(remote_endpoint_);
-                std::cout << "New client added: " << remote_endpoint_.address().to_string() 
+                std::cerr << "New client added: " << remote_endpoint_.address().to_string() 
                             << ":" << remote_endpoint_.port() << std::endl;
                 client_responses[remote_endpoint_] = true;
                 is_disconnected[remote_endpoint_] = false;
@@ -52,7 +52,7 @@ void UDPServer::start_receive() {
         }
 
         if (message == "pong") {
-            std::cout << "Received pong from client: " << remote_endpoint_.address().to_string() 
+            std::cerr << "Received pong from client: " << remote_endpoint_.address().to_string() 
                         << ":" << remote_endpoint_.port() << std::endl;
             client_responses[remote_endpoint_] = true;
         }
@@ -76,7 +76,7 @@ void UDPServer::send_message(const std::vector<uint8_t>& message) {
         boost::asio::buffer(message), remote_endpoint_,
         [this](boost::system::error_code ec, std::size_t bytes_sent) {
             if (!ec) {
-                std::cout << "Sent message of size " << bytes_sent << " bytes." << std::endl;
+                std::cerr << "Sent message of size " << bytes_sent << " bytes." << std::endl;
             } else {
                 std::cerr << "Error sending message: " << ec.message() << std::endl;
             }
@@ -132,7 +132,7 @@ void UDPServer::checking_client(const udp::endpoint& client) {
     timer->async_wait([this, client](const boost::system::error_code& ec) {
         if (!ec) {
             if (!client_responses[client] && !is_disconnected[client]) {
-                std::cout << "Client did not respond to ping, disconnecting: " 
+                std::cerr << "Client did not respond to ping, disconnecting: " 
                             << client.address().to_string() << ":" << client.port() << std::endl;
                 remove_client(client);
             } else {
@@ -150,7 +150,7 @@ void UDPServer::send_ping(const udp::endpoint& client) {
     socket_.async_send_to(boost::asio::buffer(ping_message), client,
         [this, client](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                std::cout << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
+                std::cerr << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
                 start_pong_timer(client);
             }
         }
@@ -162,7 +162,7 @@ void UDPServer::start_pong_timer(const udp::endpoint& client) {
     pong_timer->async_wait([this, client](const boost::system::error_code& ec) {
         if (!ec) {
             if (!client_responses[client] && !is_disconnected[client]) {
-                std::cout << "Client did not respond to ping (no pong), disconnecting: " 
+                std::cerr << "Client did not respond to ping (no pong), disconnecting: " 
                             << client.address().to_string() << ":" << client.port() << std::endl;
                 remove_client(client);
             }
@@ -180,13 +180,13 @@ void UDPServer::remove_client(const udp::endpoint& client) {
         pong_timers.erase(client);
         client_responses.erase(client);
 
-        std::cout << "Client disconnected: " << client.address().to_string() << ":" << client.port() << std::endl;
+        std::cerr << "Client disconnected: " << client.address().to_string() << ":" << client.port() << std::endl;
 
         std::string deconnection_message = "You have been disconnected :(";
         socket_.async_send_to(boost::asio::buffer(deconnection_message), client,
             [this, client](boost::system::error_code ec, std::size_t) {
                 if (!ec)
-                    std::cout << "Client " << client.address().to_string() << ":" << client.port() << " is now aware of their disconnection" << std::endl;
+                    std::cerr << "Client " << client.address().to_string() << ":" << client.port() << " is now aware of their disconnection" << std::endl;
             }
         );
     }
@@ -212,7 +212,7 @@ void UDPServer::create_entity(const ECS::Entity &entity) {
         [this, networkId](boost::system::error_code ec, std::size_t) {
             if (!ec) {
                 uint32_t id = ntohl(networkId);
-                std::cout << "Entity " << static_cast<int>(id) << " created." << std::endl;
+                std::cerr << "Entity " << static_cast<int>(id) << " created." << std::endl;
             }
         }
     );
@@ -221,9 +221,14 @@ void UDPServer::create_entity(const ECS::Entity &entity) {
 void UDPServer::delete_entity(const ECS::Entity &entity) {
     uint8_t opcode = 0x1;
     uint32_t networkId = _entitiesNetworkId.at(entity);
+
+    std::cerr << "Deleted entity n°" << entity << " in local" << std::endl;
+    std::cerr << "Entity network id: " << networkId << std::endl;
+
     networkId = htonl(networkId);
 
     _entitiesNetworkId.erase(entity);
+    std::cerr << "Entity " << entity << " deleted. Now sending infos to the client" << std::endl;
 
     std::array<uint8_t, 5> message;
     message[0] = opcode;
@@ -232,9 +237,10 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
         [this, networkId](boost::system::error_code ec, std::size_t) {
+            std::cerr << "Sending delete entity message to client for entity: " << networkId << std::endl;
             if (!ec) {
-                uint16_t id = ntohl(networkId);
-                std::cout << "Entity " << static_cast<int>(id) << " delete." << std::endl;
+                uint32_t id = ntohl(networkId);
+                std::cerr << "Entity " << static_cast<int>(id) << " delete." << std::endl;
             }
         }
     );
@@ -271,7 +277,7 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
             if (!ec) {
                 uint16_t e_id = ntohl(networkId);
                 uint16_t c_id = ntohs(component_id);
-                std::cout << "Attach component [" << static_cast<int>(c_id) << "] to entity [" << static_cast<int>(e_id) << "]." << std::endl;
+                std::cerr << "Attach component [" << static_cast<int>(c_id) << "] to entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
         }
     );
@@ -309,7 +315,7 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
             if (!ec) {
                 uint16_t e_id = ntohl(networkId);
                 uint16_t c_id = ntohs(component_id);
-                std::cout << "Updated component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
+                std::cerr << "Updated component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
         }
     );
@@ -344,7 +350,7 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
             if (!ec) {
                 uint16_t e_id = ntohl(networkId);
                 uint16_t c_id = ntohs(component_id);
-                std::cout << "Detach component [" << static_cast<int>(c_id) << "] from entity [" << static_cast<int>(e_id) << "]." << std::endl;
+                std::cerr << "Detach component [" << static_cast<int>(c_id) << "] from entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
         }
     );
