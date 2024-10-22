@@ -106,7 +106,7 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
         std::cout << "Deleting entity n°" << entityId << " from network" << std::endl;
         engine.getRegistry().entityManager().killEntity(entity);
         std::cout << "Deleted entity n°" << entity << " in local" << std::endl;
-    } catch (std::exception e) {}
+    } catch (std::exception &e) {}
 }
 
 void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
