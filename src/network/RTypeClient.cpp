@@ -52,12 +52,12 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
 
     switch (operation[0]) {
         case 0x0:
-            std::cout << "Create Entity n°" << uint16From2Uint8(operation[1], operation[2]) << std::endl;
+            std::cout << "Create Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
             createEntity(engine, operation);
             std::cout << std::endl;
             break;
         case 0x1:
-            std::cout << "Delete Entity n°" << uint16From2Uint8(operation[1], operation[2]) << std::endl;
+            std::cout << "Delete Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
             deleteEntity(engine, operation);
             std::cout << std::endl;
             break;
@@ -67,8 +67,8 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
             std::cout << std::endl;
             break;
         case 0x3:
-            // std::cout << "Update Component" << std::endl;
-            // std::cout << "Component n°" << uint16From2Uint8(operation[3], operation[4]) << std::endl;
+            std::cout << "Update Component" << std::endl;
+            std::cout << "Component n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
             updateComponent(engine, operation);
             break;
         case 0x4:
@@ -94,7 +94,7 @@ void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 
     // std::cout << "Creating entity n°" << entityId << " from network" << std::endl;
     ECS::Entity entity = engine.getRegistry().entityManager().spawnEntity();
-    _entitiesNetworkId[networkId] = entity;
+    _entitiesNetworkId.insert({networkId, entity});
     // ECS::Entity entity = engine.getRegistry().entityManager().spawnEntityWithId(entityId);
     std::cout << "Created entity n°" << entity << " in local with network id n°" << networkId << std::endl;
     // if ((size_t)entityId != entity) {
@@ -107,7 +107,7 @@ void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
-    ECS::Entity &entity = _entitiesNetworkId[networkId];
+    ECS::Entity &entity = _entitiesNetworkId.at(networkId);
 
     try {
         // ECS::Entity entity = engine.getRegistry().entityManager().entityFromIndex(entityId);
@@ -131,7 +131,7 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
-    ECS::Entity &entity = _entitiesNetworkId[networkId];
+    ECS::Entity &entity = _entitiesNetworkId.at(networkId);
     uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
     std::string &strCompId = _compNames[componentId];
     std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
@@ -147,7 +147,7 @@ void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_
 void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
-    ECS::Entity &entity = _entitiesNetworkId[networkId];
+    ECS::Entity &entity = _entitiesNetworkId.at(networkId);
     uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
     std::string strCompId = _compNames[componentId];
     std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
@@ -173,7 +173,7 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
 void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
-    ECS::Entity &entity = _entitiesNetworkId[networkId];
+    ECS::Entity &entity = _entitiesNetworkId.at(networkId);
     uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
     std::string strCompId = _compNames[componentId];
     std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
