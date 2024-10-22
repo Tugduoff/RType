@@ -22,6 +22,8 @@
 #include "components/damage/Damage.hpp"
 #include "components/scale/Scale.hpp"
 #include "components/deathRange/DeathRange.hpp"
+#include "components/type/Type.hpp"
+
 
 void updateComponent(size_t id, std::string name, std::vector<uint8_t> data, RTypeClient &conn)
 {
@@ -55,6 +57,13 @@ int main()
     engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
     engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
     engine.registerComponent<Components::Acceleration>("./plugins/bin/components/", "Acceleration");
+    engine.registerComponent<Components::Damage>("./plugins/bin/components/", "Damage");
+    engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable");
+    engine.registerComponent<Components::Gun>("./plugins/bin/components/", "Gun");
+    engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type");
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
+    engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
 
 
     conn.engineInit();

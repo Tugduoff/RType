@@ -7,6 +7,9 @@ add_executable(client
     ../network/UDPConnection.cpp
     ../ECS/system/SystemManager.cpp
     ../GameEngine/GameEngine.cpp
+
+    ../../Keys.cpp
+    ../../Actions.cpp
 )
 
 # Set the output name for the server binary
