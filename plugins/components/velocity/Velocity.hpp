@@ -60,7 +60,6 @@ namespace Components {
          */
         Velocity(int32_t x = 0, int32_t y = 0, uint8_t factor = 0) :
             AComponent("Velocity"), x(x), y(y), floatX(x), floatY(y), diminishingFactor(factor) {
-                std::cout << "Velocity component created with x: " << x << " y: " << y << " factor: " << diminishingFactor << std::endl;
             };
 
         /**

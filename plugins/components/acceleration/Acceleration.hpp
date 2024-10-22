@@ -59,11 +59,6 @@ namespace Components {
          */
         Acceleration(int32_t forward = 2, int32_t backward = 1, int32_t right = 1, int32_t left = 1) :
             AComponent("Acceleration"), forward(forward), backward(backward), right(right), left(left) {
-                std::cout << "Acceleration component created with forward: "
-                << forward << " backward: "
-                << backward << " right: "
-                << right << " left: "
-                << left << std::endl;
             };
 
         /**
