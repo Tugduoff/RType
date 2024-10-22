@@ -68,7 +68,7 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
             break;
         case 0x3:
             std::cout << "Update Component" << std::endl;
-            std::cout << "Component n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
+            std::cout << "Component n°" << uint16From2Uint8(operation[5], operation[6]) << std::endl;
             updateComponent(engine, operation);
             break;
         case 0x4:
@@ -185,7 +185,7 @@ void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_
         );
         sparseArray.erase(entity);
     } catch (std::exception &) {
-        
+
     }
 }
 
