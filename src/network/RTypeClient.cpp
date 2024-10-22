@@ -89,7 +89,7 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
 
 void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
-    uint16_t entityId = ntohs(uint16From2Uint8(operation[1], operation[2]));
+    uint16_t entityId = uint16From2Uint8(operation[1], operation[2]);
 
     std::cout << "Creating entity n°" << entityId << " from network" << std::endl;
     ECS::Entity entity = engine.getRegistry().entityManager().spawnEntity();
