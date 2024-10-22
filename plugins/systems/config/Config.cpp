@@ -43,6 +43,7 @@ void Systems::ConfigLoader::run(Engine::GameEngine &engine)
                 try {
                     std::unique_ptr<Components::IComponent> &comp = engine.getComponentFromId(component.id);
                     comp->addTo(newEntity, engine, component.args);
+                    engine.updateComponent(newEntity, comp->getId(), comp->serialize());
                 } catch (std::exception &e) {
                     std::cerr << "Component with ID: \"" << component.id << "\" not found!" << std::endl;
                     continue;
