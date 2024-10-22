@@ -136,6 +136,7 @@ int main() {
         while(server.client_endpoints.empty())
             server.start_receive();
 
+        std::thread io_thread([&io_context]() { io_context.run(); });
 
         displayPolymorphic(engine, types.begin(), types.end());
 
