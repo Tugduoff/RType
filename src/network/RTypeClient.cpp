@@ -191,6 +191,46 @@ void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_
     }
 }
 
+void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vector<uint8_t> data)
+{
+    uint8_t opcode = 0x3;
+    uint32_t networkId;
+
+    auto entity_it = std::find_if(_entitiesNetworkId.begin(), _entitiesNetworkId.end(),
+        [entity](const auto& pair) {
+            return pair.second == entity;
+        });
+    if (entity_it != _entitiesNetworkId.end()) {
+        networkId = entity_it->first;
+        networkId = htonl(networkId);
+    } else {
+        std::cerr << "The entity n°" << entity << " does not have a network id" << std::endl;
+        return;
+    }
+
+    auto it = std::find_if(_compNames.begin(), _compNames.end(),
+    [&name](const auto& pair) {
+        return pair.second == name;
+    });
+    if (it == _compNames.end()) {
+        std::cerr << "Error 0x3: Component '" << name << "' not found." << std::endl;
+        return;
+    }
+
+    uint8_t index = it->first;
+    uint16_t component_id = index;
+    component_id = htons(component_id);
+    size_t component_size = data.size();
+
+    std::vector<uint8_t> message(7 + component_size);
+    message[0] = opcode;
+    std::memcpy(&message[1], &networkId, sizeof(networkId));
+    std::memcpy(&message[5], &component_id, sizeof(component_id));
+    std::memcpy(&message[7], data.data(), component_size);
+
+    send(message);
+}
+
 uint16_t RTypeClient::uint16From2Uint8(uint8_t first, uint8_t second)
 {
     return static_cast<uint16_t>((first << 8) | static_cast<uint16_t>(second));
