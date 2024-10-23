@@ -133,17 +133,13 @@ Systems::Display::Display()
 
 void Systems::Display::init(Engine::GameEngine &engine)
 {
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
+    engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
+    
     auto &manager = engine.getRegistry().componentManager();
-
-    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
-        std::cerr << "Error: Could not register Position component in system Display" << std::endl;
-    if (!engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID"))
-        std::cerr << "Error: Could not register SpriteID component in system Display" << std::endl;
-    if (!engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale"))
-        std::cerr << "Error: Could not register Scale component in system Display" << std::endl;
     auto ctor = []() -> Components::SpriteComponent * { return new Components::SpriteComponent(); };
-    if (!manager.registerComponent<Components::SpriteComponent>(ctor))
-        std::cerr << "Error: Could not register SpriteComponent component in system Display" << std::endl;
+    manager.registerComponent<Components::SpriteComponent>(ctor);
 }
 
 void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)

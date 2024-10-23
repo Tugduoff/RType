@@ -126,24 +126,15 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
 
 void Systems::InputSystem::init(Engine::GameEngine &engine)
 {
-    if (!engine.registerComponent<Components::Acceleration>("./plugins/bin/components/", "Acceleration"))
-        std::cerr << "Error: Could not register Acceleration component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable"))
-        std::cerr << "Error: Could not register Controllable component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity"))
-        std::cerr << "Error: Could not register Velocity component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::Gun>("./plugins/bin/components/", "Gun"))
-        std::cerr << "Error: Could not register Gun component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::Damage>("./plugins/bin/components/", "Damage"))
-        std::cerr << "Error: Could not register Damage component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
-        std::cerr << "Error: Could not register Position component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider"))
-        std::cerr << "Error: Could not register Collider component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID"))
-        std::cerr << "Error: Could not register SpriteID component in system Input" << std::endl;
-    if (!engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type"))
-        std::cerr << "Error: Could not register Type component in system Input" << std::endl;
+    engine.registerComponent<Components::Acceleration>("./plugins/bin/components/", "Acceleration");
+    engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable");
+    engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
+    engine.registerComponent<Components::Gun>("./plugins/bin/components/", "Gun");
+    engine.registerComponent<Components::Damage>("./plugins/bin/components/", "Damage");
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
+    engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
+    engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type");
 }
 
 LIBRARY_ENTRYPOINT
