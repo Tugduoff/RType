@@ -8,6 +8,10 @@
 #ifndef ZIPPER_ITERATOR_HPP
     #define ZIPPER_ITERATOR_HPP
 
+    #if __cplusplus < 202002L
+        #error "ZipperIterator requires C++20 features, which are not provided by current c++ version"
+    #endif
+
     #include <cstddef>
     #include <iterator>
     #include <tuple>
