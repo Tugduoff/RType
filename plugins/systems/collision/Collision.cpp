@@ -64,13 +64,13 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
     auto &typeArr = reg.componentManager().getComponents<Components::Type>();
     auto &posArr = reg.componentManager().getComponents<Components::Position>();
     auto &colliderArr = reg.componentManager().getComponents<Components::Collider>();
-    auto &damageArr = reg.componentManager().getComponents<Components::Damage>();
+    auto &dmgArr = reg.componentManager().getComponents<Components::Damage>();
     auto &healthArr = reg.componentManager().getComponents<Components::Health>();
 
     std::vector<ECS::Entity> enemies;
     std::vector<ECS::Entity> projectiles;
 
-    for (auto [i, type] : IndexedZipper(typeArr)) {
+    for (auto &&[i, type] : IndexedZipper(typeArr)) {
         if (type.id == Components::TypeID::ENEMY) {
             enemies.push_back((ECS::Entity)i);
         } else if (type.id == Components::TypeID::ALLY_PROJECTILE) {
@@ -89,7 +89,7 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
                     projPos->x + projCollider->width / 2 > enemyPos->x - enemyCollider->width / 2 &&
                     projPos->y - projCollider->height / 2 < enemyPos->y + enemyCollider->height / 2 &&
                     projPos->y + projCollider->height / 2 > enemyPos->y - enemyCollider->height / 2) {
-                    auto &projDamage = damageArr[proj];
+                    auto &projDamage = dmgArr[proj];
                     auto &enemyHealth = healthArr[enemy];
 
                     enemyHealth->currentHealth -= projDamage->damage;
@@ -107,44 +107,38 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
     }
 }
 
-void Systems::Collision::checkEnemyProjectileToPlayerCollision(ECS::Registry &reg) {
-    auto &typeComponents = reg.componentManager().getComponents<Components::Type>();
-    auto &posComponents = reg.componentManager().getComponents<Components::Position>();
-    auto &colliderComponents = reg.componentManager().getComponents<Components::Collider>();
-    auto &damageComponents = reg.componentManager().getComponents<Components::Damage>();
-    auto &healthComponents = reg.componentManager().getComponents<Components::Health>();
+void Systems::Collision::checkEnemyProjectileToPlayerCollision(ECS::Registry &reg)
+{
+    auto &typeArr = reg.componentManager().getComponents<Components::Type>();
+    auto &posArr = reg.componentManager().getComponents<Components::Position>();
+    auto &colliderArr = reg.componentManager().getComponents<Components::Collider>();
+    auto &dmgArr = reg.componentManager().getComponents<Components::Damage>();
+    auto &healthArr = reg.componentManager().getComponents<Components::Health>();
 
     std::vector<ECS::Entity> players;
     std::vector<ECS::Entity> projectiles;
 
-    size_t i = 0;
-    for (i = 0; i < typeComponents.size(); i++) {
-        try {
-            auto &type = typeComponents[i];
-
-            if (type->id == Components::TypeID::ALLY) {
-                players.push_back((ECS::Entity)i);
-            } else if (type->id == Components::TypeID::ENEMY_PROJECTILE) {
-                projectiles.push_back((ECS::Entity)i);
-            }
-        } catch (std::exception &e) {
-            continue;
+    for (auto &&[i, type] : IndexedZipper(typeArr)) {
+        if (type.id == Components::TypeID::ALLY) {
+            players.push_back((ECS::Entity)i);
+        } else if (type.id == Components::TypeID::ENEMY_PROJECTILE) {
+            projectiles.push_back((ECS::Entity)i);
         }
     }
     for (auto &proj : projectiles) {
         for (auto &player : players) {
             try {
-                auto &projPos = posComponents[proj];
-                auto &projCollider = colliderComponents[proj];
-                auto &playerPos = posComponents[player];
-                auto &playerCollider = colliderComponents[player];
+                auto &projPos = posArr[proj];
+                auto &projCollider = colliderArr[proj];
+                auto &playerPos = posArr[player];
+                auto &playerCollider = colliderArr[player];
 
                 if (projPos->x - projCollider->width / 2 < playerPos->x + playerCollider->width / 2 &&
                     projPos->x + projCollider->width / 2 > playerPos->x - playerCollider->width / 2 &&
                     projPos->y - projCollider->height / 2 < playerPos->y + playerCollider->height / 2 &&
                     projPos->y + projCollider->height / 2 > playerPos->y - playerCollider->height / 2) {
-                    auto &projDamage = damageComponents[proj];
-                    auto &playerHealth = healthComponents[player];
+                    auto &projDamage = dmgArr[proj];
+                    auto &playerHealth = healthArr[player];
 
                     playerHealth->currentHealth -= projDamage->damage;
 
