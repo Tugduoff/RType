@@ -34,9 +34,14 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 auto &velBehavior = velComponent[i];
                 auto &deathRangeBehavior = deathRangeComponent[i];
 
+                if (aiBehavior->startingX && aiBehavior->startingY) {
+                    aiBehavior->startingX = posBehavior->x;
+                    aiBehavior->startingY = posBehavior->y;
+                }
+
                 if (aiBehavior->behavior == 0)
                     continue;
-                if (aiBehavior->behavior == 1) {
+                else if (aiBehavior->behavior == 1) {
                     std::cerr << "Entity " << i << " has behavior 1" << std::endl;
                     velBehavior->floatX = 0;
                     if (posBehavior->y > deathRangeBehavior->minY + 50)
@@ -44,10 +49,15 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     else if (posBehavior->y < deathRangeBehavior->maxY - 50)
                         velBehavior->floatY = -5;
                     engine.updateComponent(i, velBehavior->getId(), velBehavior->serialize());
-                }
-                if (aiBehavior->behavior == 2) {
+                } else if (aiBehavior->behavior == 2) {
                     std::cerr << "Entity " << i << " has behavior 2" << std::endl;
-
+                    velBehavior->floatX = -2;
+                    if (posBehavior->y > aiBehavior->startingY + 100) {
+                        velBehavior->floatY = -5;
+                    } else if (posBehavior->y < aiBehavior->startingY - 100) {
+                        velBehavior->floatY = 5;
+                    }
+                    engine.updateComponent(i, velBehavior->getId(), velBehavior->serialize());
                 }
             }
         } catch (std::exception &e) {
