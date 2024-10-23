@@ -13,6 +13,8 @@
     #include <SFML/System.hpp>
     #include <libconfig.h++>
     #include "Keys.hpp"
+    #include "EntityActions.hpp"
+    #include "Actions.hpp"
     #include "GameEngine/GameEngine.hpp"
 
     #include "components/controllable/Controllable.hpp"
@@ -68,6 +70,11 @@ namespace Systems {
              * @note This function will check whether the key released is an input or an action and update the corresponding array.
              */
             void handleInputReleased(std::array<bool, 4> &inputs, std::array<bool, 10> &actions, int index);
+
+            EntityAction determinePressedAction(bool forwardInput, bool backwardInput, bool rightInput, bool leftInput, bool shootInput, Action action);
+            EntityAction determineReleasedAction(bool forwardInput, bool backwardInput, bool rightInput, bool leftInput, bool shootInput, Action action);
+            EntityAction determinePressedShootAction(bool forwardInput, bool backwardInput, bool rightInput, bool leftInput);
+            EntityAction determineReleasedShootAction(bool forwardInput, bool backwardInput, bool rightInput, bool leftInput, Action action);
 
             const std::unordered_map<sf::Keyboard::Key, enum Key> __sfmlToKey = {
                 {sf::Keyboard::Key::Z, Key::Z}, {sf::Keyboard::Key::Q, Key::Q}, {sf::Keyboard::Key::S, Key::S}, {sf::Keyboard::Key::D, Key::D},

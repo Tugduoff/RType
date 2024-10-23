@@ -8,7 +8,7 @@
 #define NOMINMAX
 #include "components/position/Position.hpp"
 #include "components/spriteId/SpriteID.hpp"
-#include "SpriteComponent.hpp"
+#include "components/action/Action.hpp"
 #include "Input.hpp"
 
 Systems::Input::Input(libconfig::Setting &)
@@ -22,7 +22,9 @@ Systems::Input::Input()
 void Systems::Input::init(Engine::GameEngine &engine)
 {
     if (!engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable"))
-        std::cerr << "Error: Could not register Controllable component in system Input" << std::endl;
+        std::cerr << "Error: Could not register Controllable component in system SFML Input" << std::endl;
+    if (!engine.registerComponent<Components::ActionComponent>("./plugins/bin/components/", "Action"))
+        std::cerr << "Error: Could not register Action component in system SFML Input" << std::endl;
 }
 
 void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
@@ -49,10 +51,139 @@ void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
     }
 }
 
+EntityAction Systems::Input::determinePressedAction(
+    bool forwardInput,
+    bool backwardInput,
+    bool rightInput,
+    bool leftInput,
+    bool shootInput,
+    Action action)
+{
+    if (action == Action::ACTION1 || shootInput) {
+        return determinePressedShootAction(forwardInput, backwardInput, rightInput, leftInput);
+    }
+
+    // Check for combined movements
+    if ((action == Action::FORWARD && rightInput) || (action == Action::RIGHT && forwardInput)) {
+        return stringToEntityAction("FORWARD_RIGHT");
+    } else if ((action == Action::FORWARD && leftInput) || (action == Action::LEFT && forwardInput)) {
+        return stringToEntityAction("FORWARD_LEFT");
+    } else if ((action == Action::BACKWARD && rightInput) || (action == Action::RIGHT && backwardInput)) {
+        return stringToEntityAction("BACKWARD_RIGHT");
+    } else if ((action == Action::BACKWARD && leftInput) || (action == Action::LEFT && backwardInput)) {
+        return stringToEntityAction("BACKWARD_LEFT");
+    }
+
+    // Check for single direction actions
+    switch (action) {
+        case Action::FORWARD:
+            return stringToEntityAction("FORWARD");
+        case Action::BACKWARD:
+            return stringToEntityAction("BACKWARD");
+        case Action::RIGHT:
+            return stringToEntityAction("RIGHT");
+        case Action::LEFT:
+            return stringToEntityAction("LEFT");
+        case Action::ACTION1:
+            return determinePressedShootAction(forwardInput, backwardInput, rightInput, leftInput);
+        default:
+            return EntityAction::IDLE;
+    }
+}
+
+EntityAction Systems::Input::determineReleasedAction(
+    bool forwardInput,
+    bool backwardInput,
+    bool rightInput,
+    bool leftInput,
+    bool shootInput,
+    Action action)
+{
+    if (action != Action::ACTION1 && shootInput) {
+        return determineReleasedShootAction(forwardInput, backwardInput, rightInput, leftInput, action);
+    }
+    if (action == Action::ACTION1) {
+        if ((forwardInput && rightInput) || (rightInput && forwardInput)) {
+            return stringToEntityAction("FORWARD_RIGHT");
+        } else if ((forwardInput && leftInput) || (leftInput && forwardInput)) {
+            return stringToEntityAction("FORWARD_LEFT");
+        } else if ((backwardInput && rightInput) || (rightInput && backwardInput)) {
+            return stringToEntityAction("BACKWARD_RIGHT");
+        } else if ((backwardInput && leftInput) || (leftInput && backwardInput)) {
+            return stringToEntityAction("BACKWARD_LEFT");
+        }
+        if (forwardInput)
+            return EntityAction::FORWARD;
+        if (backwardInput)
+            return EntityAction::BACKWARD;
+        if (rightInput)
+            return EntityAction::RIGHT;
+        if (leftInput)
+            return EntityAction::LEFT;
+    }
+
+    // Check for combined movements
+    if ((action == Action::FORWARD && rightInput) || (action == Action::BACKWARD && rightInput)) {
+        return stringToEntityAction("RIGHT");
+    } else if ((action == Action::FORWARD && leftInput) || (action == Action::BACKWARD && leftInput)) {
+        return stringToEntityAction("LEFT");
+    } else if ((action == Action::RIGHT && forwardInput) || (action == Action::LEFT && forwardInput)) {
+        return stringToEntityAction("FORWARD");
+    } else if ((action == Action::RIGHT && backwardInput) || (action == Action::LEFT && backwardInput)) {
+        return stringToEntityAction("BACKWARD");
+    }
+
+    return EntityAction::IDLE;
+}
+
+// Function to determine shooting action based on inputs
+EntityAction Systems::Input::determinePressedShootAction(bool forwardInput, bool backwardInput, bool rightInput, bool leftInput)
+{
+    if (rightInput && !leftInput) {
+        if (forwardInput && !backwardInput) {
+            return stringToEntityAction("SHOOT_FORWARD_RIGHT");
+        } else if (!forwardInput && backwardInput) {
+            return stringToEntityAction("SHOOT_BACKWARD_RIGHT");
+        } else {
+            return stringToEntityAction("SHOOT_RIGHT");
+        }
+    } else if (!rightInput && leftInput) {
+        if (forwardInput && !backwardInput) {
+            return stringToEntityAction("SHOOT_FORWARD_LEFT");
+        } else if (!forwardInput && backwardInput) {
+            return stringToEntityAction("SHOOT_BACKWARD_LEFT");
+        } else {
+            return stringToEntityAction("SHOOT_LEFT");
+        }
+    } else {
+        if (forwardInput && !backwardInput) {
+            return stringToEntityAction("SHOOT_FORWARD");
+        } else if (!forwardInput && backwardInput) {
+            return stringToEntityAction("SHOOT_BACKWARD");
+        } else {
+            return stringToEntityAction("SHOOT_FORWARD"); // Default shoot forward
+        }
+    }
+}
+
+EntityAction Systems::Input::determineReleasedShootAction(bool forwardInput, bool backwardInput, bool rightInput, bool leftInput, Action action)
+{
+    if ((action == Action::FORWARD && rightInput) || (action == Action::BACKWARD && rightInput)) {
+        return stringToEntityAction("SHOOT_RIGHT");
+    } else if ((action == Action::FORWARD && leftInput) || (action == Action::BACKWARD && leftInput)) {
+        return stringToEntityAction("SHOOT_LEFT");
+    } else if ((action == Action::RIGHT && forwardInput) || (action == Action::LEFT && forwardInput)) {
+        return stringToEntityAction("SHOOT_FORWARD");
+    } else if ((action == Action::RIGHT && backwardInput) || (action == Action::LEFT && backwardInput)) {
+        return stringToEntityAction("SHOOT_BACKWARD");
+    }
+    return EntityAction::SHOOT_FORWARD;
+}
+
 void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
 {
     auto &ctrlComponents = engine.getRegistry().componentManager().getComponents<Components::Controllable>();   
-    auto &spriteComponents = engine.getRegistry().componentManager().getComponents<Components::SpriteComponent>();
+    auto &entityActionComponents = engine.getRegistry().componentManager().getComponents<Components::ActionComponent>();
 
     if (event.type == sf::Event::KeyPressed) {
         for (size_t i = 0; i < ctrlComponents.size(); i++) {
@@ -69,36 +200,23 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     if (actionKey == key) {
                         handleInputPressed(ctrl->inputs, ctrl->actions, index);
                         try {
-                            auto &sprite = spriteComponents[i];
-
-                            bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
-                            bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
-                            bool rightInput = ctrl->inputs[(int)Action::RIGHT];
-                            bool leftInput = ctrl->inputs[(int)Action::LEFT];
-
-                            if ((action == Action::FORWARD && rightInput) ||
-                                (action == Action::RIGHT && forwardInput))
-                                sprite->loadTextureForAction("FORWARD_RIGHT");
-                            else if ((action == Action::FORWARD && leftInput) ||
-                                (action == Action::LEFT && forwardInput))
-                                sprite->loadTextureForAction("FORWARD_LEFT");
-                            else if ((action == Action::BACKWARD && rightInput) ||
-                                (action == Action::RIGHT && backwardInput))
-                                sprite->loadTextureForAction("BACKWARD_RIGHT");
-                            else if ((action == Action::BACKWARD && leftInput) ||
-                                (action == Action::LEFT && backwardInput))
-                                sprite->loadTextureForAction("BACKWARD_LEFT");
-                            else if (action == Action::FORWARD)
-                                sprite->loadTextureForAction("FORWARD");
-                            else if (action == Action::BACKWARD)
-                                sprite->loadTextureForAction("BACKWARD");
-                            else if (action == Action::RIGHT)
-                                sprite->loadTextureForAction("RIGHT");
-                            else if (action == Action::LEFT)
-                                sprite->loadTextureForAction("LEFT");
+                            auto &entityAction = entityActionComponents[i];
                         } catch (std::exception &e) {
-                            std::cerr << "Sprite not found" << std::endl;
-                        }
+                            std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
+                            engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
+                            std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                        };
+                        auto &entityAction = entityActionComponents[i];
+
+                        bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
+                        bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
+                        bool rightInput = ctrl->inputs[(int)Action::RIGHT];
+                        bool leftInput = ctrl->inputs[(int)Action::LEFT];
+                        bool action1Input = ctrl->inputs[(int)Action::ACTION1];
+
+                        EntityAction newAction = determinePressedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
+                        std::cerr << "New action initialized : " << newAction << std::endl;
+                        entityAction->action = newAction;
                         return;
                     }
                     index++;
@@ -123,30 +241,23 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     if (actionKey == key) {
                         handleInputReleased(ctrl->inputs, ctrl->actions, index);
                         try {
-                            auto &sprite = spriteComponents[i];
-
-                            bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
-                            bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
-                            bool rightInput = ctrl->inputs[(int)Action::RIGHT];
-                            bool leftInput = ctrl->inputs[(int)Action::LEFT];
-
-                            if ((action == Action::FORWARD && rightInput) ||
-                                (action == Action::BACKWARD && rightInput))
-                                sprite->loadTextureForAction("RIGHT");
-                            else if ((action == Action::FORWARD && leftInput) ||
-                                (action == Action::BACKWARD && leftInput))
-                                sprite->loadTextureForAction("LEFT");
-                            else if ((action == Action::RIGHT && forwardInput) ||
-                                (action == Action::LEFT && forwardInput))
-                                sprite->loadTextureForAction("FORWARD");
-                            else if ((action == Action::RIGHT && backwardInput) ||
-                                (action == Action::LEFT && backwardInput))
-                                sprite->loadTextureForAction("BACKWARD");
-                            else
-                                sprite->loadTextureForAction("IDLE");
+                            auto &entityAction = entityActionComponents[i];
                         } catch (std::exception &e) {
-                            std::cerr << "Sprite Component not found" << std::endl;
-                        }
+                            std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
+                            engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
+                            std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                        };
+
+                        auto &entityAction = entityActionComponents[i];
+
+                        bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
+                        bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
+                        bool rightInput = ctrl->inputs[(int)Action::RIGHT];
+                        bool leftInput = ctrl->inputs[(int)Action::LEFT];
+                        bool action1Input = ctrl->inputs[(int)Action::ACTION1];
+
+                        EntityAction newAction = determineReleasedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
+                        entityAction->action = newAction;
                         return;
                     }
                     index++;
@@ -167,36 +278,23 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
                             handleInputPressed(ctrl->inputs, ctrl->actions, index);
                             try {
-                                auto &sprite = spriteComponents[i];
-                                
-                                bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
-                                bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
-                                bool rightInput = ctrl->inputs[(int)Action::RIGHT];
-                                bool leftInput = ctrl->inputs[(int)Action::LEFT];
-
-                                if ((action == Action::FORWARD && rightInput) ||
-                                    (action == Action::RIGHT && forwardInput))
-                                    sprite->loadTextureForAction("FORWARD_RIGHT");
-                                else if ((action == Action::FORWARD && leftInput) ||
-                                    (action == Action::LEFT && forwardInput))
-                                    sprite->loadTextureForAction("FORWARD_LEFT");
-                                else if ((action == Action::BACKWARD && rightInput) ||
-                                    (action == Action::RIGHT && backwardInput))
-                                    sprite->loadTextureForAction("BACKWARD_RIGHT");
-                                else if ((action == Action::BACKWARD && leftInput) ||
-                                    (action == Action::LEFT && backwardInput))
-                                    sprite->loadTextureForAction("BACKWARD_LEFT");
-                                else if (action == Action::FORWARD)
-                                    sprite->loadTextureForAction("FORWARD");
-                                else if (action == Action::BACKWARD)
-                                    sprite->loadTextureForAction("BACKWARD");
-                                else if (action == Action::RIGHT)
-                                    sprite->loadTextureForAction("RIGHT");
-                                else if (action == Action::LEFT)
-                                    sprite->loadTextureForAction("LEFT");
+                                auto &entityAction = entityActionComponents[i];
                             } catch (std::exception &e) {
-                                std::cerr << "Sprite Component not found" << std::endl;
-                            }
+                                std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
+                                engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
+                                std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                            };
+
+                            auto &entityAction = entityActionComponents[i];
+                                
+                            bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
+                            bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
+                            bool rightInput = ctrl->inputs[(int)Action::RIGHT];
+                            bool leftInput = ctrl->inputs[(int)Action::LEFT];
+                            bool action1Input = ctrl->inputs[(int)Action::ACTION1];
+
+                            EntityAction newAction = determinePressedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
+                            entityAction->action = newAction;
                             return;
                     }
                     index++;
@@ -217,30 +315,23 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
                             handleInputReleased(ctrl->inputs, ctrl->actions, index);
                             try {
-                                auto &sprite = spriteComponents[i];
-
-                                bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
-                                bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
-                                bool rightInput = ctrl->inputs[(int)Action::RIGHT];
-                                bool leftInput = ctrl->inputs[(int)Action::LEFT];
-
-                                if ((action == Action::FORWARD && rightInput) ||
-                                    (action == Action::BACKWARD && rightInput))
-                                    sprite->loadTextureForAction("RIGHT");
-                                else if ((action == Action::FORWARD && leftInput) ||
-                                    (action == Action::BACKWARD && leftInput))
-                                    sprite->loadTextureForAction("LEFT");
-                                else if ((action == Action::RIGHT && forwardInput) ||
-                                    (action == Action::LEFT && forwardInput))
-                                    sprite->loadTextureForAction("FORWARD");
-                                else if ((action == Action::RIGHT && backwardInput) ||
-                                    (action == Action::LEFT && backwardInput))
-                                    sprite->loadTextureForAction("BACKWARD");
-                                else
-                                    sprite->loadTextureForAction("IDLE");
+                                auto &entityAction = entityActionComponents[i];
                             } catch (std::exception &e) {
-                                std::cerr << "Sprite Component not found" << std::endl;
-                            }
+                                std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
+                                engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
+                                std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                            };
+
+                            auto &entityAction = entityActionComponents[i];
+
+                            bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
+                            bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
+                            bool rightInput = ctrl->inputs[(int)Action::RIGHT];
+                            bool leftInput = ctrl->inputs[(int)Action::LEFT];
+                            bool action1Input = ctrl->inputs[(int)Action::ACTION1];
+
+                            EntityAction newAction = determineReleasedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
+                            entityAction->action = newAction;
                             return;
                     }
                     index++;
