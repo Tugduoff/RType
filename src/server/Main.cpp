@@ -101,6 +101,8 @@ int main() {
     };
 
     try {
+        
+        std::cerr << ntohl(1291845632) << std::endl;
 
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
@@ -113,9 +115,9 @@ int main() {
             [&server](const ECS::Entity &e) { server.delete_entity(e); }
         );
 
-        engine.getRegistry().componentManager().registerGlobalCreateCallback(
-            [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
-        );
+        // engine.getRegistry().componentManager().registerGlobalCreateCallback(
+        //     [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
+        // );
         engine.getRegistry().componentManager().registerGlobalRemoveCallback(
             [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
         );
@@ -127,6 +129,7 @@ int main() {
         engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
         engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
         engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
+        engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
 
         engine.loadSystems("./src/server/configServer.cfg");
 
@@ -137,6 +140,10 @@ int main() {
             server.start_receive();
 
         std::thread io_thread([&io_context]() { io_context.run(); });
+        std::thread io_thread1([&io_context]() { io_context.run(); });
+        std::thread io_thread2([&io_context]() { io_context.run(); });
+        std::thread io_thread3([&io_context]() { io_context.run(); });
+        std::thread io_thread4([&io_context]() { io_context.run(); });
 
         displayPolymorphic(engine, types.begin(), types.end());
 
