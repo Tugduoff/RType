@@ -9,6 +9,7 @@
     #define ATTACKSYSTEM_HPP
 
     #include <libconfig.h++>
+    #include "components/type/Type.hpp"
     #include "systems/ASystem.hpp"
 
 namespace Engine {
@@ -31,16 +32,6 @@ namespace Systems {
 
             void run(Engine::GameEngine &engine) override;
             void init(Engine::GameEngine &engine) override;
-
-            void createProjectile(Engine::GameEngine &engine, 
-                int posX, int posY, 
-                int velX, int velY, 
-                int colliderWidth,
-                int colliderHeight, 
-                int damageValue,
-                enum Components::TypeID type,
-                const std::string &spriteID
-            );
     };
 };
 
