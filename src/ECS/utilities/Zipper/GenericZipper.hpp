@@ -18,18 +18,34 @@
     #include <vector>
 
 template<typename T>
-T vmin(T &&t)
+constexpr inline T vmin(T &&t)
+{
+    return std::forward<T>(t);
+}
+
+template<typename T, typename... Args>
+constexpr inline T vmin(T v1, T v2, Args... vals)
+{
+    if (v1 < v2) {
+        return vmin(v1, std::forward<Args>(vals)...);
+    } else {
+        return vmin(v2, std::forward<Args>(vals)...);
+    }
+}
+
+template<typename T>
+T vmax(T &&t)
 {
     return std::forward<T>(t);
 }
 
 template<typename T>
-T vmin(T v1, T v2, T vals...)
+T vmax(T v1, T v2, T vals...)
 {
-    if (v1 < v2) {
-        return vmin(v1, std::forward(vals));
+    if (v1 > v2) {
+        return vmax(v1, std::forward(vals));
     } else {
-        return vmin(v2, std::forward(vals));
+        return vmax(v2, std::forward(vals));
     }
 }
 
