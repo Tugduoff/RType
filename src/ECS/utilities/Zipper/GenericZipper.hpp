@@ -8,9 +8,9 @@
 #ifndef GENERIC_ZIPPER_HPP
     #define GENERIC_ZIPPER_HPP
 
-    #if __cplusplus < 202002L
-        #error "Generic Zipper requires C++20 features, which are not provided by current c++ version"
-    #endif
+    // #if __cplusplus < 202002L
+    //     #error "Generic Zipper requires C++20 features, which are not provided by current c++ version"
+    // #endif
 
     #include <algorithm>
     #include <cstddef>
