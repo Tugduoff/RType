@@ -12,9 +12,9 @@
     #include <SFML/Window.hpp>
     #include <SFML/System.hpp>
     #include <libconfig.h++>
-    #include "Keys.hpp"
-    #include "EntityActions.hpp"
-    #include "Actions.hpp"
+    #include "utils/EntityActions.hpp"
+    #include "utils/Actions.hpp"
+    #include "utils/Keys.hpp"
     #include "GameEngine/GameEngine.hpp"
 
     #include "components/controllable/Controllable.hpp"

@@ -14,7 +14,7 @@
 #include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
 #include "ECS/utilities/SparseArray.hpp"
-#include "Chrono.hpp"
+#include "utils/Chrono.hpp"
 
 #include "network/UDPServer.hpp"
 
@@ -97,16 +97,10 @@ int main() {
         typeid(Components::Gun),
         typeid(Components::Damage),
         typeid(Components::DeathRange),
-        typeid(Components::Scale),
+        // typeid(Components::Scale),
     };
 
     try {
-        engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
-        engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
-        engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
-
-        engine.loadSystems("./src/server/configServer.cfg");
-
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
         UDPServer server(io_context, 8080, engine.getIdStringToType());
@@ -118,9 +112,9 @@ int main() {
             [&server](const ECS::Entity &e) { server.delete_entity(e); }
         );
 
-        engine.getRegistry().componentManager().registerGlobalCreateCallback(
-            [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
-        );
+        // engine.getRegistry().componentManager().registerGlobalCreateCallback(
+        //     [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
+        // );
         engine.getRegistry().componentManager().registerGlobalRemoveCallback(
             [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
         );
@@ -129,8 +123,24 @@ int main() {
             [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
         );
 
+        engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
+        engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
+        engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
+        engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
+
+        engine.loadSystems("./src/server/configServer.cfg");
+
+        server.updateIdStringToType(engine.getIdStringToType());
+
+        // engine.getRegistry().componentManager().
         while(server.client_endpoints.empty())
             server.start_receive();
+
+        std::thread io_thread([&io_context]() { io_context.run(); });
+        std::thread io_thread1([&io_context]() { io_context.run(); });
+        std::thread io_thread2([&io_context]() { io_context.run(); });
+        std::thread io_thread3([&io_context]() { io_context.run(); });
+        std::thread io_thread4([&io_context]() { io_context.run(); });
 
         displayPolymorphic(engine, types.begin(), types.end());
 
@@ -142,7 +152,7 @@ int main() {
             if (chrono.getElapsedTime() < 17)
                 continue;
             engine.runSystems();
-            displayPolymorphic(engine, types.begin(), types.end());
+            // displayPolymorphic(engine, types.begin(), types.end());
             std::cout << "####################################### iteration: " << i++ << "\n" << std::endl;
             chrono.restart();
        }

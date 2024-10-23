@@ -184,6 +184,12 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                     sprite->sprite.setPosition(pos->x, pos->y);
                     sprite->update();
                     window.draw(sprite->sprite);
+                    try {
+                        auto &scale = scaleComponents[i];
+                        sprite->sprite.setScale((float)scale->width / 100, (float)scale->height / 100);
+                    } catch (std::exception &) {
+                        sprite->sprite.setScale(1, 1);
+                    }
                 } catch (std::exception &) {
                     std::cerr << "Error: Sprite component not found for entity: " << i << " spriteID: " << spriteId->id << std::endl;
                     std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();

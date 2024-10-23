@@ -10,6 +10,7 @@
 
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
+    #include "utils/ComponentUtils.hpp"
     #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -61,6 +62,8 @@ namespace Components {
             __network.width = htonl(width);
             __network.height = htonl(height);
             return std::vector<uint8_t>(__data, __data + sizeof(__data));
+
+            std::cerr << "Serialized Scale component: width=" << width << " height=" << height << std::endl;
         }
 
         /**
@@ -77,6 +80,8 @@ namespace Components {
 
             width = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
             height = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
+
+            std::cerr << "Deserialized Scale component: width=" << width << " height=" << height << std::endl;
         }
 
         /**
@@ -129,10 +134,13 @@ namespace Components {
             }
 
             std::cout << "width: " << width << " height: " << height << std::endl;
-
-            std::unique_ptr<Components::Scale> scale = engine.newComponent<Components::Scale>(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-            engine.getRegistry().componentManager().addComponent<Components::Scale>(to, std::move(scale));
             std::cout << std::endl;
+
+            attachAndUpdateComponent<Components::Scale>(
+                engine, to,
+                static_cast<uint32_t>(width),
+                static_cast<uint32_t>(height)
+            );
         }
 
         uint32_t width;

@@ -10,6 +10,7 @@
 
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
+    #include "utils/ComponentUtils.hpp"
     #include <libconfig.h++>
     #include <any>
     #include <cstddef>
@@ -143,12 +144,11 @@ namespace Components {
             }
 
             TypeID typeId = static_cast<TypeID>(type);
-            std::unique_ptr<Components::Type> typeComponent =
-                engine.newComponent<Components::Type>(typeId);
-            engine
-                .getRegistry()
-                .componentManager()
-                .addComponent<Components::Type>(to, std::move(typeComponent));
+
+            attachAndUpdateComponent<Components::Type>(
+                engine, to,
+                typeId
+            );
         }
 
         /**

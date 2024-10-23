@@ -57,7 +57,6 @@ void Systems::Sfml::init(Engine::GameEngine &engine)
         std::cerr << "Music loaded" << std::endl;
         __music.play();
         __music.setLoop(true);
-
     }
 }
 

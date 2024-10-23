@@ -7,7 +7,7 @@
 
 #include "GameEngine/GameEngine.hpp"
 #include "Input.hpp"
-#include "Actions.hpp"
+#include "utils/Actions.hpp"
 #include "components/acceleration/Acceleration.hpp"
 #include "components/velocity/Velocity.hpp"
 #include "components/controllable/Controllable.hpp"
@@ -15,6 +15,7 @@
 #include "components/position/Position.hpp"
 #include "components/collider/Collider.hpp"
 #include "library_entrypoint.hpp"
+#include "utils/Projectile.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <unordered_map>

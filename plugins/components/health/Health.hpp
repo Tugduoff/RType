@@ -11,6 +11,7 @@
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
+    #include "utils/ComponentUtils.hpp"
      #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -142,10 +143,13 @@ namespace Components {
             }
 
             std::cout << "currentVal: " << currentVal << " maxVal: " << maxVal << std::endl;
-
-            std::unique_ptr<Components::Health> health = engine.newComponent<Components::Health>(static_cast<uint32_t>(currentVal), static_cast<uint32_t>(maxVal));
-            engine.getRegistry().componentManager().addComponent<Components::Health>(to, std::move(health));
             std::cout << std::endl;
+
+            attachAndUpdateComponent<Components::Health>(
+                engine, to,
+                static_cast<uint32_t>(currentVal),
+                static_cast<uint32_t>(maxVal)
+            );
         };
 
         uint32_t currentHealth;

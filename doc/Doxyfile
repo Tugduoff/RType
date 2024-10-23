@@ -952,8 +952,11 @@ WARN_LOGFILE           =
 INPUT                  =    ./src/client/                       \
                             ./src/DLLoader/                     \
                             ./src/ECS/                          \
+                            ./src/network/                      \
                             ./src/GameEngine/                   \
                             ./src/server/                       \
+                            ./src/network                       \
+                            ./src/utils                         \
                             ./plugins/components/               \
                             ./plugins/systems/                  \
                             ./plugins/library_entrypoint.hpp    \

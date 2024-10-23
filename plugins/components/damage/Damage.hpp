@@ -10,6 +10,7 @@
 
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
+    #include "utils/ComponentUtils.hpp"
 
     #ifdef _WIN32
         #include <windows.h>
@@ -116,8 +117,11 @@ namespace Components {
 
             if (!config.lookupValue("damage", damage))
                 damage = 10;
-            std::unique_ptr<Components::Damage> dmg = engine.newComponent<Components::Damage>(static_cast<uint32_t>(damage));
-            engine.getRegistry().componentManager().addComponent<Components::Damage>(to, std::move(dmg));
+
+            attachAndUpdateComponent<Components::Damage>(
+                engine, to,
+                static_cast<uint32_t>(damage)
+            );
         }
 
         uint32_t damage;

@@ -53,6 +53,9 @@ class UDPServer {
         std::map<udp::endpoint, bool> client_responses;
         std::map<udp::endpoint, bool> is_disconnected;
 
+        std::unordered_map<size_t, uint32_t> _entitiesNetworkId;
+        uint32_t _nextNetworkId = 0;
+
 
         // --- Helpers --- //
 
@@ -169,6 +172,10 @@ class UDPServer {
         * @param component A reference to the component being detached.
         */
         void detach_component(size_t entity, std::type_index component);
+
+        void updateIdStringToType(std::unordered_map<std::string, std::type_index> &idStringToType) {
+            __idStringToType = idStringToType;
+        }
 };
 
 #endif /* !UDP_SERVER_HPP_ */

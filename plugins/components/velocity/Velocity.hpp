@@ -10,6 +10,7 @@
 
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
+    #include "utils/ComponentUtils.hpp"
      #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -60,7 +61,6 @@ namespace Components {
          */
         Velocity(int32_t x = 0, int32_t y = 0, uint8_t factor = 0) :
             AComponent("Velocity"), x(x), y(y), floatX(x), floatY(y), diminishingFactor(factor) {
-                std::cout << "Velocity component created with x: " << x << " y: " << y << " factor: " << diminishingFactor << std::endl;
             };
 
         /**
@@ -161,9 +161,12 @@ namespace Components {
 
             uint8_t diminishingFactor = static_cast<uint8_t>(factor);
 
-            std::unique_ptr<Components::Velocity> pos = engine.newComponent<Components::Velocity>(static_cast<int32_t>(xVal), static_cast<int32_t>(yVal), static_cast<uint8_t>(diminishingFactor));
-            engine.getRegistry().componentManager().addComponent<Components::Velocity>(to, std::move(pos));
-            std::cout << std::endl;
+            attachAndUpdateComponent<Components::Velocity>(
+                engine, to,
+                static_cast<int32_t>(xVal),
+                static_cast<int32_t>(yVal),
+                static_cast<uint8_t>(diminishingFactor)
+            );
         };
 
         int32_t x;

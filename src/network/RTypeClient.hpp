@@ -120,6 +120,8 @@ class RTypeClient : public UDPConnection
          */
         uint16_t uint16From2Uint8(uint8_t first, uint8_t second);
 
+        uint32_t uint32From4Uint8(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4);
+
         /**
          * @brief Receive an uint16 from the server
          * 
@@ -152,6 +154,7 @@ class RTypeClient : public UDPConnection
     
     private:
         std::unordered_map<uint8_t, std::string> _compNames;
+        std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */

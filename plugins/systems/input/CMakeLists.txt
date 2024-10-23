@@ -1,8 +1,9 @@
 # Add an executable for the server project
 add_library(Input SHARED
     Input.cpp
-    ../../../Actions.cpp
-    ../../../Keys.cpp
+    ../../../src/utils/Actions.cpp
+    ../../../src/utils/Keys.cpp
+    ../../../src/utils/Projectile.cpp
 )
 
 target_link_libraries(Input

@@ -9,7 +9,14 @@
 #include "Attack.hpp"
 #include "components/gun/Gun.hpp"
 #include "EntityActions.hpp"
+#include "components/velocity/Velocity.hpp"
+#include "components/position/Position.hpp"
+#include "components/collider/Collider.hpp"
+#include "components/damage/Damage.hpp"
+#include "components/spriteId/SpriteID.hpp"
+#include "components/deathRange/DeathRange.hpp"
 #include "library_entrypoint.hpp"
+#include "utils/Projectile.hpp"
 #include <iostream>
 #include <stdexcept>
 

@@ -11,7 +11,8 @@
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
-    #include "Chrono.hpp"
+    #include "utils/Chrono.hpp"
+    #include "utils/ComponentUtils.hpp"
 
     #ifdef _WIN32
         #include <windows.h>
@@ -147,8 +148,13 @@ namespace Components {
             if (!config.lookupValue("minY", minY))
                 minY = 0;
 
-            std::unique_ptr<Components::DeathRange> DeathRange = engine.newComponent<Components::DeathRange>(static_cast<uint32_t>(maxX), static_cast<uint32_t>(maxY), static_cast<uint32_t>(minX), static_cast<uint32_t>(minY));
-            engine.getRegistry().componentManager().addComponent<Components::DeathRange>(to, std::move(DeathRange));
+            attachAndUpdateComponent<Components::DeathRange>(
+                engine, to,
+                static_cast<uint32_t>(maxX),
+                static_cast<uint32_t>(maxY),
+                static_cast<uint32_t>(minX),
+                static_cast<uint32_t>(minY)
+            );
         }
 
         uint32_t maxX;

@@ -13,7 +13,7 @@
     #include <SFML/System.hpp>
     #include <libconfig.h++>
     #include "GameEngine/GameEngine.hpp"
-    #include "Chrono.hpp"
+    #include "utils/Chrono.hpp"
 
 /**
  * @class Texture
