@@ -43,21 +43,24 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     continue;
                 else if (aiBehavior->behavior == 1) {
                     std::cerr << "Entity " << i << " has behavior 1" << std::endl;
-                    velBehavior->floatX = 0;
+                    velBehavior->x = 0;
                     if (posBehavior->y > deathRangeBehavior->minY + 50)
-                        velBehavior->floatY = 5;
+                        velBehavior->y = 5;
                     else if (posBehavior->y < deathRangeBehavior->maxY - 50)
-                        velBehavior->floatY = -5;
+                        velBehavior->y = -5;
                     engine.updateComponent(i, velBehavior->getId(), velBehavior->serialize());
                 } else if (aiBehavior->behavior == 2) {
                     std::cerr << "Entity " << i << " has behavior 2" << std::endl;
-                    velBehavior->floatX = -2;
+                    velBehavior->x = -2;
                     if (posBehavior->y > aiBehavior->startingY + 100) {
-                        velBehavior->floatY = -5;
+                        velBehavior->y = -5;
                     } else if (posBehavior->y < aiBehavior->startingY - 100) {
-                        velBehavior->floatY = 5;
+                        velBehavior->y = 5;
                     }
                     engine.updateComponent(i, velBehavior->getId(), velBehavior->serialize());
+                } else if (aiBehavior->behavior == 3) {
+                    std::cerr << "Entity " << i << " has behavior 3" << std::endl;
+
                 }
             }
         } catch (std::exception &e) {
