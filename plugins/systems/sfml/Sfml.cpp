@@ -47,14 +47,14 @@ void Systems::Sfml::init(Engine::GameEngine &engine)
     displaySystem.init(engine);
     inputSystem.init(engine);
     std::cout << "Init Sfml done" << std::endl;
-    // if (!__music.openFromFile("./assets/background.mp3")) {
-    //     std::cerr << "Failed to load music" << std::endl;
-    //     return;
-    // } else {
-    //     std::cerr << "Music loaded" << std::endl;
-    //     __music.play();
-    //     __music.setLoop(true);
-    // }
+    if (!__music.openFromFile("./assets/background.mp3")) {
+        std::cerr << "Failed to load music" << std::endl;
+        return;
+    } else {
+        std::cerr << "Music loaded" << std::endl;
+        __music.play();
+        __music.setLoop(true);
+    }
 }
 
 void Systems::Sfml::run(Engine::GameEngine &engine)

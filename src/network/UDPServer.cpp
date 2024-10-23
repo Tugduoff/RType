@@ -199,7 +199,6 @@ void UDPServer::create_entity(const ECS::Entity &entity) {
     uint32_t networkId = _nextNetworkId;
     _nextNetworkId++;
     _entitiesNetworkId.insert({entity, networkId});
-    // uint16_t entity_id = static_cast<uint16_t>(entity);
     
     networkId = htonl(networkId);
 
