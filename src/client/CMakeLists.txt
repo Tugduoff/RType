@@ -1,6 +1,15 @@
 # Add an executable for the client project
 add_executable(client
     Main.cpp
+    AUI.cpp
+    Game.cpp
+    LevelEditorScene.cpp
+    LevelEditorUI.cpp
+    MainMenuUI.cpp
+    UIButton.cpp
+    UIInputField.cpp
+    UISlider.cpp
+    UISprite.cpp
     Window.cpp
     
     ../network/RTypeClient.cpp

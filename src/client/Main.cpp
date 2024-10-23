@@ -10,6 +10,8 @@
 #include "network/RTypeClient.hpp"
 #include "GameEngine/GameEngine.hpp"
 
+#include "Game.hpp"
+
 void updateComponent(size_t id, std::string name, std::vector<uint8_t> data, RTypeClient &conn)
 {
     std::vector<uint8_t> updateOperation;
@@ -30,6 +32,9 @@ void updateComponent(size_t id, std::string name, std::vector<uint8_t> data, RTy
 
 int main()
 {
+    Game menu;
+    menu.run();
+
     RTypeClient conn("127.0.0.1", "8080");
     Engine::GameEngine engine(
         [&conn](size_t id, std::string name, std::vector<uint8_t> data) { updateComponent(id, name, data, conn); }

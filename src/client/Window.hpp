@@ -1,125 +1,45 @@
 /*
 ** EPITECH PROJECT, 2024
-** RType
+** RType - Level Creator
 ** File description:
 ** Window.hpp file
 */
+
+// This class is a wrapper around the SFML window class
 
 #ifndef WINDOW_HPP
     #define WINDOW_HPP
 
     #include <SFML/Graphics.hpp>
-    #include <SFML/Window.hpp>
     #include <iostream>
+    #include <memory>
 
-/**
- * @class Window
- * 
- * @brief The Window class is a class that encapsulates the sfml render window class.
- * 
- * @note It holds a sf::RenderWindow object and provides a simple interface to interact with it.
- */
 class Window {
-    public:
+    public: 
 
-        /**
-         * @fn
-         * @brief Constructor of the Window class
-         * 
-         * @param width : the width of the window
-         * @param height : the height of the window
-         * @param title : the title of the window
-         * 
-         * @note This function is the constructor of the Window class.
-         * 
-         * @example
-         * Window win(1920, 1080, "test");
-         */
-        Window(unsigned int width, unsigned int height, std::string title);
+        Window(sf::VideoMode video_mode, const std::string &title);
+        Window(const Window &window) = delete;
 
-        /**
-         * @fn
-         * @brief Destructor of the Window class
-         * 
-         * @note This function is the destructor of the Window class.
-         * It will be called automatically when the object is destroyed.
-         */
+        Window &operator=(const Window &window) = delete;
+
         ~Window() = default;
 
-        /**
-         * @fn
-         * @brief Tells if the window is open or not
-         * 
-         * @return true : the window is open
-         * @return false : the window is closed
-         * 
-         * @note This function can be called to check if the window is currently open.
-         * 
-         * @example
-         * while (window.isOpen())
-         *    std::cout << "Window is open!" << std::endl;
-         */
-        bool isOpen() { return __window.isOpen(); };
+        bool isOpen() const { return __window.isOpen(); }
 
-        /**
-         * @fn
-         * @brief Closes the window
-         * 
-         * @note This function can be called to close the window.
-         * 
-         * @example
-         * window.close();
-         */
-        void close() { __window.close(); };
+        void clear(const sf::Color &color = sf::Color::Black) { __window.clear(color); }
+        void display() { __window.display(); }
+        void close() { __window.close(); }
+        bool pollEvent(sf::Event &event) { return __window.pollEvent(event); }
+        void setView(const sf::View &view) { __window.setView(view); }
+        void draw(const sf::Drawable &drawable) { __window.draw(drawable); }
 
-        /**
-         * @fn
-         * @brief Clears the window
-         * 
-         * @param color : the color to clear the window with
-         * 
-         * @note This function can be called to clear the window.
-         * 
-         * @example
-         * window.clear();
-         */
-        void clear(sf::Color color = sf::Color(0, 0, 0, 255)) { __window.clear(color); };
+        sf::Vector2f mapPixelToCoords(const sf::Vector2i &point) { return __window.mapPixelToCoords(point); }
 
-        /**
-         * @fn
-         * @brief Displays the window
-         * 
-         * @note This function can be called to display the window.
-         * 
-         * @example
-         * window.display();
-         */
-        void display() { __window.display(); };
-
-        /**
-         * @fn
-         * @brief Polls the event
-         * 
-         * @return true : an event has been polled
-         * @return false : no event has been polled
-         * 
-         * @note This function can be called to poll the event.
-         * 
-         * @example
-         * while (window.pollEvent())
-         *    std::cout << "Event polled!" << std::endl;
-         */
-        bool pollEvent();
+        sf::RenderWindow &getWindow() { return __window; }
 
     private:
 
-        /**
-         * @var sf::RenderWindow __window
-         * 
-         * @brief The window object of the Window class.
-         * 
-         * @note This variable is the window object of the Window class.
-         */
+        sf::VideoMode __video_mode;
         sf::RenderWindow __window;
 
 };

@@ -1,24 +1,13 @@
 /*
 ** EPITECH PROJECT, 2024
-** RType
+** RType - Level Creator
 ** File description:
 ** Window.cpp file
 */
 
 #include "Window.hpp"
 
-Window::Window(unsigned int width, unsigned int height, std::string title) : __window(sf::VideoMode(width, height), title)
+Window::Window(sf::VideoMode video_mode, const std::string &title) : __video_mode(video_mode), __window(video_mode, title)
 {
-    std::cout << "Creating new window: " << title << std::endl;
 }
 
-bool Window::pollEvent() {
-    sf::Event event;
-
-    __window.pollEvent(event);
-    if (event.type == sf::Event::Closed) {
-        close();
-        exit(0);
-    }
-    return false;
-};
