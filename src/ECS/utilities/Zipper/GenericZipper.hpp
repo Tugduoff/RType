@@ -10,39 +10,7 @@
 
     #include <cstddef>
     #include <tuple>
-    #include <utility>
-
-template<typename T>
-constexpr inline T vmin(T &&t)
-{
-    return std::forward<T>(t);
-}
-
-template<typename T, typename... Args>
-constexpr inline T vmin(T v1, T v2, Args... vals)
-{
-    if (v1 < v2) {
-        return vmin(v1, std::forward<Args>(vals)...);
-    } else {
-        return vmin(v2, std::forward<Args>(vals)...);
-    }
-}
-
-template<typename T>
-constexpr inline T vmax(T &&t)
-{
-    return std::forward<T>(t);
-}
-
-template<typename T, typename... Args>
-constexpr inline T vmax(T v1, T v2, Args... vals)
-{
-    if (v1 > v2) {
-        return vmax(v1, std::forward<Args>(vals)...);
-    } else {
-        return vmax(v2, std::forward<Args>(vals)...);
-    }
-}
+    #include "utils/MinMax.hpp"
 
 /**
  * @class Generic zipper
