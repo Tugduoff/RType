@@ -37,7 +37,7 @@ namespace Components {
          * 
          * @param behavior The AI behavior identifier (default is 0).
          */
-        Ai(uint32_t behavior = 0) : AComponent(std::string("Ai")), behavior(behavior) {};
+        Ai(uint32_t behavior = 0, uint32_t animLength = 0, uint32_t animSpeed = 0) : AComponent(std::string("Ai")), behavior(behavior), animLength(animLength), animSpeed(animSpeed) {};
 
         /**
          * @brief Constructor using configuration settings.
@@ -51,6 +51,12 @@ namespace Components {
             if (!config.lookupValue("behavior", behavior)) {
                 behavior = 0;
             }
+            if (!config.lookupValue("animLength", animLength)) {
+                animLength = 0;
+            }
+            if (!config.lookupValue("animSpeed", animSpeed)) {
+                animSpeed = 0;
+            }
         }        
 
         /**
@@ -62,6 +68,8 @@ namespace Components {
          */
         std::vector<uint8_t> serialize() override {
             __network.behavior = htonl(behavior);
+            __network.animLength = htonl(animLength);
+            __network.animSpeed = htonl(animSpeed);
             return std::vector<uint8_t>(__data, __data + sizeof(__data));
         }
 
@@ -78,6 +86,8 @@ namespace Components {
                 throw std::runtime_error("Invalid data size for Ai component");
 
             behavior = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
+            animLength = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
+            animSpeed = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 8));
         }
 
         /**
@@ -105,8 +115,10 @@ namespace Components {
                 throw std::runtime_error("Invalid number of arguments for Ai component");
 
             uint32_t behavior = std::any_cast<uint32_t>(args[0]);
+            uint32_t animLength = std::any_cast<uint32_t>(args[1]);
+            uint32_t animSpeed = std::any_cast<uint32_t>(args[2]);
 
-            auto Ai = engine.newComponent<Components::Ai>(behavior);
+            auto Ai = engine.newComponent<Components::Ai>(behavior, animLength, animSpeed);
             engine.getRegistry().componentManager().addComponent<Components::Ai>(to, std::move(Ai));
         };
 
@@ -121,27 +133,41 @@ namespace Components {
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
             int behavior = 0; 
+            int animLength = 0;
+            int animSpeed = 0;
 
             if (!config.lookupValue("behavior", behavior)) {
                 std::cerr << "Warning: 'behavior' not found in config. Using default value: 1\n";
                 behavior = 0;
             }
+            if (!config.lookupValue("animLength", animLength)) {
+                std::cerr << "Warning: 'animLength' not found in config. Using default value: 1\n";
+                animLength = 0;
+            }
+            if (!config.lookupValue("animSpeed", animSpeed)) {
+                std::cerr << "Warning: 'animSpeed' not found in config. Using default value: 1\n";
+                animSpeed = 0;
+            }
 
-            std::cout << "behavior: " << behavior << std::endl;
 
-            std::unique_ptr<Components::Ai> Ai = engine.newComponent<Components::Ai>(static_cast<uint32_t>(behavior));
+            std::unique_ptr<Components::Ai> Ai = engine.newComponent<Components::Ai>(static_cast<uint32_t>(behavior), static_cast<uint32_t>(animLength), static_cast<uint32_t>(animSpeed));
             engine.getRegistry().componentManager().addComponent<Components::Ai>(to, std::move(Ai));
             std::cout << std::endl;
         }
 
         uint32_t behavior;
+        uint32_t animLength;
+        uint32_t animSpeed;
+        std::string animSpriteSheet;
 
     private:
         union {
             struct {
                 uint32_t behavior;
+                uint32_t animLength;
+                uint32_t animSpeed;
             } __network;
-            uint8_t __data[4];
+            uint8_t __data[12];
         };
     };
 };
