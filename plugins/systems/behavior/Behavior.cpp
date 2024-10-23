@@ -12,6 +12,8 @@
 #include <iostream>
 #include <stdexcept>
 
+
+
 Systems::BehaviorSystem::BehaviorSystem(libconfig::Setting &)
 {
 }
@@ -22,6 +24,8 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
     
     try {
         auto &aiComponent = reg.componentManager().getComponents<Components::Ai>();
+        auto &aiComponent = reg.componentManager().getComponents<Components::Position>();
+
         size_t i = 0;
         try {
             for (i = 0; i < aiComponent.size(); i++) {
@@ -31,9 +35,12 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 if (aiBehavior->behavior == 1) {
                     std::cerr << "Entity " << i << " has behavior 1" << std::endl;   
                 }
+                if (aiBehavior->behavior == 2) {
+                    std::cerr << "Entity " << i << " has behavior 2" << std::endl;   
+                }
             }
         } catch (std::exception &e) {
-            std::cerr << "IA Error: " << e.what() << std::endl;
+            std::cerr << "IA for loop Error: " << e.what() << std::endl;
         }
     } catch (std::exception &e) {
         std::cerr << " IA Error: " << e.what() << std::endl;
@@ -43,7 +50,9 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
 void Systems::BehaviorSystem::init(Engine::GameEngine &engine)
 {
     if (!engine.registerComponent<Components::Ai>("./plugins/bin/components/", "Ai"))
-        std::cerr << "Error: Could not register Ai component in system Input" << std::endl;
+        std::cerr << "Error: Could not register Ai component in system Ai" << std::endl;
+    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Postion"))
+        std::cerr << "Error: Could not register Postion component in system Ai" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT
