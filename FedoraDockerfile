@@ -1,0 +1,33 @@
+FROM fedora:42
+
+WORKDIR /app
+
+# Update fedora
+RUN dnf update -y
+
+# Install all sfml compilation libraries
+RUN dnf install -y          \
+    g++                     \
+    git                     \
+    tree                    \
+    cmake                   \
+    mesa-libGL-devel        \
+    mesa-libGLU-devel       \
+    openal-soft-devel       \
+    libgudev-devel          \
+    flac-devel              \
+    libvorbis-devel         \
+    freetype-devel          \
+    libX11-devel            \
+    libXcursor-devel        \
+    libXrandr-devel
+
+# Copy all necessaries dependencies
+COPY ../src ./src
+COPY ../plugins ./plugins
+COPY ../build_rtype.sh ./build_rtype.sh
+COPY ../build_plugins.sh ./build_plugins.sh
+COPY ./release_files/build_scripts ./build_scripts
+
+# Run build script
+RUN ./build_scripts/build_fedora_binary.sh

@@ -1,0 +1,18 @@
+# Use an official Ubuntu as the base image
+FROM debian:12
+
+WORKDIR /app
+
+RUN apt-get update -y
+
+# Update the package list and install dependencies for CMake, build tools, and SFML
+RUN apt-get install -y  \
+    x11-common          \
+    libgl-dev
+
+COPY ./debian_build.tar .
+
+RUN tar -xf debian_build.tar 
+
+RUN cd ./bin && ./launch_client.sh
+

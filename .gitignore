@@ -1,2 +1,11 @@
 bin/
 build/
+*.tar
+*.o
+*.a
+*.so
+*.so.*
+r-type_server
+r-type_client
+output.txt
+.cache

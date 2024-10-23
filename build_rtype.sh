@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd ./levelCreator
+cd ./src
 
 mkdir -p build && cd ./build
 
