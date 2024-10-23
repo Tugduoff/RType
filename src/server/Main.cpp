@@ -101,9 +101,6 @@ int main() {
     };
 
     try {
-        
-        std::cerr << ntohl(1291845632) << std::endl;
-
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
         UDPServer server(io_context, 8080, engine.getIdStringToType());
