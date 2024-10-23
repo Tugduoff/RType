@@ -27,8 +27,8 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
         auto &deathRangeComponent = reg.componentManager().getComponents<Components::DeathRange>();
 
         size_t i = 0;
-        try {
-            for (i = 0; i < aiComponent.size() || i < posComponent.size() || i < velComponent.size() || i < deathRangeComponent.size(); i++) {
+        for (i = 0; i < aiComponent.size() || i < posComponent.size() || i < velComponent.size() || i < deathRangeComponent.size(); i++) {
+            try {
                 auto &aiBehavior = aiComponent[i];
                 auto &posBehavior = posComponent[i];
                 auto &velBehavior = velComponent[i];
@@ -60,14 +60,13 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     engine.updateComponent(i, velBehavior->getId(), velBehavior->serialize());
                 } else if (aiBehavior->behavior == 3) {
                     std::cerr << "Entity " << i << " has behavior 3" << std::endl;
-
                 }
+            } catch (std::exception &e) {
+                continue;
             }
-        } catch (std::exception &e) {
-            std::cerr << "IA for loop Error: " << e.what() << std::endl;
         }
     } catch (std::exception &e) {
-        std::cerr << " IA Error: " << e.what() << std::endl;
+        std::cerr << "IA Error: " << e.what() << std::endl;
     }
 }
 
@@ -75,7 +74,7 @@ void Systems::BehaviorSystem::init(Engine::GameEngine &engine)
 {
     if (!engine.registerComponent<Components::Ai>("./plugins/bin/components/", "Ai"))
         std::cerr << "Error: Could not register Ai component in Ai system" << std::endl;
-    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Postion"))
+    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
         std::cerr << "Error: Could not register Position component in Ai system" << std::endl;
     if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity"))
         std::cerr << "Error: Could not register Velocity component in Ai system" << std::endl;
