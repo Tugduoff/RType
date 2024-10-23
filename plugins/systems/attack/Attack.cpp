@@ -9,6 +9,7 @@
 #include "Attack.hpp"
 #include "components/gun/Gun.hpp"
 #include "library_entrypoint.hpp"
+#include "ECS/utilities/Zipper/Zipper.hpp"
 #include <iostream>
 #include <stdexcept>
 
@@ -60,46 +61,26 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
     auto &reg = engine.getRegistry();
 
     try {
-        auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
-        auto &posComponents = reg.componentManager().getComponents<Components::Position>();
-        auto &typeComponents = reg.componentManager().getComponents<Components::Type>();
+        auto &gunArr = reg.componentManager().getComponents<Components::Gun>();
+        auto &posArr = reg.componentManager().getComponents<Components::Position>();
+        auto &typeArr = reg.componentManager().getComponents<Components::Type>();
 
-        size_t i = 0;
-        for (i = 0;
-            i < gunComponents.size() &&
-            i < posComponents.size() &&
-            i < typeComponents.size(); i++) {
-            try {
-                auto &gun = gunComponents[i];
-                auto &pos = posComponents[i];
-                auto &spr = typeComponents[i];
-                (void)gun;
-                (void)pos;
-                (void)spr;
-            } catch (std::exception &e) {
+        for (auto &&[pos, gun, id] : Zipper(posArr, gunArr, typeArr)) {
+            if (gun.chrono.getElapsedTime() < gun.fireRate)
                 continue;
-            }
-            auto &gun = gunComponents[i];
-            auto &pos = posComponents[i];
-            auto &spr = typeComponents[i];
+            if (id.id == Components::TypeID::ALLY)
+                continue;
+            gun.chrono.restart();
 
-            if (!gun || !pos)
-                continue;
-            if (gun->chrono.getElapsedTime() < gun->fireRate)
-                continue;
-            if (spr->id == Components::TypeID::ALLY)
-                continue;
-            gun->chrono.restart();
-
-            int projectilePosX = pos->x;
-            int projectilePosY = pos->y;
-            int projectileVelX = gun->bulletVelocity;
+            int projectilePosX = pos.x;
+            int projectilePosY = pos.y;
+            int projectileVelX = gun.bulletVelocity;
             int projectileVelY = 0;
             int projectileColliderWidth = 10;
             int projectileColliderHeight = 10;
-            int projectileDamage = gun->bulletDamage;
+            int projectileDamage = gun.bulletDamage;
             enum Components::TypeID type = Components::TypeID::ENEMY_PROJECTILE;
-            std::string spriteID = gun->spriteId;
+            std::string spriteID = gun.spriteId;
 
             createProjectile(
                 engine,
