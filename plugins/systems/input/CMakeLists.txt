@@ -3,6 +3,7 @@ add_library(Input SHARED
     Input.cpp
     ../../../src/utils/Actions.cpp
     ../../../src/utils/Keys.cpp
+    ../../../src/utils/Projectile.cpp
 )
 
 target_link_libraries(Input
