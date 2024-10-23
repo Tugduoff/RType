@@ -28,7 +28,7 @@ LevelEditorScene::LevelEditorScene(int cellSize, int mapSizeX, int mapSizeY, int
     __view.setCenter(__gridWidth / 2, __gridHeight / 2);
 
     __playerTexture = sf::Texture();
-    __playerTexture.loadFromFile("assets/spacecraft.png");
+    __playerTexture.loadFromFile("./levelCreator/assets/spacecraft.png");
 
     __playerSprite = sf::Sprite(__playerTexture);
     __playerSprite.setScale(1, 1);

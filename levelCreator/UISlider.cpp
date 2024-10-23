@@ -35,7 +35,7 @@ UISlider::UISlider(
     __slider.setFillColor(sf::Color::White);
 
     __font = sf::Font();
-    __font.loadFromFile("assets/fonts/Tarragon.otf");
+    __font.loadFromFile("./levelCreator/assets/fonts/Tarragon.otf");
 
     __valueText = sf::Text(std::to_string(value), __font, 30);
     __valueText.setFillColor(sf::Color::White);

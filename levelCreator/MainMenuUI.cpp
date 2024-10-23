@@ -36,14 +36,14 @@ void MainMenuUI::initUI()
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(1920 / 2, 1080 / 2),
         sf::Vector2f(1, 1),
-        "./assets/bg.jpg",
+        "./levelCreator/assets/bg.jpg",
         std::nullopt,
         std::nullopt,
         0));
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(550, 650),
         sf::Vector2f(1, 1),
-        "./assets/box.png",
+        "./levelCreator/assets/box.png",
         std::nullopt,
         std::function<void(IUIElement &)>([](IUIElement &element) {
             UISprite &sprite = dynamic_cast<UISprite &>(element);
@@ -53,7 +53,7 @@ void MainMenuUI::initUI()
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(550, 200),
         sf::Vector2f(1, 1),
-        "./assets/title.png",
+        "./levelCreator/assets/title.png",
         std::nullopt,
         std::function<void(IUIElement &)>([](IUIElement &element) {
             UISprite &sprite = dynamic_cast<UISprite &>(element);
@@ -63,7 +63,7 @@ void MainMenuUI::initUI()
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(1920 / 2, 1050),
         sf::Vector2f(1, 1),
-        "./assets/version.png",
+        "./levelCreator/assets/version.png",
         std::nullopt,
         std::function<void(IUIElement &)>([](IUIElement &element) {
             UISprite &sprite = dynamic_cast<UISprite &>(element);
@@ -73,7 +73,7 @@ void MainMenuUI::initUI()
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(270, 390),
         sf::Vector2f(1, 1),
-        "./assets/cellSize.png",
+        "./levelCreator/assets/cellSize.png",
         std::nullopt,
         std::function<void(IUIElement &)>([](IUIElement &element) {
             UISprite &sprite = dynamic_cast<UISprite &>(element);
@@ -95,7 +95,7 @@ void MainMenuUI::initUI()
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(520, 595),
         sf::Vector2f(1, 1),
-        "./assets/x.png",
+        "./levelCreator/assets/x.png",
         std::nullopt,
         std::function<void(IUIElement &)>([](IUIElement &element) {
             UISprite &sprite = dynamic_cast<UISprite &>(element);
@@ -117,7 +117,7 @@ void MainMenuUI::initUI()
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(890, 595),
         sf::Vector2f(1, 1),
-        "./assets/y.png",
+        "./levelCreator/assets/y.png",
         std::nullopt,
         std::function<void(IUIElement &)>([](IUIElement &element) {
             UISprite &sprite = dynamic_cast<UISprite &>(element);
@@ -127,7 +127,7 @@ void MainMenuUI::initUI()
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(270, 520),
         sf::Vector2f(1, 1),
-        "./assets/mapSize.png",
+        "./levelCreator/assets/mapSize.png",
         std::nullopt,
         std::function<void(IUIElement &)>([](IUIElement &element) {
             UISprite &sprite = dynamic_cast<UISprite &>(element);
@@ -137,7 +137,7 @@ void MainMenuUI::initUI()
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(310, 680),
         sf::Vector2f(1, 1),
-        "./assets/startingZoom.png",
+        "./levelCreator/assets/startingZoom.png",
         std::nullopt,
         std::function<void(IUIElement &)>([](IUIElement &element) {
             UISprite &sprite = dynamic_cast<UISprite &>(element);

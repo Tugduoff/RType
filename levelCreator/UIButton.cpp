@@ -26,7 +26,7 @@ UIButton::UIButton(
 
     // Create an SFML text as the text element
     __font = sf::Font();
-    __font.loadFromFile("assets/fonts/Gendy.otf");
+    __font.loadFromFile("./levelCreator/assets/fonts/Gendy.otf");
 
     __text = sf::Text(text, __font, 30);
     __text.setFillColor(sf::Color::White);

@@ -23,7 +23,7 @@ UIInputField::UIInputField(
     __maxStringSize(maxStringSize)
 {
     __font = sf::Font();
-    __font.loadFromFile("assets/fonts/Gendy.otf");
+    __font.loadFromFile("./levelCreator/assets/fonts/Gendy.otf");
 
     __text = sf::Text(__textString, __font, 30);
     __text.setFillColor(sf::Color::White);

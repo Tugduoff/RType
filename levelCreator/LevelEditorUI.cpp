@@ -16,7 +16,7 @@ void LevelEditorUI::initUI()
     addElement(std::make_shared<UISprite>(
         sf::Vector2f(1920 / 2, 1080 / 2),
         sf::Vector2f(1, 1),
-        "./assets/bg2.png",
+        "./levelCreator/assets/bg2.png",
         std::nullopt,
         std::nullopt,
         0));
