@@ -166,8 +166,15 @@ namespace Components {
 
             std::cout << "forward: " << forwardVal << " backward: " << backwardVal << " right: " << rightVal << " left: " << leftVal << std::endl;
 
-            std::unique_ptr<Components::Acceleration> pos = engine.newComponent<Components::Acceleration>(static_cast<int32_t>(forwardVal), static_cast<int32_t>(backwardVal), static_cast<int32_t>(rightVal), static_cast<int32_t>(leftVal));
-            engine.getRegistry().componentManager().addComponent<Components::Acceleration>(to, std::move(pos));
+            std::unique_ptr<Components::Acceleration> acceleration = engine.newComponent<Components::Acceleration>(static_cast<int32_t>(forwardVal), static_cast<int32_t>(backwardVal), static_cast<int32_t>(rightVal), static_cast<int32_t>(leftVal));
+            Components::IComponent *rawComponent = acceleration.get();
+            engine
+                .getRegistry()
+                .componentManager()
+                .addComponent<Components::Acceleration>(to, std::move(acceleration));
+            std::cerr << "Acceleration component added to entity: " << to << std::endl;
+            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
+            std::cerr << "Acceleration component updated" << std::endl;
             std::cout << std::endl;
         };
 

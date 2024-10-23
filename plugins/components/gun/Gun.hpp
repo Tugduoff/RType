@@ -151,7 +151,14 @@ namespace Components {
             std::unique_ptr<Components::Gun> gun =
                 engine.newComponent<Components::Gun>(static_cast<uint32_t>(bulletDamage), static_cast<uint32_t>(fireRate),
                                                      static_cast<uint32_t>(bulletVelocity), spriteId);
-            engine.getRegistry().componentManager().addComponent<Components::Gun>(to, std::move(gun));
+            Components::IComponent *rawComponent = gun.get();
+            engine
+                .getRegistry()
+                .componentManager()
+                .addComponent<Components::Gun>(to, std::move(gun));
+            std::cerr << "Gun component added to entity: " << to << std::endl;
+            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
+            std::cerr << "Gun component updated" << std::endl;
         }
 
         uint32_t bulletDamage;

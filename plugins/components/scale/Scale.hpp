@@ -61,6 +61,8 @@ namespace Components {
             __network.width = htonl(width);
             __network.height = htonl(height);
             return std::vector<uint8_t>(__data, __data + sizeof(__data));
+
+            std::cerr << "Serialized Scale component: width=" << width << " height=" << height << std::endl;
         }
 
         /**
@@ -77,6 +79,8 @@ namespace Components {
 
             width = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
             height = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
+
+            std::cerr << "Deserialized Scale component: width=" << width << " height=" << height << std::endl;
         }
 
         /**
@@ -129,10 +133,18 @@ namespace Components {
             }
 
             std::cout << "width: " << width << " height: " << height << std::endl;
-
-            std::unique_ptr<Components::Scale> scale = engine.newComponent<Components::Scale>(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-            engine.getRegistry().componentManager().addComponent<Components::Scale>(to, std::move(scale));
             std::cout << std::endl;
+
+            std::unique_ptr<Components::Scale> scale =
+                engine.newComponent<Components::Scale>(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+            Components::IComponent *rawComponent = scale.get();
+            engine
+                .getRegistry()
+                .componentManager()
+                .addComponent<Components::Scale>(to, std::move(scale));
+            std::cerr << "Scale component added to entity: " << to << std::endl;
+            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
+            std::cerr << "Scale component updated" << std::endl;
         }
 
         uint32_t width;

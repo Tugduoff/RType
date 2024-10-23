@@ -242,11 +242,16 @@ namespace Components {
                 std::cerr << actionKey << ": " << newKeyBindings[action] << std::endl;
             }
 
-            std::unique_ptr<Components::Controllable> ctrl = engine.newComponent<Components::Controllable>(newKeyBindings);
+            std::unique_ptr<Components::Controllable> ctrl =
+                engine.newComponent<Components::Controllable>(newKeyBindings);
+            Components::IComponent *rawComponent = ctrl.get();
             engine
                 .getRegistry()
                 .componentManager()
                 .addComponent<Components::Controllable>(to, std::move(ctrl));
+            std::cerr << "Controllable component added to entity: " << to << std::endl;
+            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
+            std::cerr << "Controllable component updated" << std::endl;
             std::cerr << std::endl;
         };
 

@@ -147,8 +147,16 @@ namespace Components {
             if (!config.lookupValue("minY", minY))
                 minY = 0;
 
-            std::unique_ptr<Components::DeathRange> DeathRange = engine.newComponent<Components::DeathRange>(static_cast<uint32_t>(maxX), static_cast<uint32_t>(maxY), static_cast<uint32_t>(minX), static_cast<uint32_t>(minY));
-            engine.getRegistry().componentManager().addComponent<Components::DeathRange>(to, std::move(DeathRange));
+            std::unique_ptr<Components::DeathRange> deathRange =
+                engine.newComponent<Components::DeathRange>(static_cast<uint32_t>(maxX), static_cast<uint32_t>(maxY), static_cast<uint32_t>(minX), static_cast<uint32_t>(minY));
+            Components::IComponent *rawComponent = deathRange.get();
+            engine
+                .getRegistry()
+                .componentManager()
+                .addComponent<Components::DeathRange>(to, std::move(deathRange));
+            std::cerr << "DeathRange component added to entity: " << to << std::endl;
+            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
+            std::cerr << "DeathRange component updated" << std::endl;
         }
 
         uint32_t maxX;

@@ -142,10 +142,18 @@ namespace Components {
             }
 
             std::cout << "currentVal: " << currentVal << " maxVal: " << maxVal << std::endl;
-
-            std::unique_ptr<Components::Health> health = engine.newComponent<Components::Health>(static_cast<uint32_t>(currentVal), static_cast<uint32_t>(maxVal));
-            engine.getRegistry().componentManager().addComponent<Components::Health>(to, std::move(health));
             std::cout << std::endl;
+
+            std::unique_ptr<Components::Health> health =
+                engine.newComponent<Components::Health>(static_cast<uint32_t>(currentVal), static_cast<uint32_t>(maxVal));
+            Components::IComponent *rawComponent = health.get();
+            engine
+                .getRegistry()
+                .componentManager()
+                .addComponent<Components::Health>(to, std::move(health));
+            std::cerr << "Health component added to entity: " << to << std::endl;
+            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
+            std::cerr << "Health component updated" << std::endl;
         };
 
         uint32_t currentHealth;

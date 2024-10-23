@@ -116,8 +116,16 @@ namespace Components {
 
             if (!config.lookupValue("damage", damage))
                 damage = 10;
-            std::unique_ptr<Components::Damage> dmg = engine.newComponent<Components::Damage>(static_cast<uint32_t>(damage));
-            engine.getRegistry().componentManager().addComponent<Components::Damage>(to, std::move(dmg));
+            std::unique_ptr<Components::Damage> dmg =
+                engine.newComponent<Components::Damage>(static_cast<uint32_t>(damage));
+            Components::IComponent *rawComponent = dmg.get();
+            engine
+                .getRegistry()
+                .componentManager()
+                .addComponent<Components::Damage>(to, std::move(dmg));
+            std::cerr << "Damage component added to entity: " << to << std::endl;
+            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
+            std::cerr << "Damage component updated" << std::endl;
         }
 
         uint32_t damage;
