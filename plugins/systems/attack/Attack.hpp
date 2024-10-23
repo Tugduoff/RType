@@ -31,7 +31,6 @@ namespace Systems {
 
             void run(Engine::GameEngine &engine) override;
             void init(Engine::GameEngine &engine) override;
-
     };
 };
 

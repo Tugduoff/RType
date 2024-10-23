@@ -5,6 +5,7 @@
 ** Display.cpp file
 */
 
+#include "ECS/utilities/Zipper/IndexedZipper.hpp"
 #define NOMINMAX
 #include "components/position/Position.hpp"
 #include "components/spriteId/SpriteID.hpp"
@@ -158,30 +159,15 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteID>();
         auto &scaleComponents = reg.componentManager().getComponents<Components::Scale>();
 
-        size_t i = 0;
-        for (int l = 0; l < 10; l++) {
-            for (i = 0;
-                i < posComponents.size() &&
-                i < spriteIdComponents.size();
-                i++)
-            {
-                try {
-                    auto &pos = posComponents[i];
-                    auto &spriteId = spriteIdComponents[i];
-                    (void)spriteId;
-
-                    if ((int)pos->layer != l)
-                        continue;
-                } catch (std::exception &e) {
+        for (unsigned l = 0; l < 10; l++) {
+            for (auto &&[i, pos, spriteId] : IndexedZipper(posComponents, spriteIdComponents)) {
+                if (pos.layer != l) {
                     continue;
                 }
 
-                auto &pos = posComponents[i];
-                auto &spriteId = spriteIdComponents[i];
-
                 try {
                     auto &sprite = spriteComponents[i];
-                    sprite->sprite.setPosition(pos->x, pos->y);
+                    sprite->sprite.setPosition(pos.x, pos.y);
                     sprite->update();
                     window.draw(sprite->sprite);
                     try {
@@ -191,9 +177,9 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                         sprite->sprite.setScale(1, 1);
                     }
                 } catch (std::exception &) {
-                    std::cerr << "Error: Sprite component not found for entity: " << i << " spriteID: " << spriteId->id << std::endl;
+                    std::cerr << "Error: Sprite component not found for entity: " << i << " spriteID: " << spriteId.id << std::endl;
                     std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
-                    for (auto &texture : __textures[spriteId->id]) {
+                    for (auto &texture : __textures[spriteId.id]) {
                         spriteComp->addTexture(texture);
                     }
                     try {

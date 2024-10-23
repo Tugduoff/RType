@@ -8,9 +8,9 @@
 #ifndef GENERIC_ZIPPER_HPP
     #define GENERIC_ZIPPER_HPP
 
-    #include <algorithm>
     #include <cstddef>
-    #include <vector>
+    #include <tuple>
+    #include "utils/MinMax.hpp"
 
 /**
  * @class Generic zipper
@@ -72,9 +72,7 @@ private:
 
     static size_t _compute_size(Containers &... containers)
     {
-        std::vector<std::size_t> sizes = {containers.size()...};
-
-        return std::ranges::min(sizes);
+        return vmin(containers.size()...);
     }
 
     static iterator_tuple _compute_begin(Containers &... containers)

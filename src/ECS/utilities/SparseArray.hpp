@@ -79,13 +79,13 @@ class SparseArray {
 
         auto size() const { return __data.size(); }
 
-        auto begin() const { return const_value_iterator(__data.begin()); }
-        auto begin() { return value_iterator(__data.begin()); }
-        auto cbegin() const { return const_value_iterator(__data.cbegin()); }
+        auto begin() const { return __data.begin(); }
+        auto begin() { return __data.begin(); }
+        auto cbegin() const { return __data.cbegin(); }
 
-        auto end() { return value_iterator(__data.end()); }
-        auto end() const { return const_value_iterator(__data.end()); }
-        auto cend() const { return const_value_iterator(__data.cend()); }
+        auto end() { return __data.end(); }
+        auto end() const { return __data.end(); }
+        auto cend() const { return __data.cend(); }
 
         // Methods
 

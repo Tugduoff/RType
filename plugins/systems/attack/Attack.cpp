@@ -8,16 +8,21 @@
 #include "GameEngine/GameEngine.hpp"
 #include "Attack.hpp"
 #include "components/gun/Gun.hpp"
+#include "components/type/Type.hpp"
 #include "components/velocity/Velocity.hpp"
 #include "components/position/Position.hpp"
 #include "components/collider/Collider.hpp"
 #include "components/damage/Damage.hpp"
 #include "components/spriteId/SpriteID.hpp"
 #include "components/deathRange/DeathRange.hpp"
+#include "components/position/Position.hpp"
+#include "components/type/Type.hpp"
 #include "library_entrypoint.hpp"
+#include "ECS/utilities/Zipper/Zipper.hpp"
 #include "utils/Projectile.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <tuple>
 
 Systems::AttackSystem::AttackSystem(libconfig::Setting &)
 {
@@ -28,58 +33,38 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
     auto &reg = engine.getRegistry();
 
     try {
-        auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
-        auto &posComponents = reg.componentManager().getComponents<Components::Position>();
-        auto &typeComponents = reg.componentManager().getComponents<Components::Type>();
+        auto &gunArr = reg.componentManager().getComponents<Components::Gun>();
+        auto &posArr = reg.componentManager().getComponents<Components::Position>();
+        auto &typeArr = reg.componentManager().getComponents<Components::Type>();
 
-        size_t i = 0;
-        for (i = 0;
-            i < gunComponents.size() &&
-            i < posComponents.size() &&
-            i < typeComponents.size(); i++) {
-            try {
-                auto &gun = gunComponents[i];
-                auto &pos = posComponents[i];
-                auto &spr = typeComponents[i];
-                (void)gun;
-                (void)pos;
-                (void)spr;
-            } catch (std::exception &e) {
-                continue;
-            }
-            auto &gun = gunComponents[i];
-            auto &pos = posComponents[i];
-            auto &spr = typeComponents[i];
+        std::vector<std::tuple<
+            decltype(Components::Position::x),
+            decltype(Components::Position::y),
+            decltype(Components::Gun::bulletVelocity),
+            decltype(Components::Gun::bulletDamage),
+            Components::TypeID,
+            decltype(Components::Gun::spriteId)
+        >> projToCreate;
 
-            if (!gun || !pos)
+        for (auto &&[pos, gun, id] : Zipper(posArr, gunArr, typeArr)) {
+            if (gun.chrono.getElapsedTime() < gun.fireRate)
                 continue;
-            if (gun->chrono.getElapsedTime() < gun->fireRate)
+            if (id.id == Components::TypeID::ALLY)
                 continue;
-            if (spr->id == Components::TypeID::ALLY)
-                continue;
-            gun->chrono.restart();
+            gun.chrono.restart();
 
-            int projectilePosX = pos->x;
-            int projectilePosY = pos->y;
-            int projectileVelX = gun->bulletVelocity;
-            int projectileVelY = 0;
-            int projectileColliderWidth = 10;
-            int projectileColliderHeight = 10;
-            int projectileDamage = gun->bulletDamage;
-            enum Components::TypeID type = Components::TypeID::ENEMY_PROJECTILE;
-            std::string spriteID = gun->spriteId;
+            projToCreate.emplace_back(
+                pos.x,
+                pos.y,
+                gun.bulletVelocity,
+                gun.bulletDamage,
+                Components::TypeID::ENEMY_PROJECTILE,
+                gun.spriteId
+            );
 
-            createProjectile(
-                engine,
-                projectilePosX,
-                projectilePosY,
-                projectileVelX,
-                projectileVelY,
-                projectileColliderWidth,
-                projectileColliderHeight,
-                projectileDamage,
-                type,
-                spriteID);
+        }
+        for (const auto &[posX, posY, bulletVel, bulletDmg, typeId, spriteId] : projToCreate) {
+            createProjectile(engine, posX, posY, bulletVel, 0, 10, 10, bulletDmg, typeId, spriteId);
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Attack Error: " << e.what() << std::endl;
