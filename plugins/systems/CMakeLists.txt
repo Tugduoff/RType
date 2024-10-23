@@ -1,3 +1,7 @@
+# Specify the C++ standard
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 # Find all directories containing CMakeLists.txt
 file(GLOB_RECURSE SUBDIRS RELATIVE  ${CMAKE_CURRENT_SOURCE_DIR} */CMakeLists.txt)
 
