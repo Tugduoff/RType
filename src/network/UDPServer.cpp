@@ -334,8 +334,8 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
         boost::asio::buffer(message), remote_endpoint_,
         [this, networkId, component_id](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t e_id = ntohl(networkId);
-                uint16_t c_id = ntohs(component_id);
+                // uint16_t e_id = ntohl(networkId);
+                // uint16_t c_id = ntohs(component_id);
                 // std::cerr << "Updated component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
         }
