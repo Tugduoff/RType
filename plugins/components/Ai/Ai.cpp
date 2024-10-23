@@ -18,7 +18,7 @@ Components::IComponent *buildDefault()
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(uint32_t behavior)
+Components::IComponent *buildWithParams(uint32_t behavior, uint32_t animLength, uint32_t animSpeed)
 {
     return new Components::Ai(behavior);
 }
