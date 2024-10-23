@@ -42,19 +42,11 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
             vel.y = (int)vel.floatY;
             engine.updateComponent(i, vel.getId(), vel.serialize());
         }
-        size_t i = 0;
-        for (i = 0; i < posArr.size() && i < dRangeArr.size(); i++) {
-            try {
-                auto &drange = dRangeArr[i];
-                auto &pos = posArr[i];
-
-                if (pos->x > drange->maxX || pos->x < drange->minX ||
-                    pos->y > drange->maxY || pos->y < drange->minY) {
-                    reg.killEntity((ECS::Entity)i);
-                    std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
-                }
-            } catch (std::exception &e) {
-                continue;
+        for (auto &&[i, pos, drange] : IndexedZipper(posArr, dRangeArr)) {
+            if (pos.x > drange.maxX || pos.x < drange.minX ||
+                pos.y > drange.maxY || pos.y < drange.minY) {
+                reg.killEntity((ECS::Entity)i);
+                std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
             }
         }
     } catch (std::runtime_error &e) {
