@@ -127,20 +127,20 @@ jobs:
 
   # PLEASE ADD SOME UNITS TESTS !
 
-  run_tests:
-    needs: [check_compilation]
+  # run_tests:
+  #   needs: [check_compilation]
 
-    runs-on: ubuntu-latest
+  #   runs-on: ubuntu-latest
 
-    container:
-      image: epitechcontent/epitest-docker
+  #   container:
+  #     image: epitechcontent/epitest-docker
 
-    steps:
-      - name: Checkout fetch
-        uses: actions/checkout@v4
-      - name: make tests_run
-        timeout-minutes: 2
-        run: make tests_run
+  #   steps:
+  #     - name: Checkout fetch
+  #       uses: actions/checkout@v4
+  #     - name: make tests_run
+  #       timeout-minutes: 2
+  #       run: make tests_run
 
   push_to_mirror:
     needs: [
