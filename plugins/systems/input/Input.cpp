@@ -20,37 +20,39 @@
 #include <stdexcept>
 #include <unordered_map>
 
-void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entityIndex) {
+void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entityIndex)
+{
     auto &reg = engine.getRegistry();
     
     try {
         auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
         auto &gun = gunComponents[entityIndex];
 
-        if (gun) {
-            if (gun->chrono.getElapsedTime() >= gun->fireRate) {
-                std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
-                gun->chrono.restart();
-                auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
-                auto &position = positionComponents[entityIndex];
+        if (!gun) {
+            return;
+        }
+        if (gun->chrono.getElapsedTime() >= gun->fireRate) {
+            std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
+            gun->chrono.restart();
+            auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
+            auto &position = positionComponents[entityIndex];
 
-                int projectilePosX = position->x;
-                int projectilePosY = position->y;
-                int projectileVelX = gun->bulletVelocity;
-                int projectileVelY = 0;
-                int projectileColliderWidth = 10;
-                int projectileColliderHeight = 10;
-                int projectileDamage = gun->bulletDamage;
-                enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
-                std::string spriteId = gun->spriteId;
+            int projectilePosX = position->x;
+            int projectilePosY = position->y;
+            int projectileVelX = gun->bulletVelocity;
+            int projectileVelY = 0;
+            int projectileColliderWidth = 10;
+            int projectileColliderHeight = 10;
+            int projectileDamage = gun->bulletDamage;
+            enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
+            std::string spriteId = gun->spriteId;
 
-                createProjectile(engine, projectilePosX, projectilePosY, 
-                    projectileVelX, projectileVelY, 
-                    projectileColliderWidth, projectileColliderHeight, projectileDamage, type, spriteId);
+            createProjectile(engine, projectilePosX, projectilePosY,
+                projectileVelX, projectileVelY,
+                projectileColliderWidth, projectileColliderHeight, projectileDamage, type, spriteId);
 
-            } else {
-                std::cerr << "Gun is on cooldown." << std::endl;
-            }
+        } else {
+            std::cerr << "Gun is on cooldown." << std::endl;
         }
     } catch (std::exception &e) {
         std::cerr << "Input Error: " << e.what() << std::endl;
