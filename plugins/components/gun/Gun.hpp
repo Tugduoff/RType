@@ -12,6 +12,7 @@
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
     #include "utils/Chrono.hpp"
+    #include "utils/ComponentUtils.hpp"
 
     #ifdef _WIN32
         #include <windows.h>
@@ -148,17 +149,13 @@ namespace Components {
             if (!config.lookupValue("spriteId", spriteId))
                 spriteId = "shot1";
 
-            std::unique_ptr<Components::Gun> gun =
-                engine.newComponent<Components::Gun>(static_cast<uint32_t>(bulletDamage), static_cast<uint32_t>(fireRate),
-                                                     static_cast<uint32_t>(bulletVelocity), spriteId);
-            Components::IComponent *rawComponent = gun.get();
-            engine
-                .getRegistry()
-                .componentManager()
-                .addComponent<Components::Gun>(to, std::move(gun));
-            std::cerr << "Gun component added to entity: " << to << std::endl;
-            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
-            std::cerr << "Gun component updated" << std::endl;
+            attachAndUpdateComponent<Components::Gun>(
+                engine, to,
+                static_cast<uint32_t>(bulletDamage),
+                static_cast<uint32_t>(fireRate),
+                static_cast<uint32_t>(bulletVelocity),
+                spriteId
+            );
         }
 
         uint32_t bulletDamage;

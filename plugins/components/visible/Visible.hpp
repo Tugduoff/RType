@@ -11,7 +11,8 @@
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
-     #ifdef _WIN32
+    #include "utils/ComponentUtils.hpp"
+    #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
     #else
@@ -133,16 +134,10 @@ public:
 
         std::cout << "isVisible: " << isVisibleConfig << std::endl;
 
-        std::unique_ptr<Components::Visible> visibilityComponent = engine.newComponent<Components::Visible>(static_cast<uint8_t>(isVisibleConfig));
-        Components::IComponent *rawComponent = visibilityComponent.get();
-        engine
-            .getRegistry()
-            .componentManager()
-            .addComponent<Components::Visible>(to, std::move(visibilityComponent));
-        std::cerr << "Visible component added to entity: " << to << std::endl;
-        engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
-        std::cerr << "Visible component updated" << std::endl;
-        std::cout << std::endl;
+        attachAndUpdateComponent<Components::Visible>(
+            engine, to,
+            static_cast<uint8_t>(isVisibleConfig)
+        );
     }
 
     /**

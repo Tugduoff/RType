@@ -15,6 +15,7 @@
 #include "components/position/Position.hpp"
 #include "components/collider/Collider.hpp"
 #include "library_entrypoint.hpp"
+#include "utils/Projectile.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <unordered_map>

@@ -10,6 +10,7 @@
 
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
+    #include "utils/ComponentUtils.hpp"
     #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -135,16 +136,11 @@ namespace Components {
             std::cout << "width: " << width << " height: " << height << std::endl;
             std::cout << std::endl;
 
-            std::unique_ptr<Components::Scale> scale =
-                engine.newComponent<Components::Scale>(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-            Components::IComponent *rawComponent = scale.get();
-            engine
-                .getRegistry()
-                .componentManager()
-                .addComponent<Components::Scale>(to, std::move(scale));
-            std::cerr << "Scale component added to entity: " << to << std::endl;
-            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
-            std::cerr << "Scale component updated" << std::endl;
+            attachAndUpdateComponent<Components::Scale>(
+                engine, to,
+                static_cast<uint32_t>(width),
+                static_cast<uint32_t>(height)
+            );
         }
 
         uint32_t width;

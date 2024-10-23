@@ -12,6 +12,7 @@
     #include "components/AComponent.hpp"
     #include "components/spriteId/SpriteID.hpp"
     #include "components/scale/Scale.hpp"
+    #include "utils/ComponentUtils.hpp"
     #include <libconfig.h++>
     #include <iostream>
     #include <memory>
@@ -112,16 +113,10 @@ namespace Components {
 
             std::cerr << "Adding SpriteID component to entity: " << to << " with ID: " << spriteId << std::endl;
 
-            std::unique_ptr<Components::SpriteID> spriteIdComponent =
-                engine.newComponent<Components::SpriteID>(spriteId);
-            Components::IComponent *rawComponent = spriteIdComponent.get();
-            engine
-                .getRegistry()
-                .componentManager()
-                .addComponent<Components::SpriteID>(to, std::move(spriteIdComponent));
-            std::cerr << "SpriteID component added to entity: " << to << std::endl;
-            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
-            std::cerr << "SpriteID component updated" << std::endl;
+            attachAndUpdateComponent<Components::SpriteID>(
+                engine, to,
+                spriteId
+            );
         }
 
         std::string id;

@@ -68,8 +68,8 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
             std::cerr << std::endl;
             break;
         case 0x3:
-            std::cerr << "Update Component" << std::endl;
-            std::cerr << "Component n°" << uint16From2Uint8(operation[5], operation[6]) << " of Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
+            // std::cerr << "Update Component" << std::endl;
+            // std::cerr << "Component n°" << uint16From2Uint8(operation[5], operation[6]) << " of Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
             updateComponent(engine, operation);
             break;
         case 0x4:
@@ -149,7 +149,7 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
         std::string strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
-        std::cerr << "Updating Component n°" << componentId << ": " << strCompId << " of entity n°" << networkId << " network n°" << entity << std::endl;
+        // std::cerr << "Updating Component n°" << componentId << ": " << strCompId << " of entity n°" << networkId << " network n°" << entity << std::endl;
         auto &compInstance = engine.getComponentFromId(compTypeIndex);
         auto &sparseArray = compInstance->any_cast(
             engine.getRegistry().componentManager().getComponents(compTypeIndex)
