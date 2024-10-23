@@ -225,19 +225,24 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
     std::cerr << "Deleted entity n°" << entity << " in local" << std::endl;
     std::cerr << "Entity network id: " << networkId << std::endl;
 
+    _entitiesNetworkId.erase(entity);
     networkId = htonl(networkId);
 
-    _entitiesNetworkId.erase(entity);
     std::cerr << "Entity " << entity << " deleted. Now sending infos to the client" << std::endl;
 
     std::array<uint8_t, 5> message;
     message[0] = opcode;
     std::memcpy(&message[1], &networkId, sizeof(networkId));
 
+    for (auto byte : message) {
+        std::cerr << static_cast<int>(byte) << " ";
+    }
+    std::cerr << std::endl;
+
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
         [this, networkId](boost::system::error_code ec, std::size_t) {
-            std::cerr << "Sending delete entity message to client for entity: " << networkId << std::endl;
+            std::cerr << "Sending delete entity message to client for entity: " << ntohl(networkId) << std::endl;
             if (!ec) {
                 uint32_t id = ntohl(networkId);
                 std::cerr << "Entity " << static_cast<int>(id) << " delete." << std::endl;
