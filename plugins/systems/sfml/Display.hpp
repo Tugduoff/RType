@@ -12,6 +12,7 @@
     #include <libconfig.h++>
     #include "GameEngine/GameEngine.hpp"
     #include <unordered_map>
+    #include "Texture.hpp"
 
 namespace Systems {
     /**
@@ -29,14 +30,14 @@ namespace Systems {
             ~Display() = default;
 
             void run(Engine::GameEngine &engine, sf::RenderWindow &window);
-            void init(Engine::GameEngine &engine, sf::RenderWindow &window);
+            void init(Engine::GameEngine &engine);
 
         private:
 
             void loadConfig(const std::string &filepath);
 
-            std::unordered_map<std::string, sf::Texture> __textures;
             std::string __configFilePath;
+            std::unordered_map<std::string, std::vector<Texture>> __textures;
     };
 };
 

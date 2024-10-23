@@ -3,6 +3,7 @@ add_library(Sfml SHARED
     Sfml.cpp
     Display.cpp
     Input.cpp
+    Texture.cpp
     ../../../Keys.cpp
     ../../../Actions.cpp
 )
@@ -20,5 +21,6 @@ target_link_libraries(Sfml
     sfml-window
     sfml-network
     sfml-system
+    sfml-audio
     ${LIBCONFIG_LIB_NAME}
 )

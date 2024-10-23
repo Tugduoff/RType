@@ -57,7 +57,7 @@ namespace Systems {
                 auto &reg = engine.getRegistry();
                 ECS::Entity projectile = reg.createEntity();
 
-                std::cerr << "New entity for projectile" << projectile << std::endl;
+                std::cerr << "Created new projectile with id: " << projectile << std::endl;
 
                 std::unique_ptr<Components::Position> positionComponent =
                     std::make_unique<Components::Position>(posX, posY, 1);
