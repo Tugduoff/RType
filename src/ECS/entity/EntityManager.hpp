@@ -36,21 +36,6 @@ namespace ECS {
             }
 
             /**
-             * @brief Spawn a new entity
-             */
-            Entity spawnEntityWithId(size_t entity) {
-                // if (std::find(__entities.begin(), __entities.end(),e)!=__entities.end()) {
-                //     std::cerr << "Error: Entity with id n°" << e << " already exists" << std::endl;
-                //     return;
-                // }
-                while (entity >= __entities.size()) {
-                    __entities.push_back(Entity(__nextEntityId++));
-                }
-                __entities.insert(__entities.begin() + entity, Entity(entity));
-                return __entities.at(entity);
-            }
-
-            /**
              * @brief Get an entity from its index
              * 
              * @param idx : the index
