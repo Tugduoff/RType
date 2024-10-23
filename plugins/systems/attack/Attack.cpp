@@ -8,10 +8,13 @@
 #include "GameEngine/GameEngine.hpp"
 #include "Attack.hpp"
 #include "components/gun/Gun.hpp"
+#include "components/position/Position.hpp"
+#include "components/type/Type.hpp"
 #include "library_entrypoint.hpp"
 #include "ECS/utilities/Zipper/Zipper.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <tuple>
 
 Systems::AttackSystem::AttackSystem(libconfig::Setting &)
 {
@@ -65,6 +68,15 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
         auto &posArr = reg.componentManager().getComponents<Components::Position>();
         auto &typeArr = reg.componentManager().getComponents<Components::Type>();
 
+        std::vector<std::tuple<
+            decltype(Components::Position::x),
+            decltype(Components::Position::y),
+            decltype(Components::Gun::bulletVelocity),
+            decltype(Components::Gun::bulletDamage),
+            Components::TypeID,
+            decltype(Components::Gun::spriteId)
+        >> projToCreate;
+
         for (auto &&[pos, gun, id] : Zipper(posArr, gunArr, typeArr)) {
             if (gun.chrono.getElapsedTime() < gun.fireRate)
                 continue;
@@ -72,18 +84,18 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 continue;
             gun.chrono.restart();
 
-            createProjectile(
-                engine,
+            projToCreate.emplace_back(
                 pos.x,
                 pos.y,
                 gun.bulletVelocity,
-                0,
-                10,
-                10,
                 gun.bulletDamage,
                 Components::TypeID::ENEMY_PROJECTILE,
                 gun.spriteId
             );
+
+        }
+        for (const auto &[posX, posY, bulletVel, bulletDmg, typeId, spriteId] : projToCreate) {
+            createProjectile(engine, posX, posY, bulletVel, 0, 10, 10, bulletDmg, typeId, spriteId);
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Attack Error: " << e.what() << std::endl;
