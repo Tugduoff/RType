@@ -41,27 +41,18 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 continue;
             gun.chrono.restart();
 
-            int projectilePosX = pos.x;
-            int projectilePosY = pos.y;
-            int projectileVelX = gun.bulletVelocity;
-            int projectileVelY = 0;
-            int projectileColliderWidth = 10;
-            int projectileColliderHeight = 10;
-            int projectileDamage = gun.bulletDamage;
-            enum Components::TypeID type = Components::TypeID::ENEMY_PROJECTILE;
-            std::string spriteID = gun.spriteId;
-
             createProjectile(
                 engine,
-                projectilePosX,
-                projectilePosY,
-                projectileVelX,
-                projectileVelY,
-                projectileColliderWidth,
-                projectileColliderHeight,
-                projectileDamage,
-                type,
-                spriteID);
+                pos.x,
+                pos.y,
+                gun.bulletVelocity,
+                0,
+                10,
+                10,
+                gun.bulletDamage,
+                Components::TypeID::ENEMY_PROJECTILE,
+                gun.spriteId
+            );
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Attack Error: " << e.what() << std::endl;
