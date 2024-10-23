@@ -11,6 +11,7 @@
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
+    #include "utils/ComponentUtils.hpp"
      #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -146,16 +147,12 @@ namespace Components {
             std::cout << "x: " << xVal << " y: " << yVal << " layer: " << layerVal << std::endl;
             std::cout << std::endl;
 
-            std::unique_ptr<Components::Position> pos =
-                engine.newComponent<Components::Position>(static_cast<uint32_t>(xVal), static_cast<uint32_t>(yVal), static_cast<uint32_t>(layerVal));
-            Components::IComponent *rawComponent = pos.get();
-            engine
-                .getRegistry()
-                .componentManager()
-                .addComponent<Components::Position>(to, std::move(pos));
-            std::cerr << "Position component added to entity: " << to << std::endl;
-            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
-            std::cerr << "Position component updated" << std::endl;
+            attachAndUpdateComponent<Components::Position>(
+                engine, to,
+                static_cast<uint32_t>(xVal),
+                static_cast<uint32_t>(yVal),
+                static_cast<uint32_t>(layerVal)
+            );
         };
 
         uint32_t x;

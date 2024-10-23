@@ -10,6 +10,7 @@
 
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
+    #include "utils/ComponentUtils.hpp"
     #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -132,16 +133,11 @@ namespace Components {
 
             std::cout << "width: " << width << " height: " << height << std::endl;
 
-            std::unique_ptr<Components::Collider> collider = engine.newComponent<Components::Collider>(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-            Components::IComponent *rawComponent = collider.get();
-            engine
-                .getRegistry()
-                .componentManager()
-                .addComponent<Components::Collider>(to, std::move(collider));
-            std::cerr << "Collider component added to entity: " << to << std::endl;
-            engine.updateComponent(to, rawComponent->getId(), rawComponent->serialize());
-            std::cerr << "Collider component updated" << std::endl;
-            std::cout << std::endl;
+            attachAndUpdateComponent<Components::Collider>(
+                engine, to,
+                static_cast<uint32_t>(width),
+                static_cast<uint32_t>(height)
+            );
         }
 
         uint32_t width;
