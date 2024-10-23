@@ -11,7 +11,8 @@
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
-     #ifdef _WIN32
+    #include "utils/ComponentUtils.hpp"
+    #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
     #else
@@ -133,9 +134,10 @@ public:
 
         std::cout << "isVisible: " << isVisibleConfig << std::endl;
 
-        std::unique_ptr<Components::Visible> visibilityComponent = engine.newComponent<Components::Visible>(static_cast<uint8_t>(isVisibleConfig));
-        engine.getRegistry().componentManager().addComponent<Components::Visible>(to, std::move(visibilityComponent));
-        std::cout << std::endl;
+        attachAndUpdateComponent<Components::Visible>(
+            engine, to,
+            static_cast<uint8_t>(isVisibleConfig)
+        );
     }
 
     /**

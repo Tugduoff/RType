@@ -13,6 +13,7 @@
     #include "components/AComponent.hpp"
     #include "utils/Keys.hpp"
     #include "utils/Actions.hpp"
+    #include "utils/ComponentUtils.hpp"
     #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -242,12 +243,10 @@ namespace Components {
                 std::cerr << actionKey << ": " << newKeyBindings[action] << std::endl;
             }
 
-            std::unique_ptr<Components::Controllable> ctrl = engine.newComponent<Components::Controllable>(newKeyBindings);
-            engine
-                .getRegistry()
-                .componentManager()
-                .addComponent<Components::Controllable>(to, std::move(ctrl));
-            std::cerr << std::endl;
+            attachAndUpdateComponent<Components::Controllable>(
+                engine, to,
+                newKeyBindings
+            );
         };
 
         std::array<bool, 4> inputs;   // { forward, backward, left, right }

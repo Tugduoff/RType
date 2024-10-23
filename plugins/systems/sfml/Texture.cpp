@@ -31,8 +31,6 @@ Texture::Texture(
 }
 
 void Texture::update(sf::Sprite &sprite) {
-    std::cerr << "TEXTURE UPDATE: " << __updateRate << " " << __rect.left << " " << __action << " " << __actionDone << std::endl;
-
     if (__fullyDone) {
         return;
     }

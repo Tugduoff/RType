@@ -43,7 +43,7 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
                 vel->floatY *= factor;
                 vel->x = (int)vel->floatX;
                 vel->y = (int)vel->floatY;
-                engine.updateComponent(i, vel->getId(), vel->serialize());
+                // engine.updateComponent(i, vel->getId(), vel->serialize());
             } catch (std::exception &e) {
                 continue;
             }
