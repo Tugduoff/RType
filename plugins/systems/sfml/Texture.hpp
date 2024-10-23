@@ -38,14 +38,13 @@ class Texture {
          * @param resetBeforeEnd : whether the texture should reset before the end
          */
         Texture(
-            unsigned updateRate,
-            unsigned width,
-            unsigned height,
-            const std::string &texturePath,
-            const std::string &action,
-            bool repeat,
-            bool resetBeforeEnd);
-        Texture() = default;
+            unsigned updateRate = 100,
+            unsigned width = 0,
+            unsigned height = 0,
+            const std::string &texturePath = "",
+            const std::string &action = "UNKNOWN",
+            bool repeat = false,
+            bool resetBeforeEnd = false);
         ~Texture() = default;
 
         /**
@@ -109,6 +108,8 @@ class Texture {
          * @note This function will return true if the texture's animation is fully complete.
          */
         bool isDone() { return __fullyDone; };
+
+        void stop() { __fullyDone = true; };
 
     private:
 

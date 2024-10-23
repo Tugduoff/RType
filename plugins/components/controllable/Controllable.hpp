@@ -8,7 +8,6 @@
 #ifndef CONTROLLABLE_HPP
     #define CONTROLLABLE_HPP
 
-    #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
     #include "utils/Keys.hpp"
