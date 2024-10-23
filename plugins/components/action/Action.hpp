@@ -10,7 +10,7 @@
 
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
-    #include "EntityActions.hpp"
+    #include "utils/EntityActions.hpp"
     // #include "utils/ComponentUtils.hpp"
     #ifdef _WIN32
         #include <windows.h>

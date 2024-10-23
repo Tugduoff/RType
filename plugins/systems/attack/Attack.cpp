@@ -8,13 +8,14 @@
 #include "GameEngine/GameEngine.hpp"
 #include "Attack.hpp"
 #include "components/gun/Gun.hpp"
-#include "EntityActions.hpp"
+#include "utils/EntityActions.hpp"
 #include "components/velocity/Velocity.hpp"
 #include "components/position/Position.hpp"
 #include "components/collider/Collider.hpp"
 #include "components/damage/Damage.hpp"
 #include "components/spriteId/SpriteID.hpp"
 #include "components/deathRange/DeathRange.hpp"
+#include "components/action/Action.hpp"
 #include "library_entrypoint.hpp"
 #include "utils/Projectile.hpp"
 #include <iostream>
@@ -60,8 +61,10 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
             try {
                 auto &entityAction = actionComponents[i];
 
-                if (entityAction->action == EntityAction::SHOOT_FORWARD && gun->chrono.getElapsedTime() > gun->fireRate / 2)
+                if (entityAction->action == EntityAction::SHOOT_FORWARD && gun->chrono.getElapsedTime() > gun->fireRate / 2) {
                     entityAction->action = EntityAction::IDLE;
+                    engine.updateComponent((ECS::Entity)i, entityAction->getId(), entityAction->serialize());
+                }
             } catch (std::exception &e) {
                 std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                 engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
@@ -99,6 +102,7 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
 
                 entityAction->action = EntityAction::SHOOT_FORWARD;
                 std::cerr << "Chaning action to SHOOT_FORWARD for entity: " << i << std::endl;
+                engine.updateComponent((ECS::Entity)i, entityAction->getId(), entityAction->serialize());
             } catch (std::exception &e) {
                 std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                 engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
@@ -129,6 +133,8 @@ void Systems::AttackSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Type component in system Input" << std::endl;
     if (!engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange"))
         std::cerr << "Error: Could not register DeathRange component in system Input" << std::endl;
+    if (!engine.registerComponent<Components::ActionComponent>("./plugins/bin/components/", "Action"))
+        std::cerr << "Error: Could not register Action component in system Input" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT
