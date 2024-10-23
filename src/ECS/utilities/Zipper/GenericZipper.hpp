@@ -12,6 +12,38 @@
     #include <cstddef>
     #include <vector>
 
+template<typename T>
+constexpr inline T vmin(T &&t)
+{
+    return std::forward<T>(t);
+}
+
+template<typename T, typename... Args>
+constexpr inline T vmin(T v1, T v2, Args... vals)
+{
+    if (v1 < v2) {
+        return vmin(v1, std::forward<Args>(vals)...);
+    } else {
+        return vmin(v2, std::forward<Args>(vals)...);
+    }
+}
+
+template<typename T>
+constexpr inline T vmax(T &&t)
+{
+    return std::forward<T>(t);
+}
+
+template<typename T, typename... Args>
+constexpr inline T vmax(T v1, T v2, Args... vals)
+{
+    if (v1 > v2) {
+        return vmax(v1, std::forward<Args>(vals)...);
+    } else {
+        return vmax(v2, std::forward<Args>(vals)...);
+    }
+}
+
 /**
  * @class Generic zipper
  *
@@ -72,9 +104,7 @@ private:
 
     static size_t _compute_size(Containers &... containers)
     {
-        std::vector<std::size_t> sizes = {containers.size()...};
-
-        return std::ranges::min(sizes);
+        return vmin(containers.size()...);
     }
 
     static iterator_tuple _compute_begin(Containers &... containers)
