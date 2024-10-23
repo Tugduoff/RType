@@ -154,7 +154,7 @@ class RTypeClient : public UDPConnection
     
     private:
         std::unordered_map<uint8_t, std::string> _compNames;
-        std::unordered_map<uint32_t, ECS::Entity> _entitiesNetworkId;
+        std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */

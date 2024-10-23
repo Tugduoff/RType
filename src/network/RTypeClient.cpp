@@ -57,6 +57,7 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine)
             std::cerr << std::endl;
             break;
         case 0x1:
+            std::cerr << "Recieved delete instruction!" << std::endl;
             std::cerr << "Delete Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
             deleteEntity(engine, operation);
             std::cerr << std::endl;
@@ -100,12 +101,13 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 {
     try {
         uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
-        ECS::Entity &entity = _entitiesNetworkId.at(networkId);
+        ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
 
         try {
-            engine.getRegistry().entityManager().killEntity(entity);
+            engine.getRegistry().killEntity(entity);
             _entitiesNetworkId.erase(networkId);
             std::cerr << "Deleted entity n°" << entity << " in local" << std::endl;
+            std::cerr << "Deleted entity n°" << networkId << " in network" << std::endl;
         } catch (std::exception &e) {
             std::cerr << "\033[0;31m";
             std::cerr << "Could not delete entity n°" << entity << std::endl;
@@ -121,7 +123,7 @@ void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_
 {    
     try {
         uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
-        ECS::Entity &entity = _entitiesNetworkId.at(networkId);
+        ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
         uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
         std::string &strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
@@ -142,7 +144,7 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
 {
     try {
         uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
-        ECS::Entity &entity = _entitiesNetworkId.at(networkId);
+        ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
         uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
         std::string strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
@@ -173,7 +175,7 @@ void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_
 {
     try {
         uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
-        ECS::Entity &entity = _entitiesNetworkId.at(networkId);
+        ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
         uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
         std::string strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
