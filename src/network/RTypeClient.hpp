@@ -111,6 +111,15 @@ class RTypeClient : public UDPConnection
         void detachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation);
 
         /**
+         * @brief Send to the server update of components from client
+         * 
+         * @param entity : The id of the entity on which the update occurs
+         * @param name : The id string of the component to update
+         * @param data : The serialized data of the component to send
+         */
+        void sendUpdateComponent(size_t entity, std::string name, std::vector<uint8_t> data);
+
+        /**
          * @brief Create an uint16 from 2 uint8
          * 
          * @param first : The first uint8
