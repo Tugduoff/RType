@@ -45,7 +45,6 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
                 vel->y = (int)vel->floatY;
                 engine.updateComponent(i, vel->getId(), vel->serialize());
             } catch (std::exception &e) {
-                std::cerr << "Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -60,12 +59,11 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
                     std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
                 }
             } catch (std::exception &e) {
-                std::cerr << "Error: " << e.what() << std::endl;
                 continue;
             }
         }
     } catch (std::runtime_error &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Move Error: " << e.what() << std::endl;
     }
 }
 

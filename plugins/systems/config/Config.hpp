@@ -8,11 +8,11 @@
 #ifndef CONFIGLOADER_HPP
     #define CONFIGLOADER_HPP
 
-    #include "ECS/config/ConfigStruct.hpp"
+    #include "utils/ConfigStruct.hpp"
     #include "plugins/systems/ASystem.hpp"
     #include <string>
     #include <libconfig.h++>
-    #include "Chrono.hpp"
+    #include "utils/Chrono.hpp"
 
 namespace Engine {
     class GameEngine;
@@ -39,8 +39,8 @@ namespace Systems {
 
         private:
 
-            void loadConfig(const std::string &filepath, Engine::GameEngine &engine);
-            void extractConfig(libconfig::Setting &root, Engine::GameEngine &engine);
+            void loadConfig(const std::string &filepath);
+            void extractConfig(libconfig::Setting &root);
             void displayConfig();
             std::string difficultyToString(enum Difficulty difficulty);
 

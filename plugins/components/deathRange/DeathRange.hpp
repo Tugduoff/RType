@@ -11,7 +11,7 @@
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
-    #include "Chrono.hpp"
+    #include "utils/Chrono.hpp"
 
     #ifdef _WIN32
         #include <windows.h>

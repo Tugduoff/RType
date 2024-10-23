@@ -11,8 +11,8 @@
     #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
-    #include "Keys.hpp"
-    #include "Actions.hpp"
+    #include "utils/Keys.hpp"
+    #include "utils/Actions.hpp"
     #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
