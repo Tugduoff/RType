@@ -954,6 +954,8 @@ INPUT                  =    ./src/client/                       \
                             ./src/ECS/                          \
                             ./src/GameEngine/                   \
                             ./src/server/                       \
+                            ./src/network                       \
+                            ./src/utils                         \
                             ./plugins/components/               \
                             ./plugins/systems/                  \
                             ./plugins/library_entrypoint.hpp    \
