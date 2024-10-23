@@ -12,7 +12,6 @@
     #include "components/AComponent.hpp"
     #include "components/spriteId/SpriteID.hpp"
     #include "components/scale/Scale.hpp"
-    #include <SFML/Graphics.hpp>
     #include <libconfig.h++>
     #include <iostream>
     #include <memory>
