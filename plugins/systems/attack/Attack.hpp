@@ -9,7 +9,6 @@
     #define ATTACKSYSTEM_HPP
 
     #include <libconfig.h++>
-    #include "components/type/Type.hpp"
     #include "systems/ASystem.hpp"
 
 namespace Engine {

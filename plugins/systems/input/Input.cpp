@@ -19,7 +19,6 @@
 #include "utils/Projectile.hpp"
 #include <iostream>
 #include <stdexcept>
-#include <unordered_map>
 
 void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entityIndex)
 {
