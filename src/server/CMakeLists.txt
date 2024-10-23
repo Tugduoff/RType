@@ -6,8 +6,8 @@ add_executable(server
     ../GameEngine/GameEngine.cpp
     
     ../network/UDPServer.cpp
-    ../../plugins/systems/input/Actions.cpp
-    ../../plugins/systems/input/Keys.cpp
+    ../utils/Actions.cpp
+    ../utils/Keys.cpp
 )
 
 # Set the output name for the server binary

@@ -12,7 +12,7 @@
     #include "plugins/systems/ASystem.hpp"
     #include <string>
     #include <libconfig.h++>
-    #include "Chrono.hpp"
+    #include "utils/Chrono.hpp"
 
 namespace Engine {
     class GameEngine;
