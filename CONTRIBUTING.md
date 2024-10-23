@@ -21,7 +21,7 @@ If you want to contribute to the project, you should do so with a pull request.
 
 If you want your pull request to be validated, it should respect the following conditions :
 - The description of the pull request **must** be self-sufficient and **must** explain what is implemented in it. You should also mention issues related to the pull request (if any) in the description (e.g. `close #23`).
-- The code **must** be documented with Doxygen-like comment. All class, methods and functions must have their documentation to explain what it does.
+- The code **must** be documented with Doxygen-like comment. All classes, methods and functions must have their documentation to explain what it does.
 - The commits **must** respect the [commit norm](#commit-norm) mentionned below.
 
 If you respected all the conditions listed, one of the current maintainer of the project will read your pull request and either approve or request changes.
