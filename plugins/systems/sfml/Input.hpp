@@ -12,7 +12,7 @@
     #include <SFML/Window.hpp>
     #include <SFML/System.hpp>
     #include <libconfig.h++>
-    #include "Keys.hpp"
+    #include "utils/Keys.hpp"
     #include "GameEngine/GameEngine.hpp"
 
     #include "components/controllable/Controllable.hpp"

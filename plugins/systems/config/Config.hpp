@@ -8,11 +8,11 @@
 #ifndef CONFIGLOADER_HPP
     #define CONFIGLOADER_HPP
 
-    #include "ECS/config/ConfigStruct.hpp"
+    #include "utils/ConfigStruct.hpp"
     #include "plugins/systems/ASystem.hpp"
     #include <string>
     #include <libconfig.h++>
-    #include "Chrono.hpp"
+    #include "utils/Chrono.hpp"
 
 namespace Engine {
     class GameEngine;

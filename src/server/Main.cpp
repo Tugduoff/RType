@@ -14,7 +14,7 @@
 #include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
 #include "ECS/utilities/SparseArray.hpp"
-#include "Chrono.hpp"
+#include "utils/Chrono.hpp"
 
 #include "network/UDPServer.hpp"
 

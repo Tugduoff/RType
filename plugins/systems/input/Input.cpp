@@ -7,7 +7,7 @@
 
 #include "GameEngine/GameEngine.hpp"
 #include "Input.hpp"
-#include "Actions.hpp"
+#include "utils/Actions.hpp"
 #include "components/acceleration/Acceleration.hpp"
 #include "components/velocity/Velocity.hpp"
 #include "components/controllable/Controllable.hpp"

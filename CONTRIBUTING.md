@@ -1,7 +1,34 @@
 # CONTRIBUTING
+Here you can find informations on how you could contribute to the project
 
-# Repository changes
-- 🔨 `:hammer:` : Makefile
+## Compile the project
+To compile the project, you must have CMake installed on your machine and then launch the build script corresponding to your operating system :
+
+#### Windows
+```powershell
+.\windows_build_rtype.bat
+```
+
+#### Linux
+```bash
+./build_rtype.sh
+```
+
+You will then have either a `r-type_server` and a `r-type_client` for linux, or a `r-type_server.exe` and a `r-type_client.exe` for windows.
+
+## Pull requests
+If you want to contribute to the project, you should do so with a pull request.
+
+If you want your pull request to be validated, it should respect the following conditions :
+- The description of the pull request **must** be self-sufficient and **must** explain what is implemented in it. You should also mention issues related to the pull request (if any) in the description (e.g. `close #23`).
+- The code **must** be documented with Doxygen-like comment. All classes, methods and functions must have their documentation to explain what they do.
+- The commits **must** respect the [commit norm](#commit-norm) mentionned below.
+
+If you respected all the conditions listed, one of the current maintainers of the project will read your pull request and either approve or request changes.
+
+## Commit norm
+### Repository changes
+- 🔨 `:hammer:` : CMake-related
 - 🔝 `:top:` : Header files
 - 📚 `:books:` : Lib-related changes
 
@@ -18,9 +45,7 @@
 - 👷 `:construction_worker:` : Add or update automation tools
 - 💚 `:green_heart:` : Fix CI build
 
-- 🍌 `:banana:` : Norm
-
-# Code changes
+### Code changes
 - ✨ `:sparkles:` : New feature of the project
 - ✨✨ `:sparkles::sparkles:` : Major New features
 
@@ -33,5 +58,15 @@
 - ➖ `:heavy_minus_sign:` : Deletion of some code
 - ♻️ `:recycle:` : Refactor code
 
-# Extra
+### Extra
 - 🚀 `:rocket:` : Final commit
+
+## Releases
+
+Here we will explain how the files located in the [release page](https://github.com/Tugduoff/RType/releases) of Github are produced
+
+#### Windows
+On windows we simply launch the build script (`windows_build_rtype.bat`), and then zip the produced bin folder.
+
+#### Linux
+On Linux you have to launch the build script named `build_and_fetch_binaries.sh` which will build the project inside a Debian and Fedora docker container and which will the get the .tar archive produced.
