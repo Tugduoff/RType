@@ -18,14 +18,13 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
 
     size_max = get_size_max();
     std::cerr << "--- Server started on port " << port << ", package size_max = " << size_max << std::endl;
-    start_receive();
 }
 
 // --- PRIVATE --- //
 
 // --- Loop --- //
 
-void UDPServer::start_receive() {
+void UDPServer::start_receive(Engine::GameEngine &engine) {
     boost::system::error_code ec;
     std::size_t bytes_recvd;
 
@@ -46,9 +45,28 @@ void UDPServer::start_receive() {
                 client_responses[remote_endpoint_] = true;
                 is_disconnected[remote_endpoint_] = false;
                 checking_client(remote_endpoint_);
+                send_components_infos();
             }
         } else {
             client_responses[remote_endpoint_] = true;
+        }
+        std::vector<uint8_t> mes(recv_buffer_.begin(), recv_buffer_.begin() + bytes_recvd);
+        if (mes[0] == 0x3) {
+            std::cout << "Received input from client : " << message << std::endl;
+            std::cout << "Message array size : " << message.size() << std::endl;
+            std::cout << "Uint8 vector size : " << mes.size() << std::endl;
+            std::cout << "Uint8 vector : ";
+            for (const auto &byte : mes) {
+                std::cout << "0x" << std::hex << int(byte) << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "message array : ";
+            for (const auto &car : message) {
+                std::cout << "0x" << std::hex << int(car) << " ";
+            }
+            std::cout << std::dec << std::endl;
+
+            receiveUpdateComponent(engine, mes);
         }
 
         if (message == "pong") {
@@ -56,7 +74,6 @@ void UDPServer::start_receive() {
                         << ":" << remote_endpoint_.port() << std::endl;
             client_responses[remote_endpoint_] = true;
         }
-        send_components_infos();
     }
 }
 
@@ -358,4 +375,57 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
             }
         }
     );
+}
+
+uint16_t uint16From2Uint8(uint8_t first, uint8_t second)
+{
+    return static_cast<uint16_t>((first << 8) | static_cast<uint16_t>(second));
+}
+
+uint32_t uint32From4Uint8(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4)
+{
+    return static_cast<uint32_t>((byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4);
+}
+
+void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
+{
+    try {
+        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
+        uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
+        std::string strCompId;
+
+        uint16_t i = 0;
+        for (const auto& component_name : __idStringToType) {
+            if (i == componentId) {
+                strCompId = component_name.first;
+                break;
+            }
+            if (i >= 65535) {
+                std::cout << "Error : did not find the Component string ID" << std::endl;
+                return;
+            }
+            i++;
+        }
+        std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
+
+        auto &compInstance = engine.getComponentFromId(compTypeIndex);
+        auto &sparseArray = compInstance->any_cast(
+            engine.getRegistry().componentManager().getComponents(compTypeIndex)
+        );
+        std::vector<uint8_t> serializedData = std::vector<uint8_t>(operation.begin() + 7, operation.end());
+        
+        try {
+            sparseArray[entity]->getId();
+        } catch (std::exception &e) {
+            std::cerr << "\033[0;35m";
+            std::cerr << "Component " << strCompId << " was not attached for entity n°" << entity << std::endl;
+            std::cerr << "\033[0;37m";
+
+            return;
+        }
+        sparseArray[entity]->deserialize(serializedData);
+    }
+    catch(const std::exception &) {
+    }    
 }
