@@ -17,6 +17,7 @@
     #include "components/type/Type.hpp"
     #include "components/spriteId/SpriteID.hpp"
     #include "components/deathRange/DeathRange.hpp"
+    #include "components/action/Action.hpp"
 
 namespace Engine {
     class GameEngine;
