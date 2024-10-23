@@ -190,7 +190,7 @@ void UDPServer::remove_client(const udp::endpoint& client) {
 
 // --- Entity --- //
 
-void UDPServer::create_entity(ECS::Entity &entity) {
+void UDPServer::create_entity(const ECS::Entity &entity) {
     uint8_t opcode = 0x0;
     uint16_t entity_id = static_cast<uint16_t>(entity);
     entity_id = htons(entity_id);
@@ -210,7 +210,7 @@ void UDPServer::create_entity(ECS::Entity &entity) {
     );
 }
 
-void UDPServer::delete_entity(ECS::Entity &entity) {
+void UDPServer::delete_entity(const ECS::Entity &entity) {
     uint8_t opcode = 0x1;
     uint16_t entity_id = static_cast<uint16_t>(entity);
     entity_id = htons(entity_id);
@@ -232,19 +232,17 @@ void UDPServer::delete_entity(ECS::Entity &entity) {
 
 // --- Component --- //
 
-void UDPServer::attach_component(ECS::Entity &entity, Components::IComponent &component) {
+void UDPServer::attach_component(size_t entity, std::type_index component) {
     uint8_t opcode = 0x2;
     uint16_t entity_id = static_cast<uint16_t>(entity);
     entity_id = htons(entity_id);
 
-    const std::string component_name = component.getId();
-
     auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
-    [&component_name](const auto& pair) {
-        return pair.first == component_name;
+    [&component](const auto& pair) {
+        return pair.second == component;
     });
     if (it == __idStringToType.end()) {
-        std::cerr << "Error 0x2: Component '" << component_name << "' not found." << std::endl;
+        std::cerr << "Error 0x2: Component '" << component.name() << "' not found." << std::endl;
         return;
     }
 
@@ -269,19 +267,17 @@ void UDPServer::attach_component(ECS::Entity &entity, Components::IComponent &co
     );
 }
 
-void UDPServer::update_component(ECS::Entity &entity, Components::IComponent &component) {
+void UDPServer::update_component(size_t entity, std::string name, std::vector<uint8_t> data) {
     uint8_t opcode = 0x3;
     uint16_t entity_id = static_cast<uint16_t>(entity);
     entity_id = htons(entity_id);
 
-    const std::string component_name = component.getId();
-
     auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
-    [&component_name](const auto& pair) {
-        return pair.first == component_name;
+    [&name](const auto& pair) {
+        return pair.first == name;
     });
     if (it == __idStringToType.end()) {
-        std::cerr << "Error 0x3: Component '" << component_name << "' not found." << std::endl;
+        std::cerr << "Error 0x3: Component '" << name << "' not found." << std::endl;
         return;
     }
 
@@ -289,14 +285,13 @@ void UDPServer::update_component(ECS::Entity &entity, Components::IComponent &co
     uint16_t component_id = index;
     component_id = htons(component_id);
 
-    std::vector<uint8_t> component_data = component.serialize();
-    size_t component_size = component_data.size();
+    size_t component_size = data.size();
 
     std::vector<uint8_t> message(5 + component_size);
     message[0] = opcode;
     std::memcpy(&message[1], &entity_id, sizeof(entity_id));
     std::memcpy(&message[3], &component_id, sizeof(component_id));
-    std::memcpy(&message[5], component_data.data(), component_size);
+    std::memcpy(&message[5], data.data(), component_size);
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
@@ -310,19 +305,17 @@ void UDPServer::update_component(ECS::Entity &entity, Components::IComponent &co
     );
 }
 
-void UDPServer::detach_component(ECS::Entity &entity, Components::IComponent &component) {
+void UDPServer::detach_component(size_t entity, std::type_index component) {
     uint8_t opcode = 0x4;
     uint16_t entity_id = static_cast<uint16_t>(entity);
     entity_id = htons(entity_id);
 
-    const std::string component_name = component.getId();
-
     auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
-    [&component_name](const auto& pair) {
-        return pair.first == component_name;
+    [&component](const auto& pair) {
+        return pair.second == component;
     });
     if (it == __idStringToType.end()) {
-        std::cerr << "Error 0x4: Component '" << component_name << "' not found." << std::endl;
+        std::cerr << "Error 0x4: Component '" << component.name() << "' not found." << std::endl;
         return;
     }
 

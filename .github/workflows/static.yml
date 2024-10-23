@@ -1,0 +1,52 @@
+# Simple workflow for deploying Doxygen-generated documentation to GitHub Pages
+name: Deploy Doxygen documentation to Pages
+
+on:
+  # Runs on pushes to the main branch
+  push:
+    branches: ["main"]
+
+  # Allows manual triggering of the workflow from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Ensure only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Doxygen
+      - name: Install Doxygen
+        run: sudo apt-get install doxygen graphviz -y
+
+      # Step 3: Generate Doxygen documentation
+      - name: Generate Doxygen documentation
+        run: doxygen doc/Doxyfile
+
+      # Step 4: Upload generated documentation artifact for deployment
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './doc/doxygen'
+
+      # Step 5: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

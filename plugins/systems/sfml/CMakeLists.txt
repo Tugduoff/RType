@@ -5,6 +5,7 @@ add_library(Sfml SHARED
     Input.cpp
     ../input/Keys.cpp
     ../input/Actions.cpp
+    Texture.cpp
 )
 
 CPMAddPackage(
@@ -20,5 +21,6 @@ target_link_libraries(Sfml
     sfml-window
     sfml-network
     sfml-system
+    sfml-audio
     ${LIBCONFIG_LIB_NAME}
 )

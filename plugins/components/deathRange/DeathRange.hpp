@@ -28,10 +28,9 @@
  * @brief DeathRange component class for ECS.
  * 
  * This class represents a DeathRange component for an entity, storing maximum and minimum
- * values. It also provides methods to serialize and deserialize the DeathRange data.
+ * values on the X and Y axis. It also provides methods to serialize and deserialize the DeathRange data.
  */
 namespace Components {
-
     /**
      * @brief A component representing a DeathRange with minimum and maximum attributes.
      * 
@@ -44,9 +43,15 @@ namespace Components {
         /**
          * @brief Default constructor for the DeathRange component.
          * 
-         * Initializes the maximum and minimum values to default values.
+         * Initializes the DeathRange component with default values for the maximum and minimum
+         * in both axis.
          */
-        DeathRange(uint32_t maximum = 2000, uint32_t minimum = 0) : AComponent("DeathRange"), maximum(maximum), minimum(minimum) {}
+        DeathRange(
+            uint32_t maxX = 1920,
+            uint32_t maxY = 1080,
+            uint32_t minX = 0,
+            uint32_t minY = 0) :
+            AComponent("DeathRange"), maxX(maxX), maxY(maxY), minX(minX), minY(minY) {}
 
         /**
          * @brief Constructor that initializes the DeathRange component from a configuration.
@@ -54,10 +59,14 @@ namespace Components {
          * @param config The configuration setting to extract the component data from.
          */
         DeathRange(libconfig::Setting &config) : AComponent("DeathRange") {
-            if (!config.lookupValue("maximum", maximum))
-                maximum = 2000;
-            if (!config.lookupValue("minimum", minimum))
-                minimum = 0;
+            if (!config.lookupValue("maxX", maxX))
+                maxX = 1920;
+            if (!config.lookupValue("maxY", maxY))
+                maxY = 1080;
+            if (!config.lookupValue("minX", minX))
+                minX = 0;
+            if (!config.lookupValue("minY", minY))
+                minY = 0;
         }
 
         /**
@@ -71,8 +80,10 @@ namespace Components {
          * @return A vector of bytes representing the serialized DeathRange data.
          */
         std::vector<uint8_t> serialize() override {
-            __network.maximum = htonl(*reinterpret_cast<uint32_t*>(&maximum));
-            __network.minimum = htonl(*reinterpret_cast<uint32_t*>(&minimum));
+            __network.maxX = htonl(*reinterpret_cast<uint32_t*>(&maxX));
+            __network.maxY = htonl(*reinterpret_cast<uint32_t*>(&maxY));
+            __network.minX = htonl(*reinterpret_cast<uint32_t*>(&minX));
+            __network.minY = htonl(*reinterpret_cast<uint32_t*>(&minY));
             return std::vector<uint8_t>(__data, __data + sizeof(__data));
         }
 
@@ -85,8 +96,10 @@ namespace Components {
         void deserialize(std::vector<uint8_t> &data) override {
             if (data.size() != sizeof(__data))
                 throw std::runtime_error("Invalid data size for DeathRange component");
-            maximum = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
-            minimum = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
+            maxX = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
+            maxY = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 4));
+            minX = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 8));
+            minY = ntohl(*reinterpret_cast<uint32_t *>(data.data() + 12));
         }
 
         /**
@@ -106,11 +119,13 @@ namespace Components {
          * @param args The arguments to pass to the component constructor.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
-            if (args.size() != 2)
+            if (args.size() != 4)
                 throw std::runtime_error("Invalid number of arguments for DeathRange component");
-            uint32_t maximum = std::any_cast<uint32_t>(args[0]);
-            uint32_t minimum = std::any_cast<uint32_t>(args[1]);
-            engine.getRegistry().componentManager().addComponent<Components::DeathRange>(to, engine.newComponent<Components::DeathRange>(maximum, minimum));
+            uint32_t maxX = std::any_cast<uint32_t>(args[0]);
+            uint32_t maxY = std::any_cast<uint32_t>(args[1]);
+            uint32_t minX = std::any_cast<uint32_t>(args[2]);
+            uint32_t minY = std::any_cast<uint32_t>(args[3]);
+            engine.getRegistry().componentManager().addComponent<Components::DeathRange>(to, engine.newComponent<Components::DeathRange>(maxX, maxY, minX, minY));
         }
 
         /**
@@ -121,27 +136,35 @@ namespace Components {
          * @param config The configuration setting to extract the component data from.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            int maximum;
-            int minimum;
+            int maxX, maxY, minX, minY;
 
-            if (!config.lookupValue("max", maximum))
-                maximum = 2000;
-            if (!config.lookupValue("min", minimum))
-                minimum = 0;
-            std::unique_ptr<Components::DeathRange> DeathRange = engine.newComponent<Components::DeathRange>(static_cast<uint32_t>(maximum), static_cast<uint32_t>(minimum));
+            if (!config.lookupValue("maxX", maxX))
+                maxX = 1920;
+            if (!config.lookupValue("maxY", maxY))
+                maxY = 1080;
+            if (!config.lookupValue("minX", minX))
+                minX = 0;
+            if (!config.lookupValue("minY", minY))
+                minY = 0;
+
+            std::unique_ptr<Components::DeathRange> DeathRange = engine.newComponent<Components::DeathRange>(static_cast<uint32_t>(maxX), static_cast<uint32_t>(maxY), static_cast<uint32_t>(minX), static_cast<uint32_t>(minY));
             engine.getRegistry().componentManager().addComponent<Components::DeathRange>(to, std::move(DeathRange));
         }
 
-        uint32_t maximum;
-        uint32_t minimum;
+        uint32_t maxX;
+        uint32_t maxY;
+        uint32_t minX;
+        uint32_t minY;
 
     private:
         union {
             struct {
-                uint32_t maximum;
-                uint32_t minimum;
+                uint32_t maxX;
+                uint32_t maxY;
+                uint32_t minX;
+                uint32_t minY;
             } __network;
-            uint8_t __data[8];
+            uint8_t __data[16];
         };
     };
 };

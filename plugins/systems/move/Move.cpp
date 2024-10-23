@@ -45,7 +45,6 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
                 vel->y = (int)vel->floatY;
                 engine.updateComponent(i, vel->getId(), vel->serialize());
             } catch (std::exception &e) {
-                std::cerr << "Error: " << e.what() << std::endl;
                 continue;
             }
         }
@@ -54,17 +53,17 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
                 auto &drange = deathRangeComponent[i];
                 auto &pos = posComponents[i];
 
-                if (pos->x > drange->maximum || pos->x < drange->minimum) {
+                if (pos->x > drange->maxX || pos->x < drange->minX ||
+                    pos->y > drange->maxY || pos->y < drange->minY) {
                     reg.killEntity((ECS::Entity)i);
                     std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
                 }
             } catch (std::exception &e) {
-                std::cerr << "Error: " << e.what() << std::endl;
                 continue;
             }
         }
     } catch (std::runtime_error &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Move Error: " << e.what() << std::endl;
     }
 }
 
