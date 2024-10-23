@@ -158,7 +158,7 @@ private:
     void incr_all(std::index_sequence<Is...>)
     {
         do {
-            std::make_tuple(++(std::get<Is>(_current))...);
+            (++(std::get<Is>(_current)),...);
             _idx++;
         } while (_idx < _max && !this->all_set(_seq));
     }
