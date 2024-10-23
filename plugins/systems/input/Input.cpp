@@ -5,6 +5,7 @@
 ** InputSystem.cpp file
 */
 
+#include "ECS/utilities/Zipper/IndexedZipper.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "Input.hpp"
 #include "Actions.hpp"
@@ -65,58 +66,47 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
     auto &reg = engine.getRegistry();
 
     try {
-        auto &controllableComponents = reg.componentManager().getComponents<Components::Controllable>();
-        auto &accelerationComponents = reg.componentManager().getComponents<Components::Acceleration>();
-        auto &velocityComponents = reg.componentManager().getComponents<Components::Velocity>();
+        auto &controllableArr = reg.componentManager().getComponents<Components::Controllable>();
+        auto &accelArr = reg.componentManager().getComponents<Components::Acceleration>();
+        auto &velArr = reg.componentManager().getComponents<Components::Velocity>();
 
-        size_t i = 0;
-        for (i = 0;
-            i < controllableComponents.size() &&
-            i < accelerationComponents.size() &&
-            i < velocityComponents.size(); i++) {
-            try {
-                auto &controllable = controllableComponents[i];
-                auto &acceleration = accelerationComponents[i];
-                auto &velocity = velocityComponents[i];
+        for (auto &&[i, controllable, accel, vel] : IndexedZipper(controllableArr, accelArr, velArr)) {
+            bool inputForward = controllable.inputs[(int)Action::FORWARD];
+            bool inputBackward = controllable.inputs[(int)Action::BACKWARD];
+            bool inputRight = controllable.inputs[(int)Action::RIGHT];
+            bool inputLeft = controllable.inputs[(int)Action::LEFT];
 
-                bool inputForward = controllable->inputs[(int)Action::FORWARD];
-                bool inputBackward = controllable->inputs[(int)Action::BACKWARD];
-                bool inputRight = controllable->inputs[(int)Action::RIGHT];
-                bool inputLeft = controllable->inputs[(int)Action::LEFT];
-
-                if (inputForward && !inputBackward) {
-                    velocity->x = acceleration->forward;
-                    std::cout << "Forward triggered" << std::endl;
-                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
-                }
-                if (inputBackward && !inputForward) {
-                    velocity->x = acceleration->backward;
-                    std::cout << "Backward triggered" << std::endl;
-                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
-                }
-                if (inputRight && !inputLeft) {
-                    velocity->y = acceleration->right;
-                    std::cout << "Right triggered" << std::endl;
-                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
-                }
-                if (inputLeft && !inputRight) {
-                    velocity->y = acceleration->left;
-                    std::cout << "Left triggered" << std::endl;
-                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
-                }
-                for (int j = 0; j < 10; j++) {
-                    if (controllable->actions[j]) {
-                        std::cout << "Action " << j + 1 << " triggered" << std::endl;
-                        if (j == 0) {
-                            shootAction(engine, i);
-                        } else {
-                            std::cout << "No action mapped for Action " << j + 1 << std::endl;
-                        }
+            if (inputForward && !inputBackward) {
+                vel.x = accel.forward;
+                std::cout << "Forward triggered" << std::endl;
+                engine.updateComponent(i, vel.getId(), vel.serialize());
+            }
+            if (inputBackward && !inputForward) {
+                vel.x = accel.backward;
+                std::cout << "Backward triggered" << std::endl;
+                engine.updateComponent(i, vel.getId(), vel.serialize());
+            }
+            if (inputRight && !inputLeft) {
+                vel.y = accel.right;
+                std::cout << "Right triggered" << std::endl;
+                engine.updateComponent(i, vel.getId(), vel.serialize());
+            }
+            if (inputLeft && !inputRight) {
+                vel.y = accel.left;
+                std::cout << "Left triggered" << std::endl;
+                engine.updateComponent(i, vel.getId(), vel.serialize());
+            }
+            for (int j = 0; j < 10; j++) {
+                if (controllable.actions[j]) {
+                    std::cout << "Action " << j + 1 << " triggered" << std::endl;
+                    if (j == 0) {
+                        shootAction(engine, i);
+                    } else {
+                        std::cout << "No action mapped for Action " << j + 1 << std::endl;
                     }
                 }
-            } catch (std::exception &e) {
-                continue;
             }
+
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
