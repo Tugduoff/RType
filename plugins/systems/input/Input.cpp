@@ -87,22 +87,22 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
                 if (inputForward && !inputBackward) {
                     velocity->x = acceleration->forward;
                     std::cout << "Forward triggered" << std::endl;
-                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
+                    // engine.updateComponent(i, velocity->getId(), velocity->serialize());
                 }
                 if (inputBackward && !inputForward) {
                     velocity->x = acceleration->backward;
                     std::cout << "Backward triggered" << std::endl;
-                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
+                    // engine.updateComponent(i, velocity->getId(), velocity->serialize());
                 }
                 if (inputRight && !inputLeft) {
                     velocity->y = acceleration->right;
                     std::cout << "Right triggered" << std::endl;
-                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
+                    // engine.updateComponent(i, velocity->getId(), velocity->serialize());
                 }
                 if (inputLeft && !inputRight) {
                     velocity->y = acceleration->left;
                     std::cout << "Left triggered" << std::endl;
-                    engine.updateComponent(i, velocity->getId(), velocity->serialize());
+                    // engine.updateComponent(i, velocity->getId(), velocity->serialize());
                 }
                 for (int j = 0; j < 10; j++) {
                     if (controllable->actions[j]) {
