@@ -30,34 +30,37 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
         for (i = 0; i < aiComponent.size() || i < posComponent.size() || i < velComponent.size() || i < deathRangeComponent.size(); i++) {
             try {
                 auto &aiBehavior = aiComponent[i];
-                auto &posBehavior = posComponent[i];
-                auto &velBehavior = velComponent[i];
-                auto &deathRangeBehavior = deathRangeComponent[i];
+                auto &pos = posComponent[i];
+                auto &vel = velComponent[i];
+                auto &deathRange = deathRangeComponent[i];
+                float factor = (float)vel->diminishingFactor / 100;
 
                 if (aiBehavior->startingX && aiBehavior->startingY) {
-                    aiBehavior->startingX = posBehavior->x;
-                    aiBehavior->startingY = posBehavior->y;
+                    aiBehavior->startingX = pos->x;
+                    aiBehavior->startingY = pos->y;
                 }
 
                 if (aiBehavior->behavior == 0)
                     continue;
                 else if (aiBehavior->behavior == 1) {
                     std::cerr << "Entity " << i << " has behavior 1" << std::endl;
-                    velBehavior->x = 0;
-                    if (posBehavior->y > deathRangeBehavior->minY + 50)
-                        velBehavior->y = 5;
-                    else if (posBehavior->y < deathRangeBehavior->maxY - 50)
-                        velBehavior->y = -5;
-                    engine.updateComponent(i, velBehavior->getId(), velBehavior->serialize());
+                    vel->floatX *= factor;
+                    vel->floatY *= factor;
+                    vel->x = 0;
+                    if (pos->y > deathRange->minY + 50) {
+                        vel->y = 5;
+                    } else if (pos->y > deathRange->maxY - 100)
+                        vel->y = -5;
+                    engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 2) {
                     std::cerr << "Entity " << i << " has behavior 2" << std::endl;
-                    velBehavior->x = -2;
-                    if (posBehavior->y > aiBehavior->startingY + 100) {
-                        velBehavior->y = -5;
-                    } else if (posBehavior->y < aiBehavior->startingY - 100) {
-                        velBehavior->y = 5;
+                    vel->x = -2;
+                    if (pos->y > aiBehavior->startingY + 100) {
+                        vel->y = -5;
+                    } else if (pos->y < aiBehavior->startingY - 100) {
+                        vel->y = 5;
                     }
-                    engine.updateComponent(i, velBehavior->getId(), velBehavior->serialize());
+                    engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 3) {
                     std::cerr << "Entity " << i << " has behavior 3" << std::endl;
                 }
