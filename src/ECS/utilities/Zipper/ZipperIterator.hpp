@@ -167,7 +167,7 @@ private:
     template<std::size_t... Is>
     bool all_set(std::index_sequence<Is...>)
     {
-        return (*std::get<Is>(_current) && ...);
+        return ((bool)*std::get<Is>(_current) && ...);
     }
 
 protected:
