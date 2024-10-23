@@ -14,7 +14,24 @@
 
     #include <algorithm>
     #include <cstddef>
+#include <utility>
     #include <vector>
+
+template<typename T>
+T vmin(T &&t)
+{
+    return std::forward<T>(t);
+}
+
+template<typename T>
+T vmin(T v1, T v2, T vals...)
+{
+    if (v1 < v2) {
+        return vmin(v1, std::forward(vals));
+    } else {
+        return vmin(v2, std::forward(vals));
+    }
+}
 
 /**
  * @class Generic zipper
@@ -76,9 +93,7 @@ private:
 
     static size_t _compute_size(Containers &... containers)
     {
-        std::vector<std::size_t> sizes = {containers.size()...};
-
-        return std::ranges::min(sizes);
+        return vmin(containers.size()...);
     }
 
     static iterator_tuple _compute_begin(Containers &... containers)
