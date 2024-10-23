@@ -3,9 +3,10 @@ add_library(Sfml SHARED
     Sfml.cpp
     Display.cpp
     Input.cpp
+    
+    ../../../src/utils/Keys.cpp
+    ../../../src/utils/Actions.cpp
     Texture.cpp
-    ../../../Keys.cpp
-    ../../../Actions.cpp
 )
 
 CPMAddPackage(
