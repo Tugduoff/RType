@@ -12,8 +12,6 @@
 #include <iostream>
 #include <stdexcept>
 
-
-
 Systems::BehaviorSystem::BehaviorSystem(libconfig::Setting &)
 {
 }
@@ -49,6 +47,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 }
                 if (aiBehavior->behavior == 2) {
                     std::cerr << "Entity " << i << " has behavior 2" << std::endl;
+
                 }
             }
         } catch (std::exception &e) {
@@ -62,11 +61,13 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
 void Systems::BehaviorSystem::init(Engine::GameEngine &engine)
 {
     if (!engine.registerComponent<Components::Ai>("./plugins/bin/components/", "Ai"))
-        std::cerr << "Error: Could not register Ai component in system Ai" << std::endl;
+        std::cerr << "Error: Could not register Ai component in Ai system" << std::endl;
     if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Postion"))
-        std::cerr << "Error: Could not register Position component in system Ai" << std::endl;
+        std::cerr << "Error: Could not register Position component in Ai system" << std::endl;
     if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity"))
-        std::cerr << "Error: Could not register Velocity component in system Ai" << std::endl;
+        std::cerr << "Error: Could not register Velocity component in Ai system" << std::endl;
+    if (!engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange"))
+        std::cerr << "Error: Could not register DeathRange component in Ai system" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT
