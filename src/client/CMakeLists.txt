@@ -8,8 +8,8 @@ add_executable(client
     ../ECS/system/SystemManager.cpp
     ../GameEngine/GameEngine.cpp
 
-    ../../Keys.cpp
-    ../../Actions.cpp
+    ../utils/Keys.cpp
+    ../utils/Actions.cpp
 )
 
 # Set the output name for the server binary
