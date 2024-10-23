@@ -8,9 +8,9 @@
 #ifndef GENERIC_ZIPPER_HPP
     #define GENERIC_ZIPPER_HPP
 
-    #include <algorithm>
     #include <cstddef>
-    #include <vector>
+    #include <tuple>
+    #include <utility>
 
 template<typename T>
 constexpr inline T vmin(T &&t)
