@@ -16,6 +16,7 @@
 Systems::Sfml::Sfml(libconfig::Setting &config) :
     displaySystem(config),
     inputSystem(config),
+    actionManager(config),
     __music()
 {
     int width;
@@ -34,6 +35,7 @@ Systems::Sfml::Sfml(libconfig::Setting &config) :
 Systems::Sfml::Sfml() :
     displaySystem(),
     inputSystem(),
+    actionManager(),
     __window(sf::VideoMode(1920, 1080, 32), "RType"),
     __music()
 {
@@ -46,6 +48,7 @@ void Systems::Sfml::init(Engine::GameEngine &engine)
     std::cout << "Init Sfml" << std::endl;
     displaySystem.init(engine);
     inputSystem.init(engine);
+    actionManager.init(engine);
     std::cout << "Init Sfml done" << std::endl;
     if (!__music.openFromFile("./assets/background.mp3")) {
         std::cerr << "Failed to load music" << std::endl;
@@ -62,6 +65,7 @@ void Systems::Sfml::run(Engine::GameEngine &engine)
 {
     displaySystem.run(engine, __window);
     inputSystem.run(engine, __window);
+    actionManager.run(engine);
     if (!__window.isOpen()) {
         std::cout << "Send exit" << std::endl;
         exit(0);
