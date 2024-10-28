@@ -85,6 +85,10 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
                 bool inputRight = controllable->inputs[(int)Action::RIGHT];
                 bool inputLeft = controllable->inputs[(int)Action::LEFT];
 
+                // All the "engine.updateComponent" are commented because we had
+                // trouble with the packet loss and removed all not used 
+                // packets by the clients. 
+
                 if (inputForward && !inputBackward) {
                     velocity->x = acceleration->forward;
                     std::cout << "Forward triggered" << std::endl;
