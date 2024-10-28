@@ -73,7 +73,9 @@ namespace Components {
             AComponent("Controllable"),
             inputs{false},
             actions{false},
-            keyBindings(keyBindings) {};
+            keyBindings(keyBindings) {
+                std::cerr << "Controllable default ctor:" << std::endl;
+            };
 
         /**
          * @brief Constructor with configuration settings.
@@ -103,6 +105,8 @@ namespace Components {
         {
             std::string forward, backward, left, right;
 
+            std::cerr << "Controllable config:" << std::endl;
+
             if (!config.lookupValue("FORWARD", forward)) forward = "Z";
             if (!config.lookupValue("BACKWARD", backward)) backward = "S";
             if (!config.lookupValue("LEFT", left)) left = "Q";
@@ -117,8 +121,9 @@ namespace Components {
                 std::string actionKey = "ACTION" + std::to_string(i + 1);
                 std::string actionValue;
 
-                if (!config.lookupValue(actionKey, actionValue))
-                    continue;
+                if (!config.lookupValue(actionKey, actionValue)) {
+                    actionValue = "UNKNOWN";
+                }
 
                 Action action = strToAction.at(actionKey);
                 std::cout << "Action: " << action << " Key: " << actionValue << std::endl;
@@ -141,12 +146,18 @@ namespace Components {
         std::vector<uint8_t> serialize() override {
             std::vector<uint8_t> serialized;
 
-            serialized.resize(sizeof(__data));
+            serialized.resize(getSize());
+
             for (int i = 0; i < 4; i++) {
                 serialized[i] = static_cast<uint8_t>(inputs[i]);
             }
             for (int i = 4; i <= 14; i++) {
                 serialized[i] = static_cast<uint8_t>(actions[i - 4]);
+            }
+
+            size_t index = sizeof(__data);
+            for (const auto &pair : keyBindings) {
+                serialized[index++] = static_cast<uint8_t>(pair.second);
             }
             return serialized;
         };
@@ -160,10 +171,16 @@ namespace Components {
          * @throws std::runtime_error If the data size is invalid.
          */
         void deserialize(std::vector<uint8_t> &data) override {
-            if (data.size() != sizeof(__data))
+            if (data.size() != getSize())
                 throw std::runtime_error("Invalid data size for Controllable component");
             std::copy(data.begin(), data.begin() + 4, inputs.begin());
             std::copy(data.begin() + 4, data.end(), actions.begin());
+
+            size_t index = sizeof(__data);
+            for (const auto &pair : keyBindings) {
+                Key key = static_cast<Key>(data[index++]);
+                keyBindings[pair.first] = key;
+            }
         };
 
         /**
@@ -171,7 +188,7 @@ namespace Components {
          * 
          * @return The size of the data, in bytes.
          */
-        size_t getSize() const override { return sizeof(__data); };
+        size_t getSize() const override { return 28; };
 
         /**
          * @brief Adds the Controllable component to an entity.
@@ -240,9 +257,7 @@ namespace Components {
                 Action action = strToAction.at(actionKey);
 
                 if (!config.lookupValue(actionKey, actionValue)) {
-                    newKeyBindings[action] = Key::UNKNOWN;
-                    std::cerr << actionKey << ": UNKNOWN" << std::endl;
-                    continue;
+                    actionValue = "UNKNOWN";
                 }
 
                 newKeyBindings[action] = strToKey.at(actionValue);
