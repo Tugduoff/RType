@@ -56,12 +56,9 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
 
 void Systems::MoveSystem::init(Engine::GameEngine &engine)
 {
-    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
-        std::cerr << "Error: Could not register Position component in system Move" << std::endl;
-    if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity"))
-        std::cerr << "Error: Could not register Velocity component in system Move" << std::endl;
-    if (!engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange"))
-        std::cerr << "Error: Could not register DeathRange component in system Move" << std::endl;
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
+    engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
 }
 
 LIBRARY_ENTRYPOINT

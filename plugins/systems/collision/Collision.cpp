@@ -35,16 +35,11 @@ void Systems::Collision::run(Engine::GameEngine &engine)
 
 void Systems::Collision::init(Engine::GameEngine &engine)
 {
-    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
-        std::cerr << "Error: Could not register Position component in system Collision" << std::endl;
-    if (!engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider"))
-        std::cerr << "Error: Could not register Collider component in system Collision" << std::endl;
-    if (!engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type"))
-        std::cerr << "Error: Could not register Type component in system Collision" << std::endl;
-    if (!engine.registerComponent<Components::Damage>("./plugins/bin/components/", "Damage"))
-        std::cerr << "Error: Could not register Damage component in system Collision" << std::endl;
-    if (!engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health"))
-        std::cerr << "Error: Could not register Health component in system Collision" << std::endl;
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
+    engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type");
+    engine.registerComponent<Components::Damage>("./plugins/bin/components/", "Damage");
+    engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
 }
 
 LIBRARY_ENTRYPOINT

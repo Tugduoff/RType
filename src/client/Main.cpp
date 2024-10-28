@@ -25,29 +25,11 @@
 #include "components/type/Type.hpp"
 
 
-void updateComponent(size_t id, std::string name, std::vector<uint8_t> data, RTypeClient &conn)
-{
-    std::vector<uint8_t> updateOperation;
-
-    updateOperation.resize(1 + 2 + 2 + data.size());
-    updateOperation[0] = 0x3;
-    updateOperation[1] = (uint16_t)id;
-    for (const auto &compId : conn.getCompNames()) {
-        if (compId.second == name) {
-            updateOperation[3] = (uint16_t)compId.first;
-            break;
-        }
-    }
-    // add a verification that a compId matched with name
-    updateOperation.insert(updateOperation.begin() + 5, data.begin(), data.end());
-    conn.send(updateOperation);
-}
-
 int main()
 {
     RTypeClient conn("127.0.0.1", "8080");
     Engine::GameEngine engine(
-        [&conn](size_t id, std::string name, std::vector<uint8_t> data) { updateComponent(id, name, data, conn); }
+        [&conn](size_t id, std::string name, std::vector<uint8_t> data) { conn.sendUpdateComponent(id, name, data); }
     );
 
     engine.loadSystems("./src/client/configClient.cfg");
