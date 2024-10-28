@@ -13,11 +13,44 @@
 #include "Display.hpp"
 
 Systems::Display::Display(libconfig::Setting &config)
+    : __shaders()
 {
+    libconfig::Config cfg;
+    std::string shadersPath;
+
     if (!config.lookupValue("texturesPath", __configFilePath)) {
         std::cerr << "Error: Could not find configFilePath for all textures in Display config" << std::endl;
     }
+    if (!config.lookupValue("shadersPath", shadersPath)) {
+        std::cerr << "Error: Could not find shadersPath in Display config" << std::endl;
+    }
     loadConfig(__configFilePath);
+
+    try {
+        cfg.readFile(shadersPath);
+        std::cout << "\nConfig file loaded: " << shadersPath << std::endl;
+        libconfig::Setting &root = cfg.getRoot();
+
+        libconfig::Setting &shaders = root["shaders"];
+        for (int i = 0; i < shaders.getLength(); ++i) {
+            __shaders.emplace_back(std::make_shared<Shader>(shaders[i]));
+        }
+        if (__shaders.empty()) {
+            std::cerr << "No shaders loaded" << std::endl;
+            return;
+        }
+        std::cout << "Shaders loaded: " << __shaders.size() << std::endl;
+        __currentShader = nullptr;
+    } catch (libconfig::ParseException &e) {
+        std::cerr << "Error while parsing file: "
+            << e.getFile() << " in line: "
+            << e.getLine() << " : "
+            << e.getError() << std::endl;
+    } catch (libconfig::FileIOException &e) {
+        std::cerr << "Error while reading file: "
+            << e.what() << std::endl;
+        std::cerr << "File path was: " << shadersPath << std::endl;
+    }
 }
 
 void Systems::Display::loadConfig(const std::string &filepath)
@@ -128,6 +161,7 @@ void Systems::Display::loadConfig(const std::string &filepath)
 }
 
 Systems::Display::Display()
+    : __shaders()
 {
 }
 
@@ -183,7 +217,13 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                     auto &sprite = spriteComponents[i];
                     sprite->sprite.setPosition(pos->x, pos->y);
                     sprite->update();
-                    window.draw(sprite->sprite);
+                    if (__currentShader && __currentShader->shader.isAvailable()) {
+                        window.draw(sprite->sprite, &__currentShader->shader);
+                    } else {
+                        std::cerr << "Shader not available or current shader is null." << std::endl;
+                        window.draw(sprite->sprite);  // Draw without shader as fallback
+                    }
+
                     try {
                         auto &scale = scaleComponents[i];
                         sprite->sprite.setScale((float)scale->width / 100, (float)scale->height / 100);

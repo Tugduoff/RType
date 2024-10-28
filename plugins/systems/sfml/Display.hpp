@@ -12,7 +12,9 @@
     #include <libconfig.h++>
     #include "GameEngine/GameEngine.hpp"
     #include <unordered_map>
+    #include <vector>
     #include "Texture.hpp"
+    #include "Shader.hpp"
 
 namespace Systems {
     /**
@@ -38,6 +40,8 @@ namespace Systems {
 
             std::string __configFilePath;
             std::unordered_map<std::string, std::vector<Texture>> __textures;
+            std::vector<std::shared_ptr<Shader>> __shaders;
+            std::shared_ptr<Shader> __currentShader;
     };
 };
 
