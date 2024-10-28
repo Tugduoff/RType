@@ -6,6 +6,7 @@
 */
 
 #include "GameEngine/GameEngine.hpp"
+#include "ECS/utilities/Zipper/IndexedZipper.hpp"
 #include "Move.hpp"
 #include "components/position/Position.hpp"
 #include "components/velocity/Velocity.hpp"
@@ -23,43 +24,29 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
     auto &reg = engine.getRegistry();
 
     try {
-        auto &posComponents = reg.componentManager().getComponents<Components::Position>();
-        auto &velComponents = reg.componentManager().getComponents<Components::Velocity>();
-        auto &deathRangeComponent = reg.componentManager().getComponents<Components::DeathRange>();
+        auto &posArr = reg.componentManager().getComponents<Components::Position>();
+        auto &velArr = reg.componentManager().getComponents<Components::Velocity>();
+        auto &dRangeArr = reg.componentManager().getComponents<Components::DeathRange>();
 
-        size_t i = 0;
-        for (i = 0; i < posComponents.size() && i < velComponents.size(); i++) {
-            try {
-                auto &pos = posComponents[i];
-                auto &vel = velComponents[i];
 
-                pos->x += vel->x;
-                pos->y += vel->y;
-                engine.updateComponent(i, pos->getId(), pos->serialize());
-                if (vel->diminishingFactor == 0)
-                    continue;
-                float factor = (float)vel->diminishingFactor / 100;
-                vel->floatX *= factor;
-                vel->floatY *= factor;
-                vel->x = (int)vel->floatX;
-                vel->y = (int)vel->floatY;
-                // engine.updateComponent(i, vel->getId(), vel->serialize());
-            } catch (std::exception &e) {
+        for (auto &&[i, pos, vel] : IndexedZipper(posArr, velArr)) {
+            pos.x += vel.x;
+            pos.y += vel.y;
+            engine.updateComponent(i, pos.getId(), pos.serialize());
+            if (vel.diminishingFactor == 0)
                 continue;
-            }
+            float factor = (float)vel.diminishingFactor / 100;
+            vel.floatX *= factor;
+            vel.floatY *= factor;
+            vel.x = (int)vel.floatX;
+            vel.y = (int)vel.floatY;
+            engine.updateComponent(i, vel.getId(), vel.serialize());
         }
-        for (i = 0; i < posComponents.size() && i < deathRangeComponent.size(); i++) {
-            try {
-                auto &drange = deathRangeComponent[i];
-                auto &pos = posComponents[i];
-
-                if (pos->x > drange->maxX || pos->x < drange->minX ||
-                    pos->y > drange->maxY || pos->y < drange->minY) {
-                    reg.killEntity((ECS::Entity)i);
-                    std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
-                }
-            } catch (std::exception &e) {
-                continue;
+        for (auto &&[i, pos, drange] : IndexedZipper(posArr, dRangeArr)) {
+            if (pos.x > drange.maxX || pos.x < drange.minX ||
+                pos.y > drange.maxY || pos.y < drange.minY) {
+                reg.killEntity((ECS::Entity)i);
+                std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
             }
         }
     } catch (std::runtime_error &e) {
@@ -69,12 +56,9 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
 
 void Systems::MoveSystem::init(Engine::GameEngine &engine)
 {
-    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
-        std::cerr << "Error: Could not register Position component in system Move" << std::endl;
-    if (!engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity"))
-        std::cerr << "Error: Could not register Velocity component in system Move" << std::endl;
-    if (!engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange"))
-        std::cerr << "Error: Could not register DeathRange component in system Move" << std::endl;
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
+    engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
 }
 
 LIBRARY_ENTRYPOINT

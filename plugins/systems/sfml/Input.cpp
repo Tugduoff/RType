@@ -199,6 +199,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                 for (auto &[action, actionKey] : ctrl->keyBindings) {
                     if (actionKey == key) {
                         handleInputPressed(ctrl->inputs, ctrl->actions, index);
+                        engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
                         try {
                             auto &entityAction = entityActionComponents[i];
                         } catch (std::exception &e) {
@@ -240,6 +241,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                 for (auto &[action, actionKey] : ctrl->keyBindings) {
                     if (actionKey == key) {
                         handleInputReleased(ctrl->inputs, ctrl->actions, index);
+                        engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
                         try {
                             auto &entityAction = entityActionComponents[i];
                         } catch (std::exception &e) {
@@ -277,6 +279,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
                         (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
                             handleInputPressed(ctrl->inputs, ctrl->actions, index);
+                            engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
                             try {
                                 auto &entityAction = entityActionComponents[i];
                             } catch (std::exception &e) {
@@ -314,6 +317,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
                         (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
                             handleInputReleased(ctrl->inputs, ctrl->actions, index);
+                            engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
                             try {
                                 auto &entityAction = entityActionComponents[i];
                             } catch (std::exception &e) {
