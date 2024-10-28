@@ -158,7 +158,7 @@ private:
     void incr_all(std::index_sequence<Is...>)
     {
         do {
-            std::make_tuple(++(std::get<Is>(_current))...);
+            (++(std::get<Is>(_current)),...);
             _idx++;
         } while (_idx < _max && !this->all_set(_seq));
     }
@@ -167,7 +167,7 @@ private:
     template<std::size_t... Is>
     bool all_set(std::index_sequence<Is...>)
     {
-        return (*std::get<Is>(_current) && ...);
+        return ((bool)*std::get<Is>(_current) && ...);
     }
 
 protected:

@@ -10,7 +10,6 @@
 
     #include "GameEngine/GameEngine.hpp"
     #include "components/type/Type.hpp"
-    #include "components/position/Position.hpp"
 
 void createProjectile(
     Engine::GameEngine &engine, 

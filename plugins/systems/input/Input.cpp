@@ -5,6 +5,7 @@
 ** InputSystem.cpp file
 */
 
+#include "ECS/utilities/Zipper/IndexedZipper.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "Input.hpp"
 #include "utils/Actions.hpp"
@@ -18,39 +19,40 @@
 #include "utils/Projectile.hpp"
 #include <iostream>
 #include <stdexcept>
-#include <unordered_map>
 
-void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entityIndex) {
+void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entityIndex)
+{
     auto &reg = engine.getRegistry();
     
     try {
         auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
         auto &gun = gunComponents[entityIndex];
 
-        if (gun) {
-            if (gun->chrono.getElapsedTime() >= gun->fireRate) {
-                std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
-                gun->chrono.restart();
-                auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
-                auto &position = positionComponents[entityIndex];
+        if (!gun) {
+            return;
+        }
+        if (gun->chrono.getElapsedTime() >= gun->fireRate) {
+            std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
+            gun->chrono.restart();
+            auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
+            auto &position = positionComponents[entityIndex];
 
-                int projectilePosX = position->x;
-                int projectilePosY = position->y;
-                int projectileVelX = gun->bulletVelocity;
-                int projectileVelY = 0;
-                int projectileColliderWidth = 10;
-                int projectileColliderHeight = 10;
-                int projectileDamage = gun->bulletDamage;
-                enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
-                std::string spriteId = gun->spriteId;
+            int projectilePosX = position->x;
+            int projectilePosY = position->y;
+            int projectileVelX = gun->bulletVelocity;
+            int projectileVelY = 0;
+            int projectileColliderWidth = 10;
+            int projectileColliderHeight = 10;
+            int projectileDamage = gun->bulletDamage;
+            enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
+            std::string spriteId = gun->spriteId;
 
-                createProjectile(engine, projectilePosX, projectilePosY, 
-                    projectileVelX, projectileVelY, 
-                    projectileColliderWidth, projectileColliderHeight, projectileDamage, type, spriteId);
+            createProjectile(engine, projectilePosX, projectilePosY,
+                projectileVelX, projectileVelY,
+                projectileColliderWidth, projectileColliderHeight, projectileDamage, type, spriteId);
 
-            } else {
-                std::cerr << "Gun is on cooldown." << std::endl;
-            }
+        } else {
+            std::cerr << "Gun is on cooldown." << std::endl;
         }
     } catch (std::exception &e) {
         std::cerr << "Input Error: " << e.what() << std::endl;
@@ -66,62 +68,47 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
     auto &reg = engine.getRegistry();
 
     try {
-        auto &controllableComponents = reg.componentManager().getComponents<Components::Controllable>();
-        auto &accelerationComponents = reg.componentManager().getComponents<Components::Acceleration>();
-        auto &velocityComponents = reg.componentManager().getComponents<Components::Velocity>();
+        auto &controllableArr = reg.componentManager().getComponents<Components::Controllable>();
+        auto &accelArr = reg.componentManager().getComponents<Components::Acceleration>();
+        auto &velArr = reg.componentManager().getComponents<Components::Velocity>();
 
-        size_t i = 0;
-        for (i = 0;
-            i < controllableComponents.size() &&
-            i < accelerationComponents.size() &&
-            i < velocityComponents.size(); i++) {
-            try {
-                auto &controllable = controllableComponents[i];
-                auto &acceleration = accelerationComponents[i];
-                auto &velocity = velocityComponents[i];
+        for (auto &&[i, controllable, accel, vel] : IndexedZipper(controllableArr, accelArr, velArr)) {
+            bool inputForward = controllable.inputs[(int)Action::FORWARD];
+            bool inputBackward = controllable.inputs[(int)Action::BACKWARD];
+            bool inputRight = controllable.inputs[(int)Action::RIGHT];
+            bool inputLeft = controllable.inputs[(int)Action::LEFT];
 
-                bool inputForward = controllable->inputs[(int)Action::FORWARD];
-                bool inputBackward = controllable->inputs[(int)Action::BACKWARD];
-                bool inputRight = controllable->inputs[(int)Action::RIGHT];
-                bool inputLeft = controllable->inputs[(int)Action::LEFT];
-
-                // All the "engine.updateComponent" are commented because we had
-                // trouble with the packet loss and removed all not used 
-                // packets by the clients. 
-
-                if (inputForward && !inputBackward) {
-                    velocity->x = acceleration->forward;
-                    std::cout << "Forward triggered" << std::endl;
-                    // engine.updateComponent(i, velocity->getId(), velocity->serialize());
-                }
-                if (inputBackward && !inputForward) {
-                    velocity->x = acceleration->backward;
-                    std::cout << "Backward triggered" << std::endl;
-                    // engine.updateComponent(i, velocity->getId(), velocity->serialize());
-                }
-                if (inputRight && !inputLeft) {
-                    velocity->y = acceleration->right;
-                    std::cout << "Right triggered" << std::endl;
-                    // engine.updateComponent(i, velocity->getId(), velocity->serialize());
-                }
-                if (inputLeft && !inputRight) {
-                    velocity->y = acceleration->left;
-                    std::cout << "Left triggered" << std::endl;
-                    // engine.updateComponent(i, velocity->getId(), velocity->serialize());
-                }
-                for (int j = 0; j < 10; j++) {
-                    if (controllable->actions[j]) {
-                        std::cout << "Action " << j + 1 << " triggered" << std::endl;
-                        if (j == 0) {
-                            shootAction(engine, i);
-                        } else {
-                            std::cout << "No action mapped for Action " << j + 1 << std::endl;
-                        }
+            if (inputForward && !inputBackward) {
+                vel.x = accel.forward;
+                std::cout << "Forward triggered" << std::endl;
+                // engine.updateComponent(i, vel.getId(), vel.serialize());
+            }
+            if (inputBackward && !inputForward) {
+                vel.x = accel.backward;
+                std::cout << "Backward triggered" << std::endl;
+                // engine.updateComponent(i, vel.getId(), vel.serialize());
+            }
+            if (inputRight && !inputLeft) {
+                vel.y = accel.right;
+                std::cout << "Right triggered" << std::endl;
+                // engine.updateComponent(i, vel.getId(), vel.serialize());
+            }
+            if (inputLeft && !inputRight) {
+                vel.y = accel.left;
+                std::cout << "Left triggered" << std::endl;
+                // engine.updateComponent(i, vel.getId(), vel.serialize());
+            }
+            for (int j = 0; j < 10; j++) {
+                if (controllable.actions[j]) {
+                    std::cout << "Action " << j + 1 << " triggered" << std::endl;
+                    if (j == 0) {
+                        shootAction(engine, i);
+                    } else {
+                        std::cout << "No action mapped for Action " << j + 1 << std::endl;
                     }
                 }
-            } catch (std::exception &e) {
-                continue;
             }
+
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Error: " << e.what() << std::endl;
