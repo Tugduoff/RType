@@ -162,8 +162,8 @@ namespace Components {
         void deserialize(std::vector<uint8_t> &data) override {
             if (data.size() != sizeof(__data))
                 throw std::runtime_error("Invalid data size for Controllable component");
-            inputs = *reinterpret_cast<std::array<bool, 4> *>(data.data());
-            actions = *reinterpret_cast<std::array<bool, 10> *>(data.data() + 4);
+            std::copy(data.begin(), data.begin() + 4, inputs.begin());
+            std::copy(data.begin() + 4, data.end(), actions.begin());
         };
 
         /**
