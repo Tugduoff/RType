@@ -19,7 +19,7 @@ Systems::Display::Display(libconfig::Setting &config)
 {
     libconfig::Config cfg;
     std::string shadersPath;
-    std::string defaultShader;
+    std::string defaultShader = "default";
 
     if (!config.lookupValue("texturesPath", __configFilePath))
         throw("Can't find configFilePath for all textures in Display config");
@@ -44,6 +44,14 @@ Systems::Display::Display(libconfig::Setting &config)
             return;
         }
         std::cerr << "Shaders loaded: " << __shaders.size() << std::endl;
+        if (defaultShader != "default") {
+            for (auto &shader : __shaders) {
+                if (shader->name == defaultShader) {
+                    __currentShader = shader;
+                    break;
+                }
+            }
+        }
     } catch (libconfig::ParseException &e) {
         std::string err = "Error while parsing file: " + std::string(e.getFile()) + " in line: " + std::to_string(e.getLine()) + " : " + std::string(e.getError());
         throw std::runtime_error(err);
