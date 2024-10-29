@@ -134,7 +134,7 @@ int main() {
 
         // engine.getRegistry().componentManager().
         while(server.client_endpoints.empty())
-            server.start_receive();
+            server.start_receive(engine);
 
         std::thread io_thread([&io_context]() { io_context.run(); });
         std::thread io_thread1([&io_context]() { io_context.run(); });
@@ -148,7 +148,7 @@ int main() {
 
         unsigned int i = 1;
         while (true) {
-            server.start_receive();
+            server.start_receive(engine);
             if (chrono.getElapsedTime() < 17)
                 continue;
             engine.runSystems();

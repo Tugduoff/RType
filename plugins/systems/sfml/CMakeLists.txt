@@ -4,10 +4,12 @@ add_library(Sfml SHARED
     Display.cpp
     Input.cpp
     Shader.cpp
-    
+    ActionManager.cpp
+    Texture.cpp
+
     ../../../src/utils/Keys.cpp
     ../../../src/utils/Actions.cpp
-    Texture.cpp
+    ../../../src/utils/EntityActions.cpp
 )
 
 CPMAddPackage(

@@ -8,7 +8,6 @@
 #ifndef CONTROLLABLE_HPP
     #define CONTROLLABLE_HPP
 
-    #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
     #include "utils/Keys.hpp"
@@ -139,10 +138,16 @@ namespace Components {
          * @return A vector of bytes representing the serialized input states.
          */
         std::vector<uint8_t> serialize() override {
-            // Pack inputs and actions into the data array
-            __network.inputs = inputs;
-            __network.actions = actions;
-            return std::vector<uint8_t>(__data, __data + sizeof(__data));
+            std::vector<uint8_t> serialized;
+
+            serialized.resize(sizeof(__data));
+            for (int i = 0; i < 4; i++) {
+                serialized[i] = static_cast<uint8_t>(inputs[i]);
+            }
+            for (int i = 4; i <= 14; i++) {
+                serialized[i] = static_cast<uint8_t>(actions[i - 4]);
+            }
+            return serialized;
         };
 
         /**
@@ -156,8 +161,8 @@ namespace Components {
         void deserialize(std::vector<uint8_t> &data) override {
             if (data.size() != sizeof(__data))
                 throw std::runtime_error("Invalid data size for Controllable component");
-            __network.inputs = *reinterpret_cast<std::array<bool, 4> *>(data.data());
-            __network.actions = *reinterpret_cast<std::array<bool, 10> *>(data.data() + 4);
+            std::copy(data.begin(), data.begin() + 4, inputs.begin());
+            std::copy(data.begin() + 4, data.end(), actions.begin());
         };
 
         /**
