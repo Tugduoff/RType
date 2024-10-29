@@ -188,7 +188,7 @@ namespace Components {
          * 
          * @note the size is equal to the size of the network array plus the number of key bindings rows.
          */
-        size_t getSize() const override { return sizeof(__data) + keyBindings.size() / 2; };
+        size_t getSize() const override { return sizeof(__data) + keyBindings.size(); };
 
         /**
          * @brief Adds the Controllable component to an entity.
