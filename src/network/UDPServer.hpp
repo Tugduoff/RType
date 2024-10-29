@@ -37,7 +37,7 @@ class UDPServer {
         * 
         * Continuously waits for incoming messages from any client. When a message is received, processes it and recursively calls itself.
         */
-        void start_receive();
+        void start_receive(Engine::GameEngine &engine);
 
         std::vector<udp::endpoint> client_endpoints;
 
@@ -52,6 +52,9 @@ class UDPServer {
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;
         std::map<udp::endpoint, bool> client_responses;
         std::map<udp::endpoint, bool> is_disconnected;
+
+        std::unordered_map<size_t, uint32_t> _entitiesNetworkId;
+        uint32_t _nextNetworkId = 0;
 
 
         // --- Helpers --- //
@@ -169,6 +172,12 @@ class UDPServer {
         * @param component A reference to the component being detached.
         */
         void detach_component(size_t entity, std::type_index component);
+
+        void receiveUpdateComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation);
+
+        void updateIdStringToType(std::unordered_map<std::string, std::type_index> &idStringToType) {
+            __idStringToType = idStringToType;
+        }
 };
 
 #endif /* !UDP_SERVER_HPP_ */

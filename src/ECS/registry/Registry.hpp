@@ -14,6 +14,7 @@
     #include "ECS/system/SystemManager.hpp"
     #include <functional>
     #include <vector>
+    #include <iostream>
 
 /**
  * @namespace ECS
@@ -75,6 +76,7 @@ namespace ECS {
                 this->__componentManager.removeAllFromEntity(entity);
                 this->__entityManager.killEntity(entity);
                 for (auto const &cb : this->__killCallbacks) {
+                    std::cerr << "Calling kill callback for entity n°" << entity << std::endl;
                     cb(entity);
                 }
             }

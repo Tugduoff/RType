@@ -10,6 +10,7 @@
 
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
+    #include "utils/ComponentUtils.hpp"
      #ifdef _WIN32
         #include <windows.h>
         #pragma comment(lib, "ws2_32.lib")
@@ -59,11 +60,6 @@ namespace Components {
          */
         Acceleration(int32_t forward = 2, int32_t backward = 1, int32_t right = 1, int32_t left = 1) :
             AComponent("Acceleration"), forward(forward), backward(backward), right(right), left(left) {
-                std::cout << "Acceleration component created with forward: "
-                << forward << " backward: "
-                << backward << " right: "
-                << right << " left: "
-                << left << std::endl;
             };
 
         /**
@@ -171,9 +167,12 @@ namespace Components {
 
             std::cout << "forward: " << forwardVal << " backward: " << backwardVal << " right: " << rightVal << " left: " << leftVal << std::endl;
 
-            std::unique_ptr<Components::Acceleration> pos = engine.newComponent<Components::Acceleration>(static_cast<int32_t>(forwardVal), static_cast<int32_t>(backwardVal), static_cast<int32_t>(rightVal), static_cast<int32_t>(leftVal));
-            engine.getRegistry().componentManager().addComponent<Components::Acceleration>(to, std::move(pos));
-            std::cout << std::endl;
+            attachAndUpdateComponent<Components::Acceleration>(
+                engine, to,
+                static_cast<int32_t>(forwardVal),
+                static_cast<int32_t>(backwardVal),
+                static_cast<int32_t>(rightVal),
+                static_cast<int32_t>(leftVal));
         };
 
         int32_t forward;

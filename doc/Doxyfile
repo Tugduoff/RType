@@ -952,6 +952,7 @@ WARN_LOGFILE           =
 INPUT                  =    ./src/client/                       \
                             ./src/DLLoader/                     \
                             ./src/ECS/                          \
+                            ./src/network/                      \
                             ./src/GameEngine/                   \
                             ./src/server/                       \
                             ./src/network                       \

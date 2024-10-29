@@ -5,19 +5,60 @@
 ** Display.cpp file
 */
 
+#include "ECS/utilities/Zipper/IndexedZipper.hpp"
 #define NOMINMAX
 #include "components/position/Position.hpp"
 #include "components/spriteId/SpriteID.hpp"
 #include "components/scale/Scale.hpp"
 #include "SpriteComponent.hpp"
 #include "Display.hpp"
+#include <iostream>
 
 Systems::Display::Display(libconfig::Setting &config)
+    : __shaders(), __currentShader(nullptr)
 {
-    if (!config.lookupValue("texturesPath", __configFilePath)) {
-        std::cerr << "Error: Could not find configFilePath for all textures in Display config" << std::endl;
-    }
+    libconfig::Config cfg;
+    std::string shadersPath;
+    std::string defaultShader = "default";
+
+    if (!config.lookupValue("texturesPath", __configFilePath))
+        throw("Can't find configFilePath for all textures in Display config");
+    if (!config.lookupValue("shadersPath", shadersPath))
+        throw("Can't find shadersPath in Display config");
+    if (!config.lookupValue("defaultShader", defaultShader))
+        throw("Can't find defaultShader in Display config");
+
     loadConfig(__configFilePath);
+
+    try {
+        cfg.readFile(shadersPath);
+        std::cerr << "\nConfig file loaded: " << shadersPath << std::endl;
+        libconfig::Setting &root = cfg.getRoot();
+
+        libconfig::Setting &shaders = root["shaders"];
+        for (int i = 0; i < shaders.getLength(); ++i) {
+            __shaders.emplace_back(std::make_shared<Shader>(shaders[i]));
+        }
+        if (__shaders.empty()) {
+            std::cerr << "No shaders loaded" << std::endl;
+            return;
+        }
+        std::cerr << "Shaders loaded: " << __shaders.size() << std::endl;
+        if (defaultShader != "default") {
+            for (auto &shader : __shaders) {
+                if (shader->name == defaultShader) {
+                    __currentShader = shader;
+                    break;
+                }
+            }
+        }
+    } catch (libconfig::ParseException &e) {
+        std::string err = "Error while parsing file: " + std::string(e.getFile()) + " in line: " + std::to_string(e.getLine()) + " : " + std::string(e.getError());
+        throw std::runtime_error(err);
+    } catch (libconfig::FileIOException &e) {
+        std::string err = "Error while reading file: " + std::string(e.what()) + "\n" + "File path was: " + shadersPath;
+        throw std::runtime_error(err);
+    }
 }
 
 void Systems::Display::loadConfig(const std::string &filepath)
@@ -128,22 +169,19 @@ void Systems::Display::loadConfig(const std::string &filepath)
 }
 
 Systems::Display::Display()
+    : __shaders()
 {
 }
 
 void Systems::Display::init(Engine::GameEngine &engine)
 {
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
+    engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
+    
     auto &manager = engine.getRegistry().componentManager();
-
-    if (!engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position"))
-        std::cerr << "Error: Could not register Position component in system Display" << std::endl;
-    if (!engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID"))
-        std::cerr << "Error: Could not register SpriteID component in system Display" << std::endl;
-    if (!engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale"))
-        std::cerr << "Error: Could not register Scale component in system Display" << std::endl;
     auto ctor = []() -> Components::SpriteComponent * { return new Components::SpriteComponent(); };
-    if (!manager.registerComponent<Components::SpriteComponent>(ctor))
-        std::cerr << "Error: Could not register SpriteComponent component in system Display" << std::endl;
+    manager.registerComponent<Components::SpriteComponent>(ctor);
 }
 
 void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
@@ -158,36 +196,33 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteID>();
         auto &scaleComponents = reg.componentManager().getComponents<Components::Scale>();
 
-        size_t i = 0;
-        for (int l = 0; l < 10; l++) {
-            for (i = 0;
-                i < posComponents.size() &&
-                i < spriteIdComponents.size();
-                i++)
-            {
-                try {
-                    auto &pos = posComponents[i];
-                    auto &spriteId = spriteIdComponents[i];
-                    (void)spriteId;
-
-                    if ((int)pos->layer != l)
-                        continue;
-                } catch (std::exception &e) {
+        for (unsigned l = 0; l < 10; l++) {
+            for (auto &&[i, pos, spriteId] : IndexedZipper(posComponents, spriteIdComponents)) {
+                if (pos.layer != l) {
                     continue;
                 }
 
-                auto &pos = posComponents[i];
-                auto &spriteId = spriteIdComponents[i];
-
                 try {
                     auto &sprite = spriteComponents[i];
-                    sprite->sprite.setPosition(pos->x, pos->y);
+                    sprite->sprite.setPosition(pos.x, pos.y);
                     sprite->update();
-                    window.draw(sprite->sprite);
+
+                    if (__currentShader && __currentShader->shader.isAvailable()) {
+                        window.draw(sprite->sprite, &__currentShader->shader);
+                    } else {
+                        window.draw(sprite->sprite);
+                    }
+
+                    try {
+                        auto &scale = scaleComponents[i];
+                        sprite->sprite.setScale((float)scale->width / 100, (float)scale->height / 100);
+                    } catch (std::exception &) {
+                        sprite->sprite.setScale(1, 1);
+                    }
                 } catch (std::exception &) {
-                    std::cerr << "Error: Sprite component not found for entity: " << i << " spriteID: " << spriteId->id << std::endl;
+                    std::cerr << "Error: Sprite component not found for entity: " << i << " spriteID: " << spriteId.id << std::endl;
                     std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
-                    for (auto &texture : __textures[spriteId->id]) {
+                    for (auto &texture : __textures[spriteId.id]) {
                         spriteComp->addTexture(texture);
                     }
                     try {

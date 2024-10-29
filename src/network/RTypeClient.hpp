@@ -111,6 +111,15 @@ class RTypeClient : public UDPConnection
         void detachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation);
 
         /**
+         * @brief Send to the server update of components from client
+         * 
+         * @param entity : The id of the entity on which the update occurs
+         * @param name : The id string of the component to update
+         * @param data : The serialized data of the component to send
+         */
+        void sendUpdateComponent(size_t entity, std::string name, std::vector<uint8_t> data);
+
+        /**
          * @brief Create an uint16 from 2 uint8
          * 
          * @param first : The first uint8
@@ -119,6 +128,8 @@ class RTypeClient : public UDPConnection
          * @return uint16_t : The uint16 created from the 2 uint8
          */
         uint16_t uint16From2Uint8(uint8_t first, uint8_t second);
+
+        uint32_t uint32From4Uint8(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4);
 
         /**
          * @brief Receive an uint16 from the server
@@ -152,6 +163,7 @@ class RTypeClient : public UDPConnection
     
     private:
         std::unordered_map<uint8_t, std::string> _compNames;
+        std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */

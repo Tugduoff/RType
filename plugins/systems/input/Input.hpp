@@ -45,43 +45,6 @@ namespace Systems {
 
             void shootAction(Engine::GameEngine &engine, size_t entityIndex);
 
-            void createProjectile(Engine::GameEngine &engine, 
-                int posX, int posY, 
-                int velX, int velY, 
-                int colliderWidth,
-                int colliderHeight, 
-                int damageValue,
-                enum Components::TypeID type,
-                const std::string &spriteId)
-            {
-                auto &reg = engine.getRegistry();
-                ECS::Entity projectile = reg.createEntity();
-
-                std::cerr << "Created new projectile with id: " << projectile << std::endl;
-
-                std::unique_ptr<Components::Position> positionComponent =
-                    std::make_unique<Components::Position>(posX, posY, 1);
-                reg.componentManager().addComponent(projectile, std::move(positionComponent));
-                std::unique_ptr<Components::Velocity> velocityComponent =
-                    std::make_unique<Components::Velocity>(velX, velY, 100);
-                reg.componentManager().addComponent(projectile, std::move(velocityComponent));
-                std::unique_ptr<Components::Collider> colliderComponent =
-                    std::make_unique<Components::Collider>(colliderWidth, colliderHeight);
-                reg.componentManager().addComponent(projectile, std::move(colliderComponent));
-                std::unique_ptr<Components::Damage> damageComponent =
-                    std::make_unique<Components::Damage>(damageValue);
-                reg.componentManager().addComponent(projectile, std::move(damageComponent));
-                std::unique_ptr<Components::SpriteID> spriteComponent =
-                    std::make_unique<Components::SpriteID>(spriteId);
-                reg.componentManager().addComponent(projectile, std::move(spriteComponent));
-                std::unique_ptr<Components::Type> typeComponent =
-                    std::make_unique<Components::Type>(type);
-                reg.componentManager().addComponent(projectile, std::move(typeComponent));
-                std::unique_ptr<Components::DeathRange> deathRangeComponent =
-                    std::make_unique<Components::DeathRange>(1920, 1080, 0, 0);
-                reg.componentManager().addComponent(projectile, std::move(deathRangeComponent));
-                return;
-            }
     };
 };
 
