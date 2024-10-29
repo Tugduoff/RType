@@ -13,11 +13,11 @@ Shader::Shader(const libconfig::Setting &shaderSetting)
     std::string path;
 
     if (!shaderSetting.lookupValue("name", name))
-        std::cerr << "Missing name attribute on shader setting" << std::endl;
+        throw("Missing name attribute on shader setting");
     if (!shaderSetting.lookupValue("path", path))
-        std::cerr << "Missing path attribute on shader setting" << std::endl;
+        throw("Missing path attribute on shader setting");
 
     if (!shader.loadFromFile(path, sf::Shader::Fragment))
-        std::cerr << "Failed to load shader " << name << " from " << path << std::endl;
-    std::cout << "Loaded shader " << name << " from " << path << std::endl;
+        throw std::runtime_error("Failed to load shader " + name + " from " + path);
+    std::cerr << "Loaded shader " << name << " from " << path << std::endl;
 }
