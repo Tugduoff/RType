@@ -54,7 +54,7 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
 
             int projectilePosX = pos->x;
             int projectilePosY = pos->y;
-            int projectileVelX = gun->bulletVelocity;
+            int projectileVelX = gun->bulletVelocityX;
             int projectileVelY = 0;
             int projectileColliderWidth = 10;
             int projectileColliderHeight = 10;

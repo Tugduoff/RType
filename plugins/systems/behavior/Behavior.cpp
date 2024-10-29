@@ -121,7 +121,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 } else if (aiBehavior->behavior == 6) {
                     vel->floatY = 0;
                     vel->y = 0;
-                    gun->bulletVelocity = 0;
+                    gun->bulletVelocityX = 0;
                     if (pos->x < deathRange->minX + 50) {
                         vel->floatX = 5;
                         vel->floatX *= factor;
@@ -137,7 +137,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 7) {
-                    gun->bulletVelocity = 0;
+                    gun->bulletVelocityX = 0;
                     if (pos->x < deathRange->minX + 50) {
                         vel->floatX = 3;
                         vel->floatX *= factor;
@@ -153,7 +153,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 8) {
-                    gun->bulletVelocity = 0;
+                    gun->bulletVelocityX = 0;
                     if (pos->x < deathRange->minX + 450) {
                         vel->floatX = 3;
                         vel->floatX *= factor;
@@ -169,7 +169,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 9) {
-                    gun->bulletVelocity = 0;
+                    gun->bulletVelocityX = 0;
                     if (pos->x < deathRange->minX + 850) {
                         vel->floatX = 3;
                         vel->floatX *= factor;
@@ -185,7 +185,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 10) {
-                    gun->bulletVelocity = 0;
+                    gun->bulletVelocityX = 0;
                     if (pos->x < deathRange->minX + 1250) {
                         vel->floatX = 3;
                         vel->floatX *= factor;
