@@ -56,10 +56,6 @@ namespace Components {
                         break;
                     }
                 }
-
-                if (!textureFound) {
-                    std::cerr << "Error: Could not find texture for action: " << action << std::endl;
-                }
             } else {
                 // std::cerr << "INIT END for action: " << currentTexture.getAction() << std::endl;
                 currentTexture.initEnd();
