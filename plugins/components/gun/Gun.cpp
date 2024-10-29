@@ -21,12 +21,9 @@ Components::IComponent *buildWithParams(
     uint32_t bulletDamage,
     uint32_t fireRate,
     uint32_t bulletVelocity,
-    std::string spriteId,
-    std::string soundPath,
-    uint8_t volume,
-    uint8_t pitch)
+    std::string spriteId)
 {
-    return new Components::Gun(bulletDamage, fireRate, bulletVelocity, spriteId, soundPath, volume, pitch);
+    return new Components::Gun(bulletDamage, fireRate, bulletVelocity, spriteId);
 }
 
 LIBRARY_ENTRYPOINT
