@@ -46,12 +46,18 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
             decltype(Components::Gun::bulletVelocity),
             decltype(Components::Gun::bulletDamage),
             Components::TypeID,
-            decltype(Components::Gun::spriteId)
+            decltype(Components::Gun::spriteId),
+            decltype(Components::Gun::soundPath),
+            decltype(Components::Gun::volume),
+            decltype(Components::Gun::pitch)
         >> projToCreate;
 
         for (auto &&[i, pos, gun, id] : IndexedZipper(posArr, gunArr, typeArr)) {
             if (gun.chrono.getElapsedTime() < gun.fireRate)
                 continue;
+            if (id.id == Components::TypeID::ALLY)
+                continue;
+            std::cerr << "Entity: " << i << " is attacking" << std::endl;
             try {
                 auto &entityAction = actArr[i];
 
@@ -66,8 +72,6 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 continue;
             }
 
-            if (id.id == Components::TypeID::ALLY)
-                continue;
             gun.chrono.restart();
 
             projToCreate.emplace_back(
@@ -76,11 +80,23 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 gun.bulletVelocity,
                 gun.bulletDamage,
                 Components::TypeID::ENEMY_PROJECTILE,
-                gun.spriteId
+                gun.spriteId,
+                gun.soundPath,
+                gun.volume,
+                gun.pitch
             );
+
+            std::cerr << "Entity: " << i << " fired a shot" << std::endl;
         }
-        for (const auto &[posX, posY, bulletVel, bulletDmg, typeId, spriteId] : projToCreate) {
-            createProjectile(engine, posX, posY, bulletVel, 0, 10, 10, bulletDmg, typeId, spriteId);
+        bool loop = false;
+
+        for (const auto &[posX, posY, bulletVel, bulletDmg, typeId, spriteId, soundPath, volume, pitch] : projToCreate) {
+            createProjectile(
+                engine,
+                posX, posY,
+                bulletVel, 0, 10, 10, bulletDmg,
+                typeId, spriteId,
+                soundPath, volume, pitch, loop);
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Attack Error: " << e.what() << std::endl;

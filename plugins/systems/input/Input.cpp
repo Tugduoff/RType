@@ -46,10 +46,15 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
             int projectileDamage = gun->bulletDamage;
             enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
             std::string spriteId = gun->spriteId;
+            std::string soundPath = gun->soundPath;
+            uint8_t volume = gun->volume;
+            uint8_t pitch = gun->pitch;
+            bool loop = false;
 
             createProjectile(engine, projectilePosX, projectilePosY,
                 projectileVelX, projectileVelY,
-                projectileColliderWidth, projectileColliderHeight, projectileDamage, type, spriteId);
+                projectileColliderWidth, projectileColliderHeight, projectileDamage, type, spriteId,
+                soundPath, volume, pitch, loop);
 
         } else {
             std::cerr << "Gun is on cooldown." << std::endl;
