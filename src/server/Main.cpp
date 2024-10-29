@@ -31,6 +31,7 @@
 #include "components/damage/Damage.hpp"
 #include "components/scale/Scale.hpp"
 #include "components/deathRange/DeathRange.hpp"
+#include "components/sound/Sound.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -127,6 +128,7 @@ int main() {
         engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
         engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
         engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
+        engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
 
         engine.loadSystems("./src/server/configServer.cfg");
 
