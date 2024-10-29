@@ -28,7 +28,6 @@ namespace Components {
         }
 
         void loadTextureForAction(const std::string &action) {
-            std::cerr << "Loading texture for action: " << action << std::endl;
             if (currentTexture.getAction() == action) {
                 nextTexture = "";  // If the current texture is the same, do nothing
                 return;
