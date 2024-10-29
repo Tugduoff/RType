@@ -35,12 +35,6 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 auto &deathRange = deathRangeComponent[i];
                 float factor = (float)vel->diminishingFactor / 100;
 
-                if (aiBehavior->startingX && aiBehavior->startingY) {
-                    aiBehavior->startingX = pos->x;
-                    aiBehavior->startingY = pos->y;
-                    engine.updateComponent(i, aiBehavior->getId(), aiBehavior->serialize());
-                }
-
                 if (aiBehavior->behavior == 0)
                     continue;
                 else if (aiBehavior->behavior == 1) {
@@ -61,20 +55,35 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 2) {
-                    vel->floatY = 3;
-                    vel->floatY *= factor;
-                    vel->y = (int)vel->floatY; 
-                    if (pos->y > aiBehavior->startingY + 150) {
+                    if (pos->y < deathRange->minY + 50) {
+                        vel->floatY = 3;
+                        vel->floatY *= factor;
+                        vel->y = (int)vel->floatY;
+                    } else if (pos->y > deathRange->maxY - 800) {
                         vel->floatY = -3;
                         vel->floatY *= factor;
                         vel->y = (int)vel->floatY;
-                    } else if (pos->y > aiBehavior->startingY - 150) {
+                    } else if (pos->y > deathRange->minY + 50 && pos->y < deathRange->maxY - 800 && vel->y != 3 && vel->y != -3) {
                         vel->floatY = 3;
                         vel->floatY *= factor;
                         vel->y = (int)vel->floatY;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 3) {
+                    if (pos->y < deathRange->minY + 250) {
+                        vel->floatY = 3;
+                        vel->floatY *= factor;
+                        vel->y = (int)vel->floatY;
+                    } else if (pos->y > deathRange->maxY - 600) {
+                        vel->floatY = -3;
+                        vel->floatY *= factor;
+                        vel->y = (int)vel->floatY;
+                    } else if (pos->y > deathRange->minY + 250 && pos->y < deathRange->maxY - 600 && vel->y != 3 && vel->y != -3) {
+                        vel->floatY = 3;
+                        vel->floatY *= factor;
+                        vel->y = (int)vel->floatY;
+                    }
+                    engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 4) {
                 }
             } catch (std::exception &e) {
