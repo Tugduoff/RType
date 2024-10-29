@@ -10,6 +10,7 @@
 #include "Config.hpp"
 #include <exception>
 #include <iostream>
+#include "components/sound/Sound.hpp"
 
 Systems::ConfigLoader::ConfigLoader(const std::string &configFilePath) :
     __configFilePath(configFilePath),
@@ -48,6 +49,24 @@ void Systems::ConfigLoader::run(Engine::GameEngine &engine)
                     continue;
                 }
             }
+            try {
+                // get the sound component of the entity
+                auto &sound = engine.getRegistry().componentManager().getComponents<Components::Sound>()[newEntity];
+
+                std::cerr << "Entity: " << newEntity << " is sending sound" << std::endl;
+                for (auto &soundInstance : sound->sounds) {
+                    if (std::get<0>(soundInstance) == "SPAWN" || std::get<0>(soundInstance) == "AMBIENT") {
+                        std::get<5>(soundInstance) = true;
+                        std::cerr << "Sound wants to be played: " << std::get<0>(soundInstance)
+                            << " " << std::get<1>(soundInstance)
+                            << " " << std::get<2>(soundInstance)
+                            << " " << std::get<3>(soundInstance)
+                            << " " << std::get<4>(soundInstance)
+                            << " " << std::get<5>(soundInstance) << std::endl;
+                        engine.updateComponent((ECS::Entity)newEntity, sound->getId(), sound->serialize());
+                    }
+                }
+            } catch (std::exception &) {}
 
             it = config.entities.erase(it);
         } else
