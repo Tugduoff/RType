@@ -18,9 +18,9 @@ Components::IComponent *buildDefault()
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(std::string sound, uint8_t volume, uint8_t pitch, uint8_t loop)
+Components::IComponent *buildWithParams(std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> sounds)
 {
-    return new Components::Sound(sound, volume, pitch, loop);
+    return new Components::Sound(sounds);
 }
 
 LIBRARY_ENTRYPOINT

@@ -30,6 +30,7 @@ namespace Components {
      */
     class Sound : public AComponent<Sound> {
     public:
+        static constexpr std::size_t MAX_ID_SIZE = 20; // Fixed size for network
         static constexpr std::size_t MAX_SOUND_SIZE = 40; // Fixed size for network
 
         /**
@@ -37,13 +38,10 @@ namespace Components {
          * 
          * Initializes the Sound with default width and height of 1.
          */
-        Sound(std::string sound = "", uint8_t volume = 100, uint8_t pitch = 1, uint8_t loop = 0)
-            : AComponent(std::string("Sound")), sound(sound), volume(volume), pitch(pitch), loop(loop) {
-                std::cerr << "Sound created with path: " << sound << " volume: " << (unsigned)volume << " pitch: " << (unsigned)pitch << " loop: " << (unsigned)loop << std::endl;
-                if (this->sound.size() > MAX_SOUND_SIZE) {
-                    this->sound.resize(MAX_SOUND_SIZE);  // Truncate if longer than 40
-                }
-            };
+        Sound(std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> sounds = {
+            std::make_tuple("NONE", "", 100, 1, false, false)
+        })
+            : AComponent(std::string("Sound")), sounds(sounds) {}
 
         /**
          * @brief Constructor using configuration.
@@ -51,24 +49,31 @@ namespace Components {
          * Initializes the Sound based on config settings, with default values
          */
         Sound(libconfig::Setting &config) : AComponent(std::string("Sound")) {
-            int volumeVal = 100;
-            int pitchVal = 1;
-            bool loop = false;
+            const libconfig::Setting &sounds = config.lookup("sounds");
+            std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> soundsVec;
 
-            if (!config.lookupValue("path", sound)) {
-                sound = "";
-            }
-            if (!config.lookupValue("volume", volumeVal)) {
-                volumeVal = 100;
-            }
-            if (!config.lookupValue("pitch", pitchVal)) {
-                pitchVal = 100;
-            }
-            if (!config.lookupValue("loop", loop)) {
-                loop = false;
-            }
-            if (this->sound.size() > MAX_SOUND_SIZE) {
-                this->sound.resize(MAX_SOUND_SIZE);  // Truncate if longer than 40
+            for (int i = 0; i < sounds.getLength(); i++) {
+                libconfig::Setting &sound = sounds[i];
+                std::string soundIdVal = "AMBIENT";
+                std::string pathVal = "";
+                int volumeVal = 100;
+                int pitchVal = 1;
+                bool loopVal = false;
+
+                sound.lookupValue("id", soundIdVal);
+                sound.lookupValue("path", pathVal);
+                sound.lookupValue("volume", volumeVal);
+                sound.lookupValue("pitch", pitchVal);
+                sound.lookupValue("loop", loopVal);
+
+                std::string newId = std::string('\0', MAX_ID_SIZE);
+                std::copy(soundIdVal.begin(), soundIdVal.end(), newId.begin());
+
+                std::string newPath = std::string('\0', MAX_SOUND_SIZE);
+                std::copy(pathVal.begin(), pathVal.end(), newPath.begin());
+
+                soundsVec.push_back(std::make_tuple(newId, newPath, volumeVal, pitchVal, loopVal, false));
+
             }
         }
 
@@ -80,17 +85,44 @@ namespace Components {
          * @return std::vector<uint8_t> Serialized data.
          */
         std::vector<uint8_t> serialize() override {
-            std::cerr << "Serializing Sound: " << sound << std::endl;
+            std::vector<uint8_t> data(getSize());
+            data[0] = sounds.size();
 
-            std::vector<uint8_t> data(MAX_SOUND_SIZE + sizeof(volume) + sizeof(pitch) + sizeof(loop), 0);  // Initialize with zeros (40 bytes + 3 bytes)
-            std::copy(sound.begin(), sound.end(), data.begin());  // Copy the string into the vector
-            std::copy(reinterpret_cast<uint8_t *>(&volume), reinterpret_cast<uint8_t *>(&volume) + sizeof(volume), data.begin() + MAX_SOUND_SIZE);
-            std::copy(reinterpret_cast<uint8_t *>(&pitch), reinterpret_cast<uint8_t *>(&pitch) + sizeof(pitch), data.begin() + MAX_SOUND_SIZE + sizeof(volume));
-            std::copy(reinterpret_cast<uint8_t *>(&loop), reinterpret_cast<uint8_t *>(&loop) + sizeof(loop), data.begin() + MAX_SOUND_SIZE + sizeof(volume) + sizeof(pitch));
+            for (size_t i = 0; i < sounds.size(); i++) {
+                unsigned int offset = i * (MAX_SOUND_SIZE + MAX_ID_SIZE + 4) + 1;
+                std::string id = std::get<0>(sounds[i]);
+                std::string sound = std::get<1>(sounds[i]);
+                uint8_t volume = std::get<2>(sounds[i]);
+                uint8_t pitch = std::get<3>(sounds[i]);
+                uint8_t loop = std::get<4>(sounds[i]);
+                uint8_t state = std::get<5>(sounds[i]);
 
+                // Copy the sound id and path into the data
+                std::string newId;
+                newId.resize(MAX_ID_SIZE);
+                std::copy(id.begin(), id.end(), newId.begin());
+
+                std::string newPath;
+                newPath.resize(MAX_SOUND_SIZE);
+                std::copy(sound.begin(), sound.end(), newPath.begin());
+
+                std::copy(newId.begin(), newId.end(), data.begin() + offset);
+                std::copy(newPath.begin(), newPath.end(), data.begin() + offset + MAX_ID_SIZE);
+
+                // Copy the volume into the next byte
+                data[offset + MAX_SOUND_SIZE + MAX_ID_SIZE] = volume;
+                // Copy the pitch into the next byte
+                data[offset + MAX_SOUND_SIZE + MAX_ID_SIZE + 1] = pitch;
+                // Copy the loop into the next byte
+                data[offset + MAX_SOUND_SIZE + MAX_ID_SIZE + 2] = loop;
+                // Copy the state into the next byte
+                data[offset + MAX_SOUND_SIZE + MAX_ID_SIZE + 3] = state;
+            }
+            std::cerr << "Serialized Sound:" << std::endl;
             for (auto &byte : data) {
                 std::cerr << (unsigned)byte << " ";
             }
+            std::cerr << std::endl;
             return data;
         }
 
@@ -104,27 +136,29 @@ namespace Components {
          */
         void deserialize(std::vector<uint8_t> &data) override {
             std::cerr << "Deserializing Sound" << std::endl;
+            std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> newSounds;
 
+            std::cerr << "Deserialized Sound:" << std::endl;
             for (auto &byte : data) {
                 std::cerr << (unsigned)byte << " ";
             }
-            std::cerr << data.size() << " & " << getSize() << std::endl;
-            if (data.size() != getSize())
-                throw std::runtime_error("Invalid data size for Sound component");
+            std::cerr << std::endl;
+            uint8_t size = data[0];
 
-            std::cerr << "Deserialized sound data size: " << data.size() << std::endl;
+            for (int i = 0; i < size; i++) {
+                unsigned int offset = i * (MAX_SOUND_SIZE + MAX_ID_SIZE + 4) + 1;
+                std::string id = std::string(data.begin() + offset, data.begin() + offset + MAX_ID_SIZE);
+                std::string sound = std::string(data.begin() + offset + MAX_ID_SIZE, data.begin() + offset + MAX_ID_SIZE + MAX_SOUND_SIZE);
+                uint8_t volume = data[offset + MAX_SOUND_SIZE + MAX_ID_SIZE];
+                uint8_t pitch = data[offset + MAX_SOUND_SIZE + MAX_ID_SIZE + 1];
+                uint8_t loop = data[offset + MAX_SOUND_SIZE + MAX_ID_SIZE + 2];
+                uint8_t state = data[offset + MAX_SOUND_SIZE + MAX_ID_SIZE + 3];
 
-            // Copy the string from the vector's first 40 bytes
-            sound = std::string(data.begin(), data.begin() + MAX_SOUND_SIZE);
-            // Remove trailing null characters (0s)
-            sound.erase(std::find(sound.begin(), sound.end(), '\0'), sound.end());
-            // Copy the volume from the next byte
-            volume = *reinterpret_cast<uint8_t *>(&data[MAX_SOUND_SIZE]);
-            // Copy the pitch from the next byte
-            pitch = *reinterpret_cast<uint8_t *>(&data[MAX_SOUND_SIZE + sizeof(volume)]);
-            // Copy the loop from the next byte
-            loop = *reinterpret_cast<uint8_t *>(&data[MAX_SOUND_SIZE + sizeof(volume) + sizeof(pitch)]);
-            std::cerr << "Deserialized sound path: " << sound << " volume: " << volume << " pitch: " << pitch << " loop: " << loop << std::endl;
+                id.erase(std::find(id.begin(), id.end(), '\0'), id.end());
+                sound.erase(std::find(sound.begin(), sound.end(), '\0'), sound.end());
+                newSounds.push_back(std::make_tuple(id, sound, volume, pitch, loop, state));
+            }
+            sounds = newSounds;
         }
 
         /**
@@ -132,9 +166,7 @@ namespace Components {
          * 
          * @return size_t Size in bytes
          */
-        size_t getSize() const override {
-            return MAX_SOUND_SIZE + sizeof(volume) + sizeof(pitch) + sizeof(loop);
-        }
+        size_t getSize() const override { return sounds.size() * (MAX_SOUND_SIZE + MAX_ID_SIZE + 4) + 1; }
 
         /**
          * @brief Adds the Sound component to an entity.
@@ -146,15 +178,12 @@ namespace Components {
          * @note The arguments should be two uint32_t containing the width and height.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
-            if (args.size() != 4)
+            if (args.size() != 1)
                 throw std::runtime_error("Invalid number of arguments for Sound component");
 
-            std::string sound = std::any_cast<std::string>(args[0]);
-            uint8_t volume = std::any_cast<uint8_t>(args[1]);
-            uint8_t pitch = std::any_cast<uint8_t>(args[2]);
-            uint8_t loop = std::any_cast<uint8_t>(args[3]);
+            std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> sounds = std::any_cast<std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>>>(args[0]);
 
-            auto Sound = engine.newComponent<Components::Sound>(sound, volume, pitch, loop);
+            auto Sound = engine.newComponent<Components::Sound>(sounds);
             engine.getRegistry().componentManager().addComponent<Components::Sound>(to, std::move(Sound));
         };
 
@@ -166,43 +195,40 @@ namespace Components {
          * @param config The configuration setting to extract the component data from.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            std::string soundVal;
-            int volumeVal = 100;
-            int pitchVal = 1;
-            bool loopVal = false;
+            const libconfig::Setting &sounds = config.lookup("sounds");
+            std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> soundsVec;
 
-            if (!config.lookupValue("path", soundVal)) {
-                soundVal = "";
-            }
-            if (!config.lookupValue("volume", volumeVal)) {
-                volumeVal = 100;
-            }
-            if (!config.lookupValue("pitch", pitchVal)) {
-                pitchVal = 100;
-            }
-            if (!config.lookupValue("loop", loopVal)) {
-                loopVal = false;
-            }
+            for (int i = 0; i < sounds.getLength(); i++) {
+                libconfig::Setting &sound = sounds[i];
 
-            std::cerr << "Sound path: " << soundVal << std::endl;
-            std::cerr << "Volume: " << volumeVal << std::endl;
-            std::cerr << "Pitch: " << pitchVal << std::endl;
-            std::cerr << "Loop: " << loopVal << std::endl;
-            std::cerr << std::endl;
+                std::string soundIdVal = "AMBIENT";
+                std::string pathVal = "";
+                int volumeVal = 100;
+                int pitchVal = 1;
+                bool loopVal = false;
 
+                sound.lookupValue("id", soundIdVal);
+                sound.lookupValue("path", pathVal);
+                sound.lookupValue("volume", volumeVal);
+                sound.lookupValue("pitch", pitchVal);
+                sound.lookupValue("loop", loopVal);
+
+                std::cerr << "Sound before process: " << soundIdVal << " " << pathVal << " " << volumeVal << " " << pitchVal << " " << loopVal << std::endl;
+
+                soundsVec.push_back(std::make_tuple(soundIdVal, pathVal, volumeVal, pitchVal, loopVal, false));
+
+            }
+            for (auto &sound : soundsVec) {
+                std::cerr << "Sound: " << std::get<0>(sound) << " " << std::get<1>(sound) << " " << std::get<2>(sound) << " " << std::get<3>(sound) << " " << std::get<4>(sound) << std::endl;
+            }
             attachAndUpdateComponent<Components::Sound>(
                 engine, to,
-                soundVal,
-                static_cast<uint8_t>(volumeVal),
-                static_cast<uint8_t>(pitchVal),
-                static_cast<uint8_t>(loopVal)
+                soundsVec
             );
         }
 
-        std::string sound;
-        uint8_t volume;
-        uint8_t pitch;
-        bool loop;
+        // type of the sound, path to the sound, volume, pitch, sound loops, state
+        std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> sounds;
 
     };
 };
