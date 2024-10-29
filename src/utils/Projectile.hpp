@@ -19,11 +19,7 @@ void createProjectile(
     int colliderHeight, 
     int damageValue,
     enum Components::TypeID type,
-    const std::string &spriteID,
-    const std::string &soundPath,
-    uint8_t volume,
-    uint8_t pitch,
-    bool loop
+    const std::string &spriteID
 );
 
 #endif // PROJECTILE_HPP

@@ -12,7 +12,6 @@
 #include "components/damage/Damage.hpp"
 #include "components/spriteId/SpriteID.hpp"
 #include "components/deathRange/DeathRange.hpp"
-#include "components/sound/Sound.hpp"
 #include "utils/ComponentUtils.hpp"
 
 void createProjectile(
@@ -23,11 +22,7 @@ void createProjectile(
     int colliderHeight, 
     int damageValue,
     enum Components::TypeID type,
-    const std::string &spriteID,
-    const std::string &soundPath,
-    uint8_t volume,
-    uint8_t pitch,
-    bool loop)
+    const std::string &spriteID)
 {
     auto &reg = engine.getRegistry();
     ECS::Entity projectileEntity = reg.createEntity();
@@ -41,5 +36,4 @@ void createProjectile(
     attachAndUpdateComponent<Components::Type>(engine, projectileEntity, type);
     attachAndUpdateComponent<Components::SpriteID>(engine, projectileEntity, spriteID);
     attachAndUpdateComponent<Components::DeathRange>(engine, projectileEntity, 1920, 1080, 0, 0);
-    attachAndUpdateComponent<Components::Sound>(engine, projectileEntity, soundPath, volume, pitch, loop);
 }
