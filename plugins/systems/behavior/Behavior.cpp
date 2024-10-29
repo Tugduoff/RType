@@ -51,7 +51,9 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->floatY *= factor;
                         vel->y = (int)vel->floatY;
                     } else if (pos->y > deathRange->maxY - 50) {
-                        vel->y = -5;
+                        vel->floatY = -5;
+                        vel->floatY *= factor;
+                        vel->y = (int)vel->floatY;
                     } else if (pos->y > deathRange->minY + 50 && pos->y < deathRange->maxY - 50 && vel->y != 5 && vel->y != -5) {
                         vel->floatY = 5;
                         vel->floatY *= factor;
