@@ -8,8 +8,6 @@
 #include "SoundSystem.hpp"
 #include "SfmlSoundComponent.hpp"
 #include "components/sound/Sound.hpp"
-// No need for this include for now, might be used later on...
-// #include "components/position/Position.hpp"
 #include "ECS/utilities/Zipper/IndexedZipper.hpp"
 
 Systems::SoundSystem::SoundSystem()
@@ -25,35 +23,38 @@ void Systems::SoundSystem::run(Engine::GameEngine &engine)
     auto &reg = engine.getRegistry();
     auto &sounds = reg.componentManager().getComponents<Components::Sound>();
     auto &sfmlSoundComponents = reg.componentManager().getComponents<Components::SfmlSoundComponent>();
-    // For now, this is commented but could be used later on
-    // auto &posArr = reg.componentManager().getComponents<Components::Position>();
 
     for (auto &&[i, sound] : IndexedZipper(sounds)) {
-        if (sound.sound.empty()) {
-            continue;
-        }
-        try {
-            auto &soundComp = sfmlSoundComponents[i];
-            if (soundComp->getSound().getStatus() == sf::Sound::Playing) {
-                continue;
+        for (auto &soundInstance : sound.sounds) {
+            std::cerr << "Sound: " << std::get<0>(soundInstance)
+                << " " << std::get<1>(soundInstance)
+                << " " << std::get<2>(soundInstance)
+                << " " << (unsigned)std::get<3>(soundInstance)
+                << " " << (unsigned)std::get<4>(soundInstance)
+                << " " << (unsigned)std::get<5>(soundInstance) << std::endl;
+            try {
+                auto &sfmlSoundComp = sfmlSoundComponents[i];
+
+                if (std::get<5>(soundInstance) == 1) {
+                    std::cerr << "Sound to play: " << std::get<0>(soundInstance) << std::endl;
+                    sfmlSoundComp->play(std::get<0>(soundInstance));
+                    std::cerr << "Sound played: " << std::get<0>(soundInstance) << std::endl;
+                } else {
+                    std::cerr << "Sound to reset: " << std::get<0>(soundInstance) << std::endl;
+                    sfmlSoundComp->reset(std::get<0>(soundInstance));
+                    std::cerr << "Sound resetted: " << std::get<0>(soundInstance) << std::endl;
+                }
+            } catch (std::exception &) {
+                std::unique_ptr<Components::SfmlSoundComponent> soundComp =
+                    std::make_unique<Components::SfmlSoundComponent>();
+                for (auto &soundInstance2 : sound.sounds) {
+                    soundComp->addSound(std::get<0>(soundInstance2), std::get<1>(soundInstance2),
+                        std::get<2>(soundInstance2), std::get<3>(soundInstance2), std::get<4>(soundInstance2));
+                }
+                reg
+                    .componentManager()
+                    .addComponent<Components::SfmlSoundComponent>((ECS::Entity)i, std::move(soundComp));
             }
-            soundComp->play();
-        } catch (std::exception &) {
-            std::unique_ptr<Components::SfmlSoundComponent> soundComp = std::make_unique<Components::SfmlSoundComponent>();
-            soundComp->setSound(sound.sound);
-            soundComp->setVolume(sound.volume);
-            soundComp->setPitch(sound.pitch);
-            soundComp->setLoop(sound.loop);
-
-            // try {
-            //     // This could be used to create spatial sound later on using a sf::Listener attached to the player.
-            //     // For now, it's not doing anything and wont make the program fail. Ive commented it out to avoid misleading comprehension.
-            //     auto &posArray = posArr[i];
-            //     soundComp->setPosition(posArray->x, posArray->y);
-            // } catch (std::exception &) {
-            // }
-
-            reg.componentManager().addComponent<Components::SfmlSoundComponent>((ECS::Entity)i, std::move(soundComp));
         }
     }
 }
