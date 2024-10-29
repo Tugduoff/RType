@@ -38,6 +38,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 if (aiBehavior->startingX && aiBehavior->startingY) {
                     aiBehavior->startingX = pos->x;
                     aiBehavior->startingY = pos->y;
+                    engine.updateComponent(i, aiBehavior->getId(), aiBehavior->serialize());
                 }
 
                 if (aiBehavior->behavior == 0)
@@ -60,18 +61,17 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 2) {
-                    if (pos->y > aiBehavior->startingY + 100) {
+                    vel->floatY = 3;
+                    vel->floatY *= factor;
+                    vel->y = (int)vel->floatY; 
+                    if (pos->y > aiBehavior->startingY + 150) {
                         vel->floatY = -3;
                         vel->floatY *= factor;
                         vel->y = (int)vel->floatY;
-                    } else if (pos->y < aiBehavior->startingY - 100) {
+                    } else if (pos->y > aiBehavior->startingY - 150) {
                         vel->floatY = 3;
                         vel->floatY *= factor;
                         vel->y = (int)vel->floatY;
-                    } else if (pos->y < aiBehavior->startingY + 100 && pos->y > aiBehavior->startingY - 100 && vel->y != -3 && vel->y != 3) {
-                        vel->floatY = 3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY; 
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 3) {
