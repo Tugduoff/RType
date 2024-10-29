@@ -52,21 +52,14 @@ namespace Components {
             }
 
             void play(const std::string &id) {
-                std::cerr << "Playing sound in play: " << id << std::endl;
                 for (auto &sound : __sounds) {
                     if (std::get<0>(sound) == id) {
-                        std::cerr << "Playing sound: " << std::get<0>(sound) << std::endl;
-                        std::cerr << "Loop: " << std::get<5>(sound) << std::endl;
-                        std::cerr << "Has played: " << std::get<6>(sound) << std::endl;
-
                         // Skip if sound is non-looping and has already played
                         if (!std::get<5>(sound) && std::get<6>(sound))
                             return;
 
                         // Only play sound if it isn't already playing
                         if (std::get<1>(sound)->getStatus() != sf::Sound::Playing) {
-                            std::cerr << "Sound is not playing, playing sound: " << std::get<0>(sound) << std::endl;
-                            std::cerr << "Volume: " << std::get<3>(sound) << std::endl;
                             std::get<1>(sound)->play();
                             std::get<6>(sound) = true; // Mark sound as played
                         }
@@ -86,7 +79,6 @@ namespace Components {
             void reset(const std::string &id) {
                 for (auto &sound : __sounds) {
                     if (std::get<0>(sound) == id) {
-                        std::cerr << "Resetting sound: " << std::get<0>(sound) << std::endl;
                         std::get<1>(sound)->stop();
                         std::get<6>(sound) = false; // Mark sound as not played
                     }

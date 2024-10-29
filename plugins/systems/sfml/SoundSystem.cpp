@@ -26,23 +26,13 @@ void Systems::SoundSystem::run(Engine::GameEngine &engine)
 
     for (auto &&[i, sound] : IndexedZipper(sounds)) {
         for (auto &soundInstance : sound.sounds) {
-            std::cerr << "Sound: " << std::get<0>(soundInstance)
-                << " " << std::get<1>(soundInstance)
-                << " " << std::get<2>(soundInstance)
-                << " " << (unsigned)std::get<3>(soundInstance)
-                << " " << (unsigned)std::get<4>(soundInstance)
-                << " " << (unsigned)std::get<5>(soundInstance) << std::endl;
             try {
                 auto &sfmlSoundComp = sfmlSoundComponents[i];
 
                 if (std::get<5>(soundInstance) == 1) {
-                    std::cerr << "Sound to play: " << std::get<0>(soundInstance) << std::endl;
                     sfmlSoundComp->play(std::get<0>(soundInstance));
-                    std::cerr << "Sound played: " << std::get<0>(soundInstance) << std::endl;
                 } else {
-                    std::cerr << "Sound to reset: " << std::get<0>(soundInstance) << std::endl;
                     sfmlSoundComp->reset(std::get<0>(soundInstance));
-                    std::cerr << "Sound resetted: " << std::get<0>(soundInstance) << std::endl;
                 }
             } catch (std::exception &) {
                 std::unique_ptr<Components::SfmlSoundComponent> soundComp =

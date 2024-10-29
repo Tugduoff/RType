@@ -52,7 +52,6 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
             try {
                 auto &sound = soundArr[entityIndex];
 
-                std::cerr << "Entity: " << entityIndex << " is sending sound" << std::endl;
                 for (auto &soundInstance : sound->sounds) {
                     if (std::get<0>(soundInstance) == "ATTACK") {
                         if (std::get<5>(soundInstance) == true) {
@@ -61,12 +60,6 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
                             return;
                         }
                         std::get<5>(soundInstance) = true;
-                        std::cerr << "Sound wants to be played: " << std::get<0>(soundInstance)
-                            << " " << std::get<1>(soundInstance)
-                            << " " << std::get<2>(soundInstance)
-                            << " " << std::get<3>(soundInstance)
-                            << " " << std::get<4>(soundInstance)
-                            << " " << std::get<5>(soundInstance) << std::endl;
                         engine.updateComponent((ECS::Entity)entityIndex, sound->getId(), sound->serialize());
                     }
                 }
