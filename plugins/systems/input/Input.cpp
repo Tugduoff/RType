@@ -36,7 +36,7 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
                 int projectilePosX = position->x;
                 int projectilePosY = position->y;
                 int projectileVelX = gun->bulletVelocityX;
-                int projectileVelY = 0;
+                int projectileVelY = gun->bulletVelocityY;
                 int projectileColliderWidth = 10;
                 int projectileColliderHeight = 10;
                 int projectileDamage = gun->bulletDamage;
