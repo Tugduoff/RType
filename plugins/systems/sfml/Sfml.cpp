@@ -14,7 +14,6 @@
 #include "library_entrypoint.hpp"
 
 Systems::Sfml::Sfml(libconfig::Setting &config) :
-    displaySystem(config),
     inputSystem(config),
     actionManager(config),
     __music()
@@ -22,6 +21,13 @@ Systems::Sfml::Sfml(libconfig::Setting &config) :
     int width;
     int height;
     std::string title;
+
+    try {
+        displaySystem = Systems::Display(config);
+    } catch (std::exception &e) {
+        std::cerr << "Error while creating Display system: " << e.what() << std::endl;
+        exit(84);
+    }
 
     config.lookupValue("width", width);
     config.lookupValue("height", height);
