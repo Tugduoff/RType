@@ -14,8 +14,10 @@
     #include "GameEngine/GameEngine.hpp"
     #include <unordered_map>
     #include <vector>
+    #include <tuple>
     #include "Texture.hpp"
     #include "Shader.hpp"
+    #include <memory>
 
 namespace Components {
     /**
@@ -25,44 +27,74 @@ namespace Components {
      */
     class SfmlSoundComponent {
         public:
-
-            SfmlSoundComponent() : __sound(), __buffer(), __loop(false), __hasPlayed(false) {};
+            SfmlSoundComponent() = default;
             ~SfmlSoundComponent() = default;
 
-            void setSound(const std::string &soundPath)
-            {
-                if (!__buffer.loadFromFile(soundPath))
+            void addSound(const std::string &id, const std::string &soundPath, float volume, float pitch, bool loop) {
+                // Create shared pointers for SoundBuffer and Sound
+                auto buff = std::make_shared<sf::SoundBuffer>();
+                auto sound = std::make_shared<sf::Sound>();
+
+                // Load the buffer from the file and set up the sound
+                if (!buff->loadFromFile(soundPath)) {
                     throw std::runtime_error("Failed to load sound from " + soundPath);
-                __sound.setBuffer(__buffer);
+                }
+
+                // Associate buffer with sound and set properties
+                sound->setBuffer(*buff);
+                sound->setVolume(volume);
+                sound->setPitch(pitch);
+                sound->setLoop(loop);
+
+                std::cerr << "Adding sound: " << id << std::endl;
+
+                __sounds.emplace_back(id, sound, buff, volume, pitch, loop, false);
             }
 
-            void setVolume(float volume) { __sound.setVolume(volume); }
-            void setPitch(float pitch) { __sound.setPitch(pitch); }
-            void setLoop(bool loop) { __sound.setLoop(loop); __loop = loop; }
+            void play(const std::string &id) {
+                std::cerr << "Playing sound in play: " << id << std::endl;
+                for (auto &sound : __sounds) {
+                    if (std::get<0>(sound) == id) {
+                        std::cerr << "Playing sound: " << std::get<0>(sound) << std::endl;
+                        std::cerr << "Loop: " << std::get<5>(sound) << std::endl;
+                        std::cerr << "Has played: " << std::get<6>(sound) << std::endl;
 
-            void play() {
-                if (!__loop && __hasPlayed)
-                    return;
-                if (__sound.getStatus() != sf::Sound::Playing) {
-                    __sound.play();
-                    __hasPlayed = true;
+                        // Skip if sound is non-looping and has already played
+                        if (!std::get<5>(sound) && std::get<6>(sound))
+                            return;
+
+                        // Only play sound if it isn't already playing
+                        if (std::get<1>(sound)->getStatus() != sf::Sound::Playing) {
+                            std::cerr << "Sound is not playing, playing sound: " << std::get<0>(sound) << std::endl;
+                            std::cerr << "Volume: " << std::get<3>(sound) << std::endl;
+                            std::get<1>(sound)->play();
+                            std::get<6>(sound) = true; // Mark sound as played
+                        }
+                    }
                 }
             }
 
-            void pause() { __sound.pause(); }
-            void stop() { __sound.stop(); }
+            bool hasSound(const std::string &id) {
+                for (auto &sound : __sounds) {
+                    if (std::get<0>(sound) == id) {
+                        return true;
+                    }
+                }
+                return false;
+            }
 
-            void setPosition(float x, float y) { __sound.setPosition(x, y, 0); }
-
-            sf::Sound &getSound() { return __sound; }
+            void reset(const std::string &id) {
+                for (auto &sound : __sounds) {
+                    if (std::get<0>(sound) == id) {
+                        std::cerr << "Resetting sound: " << std::get<0>(sound) << std::endl;
+                        std::get<1>(sound)->stop();
+                        std::get<6>(sound) = false; // Mark sound as not played
+                    }
+                }
+            }
 
         private:
-
-            sf::Sound __sound;
-            sf::SoundBuffer __buffer;
-            bool __loop;
-            bool __hasPlayed;
-
+            std::vector<std::tuple<std::string, std::shared_ptr<sf::Sound>, std::shared_ptr<sf::SoundBuffer>, float, float, bool, bool>> __sounds;
     };
 };
 
