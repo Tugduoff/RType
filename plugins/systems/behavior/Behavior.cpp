@@ -43,7 +43,6 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 if (aiBehavior->behavior == 0)
                     continue;
                 else if (aiBehavior->behavior == 1) {
-                    std::cerr << "Entity " << i << " has behavior 1" << std::endl;
                     vel->floatX = 0;
                     vel->x = 0;
                     if (pos->y < deathRange->minY + 50) {
@@ -61,18 +60,22 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 2) {
-                    std::cerr << "Entity " << i << " has behavior 2" << std::endl;
-                    vel->x = -2;
                     if (pos->y > aiBehavior->startingY + 100) {
-                        vel->y = -5;
+                        vel->floatY = -3;
+                        vel->floatY *= factor;
+                        vel->y = (int)vel->floatY;
                     } else if (pos->y < aiBehavior->startingY - 100) {
-                        vel->y = 5;
+                        vel->floatY = 3;
+                        vel->floatY *= factor;
+                        vel->y = (int)vel->floatY;
+                    } else if (pos->y < aiBehavior->startingY + 100 && pos->y > aiBehavior->startingY - 100 && vel->y != -3 && vel->y != 3) {
+                        vel->floatY = 3;
+                        vel->floatY *= factor;
+                        vel->y = (int)vel->floatY; 
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
                 } else if (aiBehavior->behavior == 3) {
-                    std::cerr << "Entity " << i << " has behavior 3" << std::endl;
                 } else if (aiBehavior->behavior == 4) {
-                    std::cerr << "Entity " << i << " has behavior 4" << std::endl;
                 }
             } catch (std::exception &e) {
                 continue;
