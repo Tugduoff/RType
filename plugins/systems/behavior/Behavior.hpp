@@ -25,7 +25,7 @@ namespace Engine {
 
 namespace Systems {
     /**
-     * @class AiSystem
+     * @class BehaviorSystem
      * 
      * @brief System class from Systems that handles the movement and attacks of non controllable entities.
      * 
