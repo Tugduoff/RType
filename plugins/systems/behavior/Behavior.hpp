@@ -27,9 +27,9 @@ namespace Systems {
     /**
      * @class AiSystem
      * 
-     * @brief System class from Systems that handles the attack of entities (automatic attacks).
+     * @brief System class from Systems that handles the movement and attacks of non controllable entities.
      * 
-     * This system is responsible for handling the attack of entities.
+     * This system is responsible for handling the movement and attacks of non playable entities.
      */
     class BehaviorSystem : public ASystem {
         public:
