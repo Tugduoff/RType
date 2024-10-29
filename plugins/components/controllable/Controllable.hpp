@@ -73,9 +73,7 @@ namespace Components {
             AComponent("Controllable"),
             inputs{false},
             actions{false},
-            keyBindings(keyBindings) {
-                std::cerr << "Controllable default ctor:" << std::endl;
-            };
+            keyBindings(keyBindings) {};
 
         /**
          * @brief Constructor with configuration settings.
@@ -104,8 +102,6 @@ namespace Components {
             })
         {
             std::string forward, backward, left, right;
-
-            std::cerr << "Controllable config:" << std::endl;
 
             if (!config.lookupValue("FORWARD", forward)) forward = "Z";
             if (!config.lookupValue("BACKWARD", backward)) backward = "S";
@@ -140,6 +136,7 @@ namespace Components {
          * @brief Serializes the input states into a byte vector.
          * 
          * Converts the inputs (movement directions and actions) into network byte order for transmission or storage.
+         * Also converts the key bindings into network byte order.
          * 
          * @return A vector of bytes representing the serialized input states.
          */
@@ -166,6 +163,7 @@ namespace Components {
          * @brief Deserializes the input states from the provided byte vector.
          * 
          * Reads the inputs (forward, backward, left, right) and actions in network byte order.
+         * Also read the key bindings for each actions.
          * 
          * @param data A vector of bytes representing the serialized input states.
          * @throws std::runtime_error If the data size is invalid.
@@ -187,8 +185,10 @@ namespace Components {
          * @brief Gets the size of the serialized data.
          * 
          * @return The size of the data, in bytes.
+         * 
+         * @note the size is equal to the size of the network array plus the number of key bindings rows.
          */
-        size_t getSize() const override { return 28; };
+        size_t getSize() const override { return sizeof(__data) + keyBindings.size() / 2; };
 
         /**
          * @brief Adds the Controllable component to an entity.
