@@ -8,6 +8,8 @@
 #ifndef RTYPE_CLIENT_HPP_
     #define RTYPE_CLIENT_HPP_
 
+    #include <SFML/Graphics.hpp>
+    #include <SFML/Window.hpp>
     #include <unordered_map>
     #include "UDPConnection.hpp"
     #include "GameEngine/GameEngine.hpp"
@@ -157,6 +159,8 @@ class RTypeClient : public UDPConnection
          * @note The _compNames map is a map of the component id received from the network to the string id of the component
          */
         std::unordered_map<uint8_t, std::string> &getCompNames() { return _compNames; };
+
+        void menu();
 
     public:
         bool gameEnd;
