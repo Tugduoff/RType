@@ -39,9 +39,9 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 auto &gun = GunComponent[i];
                 float factor = (float)vel->diminishingFactor / 100;
 
-                if (aiBehavior->behavior == 0)
+                if (aiBehavior->behavior == Components::BehaviorId::NOTHING)
                     continue;
-                else if (aiBehavior->behavior == 1) {
+                else if (aiBehavior->behavior == Components::BehaviorId::Y_AXIS_LOOP) {
                     vel->floatX = 0;
                     vel->x = 0;
                     if (pos->y < deathRange->minY + 50) {
@@ -58,7 +58,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->y = (int)vel->floatY;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
-                } else if (aiBehavior->behavior == 2) {
+                } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_1) {
                     if (pos->y < deathRange->minY + 50) {
                         vel->floatY = 3;
                         vel->floatY *= factor;
@@ -73,7 +73,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->y = (int)vel->floatY;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
-                } else if (aiBehavior->behavior == 3) {
+                } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_2) {
                     if (pos->y < deathRange->minY + 300) {
                         vel->floatY = 3;
                         vel->floatY *= factor;
@@ -88,7 +88,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->y = (int)vel->floatY;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
-                } else if (aiBehavior->behavior == 4) {
+                } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_3) {
                     if (pos->y < deathRange->minY + 500) {
                         vel->floatY = 3;
                         vel->floatY *= factor;
@@ -103,7 +103,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->y = (int)vel->floatY;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
-                } else if (aiBehavior->behavior == 5) {
+                } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_4) {
                     if (pos->y < deathRange->minY + 800) {
                         vel->floatY = 3;
                         vel->floatY *= factor;
@@ -118,9 +118,13 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->y = (int)vel->floatY;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
-                } else if (aiBehavior->behavior == 6) {
+                } else if (aiBehavior->behavior == Components::BehaviorId::X_AXIS_LOOP) {
                     vel->floatY = 0;
                     vel->y = 0;
+                    if (gun->bulletVelocityY == 0) {
+                        gun->bulletVelocityY = 8;
+                        engine.updateComponent(i, gun->getId(), gun->serialize());
+                    }
                     if (pos->x < deathRange->minX + 50) {
                         vel->floatX = 5;
                         vel->floatX *= factor;
@@ -135,7 +139,11 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->x = (int)vel->floatX;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
-                } else if (aiBehavior->behavior == 7) {
+                } else if (aiBehavior->behavior == Components::BehaviorId::X_ZIG_ZAG_1) {
+                    if (gun->bulletVelocityY == 0) {
+                        gun->bulletVelocityY = 8;
+                        engine.updateComponent(i, gun->getId(), gun->serialize());
+                    }
                     if (pos->x < deathRange->minX + 50) {
                         vel->floatX = 3;
                         vel->floatX *= factor;
@@ -150,7 +158,11 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->x = (int)vel->floatX;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
-                } else if (aiBehavior->behavior == 8) {
+                } else if (aiBehavior->behavior == Components::BehaviorId::X_ZIG_ZAG_2) {
+                    if (gun->bulletVelocityY == 0) {
+                        gun->bulletVelocityY = 8;
+                        engine.updateComponent(i, gun->getId(), gun->serialize());
+                    }
                     if (pos->x < deathRange->minX + 450) {
                         vel->floatX = 3;
                         vel->floatX *= factor;
@@ -165,8 +177,12 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->x = (int)vel->floatX;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
-                } else if (aiBehavior->behavior == 9) {
-                    if (pos->x < deathRange->minX + 850) {
+                } else if (aiBehavior->behavior == Components::BehaviorId::X_ZIG_ZAG_3) {
+                    if (gun->bulletVelocityY == 0) {
+                        gun->bulletVelocityY = 8;
+                        engine.updateComponent(i, gun->getId(), gun->serialize());
+                    }
+                    if (pos->x < deathRange->minX + 800) {
                         vel->floatX = 3;
                         vel->floatX *= factor;
                         vel->x = (int)vel->floatX;
@@ -174,14 +190,18 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->floatX = -3;
                         vel->floatX *= factor;
                         vel->x = (int)vel->floatX;
-                    } else if (pos->x > deathRange->minX + 50 && pos->x < deathRange->maxX - 800 && vel->x != 3 && vel->x != -3) {
+                    } else if (pos->x > deathRange->minX + 800 && pos->x < deathRange->maxX - 400 && vel->x != 3 && vel->x != -3) {
                         vel->floatX = 3;
                         vel->floatX *= factor;
                         vel->x = (int)vel->floatX;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
-                } else if (aiBehavior->behavior == 10) {
-                    if (pos->x < deathRange->minX + 1250) {
+                } else if (aiBehavior->behavior == Components::BehaviorId::X_ZIG_ZAG_4) {
+                    if (gun->bulletVelocityY == 0) {
+                        gun->bulletVelocityY = 8;
+                        engine.updateComponent(i, gun->getId(), gun->serialize());
+                    }
+                    if (pos->x < deathRange->minX + 1350) {
                         vel->floatX = 3;
                         vel->floatX *= factor;
                         vel->x = (int)vel->floatX;

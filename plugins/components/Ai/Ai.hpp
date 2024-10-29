@@ -22,6 +22,22 @@
     #include <libconfig.h++>
 
 namespace Components {
+
+    enum class BehaviorId : uint8_t {
+        NOTHING = 0,
+        Y_AXIS_LOOP,
+        Y_ZIG_ZAG_1,
+        Y_ZIG_ZAG_2,
+        Y_ZIG_ZAG_3,
+        Y_ZIG_ZAG_4,
+        X_AXIS_LOOP,
+        X_ZIG_ZAG_1,
+        X_ZIG_ZAG_2,
+        X_ZIG_ZAG_3,
+        X_ZIG_ZAG_4,
+        UNKNOWN = 255 // Handle an invalid behavior
+    };
+
     /**
      * @brief AI component class in Components.
      * 
@@ -37,7 +53,7 @@ namespace Components {
          * 
          * @param behavior The AI behavior identifier (default is 0).
          */
-        Ai(uint32_t behavior = 0) : AComponent(std::string("Ai")), behavior(behavior) {};
+        Ai(const BehaviorId &behavior = BehaviorId::Y_AXIS_LOOP) : AComponent(std::string("Ai")), behavior(behavior) {};
 
         /**
          * @brief Constructor using configuration settings.
@@ -47,9 +63,14 @@ namespace Components {
          * 
          * @param config The libconfig::Setting containing the configuration data.
          */
-        Ai(libconfig::Setting &config) : AComponent(std::string("Ai")) {
-            if (!config.lookupValue("behavior", behavior)) {
-                behavior = 0;
+        Ai(libconfig::Setting &config) : AComponent(std::string("Ai"))
+        {
+            int Id = 0;
+
+            if (!config.lookupValue("behavior", Id)) {
+                behavior = BehaviorId::Y_AXIS_LOOP;
+            } else {
+                behavior = static_cast<BehaviorId>(Id);
             }
         }        
 
@@ -61,8 +82,7 @@ namespace Components {
          * @return std::vector<uint8_t> Serialized behavior data.
          */
         std::vector<uint8_t> serialize() override {
-            __network.behavior = htonl(behavior);
-            return std::vector<uint8_t>(__data, __data + sizeof(__data));
+            return {static_cast<uint8_t>(behavior)};
         }
 
         /**
@@ -77,7 +97,7 @@ namespace Components {
             if (data.size() != getSize())
                 throw std::runtime_error("Invalid data size for Ai component");
 
-            behavior = ntohl(*reinterpret_cast<uint32_t *>(data.data()));
+            behavior = static_cast<BehaviorId>(data[0]);
         }
 
         /**
@@ -86,7 +106,7 @@ namespace Components {
          * @return size_t Size in bytes
          */
         size_t getSize() const override {
-            return sizeof(__data);
+            return sizeof(uint8_t);
         }
 
         /**
@@ -101,13 +121,14 @@ namespace Components {
          * @throws std::runtime_error If the arguments are invalid.
          */
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
-            if (args.size() != 1)
+            if (args.size() < 1)
                 throw std::runtime_error("Invalid number of arguments for Ai component");
 
-            uint32_t behavior = std::any_cast<uint32_t>(args[0]);
+            BehaviorId behavior = std::any_cast<BehaviorId>(args[0]);
+            std::unique_ptr<Components::Ai> aiComponent =
+                engine.newComponent<Components::Ai>(behavior);
 
-            auto Ai = engine.newComponent<Components::Ai>(behavior);
-            engine.getRegistry().componentManager().addComponent<Components::Ai>(to, std::move(Ai));
+            engine.getRegistry().componentManager().addComponent(to, std::move(aiComponent));
         };
 
         /**
@@ -126,23 +147,16 @@ namespace Components {
                 std::cerr << "Warning: 'behavior' not found in config. Using default value: 1\n";
                 behavior = 0;
             }
+            BehaviorId Id = static_cast<BehaviorId>(behavior);
+            std::unique_ptr<Components::Ai> aiComponents =
+                engine.newComponent<Components::Ai>(Id);
 
-            std::cout << "behavior: " << behavior << std::endl;
-
-            std::unique_ptr<Components::Ai> Ai = engine.newComponent<Components::Ai>(static_cast<uint32_t>(behavior));
-            engine.getRegistry().componentManager().addComponent<Components::Ai>(to, std::move(Ai));
-            std::cout << std::endl;
+            engine.getRegistry().componentManager().addComponent<Components::Ai>(to, std::move(aiComponents));
         }
 
-        uint32_t behavior;
+        BehaviorId behavior;
 
     private:
-        union {
-            struct {
-                uint32_t behavior;
-            } __network;
-            uint8_t __data[4];
-        };
     };
 };
 

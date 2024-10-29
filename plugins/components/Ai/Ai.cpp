@@ -18,9 +18,9 @@ Components::IComponent *buildDefault()
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(uint32_t behavior)
+Components::IComponent *buildWithParams(enum Components::BehaviorId &id)
 {
-    return new Components::Ai(behavior);
+    return new Components::Ai(id);
 }
 
 LIBRARY_ENTRYPOINT
