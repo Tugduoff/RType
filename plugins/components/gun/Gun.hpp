@@ -74,13 +74,13 @@ namespace Components {
         std::vector<uint8_t> serialize() override {
             std::vector<uint8_t> data(20);
 
-            // Serialize bulletDamage, fireRate, and bulletVelocityX with endianness conversion
+            // Serialize bulletDamage, fireRate, and bulletVelocityX/Y with endianness conversion
             uint32_t netBulletDamage = htonl(bulletDamage);
             uint32_t netFireRate = htonl(fireRate);
             uint32_t netBulletVelocityX = htonl(bulletVelocityX);
             uint32_t netBulletVelocityY = htonl(bulletVelocityY);
 
-            // Copy the 3 fields into the data array
+            // Copy the 4 fields into the data array
             std::memcpy(&data[0], &netBulletDamage, sizeof(uint32_t));
             std::memcpy(&data[4], &netFireRate, sizeof(uint32_t));
             std::memcpy(&data[8], &netBulletVelocityX, sizeof(uint32_t));
@@ -140,7 +140,7 @@ namespace Components {
             std::string spriteId = std::any_cast<std::string>(args[4]);
 
             engine.getRegistry().componentManager().addComponent<Components::Gun>(
-                to, engine.newComponent<Components::Gun>(bulletDamage, fireRate, bulletVelocityX, spriteId));
+                to, engine.newComponent<Components::Gun>(bulletDamage, fireRate, bulletVelocityX, bulletVelocityY, spriteId));
         }
 
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
