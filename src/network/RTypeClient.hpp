@@ -12,6 +12,8 @@
     #include "UDPConnection.hpp"
     #include "GameEngine/GameEngine.hpp"
 
+    #define CLIENT_BUFFER_FIXED_SIZE 1024
+
 /**
  * @class RTypeClient
  * 
@@ -59,6 +61,7 @@ class RTypeClient : public UDPConnection
          * @brief Read data sent from the server and act accordingly
          * 
          * @param engine : The game engine on which to do modifications
+         * @param bytes_recvd : The number of bytes received from the server
          * 
          * @note This function receive the data, read the opcode and call one those functions accordingly : 
          * @note createEntity, deleteEntity, attachComponent, updateComponent, detachComponent

@@ -48,7 +48,7 @@ bool RTypeClient::dataFromServer()
 
 void RTypeClient::asyncReceive(Engine::GameEngine &engine)
 {
-    _recv_buffer.resize(1024);
+    _recv_buffer.resize(CLIENT_BUFFER_FIXED_SIZE);
     _socket.async_receive_from(
         boost::asio::buffer(_recv_buffer), _sender_endpoint,
         [this, &engine](const boost::system::error_code &ec, std::size_t bytes_recvd) {
