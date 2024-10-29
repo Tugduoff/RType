@@ -46,46 +46,58 @@ bool RTypeClient::dataFromServer()
     return false;
 }
 
-void RTypeClient::interpretServerData(Engine::GameEngine &engine)
+void RTypeClient::asyncReceive(Engine::GameEngine &engine)
 {
-    std::vector<uint8_t> operation = blockingReceive();
+    _recv_buffer.resize(1024);
+    _socket.async_receive_from(
+        boost::asio::buffer(_recv_buffer), _sender_endpoint,
+        [this, &engine](const boost::system::error_code &ec, std::size_t bytes_recvd) {
+            if (!ec) {
+                this->interpretServerData(engine, bytes_recvd);
+            }
+        }
+    );
+}
 
-    switch (operation[0]) {
+void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::size_t bytes_recvd)
+{
+    _recv_buffer.resize(bytes_recvd);
+    switch (_recv_buffer[0]) {
         case 0x0:
-            std::cerr << "Create Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
-            createEntity(engine, operation);
+            std::cerr << "Create Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
+            createEntity(engine, _recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x1:
             std::cerr << "Recieved delete instruction!" << std::endl;
-            std::cerr << "Delete Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
-            deleteEntity(engine, operation);
+            std::cerr << "Delete Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
+            deleteEntity(engine, _recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x2:
             std::cerr << "Attach Component" << std::endl;
-            attachComponent(engine, operation);
+            attachComponent(engine, _recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x3:
             // std::cerr << "Update Component" << std::endl;
-            // std::cerr << "Component n°" << uint16From2Uint8(operation[5], operation[6]) << " of Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
-            updateComponent(engine, operation);
+            // std::cerr << "Component n°" << uint16From2Uint8(_recv_buffer[5], _recv_buffer[6]) << " of Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
+            updateComponent(engine, _recv_buffer);
             break;
         case 0x4:
             std::cerr << "Detach Component" << std::endl;
-            detachComponent(engine, operation);
+            detachComponent(engine, _recv_buffer);
             std::cerr << std::endl;
             break;
         default:
-            std::cerr << "Error: Unknown opcode : " << int(operation[0]) << ". Full command is : " << std::endl;
-            std::cerr << binaryToStr(operation) << std::endl;
-            if (binaryToStr(operation).find("You have been disconnected :(") != std::string::npos) {
+            std::cerr << "Error: Unknown opcode : " << int(_recv_buffer[0]) << ". Full command is : " << std::endl;
+            std::cerr << binaryToStr(_recv_buffer) << std::endl;
+            if (binaryToStr(_recv_buffer).find("You have been disconnected :(") != std::string::npos) {
                 gameEnd = true;
             }
-            return;
+            break;
     }
-    // std::cerr << std::endl;
+    asyncReceive(engine);
 }
 
 void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)

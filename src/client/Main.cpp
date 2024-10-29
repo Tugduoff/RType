@@ -53,13 +53,14 @@ int main()
         std::cout << "Commponent n°" << (int)name.first << ": " << name.second << std::endl;
     }
 
+    conn.asyncReceive(engine);
+    std::thread io_thread([&conn]() {
+        conn.getIoContext().run();
+    });
     try
     {
         // Check that you have the same components here with the map in RTypeClient
         while (conn.gameEnd != true) {
-            if (conn.dataFromServer()) {
-                conn.interpretServerData(engine);
-            }
             engine.runSystems();
         }
     }
