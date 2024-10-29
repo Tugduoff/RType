@@ -114,6 +114,23 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                         vel->y = (int)vel->floatY;
                     }
                     engine.updateComponent(i, vel->getId(), vel->serialize());
+                } else if (aiBehavior->behavior == 6) {
+                    vel->floatY = 0;
+                    vel->y = 0;
+                    if (pos->x < deathRange->minX + 50) {
+                        vel->floatX = 5;
+                        vel->floatX *= factor;
+                        vel->x = (int)vel->floatX;
+                    } else if (pos->x > deathRange->maxX - 50) {
+                        vel->floatX = -5;
+                        vel->floatX *= factor;
+                        vel->x = (int)vel->floatX;
+                    } else if (pos->x > deathRange->minX + 50 && pos->x < deathRange->maxX - 50 && vel->x != 5 && vel->x != -5) {
+                        vel->floatX = 5;
+                        vel->floatX *= factor;
+                        vel->x = (int)vel->floatX;
+                    }
+                    engine.updateComponent(i, vel->getId(), vel->serialize());
                 }
             } catch (std::exception &e) {
                 continue;
