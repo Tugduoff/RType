@@ -25,14 +25,18 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
         auto &posComponent = reg.componentManager().getComponents<Components::Position>();
         auto &velComponent = reg.componentManager().getComponents<Components::Velocity>();
         auto &deathRangeComponent = reg.componentManager().getComponents<Components::DeathRange>();
+        auto &GunComponent = reg.componentManager().getComponents<Components::Gun>();
 
         size_t i = 0;
-        for (i = 0; i < aiComponent.size() || i < posComponent.size() || i < velComponent.size() || i < deathRangeComponent.size(); i++) {
+        for (i = 0; i < aiComponent.size() || i < posComponent.size() ||
+            i < velComponent.size() || i < deathRangeComponent.size() ||
+            i < GunComponent.size(); i++) {
             try {
                 auto &aiBehavior = aiComponent[i];
                 auto &pos = posComponent[i];
                 auto &vel = velComponent[i];
                 auto &deathRange = deathRangeComponent[i];
+                auto &gun = GunComponent[i];
                 float factor = (float)vel->diminishingFactor / 100;
 
                 if (aiBehavior->behavior == 0)
@@ -211,6 +215,8 @@ void Systems::BehaviorSystem::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Velocity component in Ai system" << std::endl;
     if (!engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange"))
         std::cerr << "Error: Could not register DeathRange component in Ai system" << std::endl;
+    if (!engine.registerComponent<Components::Gun>("./plugins/bin/components/", "Gun"))
+        std::cerr << "Error: Could not register Gun component in Ai system" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT
