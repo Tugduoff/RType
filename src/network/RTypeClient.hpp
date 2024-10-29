@@ -161,6 +161,7 @@ class RTypeClient : public UDPConnection
         std::unordered_map<uint8_t, std::string> &getCompNames() { return _compNames; };
 
         void menu();
+        void setEngine(Engine::GameEngine *engine) { _engine = engine; }
 
     public:
         bool gameEnd;
@@ -168,6 +169,7 @@ class RTypeClient : public UDPConnection
     private:
         std::unordered_map<uint8_t, std::string> _compNames;
         std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
+        Engine::GameEngine *_engine;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */

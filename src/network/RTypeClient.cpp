@@ -14,20 +14,10 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 }
 
 void RTypeClient::menu() {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), ".");
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space)
-                return;
-        }
-
-        window.clear(sf::Color::White);
-        window.display();
-
-        // engine.runSystems();
+    _engine->_inMenu = true;
+    while (_engine->isInMenu()) {
+        // _engine.runSystems();
+        std::cout << "aaaaaaaa" << std::endl;
     }
 }
 
