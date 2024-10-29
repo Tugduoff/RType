@@ -135,8 +135,6 @@ namespace Components {
         }
 
         uint32_t behavior;
-        uint32_t startingX;
-        uint32_t startingY;
 
     private:
         union {
