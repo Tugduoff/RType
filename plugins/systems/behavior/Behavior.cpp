@@ -133,28 +133,39 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 auto &gun = GunComponent[i];
                 float factor = (float)vel->diminishingFactor / 100;
 
-                if (aiBehavior->behavior == Components::BehaviorId::NOTHING)
-                    continue;
-                else if (aiBehavior->behavior == Components::BehaviorId::Y_AXIS_LOOP) {
-                    yAxisLoop(engine, i, pos, vel, deathRange, factor);
-                } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_1) {
-                    yZigZag(engine, i, pos, vel, deathRange, factor, 50, 800);
-                } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_2) {
-                    yZigZag(engine, i, pos, vel, deathRange, factor, 300, 600);
-                } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_3) {
-                    yZigZag(engine, i, pos, vel, deathRange, factor, 500, 250);
-                } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_4) {
-                    yZigZag(engine, i, pos, vel, deathRange, factor, 800, 50);
-                } else if (aiBehavior->behavior == Components::BehaviorId::X_AXIS_LOOP) {
-                    xAxisLoop(engine, i, pos, vel, deathRange, gun, factor);
-                } else if (aiBehavior->behavior == Components::BehaviorId::X_ZIG_ZAG_1) {
-                    xZigZag(engine, i, pos, vel, deathRange, gun, factor, 50, 1400);
-                } else if (aiBehavior->behavior == Components::BehaviorId::X_ZIG_ZAG_2) {
-                    xZigZag(engine, i, pos, vel, deathRange, gun, factor, 450, 1000);
-                } else if (aiBehavior->behavior == Components::BehaviorId::X_ZIG_ZAG_3) {
-                    xZigZag(engine, i, pos, vel, deathRange, gun, factor, 800, 400);
-                } else if (aiBehavior->behavior == Components::BehaviorId::X_ZIG_ZAG_4) {
-                    xZigZag(engine, i, pos, vel, deathRange, gun, factor, 1350, 50);
+                switch (aiBehavior->behavior) {
+                    case Components::BehaviorId::NOTHING:
+                        continue;
+                    case Components::BehaviorId::Y_AXIS_LOOP:
+                        yAxisLoop(engine, i, pos, vel, deathRange, factor);
+                        break;
+                    case Components::BehaviorId::Y_ZIG_ZAG_1:
+                        yZigZag(engine, i, pos, vel, deathRange, factor, 50, 800);
+                        break;
+                    case Components::BehaviorId::Y_ZIG_ZAG_2:
+                        yZigZag(engine, i, pos, vel, deathRange, factor, 300, 600);
+                        break;
+                    case Components::BehaviorId::Y_ZIG_ZAG_3:
+                        yZigZag(engine, i, pos, vel, deathRange, factor, 500, 250);
+                        break;
+                    case Components::BehaviorId::Y_ZIG_ZAG_4:
+                        yZigZag(engine, i, pos, vel, deathRange, factor, 800, 50);
+                        break;
+                    case Components::BehaviorId::X_AXIS_LOOP:
+                        xAxisLoop(engine, i, pos, vel, deathRange, gun, factor);
+                        break;
+                    case Components::BehaviorId::X_ZIG_ZAG_1:
+                        xZigZag(engine, i, pos, vel, deathRange, gun, factor, 50, 1400);
+                        break;
+                    case Components::BehaviorId::X_ZIG_ZAG_2:
+                        xZigZag(engine, i, pos, vel, deathRange, gun, factor, 450, 1000);
+                        break;
+                    case Components::BehaviorId::X_ZIG_ZAG_3:
+                        xZigZag(engine, i, pos, vel, deathRange, gun, factor, 800, 400);
+                        break;
+                    case Components::BehaviorId::X_ZIG_ZAG_4:
+                        xZigZag(engine, i, pos, vel, deathRange, gun, factor, 1350, 50);
+                        break;
                 }
             } catch (std::exception &e) {
                 continue;
