@@ -53,7 +53,7 @@ namespace Components {
          * 
          * @param behavior The AI behavior identifier (default is 0).
          */
-        Ai(const BehaviorId &behavior = BehaviorId::Y_AXIS_LOOP) : AComponent(std::string("Ai")), behavior(behavior) {};
+        Ai(const BehaviorId &behavior = BehaviorId::NOTHING) : AComponent(std::string("Ai")), behavior(behavior) {};
 
         /**
          * @brief Constructor using configuration settings.
@@ -68,7 +68,7 @@ namespace Components {
             int Id = 0;
 
             if (!config.lookupValue("behavior", Id)) {
-                behavior = BehaviorId::Y_AXIS_LOOP;
+                behavior = BehaviorId::NOTHING;
             } else {
                 behavior = static_cast<BehaviorId>(Id);
             }
