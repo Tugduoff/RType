@@ -64,14 +64,14 @@ class UDPServer {
         * 
         * @return The size of the longest component name.
         */
-        std::size_t get_size_max();
+        std::size_t __get_size_max();
 
         /**
         * @brief Sends a message to the remote client.
         * 
         * @param message A vector of bytes representing the message to be sent.
         */
-        void send_message(const std::vector<uint8_t>& message);
+        void __send_message(const std::vector<uint8_t>& message);
 
 
         // --- Client Init --- //
@@ -79,22 +79,22 @@ class UDPServer {
         /**
         * @brief Sends information about all components to the connected client.
         */
-        void send_components_infos();
+        void __send_components_infos();
 
         /**
         * @brief Sends the total number of components to the client.
         */
-        void send_total_components();
+        void __send_total_components();
 
         /**
         * @brief Sends the size of the longest component name to the client.
         */
-        void send_size_max();
+        void __send_size_max();
 
         /**
         * @brief Sends the list of component names to the client.
         */
-        void send_components();
+        void __send_components();
 
 
         // --- Client Activity --- //
@@ -104,28 +104,33 @@ class UDPServer {
         * 
         * @param client The UDP endpoint of the client.
         */
-        void checking_client(const udp::endpoint& client);
+        void __checking_client(const udp::endpoint& client);
 
         /**
         * @brief Sends a ping to the client to test connectivity.
         * 
         * @param client The UDP endpoint of the client.
         */
-        void send_ping(const udp::endpoint& client);
+        void __send_ping(const udp::endpoint& client);
 
         /**
         * @brief Starts a timer to wait for the client's pong response.
         * 
         * @param client The UDP endpoint of the client.
         */
-        void start_pong_timer(const udp::endpoint& client);
+        void __start_pong_timer(const udp::endpoint& client);
 
         /**
         * @brief Removes a disconnected client from the server and informs them.
         * 
         * @param client The UDP endpoint of the client to be removed.
         */
-        void remove_client(const udp::endpoint& client);
+        void __remove_client(const udp::endpoint& client);
+
+        /**
+         * @brief Does everything required to set up a new client
+         */
+        void __add_new_client();
 
 
     public:

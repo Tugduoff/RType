@@ -16,7 +16,7 @@ UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
     : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context) {
     __idStringToType = idStringToType;
 
-    size_max = get_size_max();
+    size_max = __get_size_max();
     std::cerr << "--- Server started on port " << port << ", package size_max = " << size_max << std::endl;
 }
 
@@ -39,13 +39,7 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
 
         if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
             if (message == "start") {
-                client_endpoints.push_back(remote_endpoint_);
-                std::cerr << "New client added: " << remote_endpoint_.address().to_string() 
-                            << ":" << remote_endpoint_.port() << std::endl;
-                client_responses[remote_endpoint_] = true;
-                is_disconnected[remote_endpoint_] = false;
-                // checking_client(remote_endpoint_);
-                send_components_infos();
+                __add_new_client();
             }
         } else {
             client_responses[remote_endpoint_] = true;
@@ -79,7 +73,7 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
 
 // --- Helpers --- //
 
-std::size_t UDPServer::get_size_max() {
+std::size_t UDPServer::__get_size_max() {
     auto max_name_length = std::max_element(__idStringToType.begin(), __idStringToType.end(),
         [](const auto& a, const auto& b) {
             return a.first.size() < b.first.size();
@@ -88,7 +82,7 @@ std::size_t UDPServer::get_size_max() {
     return max_name_length != __idStringToType.end() ? max_name_length->first.size() : 0;
 }
 
-void UDPServer::send_message(const std::vector<uint8_t>& message) {
+void UDPServer::__send_message(const std::vector<uint8_t>& message) {
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
         [this](boost::system::error_code ec, std::size_t bytes_sent) {
@@ -101,24 +95,35 @@ void UDPServer::send_message(const std::vector<uint8_t>& message) {
     );
 }
 
-// --- Client Init --- //
-
-void UDPServer::send_components_infos() {
-    send_total_components();
-    send_size_max();
-    send_components();
+void UDPServer::__add_new_client()
+{
+    client_endpoints.push_back(remote_endpoint_);
+    std::cerr << "New client added: " << remote_endpoint_.address().to_string() 
+                << ":" << remote_endpoint_.port() << std::endl;
+    client_responses[remote_endpoint_] = true;
+    is_disconnected[remote_endpoint_] = false;
+    // __checking_client(remote_endpoint_);
+    __send_components_infos();
 }
 
-void UDPServer::send_total_components() {
+// --- Client Init --- //
+
+void UDPServer::__send_components_infos() {
+    __send_total_components();
+    __send_size_max();
+    __send_components();
+}
+
+void UDPServer::__send_total_components() {
     uint16_t total_components = static_cast<uint16_t>(__idStringToType.size());
     total_components = htons(total_components);
 
     std::vector<uint8_t> message(2);
     std::memcpy(message.data(), &total_components, sizeof(total_components));
-    send_message(message);
+    __send_message(message);
 }
 
-void UDPServer::send_size_max() {
+void UDPServer::__send_size_max() {
     std::size_t max_name_length = 0;
     for (const auto& component_name : __idStringToType)
         max_name_length = std::max(max_name_length, component_name.first.size());
@@ -126,10 +131,10 @@ void UDPServer::send_size_max() {
 
     std::vector<uint8_t> message2(1);
     message2[0] = max_name_length_byte;
-    send_message(message2);
+    __send_message(message2);
 }
 
-void UDPServer::send_components() {
+void UDPServer::__send_components() {
     int i = 0;
     for (const auto& component_name : __idStringToType) {
         uint8_t index = static_cast<uint8_t>(i);
@@ -137,58 +142,58 @@ void UDPServer::send_components() {
         buffer[0] = index;
         std::memcpy(buffer.data() + 1, component_name.first.data(), component_name.first.size());
 
-        send_message(buffer);
+        __send_message(buffer);
         i++;
     }
 }
 
 // --- Client Activity --- //
 
-void UDPServer::checking_client(const udp::endpoint& client) {
+void UDPServer::__checking_client(const udp::endpoint& client) {
     std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(60)));
     timer->async_wait([this, client](const boost::system::error_code& ec) {
         if (!ec) {
             if (!client_responses[client] && !is_disconnected[client]) {
                 std::cerr << "Client did not respond to ping, disconnecting: " 
                             << client.address().to_string() << ":" << client.port() << std::endl;
-                remove_client(client);
+                __remove_client(client);
             } else {
                 client_responses[client] = false;
-                send_ping(client);
+                __send_ping(client);
             }
-            checking_client(client);
+            __checking_client(client);
         }
     });
     client_timers[client] = std::move(timer);
 }
 
-void UDPServer::send_ping(const udp::endpoint& client) {
+void UDPServer::__send_ping(const udp::endpoint& client) {
     std::string ping_message = "ping";
     socket_.async_send_to(boost::asio::buffer(ping_message), client,
         [this, client](boost::system::error_code ec, std::size_t) {
             if (!ec) {
                 std::cerr << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
-                start_pong_timer(client);
+                __start_pong_timer(client);
             }
         }
     );
 }
 
-void UDPServer::start_pong_timer(const udp::endpoint& client) {
+void UDPServer::__start_pong_timer(const udp::endpoint& client) {
     std::unique_ptr<boost::asio::steady_timer> pong_timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(10)));
     pong_timer->async_wait([this, client](const boost::system::error_code& ec) {
         if (!ec) {
             if (!client_responses[client] && !is_disconnected[client]) {
                 std::cerr << "Client did not respond to ping (no pong), disconnecting: " 
                             << client.address().to_string() << ":" << client.port() << std::endl;
-                remove_client(client);
+                __remove_client(client);
             }
         }
     });
     pong_timers[client] = std::move(pong_timer);
 }
 
-void UDPServer::remove_client(const udp::endpoint& client) {
+void UDPServer::__remove_client(const udp::endpoint& client) {
     if (!is_disconnected[client]) {
         is_disconnected[client] = true;
 
