@@ -12,7 +12,7 @@
 #include <iostream>
 #include <stdexcept>
 
-void Systems::BehaviorSystem::yAxisLoop(Engine::GameEngine &engine,size_t i, std::unique_ptr<Components::Position> &pos,
+void Systems::BehaviorSystem::yAxisLoop(Engine::GameEngine &engine, size_t i, std::unique_ptr<Components::Position> &pos,
     std::unique_ptr<Components::Velocity> &vel, std::unique_ptr<Components::DeathRange> &deathRange, float factor)
 {
     vel->floatX = 0;
@@ -27,6 +27,27 @@ void Systems::BehaviorSystem::yAxisLoop(Engine::GameEngine &engine,size_t i, std
         vel->y = (int)vel->floatY;
     } else if (pos->y > deathRange->minY + 50 && pos->y < deathRange->maxY - 50 && vel->y != 5 && vel->y != -5) {
         vel->floatY = 5;
+        vel->floatY *= factor;
+        vel->y = (int)vel->floatY;
+    }
+    engine.updateComponent(i, vel->getId(), vel->serialize());
+    return;
+}
+
+void Systems::BehaviorSystem::yZigZag(Engine::GameEngine &engine, size_t i, std::unique_ptr<Components::Position> &pos,
+    std::unique_ptr<Components::Velocity> &vel, std::unique_ptr<Components::DeathRange> &deathRange, float factor, 
+    int minValue, int maxValue)
+{
+    if (pos->y < deathRange->minY + minValue) {
+        vel->floatY = 3;
+        vel->floatY *= factor;
+        vel->y = (int)vel->floatY;
+    } else if (pos->y > deathRange->maxY - maxValue) {
+        vel->floatY = -3;
+        vel->floatY *= factor;
+        vel->y = (int)vel->floatY;
+    } else if (pos->y > deathRange->minY + minValue && pos->y < deathRange->maxY - maxValue && vel->y != 3 && vel->y != -3) {
+        vel->floatY = 3;
         vel->floatY *= factor;
         vel->y = (int)vel->floatY;
     }
@@ -66,65 +87,13 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 else if (aiBehavior->behavior == Components::BehaviorId::Y_AXIS_LOOP) {
                     yAxisLoop(engine, i, pos, vel, deathRange, factor);
                 } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_1) {
-                    if (pos->y < deathRange->minY + 50) {
-                        vel->floatY = 3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->maxY - 800) {
-                        vel->floatY = -3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->minY + 50 && pos->y < deathRange->maxY - 800 && vel->y != 3 && vel->y != -3) {
-                        vel->floatY = 3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    }
-                    engine.updateComponent(i, vel->getId(), vel->serialize());
+                    yZigZag(engine, i, pos, vel, deathRange, factor, 50, 800);
                 } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_2) {
-                    if (pos->y < deathRange->minY + 300) {
-                        vel->floatY = 3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->maxY - 600) {
-                        vel->floatY = -3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->minY + 300 && pos->y < deathRange->maxY - 600 && vel->y != 3 && vel->y != -3) {
-                        vel->floatY = 3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    }
-                    engine.updateComponent(i, vel->getId(), vel->serialize());
+                    yZigZag(engine, i, pos, vel, deathRange, factor, 300, 600);
                 } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_3) {
-                    if (pos->y < deathRange->minY + 500) {
-                        vel->floatY = 3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->maxY - 250) {
-                        vel->floatY = -3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->minY + 500 && pos->y < deathRange->maxY - 250 && vel->y != 3 && vel->y != -3) {
-                        vel->floatY = 3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    }
-                    engine.updateComponent(i, vel->getId(), vel->serialize());
+                    yZigZag(engine, i, pos, vel, deathRange, factor, 500, 250);
                 } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_4) {
-                    if (pos->y < deathRange->minY + 800) {
-                        vel->floatY = 3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->maxY - 50) {
-                        vel->floatY = -3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->minY + 800 && pos->y < deathRange->maxY - 50 && vel->y != 3 && vel->y != -3) {
-                        vel->floatY = 3;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    }
-                    engine.updateComponent(i, vel->getId(), vel->serialize());
+                    yZigZag(engine, i, pos, vel, deathRange, factor, 800, 50);
                 } else if (aiBehavior->behavior == Components::BehaviorId::X_AXIS_LOOP) {
                     vel->floatY = 0;
                     vel->y = 0;
