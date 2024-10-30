@@ -7,7 +7,6 @@
 
 #include "GameEngine/GameEngine.hpp"
 #include "Behavior.hpp"
-#include "components/gun/Gun.hpp"
 #include "library_entrypoint.hpp"
 #include <iostream>
 #include <stdexcept>
@@ -55,6 +54,33 @@ void Systems::BehaviorSystem::yZigZag(Engine::GameEngine &engine, size_t i, std:
     return;
 }
 
+void Systems::BehaviorSystem::xAxisLoop(Engine::GameEngine &engine, size_t i, std::unique_ptr<Components::Position> &pos,
+    std::unique_ptr<Components::Velocity> &vel, std::unique_ptr<Components::DeathRange> &deathRange,
+    std::unique_ptr<Components::Gun> &gun, float factor)
+{
+    vel->floatY = 0;
+    vel->y = 0;
+    if (gun->bulletVelocityY == 0) {
+        gun->bulletVelocityY = 8;
+        engine.updateComponent(i, gun->getId(), gun->serialize());
+    }
+    if (pos->x < deathRange->minX + 50) {
+        vel->floatX = 5;
+        vel->floatX *= factor;
+        vel->x = (int)vel->floatX;
+    } else if (pos->x > deathRange->maxX - 50) {
+        vel->floatX = -5;
+        vel->floatX *= factor;
+        vel->x = (int)vel->floatX;
+    } else if (pos->x > deathRange->minX + 50 && pos->x < deathRange->maxX - 50 && vel->x != 5 && vel->x != -5) {
+        vel->floatX = 5;
+        vel->floatX *= factor;
+        vel->x = (int)vel->floatX;
+    }
+    engine.updateComponent(i, vel->getId(), vel->serialize());
+    return;
+}
+
 Systems::BehaviorSystem::BehaviorSystem(libconfig::Setting &)
 {
 }
@@ -95,26 +121,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_4) {
                     yZigZag(engine, i, pos, vel, deathRange, factor, 800, 50);
                 } else if (aiBehavior->behavior == Components::BehaviorId::X_AXIS_LOOP) {
-                    vel->floatY = 0;
-                    vel->y = 0;
-                    if (gun->bulletVelocityY == 0) {
-                        gun->bulletVelocityY = 8;
-                        engine.updateComponent(i, gun->getId(), gun->serialize());
-                    }
-                    if (pos->x < deathRange->minX + 50) {
-                        vel->floatX = 5;
-                        vel->floatX *= factor;
-                        vel->x = (int)vel->floatX;
-                    } else if (pos->x > deathRange->maxX - 50) {
-                        vel->floatX = -5;
-                        vel->floatX *= factor;
-                        vel->x = (int)vel->floatX;
-                    } else if (pos->x > deathRange->minX + 50 && pos->x < deathRange->maxX - 50 && vel->x != 5 && vel->x != -5) {
-                        vel->floatX = 5;
-                        vel->floatX *= factor;
-                        vel->x = (int)vel->floatX;
-                    }
-                    engine.updateComponent(i, vel->getId(), vel->serialize());
+                    xAxisLoop(engine, i, pos, vel, deathRange, gun, factor);
                 } else if (aiBehavior->behavior == Components::BehaviorId::X_ZIG_ZAG_1) {
                     if (gun->bulletVelocityY == 0) {
                         gun->bulletVelocityY = 8;

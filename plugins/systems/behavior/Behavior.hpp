@@ -17,6 +17,7 @@
     #include "components/type/Type.hpp"
     #include "components/spriteId/SpriteID.hpp"
     #include "components/deathRange/DeathRange.hpp"
+    #include "components/gun/Gun.hpp"
     #include "components/Ai/Ai.hpp"
 
 namespace Engine {
@@ -43,7 +44,9 @@ namespace Systems {
             void yAxisLoop(Engine::GameEngine &engine, size_t i,
                 std::unique_ptr<Components::Position> &pos, std::unique_ptr<Components::Velocity> &vel,
                 std::unique_ptr<Components::DeathRange> &deathRange, float factor);
-            void xAxisLoop(void);
+            void xAxisLoop(Engine::GameEngine &engine, size_t i, std::unique_ptr<Components::Position> &pos,
+                std::unique_ptr<Components::Velocity> &vel, std::unique_ptr<Components::DeathRange> &deathRange,
+                std::unique_ptr<Components::Gun> &gun, float factor);
             void yZigZag(Engine::GameEngine &engine, size_t i, std::unique_ptr<Components::Position> &pos,
                 std::unique_ptr<Components::Velocity> &vel, std::unique_ptr<Components::DeathRange> &deathRange,
                 float factor, int minValue, int maxValue);
