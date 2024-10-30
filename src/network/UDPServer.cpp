@@ -112,6 +112,12 @@ void UDPServer::__add_new_client()
     is_disconnected[remote_endpoint_] = false;
     // __checking_client(remote_endpoint_);
     __send_components_infos();
+    for (const auto &e : _listEntities()) {
+        __send_entity_created_message(
+            _entitiesNetworkId.at(e),
+            remote_endpoint_
+        );
+    }
 }
 
 // --- Client Init --- //
