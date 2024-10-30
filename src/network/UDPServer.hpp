@@ -141,6 +141,14 @@ class UDPServer {
          */
         void __add_new_client();
 
+        /**
+         * @brief Send to one client the entity created instruction
+         */
+        void __send_entity_created_message(
+            uint32_t networkId,
+            const udp::endpoint &client
+        );
+
 
     public:
 

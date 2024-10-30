@@ -5,6 +5,7 @@
 ** udp server
 */
 #include "UDPServer.hpp"
+#include <cstdint>
 #include <iostream>
 
 using boost::asio::ip::udp;
@@ -224,11 +225,19 @@ void UDPServer::__remove_client(const udp::endpoint& client) {
 // --- Entity --- //
 
 void UDPServer::create_entity(const ECS::Entity &entity) {
-    uint8_t opcode = 0x0;
     uint32_t networkId = _nextNetworkId;
     _nextNetworkId++;
-    _entitiesNetworkId.insert({entity, networkId});
-    
+    _entitiesNetworkId[entity] = networkId;
+
+    __send_entity_created_message(networkId, remote_endpoint_);
+}
+
+void UDPServer::__send_entity_created_message(
+    uint32_t networkId,
+    const udp::endpoint &client
+)
+{
+    uint8_t opcode = 0x0;
     networkId = htonl(networkId);
 
     std::array<uint8_t, 5> message;
@@ -236,8 +245,8 @@ void UDPServer::create_entity(const ECS::Entity &entity) {
     std::memcpy(&message[1], &networkId, sizeof(networkId));
 
     socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [this, networkId](boost::system::error_code ec, std::size_t) {
+        boost::asio::buffer(message), client,
+        [ networkId](boost::system::error_code ec, std::size_t) {
             if (!ec) {
                 uint32_t id = ntohl(networkId);
                 std::cerr << "Entity " << static_cast<int>(id) << " created." << std::endl;
