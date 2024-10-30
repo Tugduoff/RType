@@ -16,8 +16,7 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 void RTypeClient::menu() {
     _engine->_inMenu = true;
     while (_engine->isInMenu()) {
-        // _engine.runSystems();
-        std::cout << "aaaaaaaa" << std::endl;
+        _engine->runSystems();
     }
 }
 
