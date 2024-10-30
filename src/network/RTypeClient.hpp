@@ -12,6 +12,8 @@
     #include "UDPConnection.hpp"
     #include "GameEngine/GameEngine.hpp"
 
+    #define CLIENT_BUFFER_FIXED_SIZE 1024
+
 /**
  * @class RTypeClient
  * 
@@ -46,14 +48,25 @@ class RTypeClient : public UDPConnection
         bool dataFromServer();
 
         /**
+         * @brief Start to receive asynchronously
+         * 
+         * @param engine : The game engine on which to do modifications
+         * 
+         * @note This function starts an asynchronous loop that receives
+         * @note data from the server
+         */
+        void asyncReceive(Engine::GameEngine &engine);
+
+        /**
          * @brief Read data sent from the server and act accordingly
          * 
          * @param engine : The game engine on which to do modifications
+         * @param bytes_recvd : The number of bytes received from the server
          * 
          * @note This function receive the data, read the opcode and call one those functions accordingly : 
          * @note createEntity, deleteEntity, attachComponent, updateComponent, detachComponent
          */
-        void interpretServerData(Engine::GameEngine &engine);
+        void interpretServerData(Engine::GameEngine &engine, std::size_t bytes_recvd);
 
         /**
          * @brief Create a new entity
@@ -158,12 +171,16 @@ class RTypeClient : public UDPConnection
          */
         std::unordered_map<uint8_t, std::string> &getCompNames() { return _compNames; };
 
+        boost::asio::io_context &getIoContext() { return _io_context; }
+
     public:
         bool gameEnd;
     
     private:
         std::unordered_map<uint8_t, std::string> _compNames;
         std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
+        std::vector<uint8_t> _recv_buffer;
+        udp::endpoint _sender_endpoint;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */
