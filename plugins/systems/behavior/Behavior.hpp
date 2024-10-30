@@ -39,6 +39,13 @@ namespace Systems {
 
             void run(Engine::GameEngine &engine) override;
             void init(Engine::GameEngine &engine) override;
+
+            void yAxisLoop(Engine::GameEngine &engine, size_t i,
+                std::unique_ptr<Components::Position> &pos, std::unique_ptr<Components::Velocity> &vel,
+                std::unique_ptr<Components::DeathRange> &deathRange, float factor);
+            void xAxisLoop(void);
+            void yZigZag(void);
+            void xZigZag(void);
         private:
     };
 };

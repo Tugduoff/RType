@@ -12,6 +12,28 @@
 #include <iostream>
 #include <stdexcept>
 
+void Systems::BehaviorSystem::yAxisLoop(Engine::GameEngine &engine,size_t i, std::unique_ptr<Components::Position> &pos,
+    std::unique_ptr<Components::Velocity> &vel, std::unique_ptr<Components::DeathRange> &deathRange, float factor)
+{
+    vel->floatX = 0;
+    vel->x = 0;
+    if (pos->y < deathRange->minY + 50) {
+        vel->floatY = 5;
+        vel->floatY *= factor;
+        vel->y = (int)vel->floatY;
+    } else if (pos->y > deathRange->maxY - 50) {
+        vel->floatY = -5;
+        vel->floatY *= factor;
+        vel->y = (int)vel->floatY;
+    } else if (pos->y > deathRange->minY + 50 && pos->y < deathRange->maxY - 50 && vel->y != 5 && vel->y != -5) {
+        vel->floatY = 5;
+        vel->floatY *= factor;
+        vel->y = (int)vel->floatY;
+    }
+    engine.updateComponent(i, vel->getId(), vel->serialize());
+    return;
+}
+
 Systems::BehaviorSystem::BehaviorSystem(libconfig::Setting &)
 {
 }
@@ -42,22 +64,7 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                 if (aiBehavior->behavior == Components::BehaviorId::NOTHING)
                     continue;
                 else if (aiBehavior->behavior == Components::BehaviorId::Y_AXIS_LOOP) {
-                    vel->floatX = 0;
-                    vel->x = 0;
-                    if (pos->y < deathRange->minY + 50) {
-                        vel->floatY = 5;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->maxY - 50) {
-                        vel->floatY = -5;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    } else if (pos->y > deathRange->minY + 50 && pos->y < deathRange->maxY - 50 && vel->y != 5 && vel->y != -5) {
-                        vel->floatY = 5;
-                        vel->floatY *= factor;
-                        vel->y = (int)vel->floatY;
-                    }
-                    engine.updateComponent(i, vel->getId(), vel->serialize());
+                    yAxisLoop(engine, i, pos, vel, deathRange, factor);
                 } else if (aiBehavior->behavior == Components::BehaviorId::Y_ZIG_ZAG_1) {
                     if (pos->y < deathRange->minY + 50) {
                         vel->floatY = 3;
