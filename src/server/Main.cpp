@@ -10,6 +10,7 @@
 #include <iostream>
 #include <typeindex>
 #include <vector>
+#include "ECS/entity/Entity.hpp"
 #include "network/UDPServer.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
@@ -103,7 +104,14 @@ int main() {
     try {
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
-        UDPServer server(io_context, 8080, engine.getIdStringToType());
+        UDPServer server(
+            io_context,
+            8080,
+            engine.getIdStringToType(),
+            [&engine]() -> const std::vector<ECS::Entity> & {
+                return engine.getRegistry().entityManager().viewEntities();
+            }
+        );
 
         engine.getRegistry().addEntityCreateCallback(
             [&server](const ECS::Entity &e) { server.create_entity(e); }

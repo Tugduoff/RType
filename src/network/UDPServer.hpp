@@ -9,10 +9,13 @@
     #define UDP_SERVER_HPP
 
     #include <algorithm>
+    #include <functional>
     #include <map>
     #include <chrono>
     #include <memory>
     #include <typeindex>
+    #include <vector>
+    #include "ECS/entity/Entity.hpp"
     #include "boost/asio.hpp"
     #include "../GameEngine/GameEngine.hpp"
 
@@ -29,8 +32,12 @@ class UDPServer {
         * @param port The port number on which the server will listen for incoming connections.
         * @param idStringToType A map associating component names to their type index.
         */
-        UDPServer(boost::asio::io_context& io_context, short port,
-                 std::unordered_map<std::string, std::type_index> &idStringToType);
+        UDPServer(
+            boost::asio::io_context& io_context,
+            short port,
+            std::unordered_map<std::string, std::type_index> &idStringToType,
+            std::function<const std::vector<ECS::Entity> &()> entityLister
+        );
 
         /**
         * @brief Starts receiving data from clients asynchronously.
@@ -55,6 +62,8 @@ class UDPServer {
 
         std::unordered_map<size_t, uint32_t> _entitiesNetworkId;
         uint32_t _nextNetworkId = 0;
+
+        std::function<const std::vector<ECS::Entity> &()> _listEntities;
 
 
         // --- Helpers --- //

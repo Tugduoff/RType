@@ -11,9 +11,16 @@ using boost::asio::ip::udp;
 
 // --- PUBLIC --- //
 
-UDPServer::UDPServer(boost::asio::io_context& io_context, short port,
-                     std::unordered_map<std::string, std::type_index> &idStringToType)
-    : socket_(io_context, udp::endpoint(udp::v4(), port)), io_context_(io_context) {
+UDPServer::UDPServer(
+    boost::asio::io_context& io_context,
+    short port,
+    std::unordered_map<std::string, std::type_index> &idStringToType,
+    std::function<const std::vector<ECS::Entity> &()> entityLister
+)
+:   socket_(io_context, udp::endpoint(udp::v4(),port)),
+    io_context_(io_context),
+    _listEntities(std::move(entityLister))
+{
     __idStringToType = idStringToType;
 
     size_max = __get_size_max();
