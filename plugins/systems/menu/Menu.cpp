@@ -28,7 +28,13 @@ void Systems::MenuSystem::run(Engine::GameEngine &engine)
 
     auto &reg = engine.getRegistry();
     auto &posArr = reg.componentManager().getComponents<Components::Position>();
+    auto &velArr = reg.componentManager().getComponents<Components::Velocity>();
 
+    for (auto &&[i, pos, vel] : IndexedZipper(posArr, velArr)) {
+        if (i <= 5 && pos.x < 200) {
+            vel.x = 0;
+        }
+    }
 }
 
 void Systems::MenuSystem::init(Engine::GameEngine &engine)
