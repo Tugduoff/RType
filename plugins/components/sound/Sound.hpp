@@ -181,10 +181,12 @@ namespace Components {
             if (args.size() != 1)
                 throw std::runtime_error("Invalid number of arguments for Sound component");
 
-            std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> sounds = std::any_cast<std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>>>(args[0]);
+            std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> soundsVec = std::any_cast<std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>>>(args[0]);
 
-            auto Sound = engine.newComponent<Components::Sound>(sounds);
-            engine.getRegistry().componentManager().addComponent<Components::Sound>(to, std::move(Sound));
+            attachAndUpdateComponent<Components::Sound>(
+                engine, to,
+                soundsVec
+            );
         };
 
         /**

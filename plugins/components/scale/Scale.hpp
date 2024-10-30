@@ -109,8 +109,11 @@ namespace Components {
             uint32_t width = std::any_cast<uint32_t>(args[0]);
             uint32_t height = std::any_cast<uint32_t>(args[1]);
 
-            auto scale = engine.newComponent<Components::Scale>(width, height);
-            engine.getRegistry().componentManager().addComponent<Components::Scale>(to, std::move(scale));
+            attachAndUpdateComponent<Components::Scale>(
+                engine, to,
+                static_cast<uint32_t>(width),
+                static_cast<uint32_t>(height)
+            );
         };
 
         /**
