@@ -50,7 +50,9 @@ namespace Systems {
             void yZigZag(Engine::GameEngine &engine, size_t i, std::unique_ptr<Components::Position> &pos,
                 std::unique_ptr<Components::Velocity> &vel, std::unique_ptr<Components::DeathRange> &deathRange,
                 float factor, int minValue, int maxValue);
-            void xZigZag(void);
+            void xZigZag(Engine::GameEngine &engine, size_t i, std::unique_ptr<Components::Position> &pos,
+                std::unique_ptr<Components::Velocity> &vel, std::unique_ptr<Components::DeathRange> &deathRange,
+                std::unique_ptr<Components::Gun> &gun, float factor, int minValue, int maxValue);
         private:
     };
 };
