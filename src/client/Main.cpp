@@ -24,7 +24,7 @@
 #include "components/deathRange/DeathRange.hpp"
 #include "components/type/Type.hpp"
 #include "components/sound/Sound.hpp"
-
+#include "components/destruction/Destruction.hpp"
 
 int main()
 {
@@ -48,6 +48,7 @@ int main()
     engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
     engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
     engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
+    engine.registerComponent<Components::Destruction>("./plugins/bin/components/", "Destruction");
 
     conn.engineInit();
     std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();
