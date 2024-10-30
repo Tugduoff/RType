@@ -166,6 +166,9 @@ void Systems::BehaviorSystem::run(Engine::GameEngine &engine)
                     case Components::BehaviorId::X_ZIG_ZAG_4:
                         xZigZag(engine, i, pos, vel, deathRange, gun, factor, 1350, 50);
                         break;
+                    case Components::BehaviorId::UNKNOWN:
+                        std::cerr << "Behavior set to unknown at position " << i << std::endl;
+                        break;
                 }
             } catch (std::exception &e) {
                 continue;
