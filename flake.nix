@@ -26,6 +26,13 @@
           xorg.libXrandr
           xorg.libXcursor
           xorg.libX11
+          xorg.libXxf86vm
+          xorg.libXinerama
+          xorg.xinput
+          xorg.libXi
+          xorg.libXfixes
+          glfw
+          raylib
           libGLU
           libudev-zero
           openal
@@ -41,6 +48,7 @@
         ];
 
         shellHook = ''
+          export LD_LIBRARY_PATH=${pkgs.wayland}/lib:$LD_LIBRARY_PATH
           echo Custom cpp nix-shell !
         '';
       };
