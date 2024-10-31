@@ -13,6 +13,7 @@
     #include <map>
     #include <chrono>
     #include <memory>
+    #include <span>
     #include <typeindex>
     #include <vector>
     #include "ECS/entity/Entity.hpp"
@@ -80,7 +81,7 @@ class UDPServer {
         * 
         * @param message A vector of bytes representing the message to be sent.
         */
-        void __send_message(const std::vector<uint8_t>& message);
+        void __send_message(const std::span<const uint8_t>& message);
 
 
         // --- Client Init --- //

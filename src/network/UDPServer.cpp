@@ -90,7 +90,7 @@ std::size_t UDPServer::__get_size_max() {
     return max_name_length != __idStringToType.end() ? max_name_length->first.size() : 0;
 }
 
-void UDPServer::__send_message(const std::vector<uint8_t>& message) {
+void UDPServer::__send_message(const std::span<const uint8_t>& message) {
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
         [this](boost::system::error_code ec, std::size_t bytes_sent) {
