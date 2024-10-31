@@ -5,8 +5,11 @@
 ** udp server
 */
 #include "UDPServer.hpp"
+#include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include <typeindex>
+#include <utility>
 
 using boost::asio::ip::udp;
 
@@ -22,9 +25,8 @@ UDPServer::UDPServer(
     io_context_(io_context),
     _listEntities(std::move(entityLister))
 {
-    __idStringToType = idStringToType;
+    this->updateIdStringToType(idStringToType);
 
-    size_max = __get_size_max();
     std::cerr << "--- Server started on port " << port << ", package size_max = " << size_max << std::endl;
 }
 
@@ -82,12 +84,13 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
 // --- Helpers --- //
 
 std::size_t UDPServer::__get_size_max() {
-    auto max_name_length = std::max_element(__idStringToType.begin(), __idStringToType.end(),
+    auto max_name_length = std::max_element(_comps_info.begin(), _comps_info.end(),
         [](const auto& a, const auto& b) {
-            return a.first.size() < b.first.size();
-        });
+            return a.second.name.size() < b.second.name.size();
+        }
+    );
 
-    return max_name_length != __idStringToType.end() ? max_name_length->first.size() : 0;
+    return max_name_length != _comps_info.end() ? max_name_length->second.name.size() : 0;
 }
 
 void UDPServer::__send_message(const std::span<const uint8_t>& message) {
@@ -129,7 +132,7 @@ void UDPServer::__send_components_infos() {
 }
 
 void UDPServer::__send_total_components() {
-    uint16_t total_components = static_cast<uint16_t>(__idStringToType.size());
+    uint16_t total_components = static_cast<uint16_t>(_comps_info.size());
     total_components = htons(total_components);
 
     std::vector<uint8_t> message(2);
@@ -143,21 +146,19 @@ void UDPServer::__send_size_max() {
         max_name_length = std::max(max_name_length, component_name.first.size());
     uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
 
-    std::vector<uint8_t> message2(1);
-    message2[0] = max_name_length_byte;
+    std::vector<uint8_t> message2(2);
+    *reinterpret_cast<uint16_t *>(&message2[0]) = max_name_length_byte;
     __send_message(message2);
 }
 
 void UDPServer::__send_components() {
-    int i = 0;
-    for (const auto& component_name : __idStringToType) {
-        uint8_t index = static_cast<uint8_t>(i);
-        std::vector<uint8_t> buffer(1 + component_name.first.size());
-        buffer[0] = index;
-        std::memcpy(buffer.data() + 1, component_name.first.data(), component_name.first.size());
+    for (const auto &[_, info] : _comps_info) {
+        const auto &[name, index] = info;
+        std::vector<uint8_t> buffer(2 + name.size());
+        *reinterpret_cast<uint16_t *>(&buffer[0]) = index;
+        std::memcpy(buffer.data() + 2, name.data(), name.size());
 
         __send_message(buffer);
-        i++;
     }
 }
 
@@ -301,17 +302,12 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
     uint32_t networkId = _entitiesNetworkId.at(entity);
     networkId = htonl(networkId);
 
-    auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
-    [&component](const auto& pair) {
-        return pair.second == component;
-    });
-    if (it == __idStringToType.end()) {
+    if (!_comps_info.contains(component)) {
         std::cerr << "Error 0x2: Component '" << component.name() << "' not found." << std::endl;
         return;
     }
 
-    uint8_t index = static_cast<uint8_t>(std::distance(__idStringToType.begin(), it));
-    uint16_t component_id = index;
+    uint16_t component_id = _comps_info.at(component).networkId;
     component_id = htons(component_id);
 
     std::array<uint8_t, 7> message;
@@ -336,17 +332,14 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
     uint32_t networkId = _entitiesNetworkId.at(entity);
     networkId = htonl(networkId);
 
-    auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
-    [&name](const auto& pair) {
-        return pair.first == name;
-    });
-    if (it == __idStringToType.end()) {
+    if (!__idStringToType.contains(name)) {
         std::cerr << "Error 0x3: Component '" << name << "' not found." << std::endl;
         return;
     }
 
-    uint8_t index = static_cast<uint8_t>(std::distance(__idStringToType.begin(), it));
-    uint16_t component_id = index;
+    const std::type_index &type = __idStringToType.at(name);
+
+    uint16_t component_id = _comps_info.at(type).networkId;
     component_id = htons(component_id);
 
     size_t component_size = data.size();
@@ -374,17 +367,12 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
     uint32_t networkId = _entitiesNetworkId.at(entity);
     networkId = htonl(networkId);
 
-    auto it = std::find_if(__idStringToType.begin(), __idStringToType.end(),
-    [&component](const auto& pair) {
-        return pair.second == component;
-    });
-    if (it == __idStringToType.end()) {
+    if (!_comps_info.contains(component)) {
         std::cerr << "Error 0x4: Component '" << component.name() << "' not found." << std::endl;
         return;
     }
 
-    uint8_t index = static_cast<uint8_t>(std::distance(__idStringToType.begin(), it));
-    uint16_t component_id = index;
+    uint16_t component_id = _comps_info.at(component).networkId;
     component_id = htons(component_id);
 
     std::array<uint8_t, 7> message;
@@ -420,38 +408,37 @@ void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::vector<u
         uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
         uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
-        std::string strCompId;
 
-        uint16_t i = 0;
-        for (const auto& component_name : __idStringToType) {
-            if (i == componentId) {
-                strCompId = component_name.first;
-                break;
+        auto comp_info_it = std::find_if(
+            _comps_info.begin(),
+            _comps_info.end(),
+            [componentId](const std::pair<std::type_index, UDPServer::ComponentInfo> &info) {
+                return info.second.networkId == componentId;
             }
-            if (i >= 65535) {
-                std::cout << "Error : did not find the Component string ID" << std::endl;
-                return;
-            }
-            i++;
+        );
+
+        if (comp_info_it == _comps_info.end()) {
+            std::cout << "Error : did not find the Component string ID" << std::endl;
+            return;
         }
-        std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
+
+        const std::type_index &compTypeIndex = comp_info_it->first;
 
         auto &compInstance = engine.getComponentFromId(compTypeIndex);
         auto &sparseArray = compInstance->any_cast(
             engine.getRegistry().componentManager().getComponents(compTypeIndex)
         );
         std::vector<uint8_t> serializedData = std::vector<uint8_t>(operation.begin() + 7, operation.end());
-        
+
         try {
-            sparseArray[entity]->getId();
+            sparseArray[entity]->deserialize(serializedData);
         } catch (std::exception &e) {
             std::cerr << "\033[0;35m";
-            std::cerr << "Component " << strCompId << " was not attached for entity n°" << entity << std::endl;
+            std::cerr << "Component " << comp_info_it->second.name << " was not attached for entity n°" << entity << std::endl;
             std::cerr << "\033[0;37m";
 
             return;
         }
-        sparseArray[entity]->deserialize(serializedData);
     }
     catch(const std::exception &) {
     }    

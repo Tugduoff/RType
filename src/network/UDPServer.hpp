@@ -9,12 +9,15 @@
     #define UDP_SERVER_HPP
 
     #include <algorithm>
+    #include <cstdint>
     #include <functional>
     #include <map>
     #include <chrono>
     #include <memory>
     #include <span>
+    #include <string>
     #include <typeindex>
+    #include <unordered_map>
     #include <vector>
     #include "ECS/entity/Entity.hpp"
     #include "boost/asio.hpp"
@@ -50,11 +53,17 @@ class UDPServer {
         std::vector<udp::endpoint> client_endpoints;
 
     private:
+        struct ComponentInfo {
+            std::string name;
+            uint16_t networkId;
+        };
+
         udp::socket socket_;
         udp::endpoint remote_endpoint_;
         boost::asio::io_context& io_context_;
         std::array<char, 1024> recv_buffer_;
         std::size_t size_max;
+        std::unordered_map<std::type_index, ComponentInfo> _comps_info;
         std::unordered_map<std::string, std::type_index> __idStringToType;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;
@@ -200,6 +209,15 @@ class UDPServer {
 
         void updateIdStringToType(std::unordered_map<std::string, std::type_index> &idStringToType) {
             __idStringToType = idStringToType;
+
+            _comps_info.clear();
+            uint16_t networkId = 0;
+            for (const auto &[name, idx] : idStringToType) {
+                _comps_info.emplace(idx, ComponentInfo {name, networkId});
+                networkId++;
+            }
+
+            size_max = __get_size_max();
         }
 };
 

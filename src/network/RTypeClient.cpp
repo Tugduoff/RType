@@ -5,6 +5,8 @@
 ** RTypeClient.cpp
 */
 
+#include <cstdint>
+#include <netinet/in.h>
 #include <stdlib.h>
 #include "RTypeClient.hpp"
 
@@ -26,16 +28,11 @@ void RTypeClient::engineInit()
 
     for (uint16_t i = 0; i < compNb; i++) {
         std::vector<uint8_t> compName = blockingReceive();
-        std::string strCompName = std::string(compName.begin() + 1, compName.end());
-        // uint16_t CompId = (static_cast<uint16_t>(compName[0]) << 8) | static_cast<uint16_t>(compName[1]);
+        std::string strCompName = std::string(compName.begin() + 2, compName.end());
+        uint16_t compId = *reinterpret_cast<uint16_t *>(compName.data());
 
-        _compNames[compName[0]] = std::string(compName.begin() + 1, compName.end());
+        _compNames[compId] = strCompName;
     }
-    // uint16_t endIndicator = receiveUint16();
-    // if (endIndicator != 0xffff) {
-    //     std::cerr << "End Indicator : " << (int) endIndicator << std::endl;
-    //     throw std::runtime_error("Did not find the end indicator for network init");
-    // }
 }
 
 bool RTypeClient::dataFromServer()
