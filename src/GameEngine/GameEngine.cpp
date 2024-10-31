@@ -7,7 +7,6 @@
 
 #include <libconfig.h++>
 #include "GameEngine.hpp"
-#include "SFML/Window/Keyboard.hpp"
 
 void Engine::GameEngine::loadSystems(const std::string &systemsConfigFile)
 {

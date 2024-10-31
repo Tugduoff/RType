@@ -8,20 +8,18 @@
 #ifndef UDP_SERVER_HPP
     #define UDP_SERVER_HPP
 
-    #include <algorithm>
     #include <cstdint>
     #include <functional>
     #include <map>
-    #include <chrono>
-    #include <memory>
     #include <span>
     #include <string>
     #include <typeindex>
     #include <unordered_map>
     #include <vector>
     #include "ECS/entity/Entity.hpp"
-    #include "boost/asio.hpp"
     #include "../GameEngine/GameEngine.hpp"
+    #include "boost/asio/ip/udp.hpp"
+    #include "boost/asio/steady_timer.hpp"
 
 using boost::asio::ip::udp;
 

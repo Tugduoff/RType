@@ -8,13 +8,13 @@
 
 #include <exception>
 #include <iostream>
+#include <thread>
 #include <typeindex>
 #include <vector>
 #include "ECS/entity/Entity.hpp"
 #include "network/UDPServer.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
-#include "ECS/utilities/SparseArray.hpp"
 #include "utils/Chrono.hpp"
 
 #include "network/UDPServer.hpp"
@@ -22,7 +22,6 @@
 #include "components/IComponent.hpp"
 #include "components/position/Position.hpp"
 #include "components/velocity/Velocity.hpp"
-#include "components/spriteId/SpriteID.hpp"
 #include "components/controllable/Controllable.hpp"
 #include "components/visible/Visible.hpp"
 #include "components/health/Health.hpp"

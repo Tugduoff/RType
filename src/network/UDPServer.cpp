@@ -96,7 +96,7 @@ std::size_t UDPServer::__get_size_max() {
 void UDPServer::__send_message(const std::span<const uint8_t>& message) {
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this](boost::system::error_code ec, std::size_t bytes_sent) {
+        [](boost::system::error_code ec, std::size_t bytes_sent) {
             if (!ec) {
                 std::cerr << "Sent message of size " << bytes_sent << " bytes." << std::endl;
             } else {
@@ -221,7 +221,7 @@ void UDPServer::__remove_client(const udp::endpoint& client) {
 
         std::string deconnection_message = "You have been disconnected :(";
         socket_.async_send_to(boost::asio::buffer(deconnection_message), client,
-            [this, client](boost::system::error_code ec, std::size_t) {
+            [client](boost::system::error_code ec, std::size_t) {
                 if (!ec)
                     std::cerr << "Client " << client.address().to_string() << ":" << client.port() << " is now aware of their disconnection" << std::endl;
             }
@@ -285,7 +285,7 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this, networkId](boost::system::error_code ec, std::size_t) {
+        [networkId](boost::system::error_code ec, std::size_t) {
             std::cerr << "Sending delete entity message to client for entity: " << ntohl(networkId) << std::endl;
             if (!ec) {
                 uint32_t id = ntohl(networkId);
@@ -317,7 +317,7 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this, networkId, component_id](boost::system::error_code ec, std::size_t) {
+        [networkId, component_id](boost::system::error_code ec, std::size_t) {
             if (!ec) {
                 uint16_t e_id = ntohl(networkId);
                 uint16_t c_id = ntohs(component_id);
@@ -352,7 +352,7 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this, networkId, component_id](boost::system::error_code ec, std::size_t) {
+        [](boost::system::error_code ec, std::size_t) {
             if (!ec) {
                 // uint16_t e_id = ntohl(networkId);
                 // uint16_t c_id = ntohs(component_id);
@@ -382,7 +382,7 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
 
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
-        [this, networkId, component_id](boost::system::error_code ec, std::size_t) {
+        [networkId, component_id](boost::system::error_code ec, std::size_t) {
             if (!ec) {
                 uint16_t e_id = ntohl(networkId);
                 uint16_t c_id = ntohs(component_id);
