@@ -37,15 +37,15 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
             auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
             auto &position = positionComponents[entityIndex];
 
-                int projectilePosX = position->x;
-                int projectilePosY = position->y;
-                int projectileVelX = gun->bulletVelocityX;
-                int projectileVelY = gun->bulletVelocityY;
-                int projectileColliderWidth = 10;
-                int projectileColliderHeight = 10;
-                int projectileDamage = gun->bulletDamage;
-                enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
-                std::string spriteId = gun->spriteId;
+            int projectilePosX = position->x;
+            int projectilePosY = position->y;
+            int projectileVelX = gun->bulletVelocityX;
+            int projectileVelY = gun->bulletVelocityY;
+            int projectileColliderWidth = 10;
+            int projectileColliderHeight = 10;
+            int projectileDamage = gun->bulletDamage;
+            enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
+            std::string spriteId = gun->spriteId;
 
             createProjectile(engine, projectilePosX, projectilePosY,
                 projectileVelX, projectileVelY,
