@@ -16,13 +16,7 @@ namespace Engine {
 }
 
 namespace Systems {
-    /**
-     * @class MenuSystem
-     * 
-     * @brief System class from Systems that Menus entities.
-     * 
-     * This system is responsible for moving entities based on their velocity and position components.
-     */
+
     class MenuSystem : public ASystem {
         public:
             MenuSystem() = default;
@@ -31,7 +25,9 @@ namespace Systems {
 
             void run(Engine::GameEngine &engine) override;
             void init(Engine::GameEngine &engine) override;
+        
         private:
+            bool _titleReachedLeftEdge;
     };
 };
 

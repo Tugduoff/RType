@@ -32,7 +32,13 @@ void Systems::MenuSystem::run(Engine::GameEngine &engine)
 
     for (auto &&[i, pos, vel] : IndexedZipper(posArr, velArr)) {
         if (i <= 5 && pos.x < 200) {
-            vel.x = 0;
+            if (!_titleReachedLeftEdge) {
+                vel.x = 0;
+                if (i == 5)
+                    _titleReachedLeftEdge = true;
+            } else {
+                vel.y = 2;
+            }
         }
     }
 }
@@ -40,6 +46,7 @@ void Systems::MenuSystem::run(Engine::GameEngine &engine)
 void Systems::MenuSystem::init(Engine::GameEngine &engine)
 {
     engine._inMenu = true;
+    _titleReachedLeftEdge = false;
     // attach to entity from componentManager
     engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
     engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
