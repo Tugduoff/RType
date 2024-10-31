@@ -9,6 +9,7 @@
     #define RTYPE_CLIENT_HPP_
 
     #include <unordered_map>
+    #include <mutex>
     #include "UDPConnection.hpp"
     #include "GameEngine/GameEngine.hpp"
 
@@ -171,6 +172,22 @@ class RTypeClient : public UDPConnection
          */
         std::unordered_map<uint8_t, std::string> &getCompNames() { return _compNames; };
 
+        /**
+         * @brief Lock _engineMutex
+         * 
+         * @note This function has to be called whenever there are modifications made to the engine
+         * 
+         * @note This function is a blocking call until the mutex is unlocked
+         */
+        void lockMutex();
+
+        /**
+         * @brief Unlock _engineMutex
+         * 
+         * @note Be sure that the mutex is locked beforehand
+         */
+        void unlockMutex();
+
         boost::asio::io_context &getIoContext() { return _io_context; }
 
     public:
@@ -181,6 +198,7 @@ class RTypeClient : public UDPConnection
         std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
         std::vector<uint8_t> _recv_buffer;
         udp::endpoint _sender_endpoint;
+        std::mutex _engineMutex;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */
