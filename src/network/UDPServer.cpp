@@ -141,10 +141,7 @@ void UDPServer::__send_total_components() {
 }
 
 void UDPServer::__send_size_max() {
-    std::size_t max_name_length = 0;
-    for (const auto& component_name : __idStringToType)
-        max_name_length = std::max(max_name_length, component_name.first.size());
-    uint8_t max_name_length_byte = static_cast<uint8_t>(max_name_length);
+    uint16_t max_name_length_byte = static_cast<uint16_t>(size_max);
 
     std::vector<uint8_t> message2(2);
     *reinterpret_cast<uint16_t *>(&message2[0]) = max_name_length_byte;
