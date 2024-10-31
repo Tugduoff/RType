@@ -14,6 +14,7 @@
     #include <memory>
     #include <string>
     #include <unordered_map>
+    #include <vector>
     #include <typeindex>
     #include <iostream>
 
@@ -186,6 +187,14 @@ namespace Engine {
                     throw std::runtime_error("Component not found");
                 return __idStringToType.at(componentId);
             }
+
+            /**
+             * @brief This function return all the sparseArrays of the registered components
+             * 
+             * @return std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>> : A vector of pairs that contains
+             * @return the type_index of the concrete type and a reference to the corresponding sparseArray
+=             */
+            std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>> getAllComponents();
 
             void setUpdateComponent(std::function<void(size_t, std::string, std::vector<uint8_t>)> updateComponent) { __updateComponent = updateComponent; }
 

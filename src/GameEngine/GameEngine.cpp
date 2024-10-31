@@ -7,6 +7,7 @@
 
 #include <libconfig.h++>
 #include "GameEngine.hpp"
+#include "SFML/Window/Keyboard.hpp"
 
 void Engine::GameEngine::loadSystems(const std::string &systemsConfigFile)
 {
@@ -48,6 +49,23 @@ void Engine::GameEngine::loadSystems(const std::string &systemsConfigFile)
         std::cerr << "Error while reading file: "
             << e.what() << std::endl;
     }
+}
+
+std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>> Engine::GameEngine::getAllComponents()
+{
+    std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>> components;
+
+    for (auto const &[type_idx, comp] : __components) {
+        components.push_back(
+            {
+                type_idx,
+                comp->any_cast(
+                   getRegistry().componentManager().getComponents(type_idx)
+                )
+            }
+        );
+    }
+    return components;
 }
 
 void Engine::GameEngine::initSystems()
