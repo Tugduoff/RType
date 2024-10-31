@@ -52,12 +52,8 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
         >> projToCreate;
 
         for (auto &&[i, pos, gun, id] : IndexedZipper(posArr, gunArr, typeArr)) {
-            if (gun.chrono.getElapsedTime() < gun.fireRate) {
+            if (id.id != Components::TypeID::ENEMY)
                 continue;
-            }
-            if (id.id == Components::TypeID::ALLY)
-                continue;
-            std::cerr << "Entity: " << i << " is attacking" << std::endl;
             try {
                 auto &entityAction = actArr[i];
 
@@ -71,6 +67,8 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                 continue;
             }
+            if (gun.chrono.getElapsedTime() < gun.fireRate)
+                continue;
             try {
                 auto &sound = soundArr[i];
 
@@ -97,6 +95,18 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 Components::TypeID::ENEMY_PROJECTILE,
                 gun.spriteId
             );
+
+            try {
+                auto &entityAction = actArr[i];
+
+                entityAction->action = EntityAction::SHOOT_FORWARD;
+                engine.updateComponent((ECS::Entity)i, entityAction->getId(), entityAction->serialize());
+            } catch (std::exception &e) {
+                std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
+                engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
+                std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                continue;
+            }
 
             std::cerr << "Entity: " << i << " fired a shot" << std::endl;
         }
