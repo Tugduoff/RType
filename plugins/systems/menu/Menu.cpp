@@ -17,6 +17,13 @@
 #include <iostream>
 #include <stdexcept>
 
+#define letter_R 5
+#define dot 4
+#define letter_T 3
+#define letter_Y 2
+#define letter_P 1
+#define letter_E 0
+
 Systems::MenuSystem::MenuSystem(libconfig::Setting &)
 {
 }
@@ -36,9 +43,17 @@ void Systems::MenuSystem::run(Engine::GameEngine &engine)
                 vel.x = 0;
                 if (i == 5)
                     _titleReachedLeftEdge = true;
-            } else {
-                vel.y = 2;
             }
+        }
+        if (i <= 5 && _titleReachedLeftEdge && !_titleDeployed) {
+            if (i == dot) {
+                if (pos.x < 400)
+                    vel.x = 1;
+                else
+                    vel.x = 0;
+            }
+        } else if (_titleDeployed) {
+            vel.y = 2;
         }
     }
 }
@@ -47,6 +62,7 @@ void Systems::MenuSystem::init(Engine::GameEngine &engine)
 {
     engine._inMenu = true;
     _titleReachedLeftEdge = false;
+    _titleDeployed = false;
     // attach to entity from componentManager
     engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
     engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
