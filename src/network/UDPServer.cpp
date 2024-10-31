@@ -135,23 +135,26 @@ void UDPServer::__send_total_components() {
     uint16_t total_components = static_cast<uint16_t>(_comps_info.size());
     total_components = htons(total_components);
 
-    std::vector<uint8_t> message(2);
-    std::memcpy(message.data(), &total_components, sizeof(total_components));
-    __send_message(message);
+    __send_message({
+        reinterpret_cast<uint8_t *>(&total_components),
+        sizeof(total_components)
+    });
 }
 
 void UDPServer::__send_size_max() {
     uint16_t max_name_length_byte = static_cast<uint16_t>(size_max);
 
-    std::vector<uint8_t> message2(2);
-    *reinterpret_cast<uint16_t *>(&message2[0]) = max_name_length_byte;
-    __send_message(message2);
+    __send_message({
+        reinterpret_cast<uint8_t *>(&max_name_length_byte),
+        sizeof(max_name_length_byte)
+    });
 }
 
 void UDPServer::__send_components() {
     for (const auto &[_, info] : _comps_info) {
         const auto &[name, index] = info;
         std::vector<uint8_t> buffer(2 + name.size());
+
         *reinterpret_cast<uint16_t *>(&buffer[0]) = index;
         std::memcpy(buffer.data() + 2, name.data(), name.size());
 
