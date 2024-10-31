@@ -53,7 +53,7 @@ namespace Components {
          * 
          * @param behavior The AI behavior identifier (default is 0).
          */
-        Ai(const BehaviorId &behavior = BehaviorId::NOTHING) : AComponent(std::string("Ai")), behavior(behavior) {};
+        Ai(const std::string &behaviorStr = "NOTHING") : AComponent(std::string("Ai")), behavior(behaviorFromString(behaviorStr)) {}
 
         /**
          * @brief Constructor using configuration settings.
@@ -63,16 +63,14 @@ namespace Components {
          * 
          * @param config The libconfig::Setting containing the configuration data.
          */
-        Ai(libconfig::Setting &config) : AComponent(std::string("Ai"))
-        {
-            int Id = 0;
-
-            if (!config.lookupValue("behavior", Id)) {
+        Ai(libconfig::Setting &config) : AComponent(std::string("Ai")) {
+            std::string behaviorStr;
+            if (!config.lookupValue("behavior", behaviorStr)) {
                 behavior = BehaviorId::NOTHING;
             } else {
-                behavior = static_cast<BehaviorId>(Id);
+                behavior = behaviorFromString(behaviorStr);
             }
-        }        
+        }
 
         /**
          * @brief Serialize the AI behavior.
@@ -120,16 +118,17 @@ namespace Components {
          * 
          * @throws std::runtime_error If the arguments are invalid.
          */
-        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override
+        {
             if (args.size() < 1)
                 throw std::runtime_error("Invalid number of arguments for Ai component");
 
-            BehaviorId behavior = std::any_cast<BehaviorId>(args[0]);
+            std::string behaviorStr = std::any_cast<std::string>(args[0]);
             std::unique_ptr<Components::Ai> aiComponent =
-                engine.newComponent<Components::Ai>(behavior);
+                engine.newComponent<Components::Ai>(behaviorStr);
 
             engine.getRegistry().componentManager().addComponent(to, std::move(aiComponent));
-        };
+        }
 
         /**
          * @brief Adds the AI component to an entity using a configuration.
@@ -140,18 +139,32 @@ namespace Components {
          * @param engine The game engine managing the components.
          * @param config The configuration settings for initializing the component.
          */
-        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
-            int behavior = 0; 
-
-            if (!config.lookupValue("behavior", behavior)) {
-                std::cerr << "Warning: 'behavior' not found in config. Using default value: 1\n";
-                behavior = 0;
+        void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override
+        {
+            std::string behaviorStr;
+            if (!config.lookupValue("behavior", behaviorStr)) {
+                std::cerr << "Warning: 'behavior' not found in config. Using default: 'NOTHING'\n";
+                behaviorStr = "NOTHING";
             }
-            BehaviorId Id = static_cast<BehaviorId>(behavior);
-            std::unique_ptr<Components::Ai> aiComponents =
-                engine.newComponent<Components::Ai>(Id);
+            std::unique_ptr<Components::Ai> aiComponent =
+                engine.newComponent<Components::Ai>(behaviorStr);
 
-            engine.getRegistry().componentManager().addComponent<Components::Ai>(to, std::move(aiComponents));
+            engine.getRegistry().componentManager().addComponent<Components::Ai>(to, std::move(aiComponent));
+        }
+
+        static BehaviorId behaviorFromString(const std::string &behaviorStr) {
+            if (behaviorStr == "NOTHING") return BehaviorId::NOTHING;
+            else if (behaviorStr == "Y_AXIS_LOOP") return BehaviorId::Y_AXIS_LOOP;
+            else if (behaviorStr == "Y_ZIG_ZAG_1") return BehaviorId::Y_ZIG_ZAG_1;
+            else if (behaviorStr == "Y_ZIG_ZAG_2") return BehaviorId::Y_ZIG_ZAG_2;
+            else if (behaviorStr == "Y_ZIG_ZAG_3") return BehaviorId::Y_ZIG_ZAG_3;
+            else if (behaviorStr == "Y_ZIG_ZAG_4") return BehaviorId::Y_ZIG_ZAG_4;
+            else if (behaviorStr == "X_AXIS_LOOP") return BehaviorId::X_AXIS_LOOP;
+            else if (behaviorStr == "X_ZIG_ZAG_1") return BehaviorId::X_ZIG_ZAG_1;
+            else if (behaviorStr == "X_ZIG_ZAG_2") return BehaviorId::X_ZIG_ZAG_2;
+            else if (behaviorStr == "X_ZIG_ZAG_3") return BehaviorId::X_ZIG_ZAG_3;
+            else if (behaviorStr == "X_ZIG_ZAG_4") return BehaviorId::X_ZIG_ZAG_4;
+            else return BehaviorId::UNKNOWN; // Handle unknown behavior
         }
 
         BehaviorId behavior;

@@ -18,7 +18,7 @@ Components::IComponent *buildDefault()
 }
 
 LIBRARY_ENTRYPOINT
-Components::IComponent *buildWithParams(enum Components::BehaviorId &id)
+Components::IComponent *buildWithParams(std::string id)
 {
     return new Components::Ai(id);
 }
