@@ -5,11 +5,13 @@
 ** udp server
 */
 #include "UDPServer.hpp"
+#include "ECS/utilities/Zipper/IndexedZipper.hpp"
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
 #include <typeindex>
 #include <utility>
+#include <vector>
 
 using boost::asio::ip::udp;
 
@@ -19,11 +21,13 @@ UDPServer::UDPServer(
     boost::asio::io_context& io_context,
     short port,
     std::unordered_map<std::string, std::type_index> &idStringToType,
-    std::function<const std::vector<ECS::Entity> &()> entityLister
+    std::function<const std::vector<ECS::Entity> &()> entityLister,
+    std::function<std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>>()> componentLister
 )
 :   socket_(io_context, udp::endpoint(udp::v4(),port)),
     io_context_(io_context),
-    _listEntities(std::move(entityLister))
+    _listEntities(std::move(entityLister)),
+    _listComponents(std::move(componentLister))
 {
     this->updateIdStringToType(idStringToType);
 
@@ -120,6 +124,27 @@ void UDPServer::__add_new_client()
             _entitiesNetworkId.at(e),
             remote_endpoint_
         );
+    }
+    auto components = _listComponents();
+    for (const auto &[typeIdx, compArr] : components) {
+        uint16_t comp_netId = _comps_info.at(typeIdx).networkId;
+        for (auto &&[i, _] : IndexedZipper(compArr)) {
+            uint32_t entity_netId = _entitiesNetworkId.at(i);
+            __send_attach_component_message(entity_netId, comp_netId, remote_endpoint_);
+        }
+    }
+    for (const auto &[typeIdx, compArr] : components) {
+        uint16_t comp_netId = _comps_info.at(typeIdx).networkId;
+        for (auto &&[i, comp] : IndexedZipper(compArr)) {
+            uint32_t entity_netId = _entitiesNetworkId.at(i);
+
+            __send_update_component(
+                entity_netId,
+                comp_netId,
+                comp.serialize(),
+                remote_endpoint_
+            );
+        }
     }
 }
 
@@ -298,9 +323,7 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
 // --- Component --- //
 
 void UDPServer::attach_component(size_t entity, std::type_index component) {
-    uint8_t opcode = 0x2;
     uint32_t networkId = _entitiesNetworkId.at(entity);
-    networkId = htonl(networkId);
 
     if (!_comps_info.contains(component)) {
         std::cerr << "Error 0x2: Component '" << component.name() << "' not found." << std::endl;
@@ -308,19 +331,31 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
     }
 
     uint16_t component_id = _comps_info.at(component).networkId;
-    component_id = htons(component_id);
 
+    __send_attach_component_message(networkId, component_id, remote_endpoint_);
+}
+
+void UDPServer::__send_attach_component_message(
+    uint32_t entity_netId,
+    uint16_t comp_netId,
+    const udp::endpoint &client
+)
+{
+    uint8_t opcode = 0x2;
+
+    entity_netId = htonl(entity_netId);
+    comp_netId = htons(comp_netId);
     std::array<uint8_t, 7> message;
     message[0] = opcode;
-    std::memcpy(&message[1], &networkId, sizeof(networkId));
-    std::memcpy(&message[5], &component_id, sizeof(component_id));
+    std::memcpy(&message[1], &entity_netId, sizeof(entity_netId));
+    std::memcpy(&message[5], &comp_netId, sizeof(comp_netId));
 
     socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [networkId, component_id](boost::system::error_code ec, std::size_t) {
+        boost::asio::buffer(message), client,
+        [entity_netId, comp_netId](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t e_id = ntohl(networkId);
-                uint16_t c_id = ntohs(component_id);
+                uint16_t e_id = ntohl(entity_netId);
+                uint16_t c_id = ntohs(comp_netId);
                 std::cerr << "Attach component [" << static_cast<int>(c_id) << "] to entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
         }
@@ -328,9 +363,7 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
 }
 
 void UDPServer::update_component(size_t entity, std::string name, std::vector<uint8_t> data) {
-    uint8_t opcode = 0x3;
     uint32_t networkId = _entitiesNetworkId.at(entity);
-    networkId = htonl(networkId);
 
     if (!__idStringToType.contains(name)) {
         std::cerr << "Error 0x3: Component '" << name << "' not found." << std::endl;
@@ -340,18 +373,36 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
     const std::type_index &type = __idStringToType.at(name);
 
     uint16_t component_id = _comps_info.at(type).networkId;
-    component_id = htons(component_id);
 
+    __send_update_component(
+        networkId,
+        component_id,
+        data,
+        remote_endpoint_
+    );
+}
+
+void UDPServer::__send_update_component(
+    uint32_t entity_netId,
+    uint16_t comp_netId,
+    const std::vector<uint8_t> &data,
+    const udp::endpoint &client
+)
+{
+    uint8_t opcode = 0x3;
+
+    entity_netId = htonl(entity_netId);
+    comp_netId = htons(comp_netId);
     size_t component_size = data.size();
 
     std::vector<uint8_t> message(7 + component_size);
     message[0] = opcode;
-    std::memcpy(&message[1], &networkId, sizeof(networkId));
-    std::memcpy(&message[5], &component_id, sizeof(component_id));
+    std::memcpy(&message[1], &entity_netId, sizeof(entity_netId));
+    std::memcpy(&message[5], &comp_netId, sizeof(comp_netId));
     std::memcpy(&message[7], data.data(), component_size);
 
     socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
+        boost::asio::buffer(message), client,
         [](boost::system::error_code ec, std::size_t) {
             if (!ec) {
                 // uint16_t e_id = ntohl(networkId);

@@ -38,7 +38,8 @@ class UDPServer {
             boost::asio::io_context& io_context,
             short port,
             std::unordered_map<std::string, std::type_index> &idStringToType,
-            std::function<const std::vector<ECS::Entity> &()> entityLister
+            std::function<const std::vector<ECS::Entity> &()> entityLister,
+            std::function<std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>>()> componentLister
         );
 
         /**
@@ -72,6 +73,7 @@ class UDPServer {
         uint32_t _nextNetworkId = 0;
 
         std::function<const std::vector<ECS::Entity> &()> _listEntities;
+        std::function<std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>>()> _listComponents;
 
 
         // --- Helpers --- //
@@ -154,6 +156,19 @@ class UDPServer {
          */
         void __send_entity_created_message(
             uint32_t networkId,
+            const udp::endpoint &client
+        );
+
+        void __send_attach_component_message(
+            uint32_t entity_netId,
+            uint16_t comp_netId,
+            const udp::endpoint &client
+        );
+
+        void __send_update_component(
+            uint32_t entity_netId,
+            uint16_t comp_netId,
+            const std::vector<uint8_t> &data,
             const udp::endpoint &client
         );
 

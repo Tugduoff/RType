@@ -109,6 +109,9 @@ int main() {
             engine.getIdStringToType(),
             [&engine]() -> const std::vector<ECS::Entity> & {
                 return engine.getRegistry().entityManager().viewEntities();
+            },
+            [&engine]() -> std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>> {
+                return engine.getAllComponents();
             }
         );
 
