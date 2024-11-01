@@ -45,45 +45,38 @@ void Systems::MenuSystem::run(Engine::GameEngine &engine)
                     _titleReachedLeftEdge = true;
             }
         }
+
         if (i <= 5 && _titleReachedLeftEdge && !_titleDeployed) {
-            if (i == dot) {
-                if (pos.x < 400)
-                    vel.x = 1;
-                else
-                    vel.x = 0;
-            } else if (i == letter_T) {
-                if (pos.x < 600)
-                    vel.x = 2;
-                else
-                    vel.x = 0;
-            } else if (i == letter_Y) {
-                if (pos.x < 800)
-                    vel.x = 3;
-                else
-                    vel.x = 0;
-            } else if (i == letter_P) {
-                if (pos.x < 1000)
-                    vel.x = 4;
-                else
-                    vel.x = 0;
-            } else if (i == letter_E) {
-                if (pos.x < 1200) {
-                    vel.x = 5;
-                } else {
-                    vel.x = 0;
-                    _titleDeployed = true;
-                }
+            switch (i) {
+                case dot:
+                    vel.x = (pos.x < 400) ? 1 : 0;
+                    break;
+                case letter_T:
+                    vel.x = (pos.x < 600) ? 2 : 0;
+                    break;
+                case letter_Y:
+                    vel.x = (pos.x < 800) ? 3 : 0;
+                    break;
+                case letter_P:
+                    vel.x = (pos.x < 1000) ? 4 : 0;
+                    break;
+                case letter_E:
+                    vel.x = (pos.x < 1200) ? 5 : 0;
+                    if (pos.x >= 1200)
+                        _titleDeployed = true;
+                    break;
+                default:
+                    break;
             }
         }
+
         if (i <= 5 && _titleReachedLeftEdge && _titleDeployed) {
             vel.x = 0;
-            if (pos.y < 900)
-                vel.y = 2;
-            else
-                vel.y = 0;
+            vel.y = (pos.y < 900) ? 2 : 0;
         }
     }
 }
+
 
 void Systems::MenuSystem::init(Engine::GameEngine &engine)
 {
