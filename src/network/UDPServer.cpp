@@ -52,11 +52,12 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
                     << ":" << remote_endpoint_.port() << "): " << message << std::endl;
 
         if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
-            if (message == "start") {
-                __add_new_client();
-            }
+            __init_new_client();
         } else {
             client_responses[remote_endpoint_] = true;
+        }
+        if (message == "start") {
+            __add_new_client();
         }
         std::vector<uint8_t> mes(recv_buffer_.begin(), recv_buffer_.begin() + bytes_recvd);
         if (mes[0] == 0x3) {
@@ -110,7 +111,7 @@ void UDPServer::__send_message(const std::span<const uint8_t>& message) {
     );
 }
 
-void UDPServer::__add_new_client()
+void UDPServer::__init_new_client()
 {
     client_endpoints.push_back(remote_endpoint_);
     std::cerr << "New client added: " << remote_endpoint_.address().to_string() 
@@ -118,6 +119,10 @@ void UDPServer::__add_new_client()
     client_responses[remote_endpoint_] = true;
     is_disconnected[remote_endpoint_] = false;
     // __checking_client(remote_endpoint_);
+}
+
+void UDPServer::__add_new_client()
+{
     __send_components_infos();
     for (const auto &e : _listEntities()) {
         __send_entity_created_message(

@@ -74,7 +74,7 @@ void RTypeClient::startInterpret(Engine::GameEngine &engine)
             _packetQueue.pop();
             _packetQueueMutex.unlock();
         }
-    } 
+    }
 }
 
 void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<uint8_t> &recv_buffer)

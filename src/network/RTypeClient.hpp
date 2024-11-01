@@ -199,8 +199,8 @@ class RTypeClient : public UDPConnection
         bool gameEnd;
         std::atomic_bool nextFrame;
     
-        std::queue<std::vector<uint8_t>> _packetQueue;
-        std::mutex _packetQueueMutex;
+        // std::queue<std::vector<uint8_t>> _packetQueue;
+        // std::mutex _packetQueueMutex;
 
     private:
         std::unordered_map<uint8_t, std::string> _compNames;
@@ -208,6 +208,8 @@ class RTypeClient : public UDPConnection
         udp::endpoint _sender_endpoint;
         std::mutex _engineMutex;
 
+        std::queue<std::vector<uint8_t>> _packetQueue;
+        std::mutex _packetQueueMutex;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */
