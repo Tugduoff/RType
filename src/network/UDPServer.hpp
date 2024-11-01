@@ -147,6 +147,11 @@ class UDPServer {
         void __remove_client(const udp::endpoint& client);
 
         /**
+         * @brief Store a new client in the internal storage of this class
+         */
+        void __init_new_client();
+
+        /**
          * @brief Does everything required to set up a new client
          */
         void __add_new_client();
