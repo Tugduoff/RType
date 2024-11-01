@@ -67,13 +67,20 @@ void Systems::MenuSystem::run(Engine::GameEngine &engine)
                 else
                     vel.x = 0;
             } else if (i == letter_E) {
-                if (pos.x < 1200)
+                if (pos.x < 1200) {
                     vel.x = 5;
-                else
+                } else {
                     vel.x = 0;
+                    _titleDeployed = true;
+                }
             }
-        } else if (_titleDeployed) {
-            vel.y = 2;
+        }
+        if (i <= 5 && _titleReachedLeftEdge && _titleDeployed) {
+            vel.x = 0;
+            if (pos.y < 900)
+                vel.y = 2;
+            else
+                vel.y = 0;
         }
     }
 }
