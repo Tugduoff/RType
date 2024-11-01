@@ -87,12 +87,12 @@ void Systems::MenuSystem::run(Engine::GameEngine &engine)
         if (_titleReachedLeftEdge && _titleDeployed) {
             vel.x = 0;
             if (i <= 5) {
-                vel.y = (pos.y < 900) ? 2 : 0;
+                vel.y = (pos.y < 700) ? 2 : 0;
             }
 
             if (i == TM) {
-                vel.x = (pos.x < 1300) ? 4 : 0;
-                vel.y = (pos.y < 1000) ? 2 : 0;
+                vel.x = (pos.x < 1300) ? 6 : 0;
+                vel.y = (pos.y < 800) ? 2 : 0;
 
                 // bool inputForward = controllable.inputs[(int)Action::FORWARD];
                 // bool inputBackward = controllable.inputs[(int)Action::BACKWARD];
@@ -163,49 +163,49 @@ void Systems::MenuSystem::init(Engine::GameEngine &engine)
     ECS::Entity Title_E = engine.getRegistry().createEntity();
     engine.getRegistry().componentManager().addComponent<Components::Position>(Title_E, engine.newComponent<Components::Position>(2000, 540, 2));
     engine.getRegistry().componentManager().addComponent<Components::Velocity>(Title_E, engine.newComponent<Components::Velocity>(-2, 0, 0));
-    // engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_E, engine.newComponent<Components::Scale>(1, 1));
+    engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_E, engine.newComponent<Components::Scale>(150, 150));
     engine.getRegistry().componentManager().addComponent<Components::SpriteID>(Title_E, engine.newComponent<Components::SpriteID>(static_cast<std::string>("title_e")));
     engine.getRegistry().componentManager().addComponent<Components::Controllable>(Title_E, engine.newComponent<Components::Controllable>(keyBindings)); // tmp
 
     ECS::Entity Title_P = engine.getRegistry().createEntity();
     engine.getRegistry().componentManager().addComponent<Components::Position>(Title_P, engine.newComponent<Components::Position>(2000, 540, 2));
     engine.getRegistry().componentManager().addComponent<Components::Velocity>(Title_P, engine.newComponent<Components::Velocity>(-2, 0, 0));
-    // engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_P, engine.newComponent<Components::Scale>(1, 1));
+    engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_P, engine.newComponent<Components::Scale>(150, 150));
     engine.getRegistry().componentManager().addComponent<Components::SpriteID>(Title_P, engine.newComponent<Components::SpriteID>(static_cast<std::string>("title_p")));
     engine.getRegistry().componentManager().addComponent<Components::Controllable>(Title_P, engine.newComponent<Components::Controllable>(keyBindings)); // tmp
 
     ECS::Entity Title_Y = engine.getRegistry().createEntity();
     engine.getRegistry().componentManager().addComponent<Components::Position>(Title_Y, engine.newComponent<Components::Position>(2000, 540, 2));
     engine.getRegistry().componentManager().addComponent<Components::Velocity>(Title_Y, engine.newComponent<Components::Velocity>(-2, 0, 0));
-    // engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_Y, engine.newComponent<Components::Scale>(1, 1));
+    engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_Y, engine.newComponent<Components::Scale>(150, 150));
     engine.getRegistry().componentManager().addComponent<Components::SpriteID>(Title_Y, engine.newComponent<Components::SpriteID>(static_cast<std::string>("title_y")));
     engine.getRegistry().componentManager().addComponent<Components::Controllable>(Title_Y, engine.newComponent<Components::Controllable>(keyBindings)); // tmp
 
     ECS::Entity Title_T = engine.getRegistry().createEntity();
     engine.getRegistry().componentManager().addComponent<Components::Position>(Title_T, engine.newComponent<Components::Position>(2000, 540, 2));
     engine.getRegistry().componentManager().addComponent<Components::Velocity>(Title_T, engine.newComponent<Components::Velocity>(-2, 0, 0));
-    // engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_T, engine.newComponent<Components::Scale>(1, 1));
+    engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_T, engine.newComponent<Components::Scale>(150, 150));
     engine.getRegistry().componentManager().addComponent<Components::SpriteID>(Title_T, engine.newComponent<Components::SpriteID>(static_cast<std::string>("title_t")));
     engine.getRegistry().componentManager().addComponent<Components::Controllable>(Title_T, engine.newComponent<Components::Controllable>(keyBindings)); // tmp
 
     ECS::Entity Title_o = engine.getRegistry().createEntity();
     engine.getRegistry().componentManager().addComponent<Components::Position>(Title_o, engine.newComponent<Components::Position>(2000, 540, 2));
     engine.getRegistry().componentManager().addComponent<Components::Velocity>(Title_o, engine.newComponent<Components::Velocity>(-2, 0, 0));
-    // engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_o, engine.newComponent<Components::Scale>(1, 1));
+    engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_o, engine.newComponent<Components::Scale>(150, 150));
     engine.getRegistry().componentManager().addComponent<Components::SpriteID>(Title_o, engine.newComponent<Components::SpriteID>(static_cast<std::string>("title_o")));
     engine.getRegistry().componentManager().addComponent<Components::Controllable>(Title_o, engine.newComponent<Components::Controllable>(keyBindings)); // tmp
 
     ECS::Entity Title_R = engine.getRegistry().createEntity();
     engine.getRegistry().componentManager().addComponent<Components::Position>(Title_R, engine.newComponent<Components::Position>(2000, 540, 2));
     engine.getRegistry().componentManager().addComponent<Components::Velocity>(Title_R, engine.newComponent<Components::Velocity>(-2, 0, 0));
-    // engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_R, engine.newComponent<Components::Scale>(1, 1));
+    engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_R, engine.newComponent<Components::Scale>(150, 150));
     engine.getRegistry().componentManager().addComponent<Components::SpriteID>(Title_R, engine.newComponent<Components::SpriteID>(static_cast<std::string>("title_r")));
     engine.getRegistry().componentManager().addComponent<Components::Controllable>(Title_R, engine.newComponent<Components::Controllable>(keyBindings)); // tmp
 
     ECS::Entity Title_TM = engine.getRegistry().createEntity();
     engine.getRegistry().componentManager().addComponent<Components::Position>(Title_TM, engine.newComponent<Components::Position>(2000, 540, 2));
     engine.getRegistry().componentManager().addComponent<Components::Velocity>(Title_TM, engine.newComponent<Components::Velocity>(0, 0, 0));
-    // engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_TM, engine.newComponent<Components::Scale>(1, 1));
+    engine.getRegistry().componentManager().addComponent<Components::Scale>(Title_TM, engine.newComponent<Components::Scale>(300, 300));
     engine.getRegistry().componentManager().addComponent<Components::SpriteID>(Title_TM, engine.newComponent<Components::SpriteID>(static_cast<std::string>("title_tm")));
     engine.getRegistry().componentManager().addComponent<Components::Controllable>(Title_TM, engine.newComponent<Components::Controllable>(keyBindings)); // tmp
 }
