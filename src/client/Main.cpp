@@ -48,13 +48,12 @@ int main()
     engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
     engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
 
-    conn.engineInit();
+    conn.engineInit(engine);
     std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();
     for (const auto &name : compNames) {
         std::cout << "Commponent n°" << (int)name.first << ": " << name.second << std::endl;
     }
 
-    conn.asyncReceive(engine);
     std::thread io_thread([&conn]() {
         conn.getIoContext().run();
     });

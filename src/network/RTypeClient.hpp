@@ -38,8 +38,10 @@ class RTypeClient : public UDPConnection
         /**
          * @brief This function gets all the types that will be used during program execution
          * @brief and stores them in _compNames
+         * 
+         * @param engine : The game engine on which to do modifications
          */
-        void engineInit();
+        void engineInit(Engine::GameEngine &engine);
 
         /**
          * @brief Check if data was send from the server

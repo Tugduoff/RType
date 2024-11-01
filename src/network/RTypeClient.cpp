@@ -15,7 +15,7 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 {
 }
 
-void RTypeClient::engineInit()
+void RTypeClient::engineInit(Engine::GameEngine &engine)
 {
     std::cerr << "Init Game" << std::endl;
     send("start");
@@ -33,6 +33,7 @@ void RTypeClient::engineInit()
 
         _compNames[compId] = strCompName;
     }
+    asyncReceive(engine);
 }
 
 bool RTypeClient::dataFromServer()
@@ -51,6 +52,7 @@ void RTypeClient::asyncReceive(Engine::GameEngine &engine)
         [this, &engine](const boost::system::error_code &ec, std::size_t bytes_recvd) {
             if (!ec && _sender_endpoint == _server_endpoint) {
                 this->interpretServerData(engine, bytes_recvd);
+                asyncReceive(engine);
             }
         }
     );
@@ -94,7 +96,6 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::size_t by
             }
             break;
     }
-    asyncReceive(engine);
 }
 
 void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
@@ -133,7 +134,7 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 }
 
 void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
-{    
+{
     try {
         uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
