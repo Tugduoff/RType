@@ -11,7 +11,7 @@
 #include "RTypeClient.hpp"
 
 RTypeClient::RTypeClient(std::string hostname, std::string port)
-: UDPConnection(hostname, port), gameEnd(false)
+: UDPConnection(hostname, port), gameEnd(false), nextFrame(false)
 {
 }
 
@@ -86,6 +86,10 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::size_t by
             std::cerr << "Detach Component" << std::endl;
             detachComponent(engine, _recv_buffer);
             std::cerr << std::endl;
+            break;
+        case 0xa:
+            nextFrame = true;
+            std::cerr << "Next frame" << std::endl;
             break;
         default:
             std::cerr << "Error: Unknown opcode : " << int(_recv_buffer[0]) << ". Full command is : " << std::endl;

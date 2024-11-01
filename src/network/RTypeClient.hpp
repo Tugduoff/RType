@@ -192,6 +192,7 @@ class RTypeClient : public UDPConnection
 
     public:
         bool gameEnd;
+        std::atomic_bool nextFrame;
     
     private:
         std::unordered_map<uint8_t, std::string> _compNames;

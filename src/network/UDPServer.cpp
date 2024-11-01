@@ -494,3 +494,15 @@ void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::vector<u
     catch(const std::exception &) {
     }    
 }
+
+void UDPServer::sendNextFrame()
+{
+    std::vector<uint8_t> data = {0xa};
+    socket_.async_send_to(
+        boost::asio::buffer(data), remote_endpoint_,
+        [](boost::system::error_code ec, std::size_t) {
+            if (!ec) {
+            }
+        }
+    );
+}

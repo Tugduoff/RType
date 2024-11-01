@@ -63,8 +63,10 @@ int main()
     {
         // Check that you have the same components here with the map in RTypeClient
         while (conn.gameEnd != true) {
-            if (chrono.getElapsedTime() < 17)
-                continue;
+            if (!conn.nextFrame) {
+                 continue;
+            }
+            conn.nextFrame = false;
             conn.lockMutex();
             engine.runSystems();
             conn.unlockMutex();

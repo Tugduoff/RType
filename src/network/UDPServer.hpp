@@ -49,6 +49,8 @@ class UDPServer {
         */
         void start_receive(Engine::GameEngine &engine);
 
+        void sendNextFrame();
+
         std::vector<udp::endpoint> client_endpoints;
 
     private:
