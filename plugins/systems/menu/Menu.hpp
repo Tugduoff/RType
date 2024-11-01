@@ -29,6 +29,7 @@ namespace Systems {
         private:
             bool _titleReachedLeftEdge;
             bool _titleDeployed;
+            bool _tmSpawned;
     };
 };
 
