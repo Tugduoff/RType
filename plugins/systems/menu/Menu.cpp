@@ -51,6 +51,11 @@ void Systems::MenuSystem::run(Engine::GameEngine &engine)
                     vel.x = 1;
                 else
                     vel.x = 0;
+            } else if (i == letter_T) {
+                if (pos.x < 600)
+                    vel.x = 2;
+                else
+                    vel.x = 0;
             }
         } else if (_titleDeployed) {
             vel.y = 2;
