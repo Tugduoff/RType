@@ -59,6 +59,9 @@ int main()
     std::thread io_thread([&conn]() {
         conn.getIoContext().run();
     });
+    std::thread io_thread2([&conn, &engine]() {
+        conn.startInterpret(engine);
+    });
     try
     {
         // Check that you have the same components here with the map in RTypeClient

@@ -45,52 +45,68 @@ bool RTypeClient::dataFromServer()
 
 void RTypeClient::asyncReceive(Engine::GameEngine &engine)
 {
-    _recv_buffer.resize(CLIENT_BUFFER_FIXED_SIZE);
+    std::unique_ptr<std::vector<uint8_t>> recv_buffer = std::make_unique<std::vector<uint8_t>>(CLIENT_BUFFER_FIXED_SIZE);
+    auto buffer_ptr = recv_buffer.get();
     _socket.async_receive_from(
-        boost::asio::buffer(_recv_buffer), _sender_endpoint,
-        [this, &engine](const boost::system::error_code &ec, std::size_t bytes_recvd) {
+        boost::asio::buffer(*buffer_ptr), _sender_endpoint,
+        [this, &engine, _recv_buffer = std::move(recv_buffer)](const boost::system::error_code &ec, std::size_t bytes_recvd) {
             if (!ec && _sender_endpoint == _server_endpoint) {
-                this->interpretServerData(engine, bytes_recvd);
+                _recv_buffer.get()->resize(bytes_recvd);
+                this->_packetQueueMutex.lock();
+                this->_packetQueue.push(*_recv_buffer.get());
+                this->_packetQueueMutex.unlock();
                 asyncReceive(engine);
             }
         }
     );
 }
 
-void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::size_t bytes_recvd)
+void RTypeClient::startInterpret(Engine::GameEngine &engine)
 {
-    _recv_buffer.resize(bytes_recvd);
-    switch (_recv_buffer[0]) {
+    while (true)
+    {
+        if (!_packetQueue.empty()) {
+            interpretServerData(engine, _packetQueue.front());
+            _packetQueueMutex.lock();
+            _packetQueue.pop();
+            _packetQueueMutex.unlock();
+        }
+    }
+}
+
+void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<uint8_t> &recv_buffer)
+{
+    switch (recv_buffer[0]) {
         case 0x0:
-            std::cerr << "Create Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
-            createEntity(engine, _recv_buffer);
+            std::cerr << "Create Entity n°" << uint32From4Uint8(recv_buffer[1], recv_buffer[2], recv_buffer[3], recv_buffer[4]) << std::endl;
+            createEntity(engine, recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x1:
             std::cerr << "Recieved delete instruction!" << std::endl;
-            std::cerr << "Delete Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
-            deleteEntity(engine, _recv_buffer);
+            std::cerr << "Delete Entity n°" << uint32From4Uint8(recv_buffer[1], recv_buffer[2], recv_buffer[3], recv_buffer[4]) << std::endl;
+            deleteEntity(engine, recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x2:
             std::cerr << "Attach Component" << std::endl;
-            attachComponent(engine, _recv_buffer);
+            attachComponent(engine, recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x3:
             // std::cerr << "Update Component" << std::endl;
-            // std::cerr << "Component n°" << uint16From2Uint8(_recv_buffer[5], _recv_buffer[6]) << " of Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
-            updateComponent(engine, _recv_buffer);
+            // std::cerr << "Component n°" << uint16From2Uint8(recv_buffer[5], recv_buffer[6]) << " of Entity n°" << uint32From4Uint8(recv_buffer[1], recv_buffer[2], recv_buffer[3], recv_buffer[4]) << std::endl;
+            updateComponent(engine, recv_buffer);
             break;
         case 0x4:
             std::cerr << "Detach Component" << std::endl;
-            detachComponent(engine, _recv_buffer);
+            detachComponent(engine, recv_buffer);
             std::cerr << std::endl;
             break;
         default:
-            std::cerr << "Error: Unknown opcode : " << int(_recv_buffer[0]) << ". Full command is : " << std::endl;
-            std::cerr << binaryToStr(_recv_buffer) << std::endl;
-            if (binaryToStr(_recv_buffer).find("You have been disconnected :(") != std::string::npos) {
+            std::cerr << "Error: Unknown opcode : " << int(recv_buffer[0]) << ". Full command is : " << std::endl;
+            std::cerr << binaryToStr(recv_buffer) << std::endl;
+            if (binaryToStr(recv_buffer).find("You have been disconnected :(") != std::string::npos) {
                 gameEnd = true;
             }
             break;

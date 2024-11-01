@@ -9,6 +9,7 @@
     #define RTYPE_CLIENT_HPP_
 
     #include <unordered_map>
+    #include <queue>
     #include <mutex>
     #include "UDPConnection.hpp"
     #include "GameEngine/GameEngine.hpp"
@@ -58,6 +59,8 @@ class RTypeClient : public UDPConnection
          */
         void asyncReceive(Engine::GameEngine &engine);
 
+        void startInterpret(Engine::GameEngine &engine);
+
         /**
          * @brief Read data sent from the server and act accordingly
          * 
@@ -67,7 +70,7 @@ class RTypeClient : public UDPConnection
          * @note This function receive the data, read the opcode and call one those functions accordingly : 
          * @note createEntity, deleteEntity, attachComponent, updateComponent, detachComponent
          */
-        void interpretServerData(Engine::GameEngine &engine, std::size_t bytes_recvd);
+        void interpretServerData(Engine::GameEngine &engine, std::vector<uint8_t> &recv_buffer);
 
         /**
          * @brief Create a new entity
@@ -196,9 +199,11 @@ class RTypeClient : public UDPConnection
     private:
         std::unordered_map<uint8_t, std::string> _compNames;
         std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
-        std::vector<uint8_t> _recv_buffer;
         udp::endpoint _sender_endpoint;
         std::mutex _engineMutex;
+
+        std::queue<std::vector<uint8_t>> _packetQueue;
+        std::mutex _packetQueueMutex;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */
