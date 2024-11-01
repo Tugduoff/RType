@@ -50,7 +50,6 @@ int main()
 
     conn.engineInit();
     conn.asyncReceive(engine);
-
     std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();
     for (const auto &name : compNames) {
         std::cout << "Commponent n°" << (int)name.first << ": " << name.second << std::endl;
@@ -59,13 +58,18 @@ int main()
     std::thread io_thread([&conn]() {
         conn.getIoContext().run();
     });
+    std::thread io_thread2([&conn, &engine]() {
+        conn.startInterpret(engine);
+    });
     try
     {
         // Check that you have the same components here with the map in RTypeClient
         while (conn.gameEnd != true) {
+            // std::cout << "Packet queue size: " << conn._packetQueue.size() << std::endl;
             if (!conn.nextFrame) {
                  continue;
             }
+            std::cout << "Run systems" << std::endl;
             conn.nextFrame = false;
             conn.lockMutex();
             engine.runSystems();
