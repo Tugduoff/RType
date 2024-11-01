@@ -15,7 +15,7 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 {
 }
 
-void RTypeClient::engineInit(Engine::GameEngine &engine)
+void RTypeClient::engineInit()
 {
     std::cerr << "Init Game" << std::endl;
     send("start");
@@ -33,7 +33,6 @@ void RTypeClient::engineInit(Engine::GameEngine &engine)
 
         _compNames[compId] = strCompName;
     }
-    asyncReceive(engine);
 }
 
 bool RTypeClient::dataFromServer()
