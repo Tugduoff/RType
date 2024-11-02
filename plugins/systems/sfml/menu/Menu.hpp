@@ -11,6 +11,7 @@
     #include <libconfig.h++>
     #include "systems/ASystem.hpp"
     #include <vector>
+    #include <SFML/Graphics.hpp>
 
 namespace Engine {
     class GameEngine;
@@ -18,14 +19,19 @@ namespace Engine {
 
 namespace Systems {
 
-    class Menu : public ASystem {
+    class Menu {
         public:
             Menu() = default;
             Menu(libconfig::Setting &config);
             ~Menu() = default;
 
-            void run(Engine::GameEngine &engine) override;
-            void init(Engine::GameEngine &engine) override;
+            void run(Engine::GameEngine &engine, sf::RenderWindow &window);
+            void init(Engine::GameEngine &engine);
+
+            size_t getIndexInVector(std::vector<size_t> &vec, size_t &e);
+            void destroyEntity(Engine::GameEngine &engine);
+
+            std::vector<ECS::Entity> _entities;
         
         private:
             bool _titleReachedLeftEdge;

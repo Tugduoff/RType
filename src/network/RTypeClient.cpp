@@ -213,7 +213,7 @@ void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vect
         networkId = entity_it->first;
         networkId = htonl(networkId);
     } else {
-        std::cerr << "The entity n°" << entity << " does not have a network id" << std::endl;
+        // std::cerr << "The entity n°" << entity << " does not have a network id" << std::endl;
         return;
     }
 

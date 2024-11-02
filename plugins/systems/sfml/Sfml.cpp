@@ -64,7 +64,7 @@ void Systems::Sfml::run(Engine::GameEngine &engine)
 {
     displaySystem.run(engine, __window);
     inputSystem.run(engine, __window);
-    menu.run(engine);
+    menu.run(engine, __window);
     if (!__window.isOpen()) {
         std::cout << "Send exit" << std::endl;
         exit(0);

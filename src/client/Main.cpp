@@ -23,7 +23,6 @@
 #include "components/scale/Scale.hpp"
 #include "components/deathRange/DeathRange.hpp"
 #include "components/type/Type.hpp"
-#include "components/text/Text.hpp"
 
 int main()
 {
