@@ -50,12 +50,15 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
         std::cerr << "Could not receive properly from " << remote_endpoint_ << ", ec=" << ec << ", bytes_rcvd=" << bytes_recvd << std::endl;
         return;
     }
+    if (!_clients.contains(remote_endpoint_)) {
+        __init_new_client();
+    }
+    auto &client_info = _clients.at(remote_endpoint_);
     switch (recv_buffer_[0]) {
         case 0x0:
-            // send component list to client
+            __send_components();
 
-            // set something to indicate that we should periodically
-            // send number of components to client
+            client_info.requestedInit = true;
             break;
 
         case 0x1:
@@ -99,7 +102,6 @@ void UDPServer::__init_new_client()
 
 void UDPServer::__add_new_client()
 {
-    __send_components_infos();
     for (const auto &e : _listEntities()) {
         __send_entity_created_message(
             _entitiesNetworkId.at(e),
@@ -130,10 +132,6 @@ void UDPServer::__add_new_client()
 }
 
 // --- Client Init --- //
-
-void UDPServer::__send_components_infos() {
-    __send_components();
-}
 
 void UDPServer::__send_components() {
     for (const auto &[_, info] : _comps_info) {

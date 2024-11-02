@@ -62,7 +62,7 @@ class UDPServer {
         };
 
         struct ClientInfo {
-            
+            bool requestedInit;
         };
 
         udp::socket socket_;
