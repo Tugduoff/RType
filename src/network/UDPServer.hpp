@@ -79,6 +79,8 @@ class UDPServer {
         std::function<const std::vector<ECS::Entity> &()> _listEntities;
         std::function<std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>>()> _listComponents;
 
+        bool _isGameRunning;
+
 
         // --- Helpers --- //
 

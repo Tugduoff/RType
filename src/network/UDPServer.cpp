@@ -27,7 +27,8 @@ UDPServer::UDPServer(
 :   socket_(io_context, udp::endpoint(udp::v4(),port)),
     io_context_(io_context),
     _listEntities(std::move(entityLister)),
-    _listComponents(std::move(componentLister))
+    _listComponents(std::move(componentLister)),
+    _isGameRunning(false)
 {
     this->updateIdStringToType(idStringToType);
 }
@@ -446,5 +447,5 @@ void UDPServer::sendNextFrame()
 
 bool UDPServer::gameRunning() const noexcept
 {
-    return !client_endpoints.empty();
+    return _isGameRunning;
 }
