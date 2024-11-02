@@ -30,8 +30,6 @@ UDPServer::UDPServer(
     _listComponents(std::move(componentLister))
 {
     this->updateIdStringToType(idStringToType);
-
-    std::cerr << "--- Server started on port " << port << ", package size_max = " << size_max << std::endl;
 }
 
 // --- PRIVATE --- //
@@ -88,16 +86,6 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
 
 // --- Helpers --- //
 
-std::size_t UDPServer::__get_size_max() {
-    auto max_name_length = std::max_element(_comps_info.begin(), _comps_info.end(),
-        [](const auto& a, const auto& b) {
-            return a.second.name.size() < b.second.name.size();
-        }
-    );
-
-    return max_name_length != _comps_info.end() ? max_name_length->second.name.size() : 0;
-}
-
 void UDPServer::__send_message(const std::span<const uint8_t>& message) {
     socket_.async_send_to(
         boost::asio::buffer(message), remote_endpoint_,
@@ -114,11 +102,9 @@ void UDPServer::__send_message(const std::span<const uint8_t>& message) {
 void UDPServer::__init_new_client()
 {
     client_endpoints.push_back(remote_endpoint_);
-    std::cerr << "New client added: " << remote_endpoint_.address().to_string() 
-                << ":" << remote_endpoint_.port() << std::endl;
+    std::cerr << "New client added: " << remote_endpoint_ << std::endl;
     client_responses[remote_endpoint_] = true;
     is_disconnected[remote_endpoint_] = false;
-    // __checking_client(remote_endpoint_);
 }
 
 void UDPServer::__add_new_client()
@@ -156,28 +142,7 @@ void UDPServer::__add_new_client()
 // --- Client Init --- //
 
 void UDPServer::__send_components_infos() {
-    __send_total_components();
-    __send_size_max();
     __send_components();
-}
-
-void UDPServer::__send_total_components() {
-    uint16_t total_components = static_cast<uint16_t>(_comps_info.size());
-    total_components = htons(total_components);
-
-    __send_message({
-        reinterpret_cast<uint8_t *>(&total_components),
-        sizeof(total_components)
-    });
-}
-
-void UDPServer::__send_size_max() {
-    uint16_t max_name_length_byte = static_cast<uint16_t>(size_max);
-
-    __send_message({
-        reinterpret_cast<uint8_t *>(&max_name_length_byte),
-        sizeof(max_name_length_byte)
-    });
 }
 
 void UDPServer::__send_components() {
@@ -249,11 +214,10 @@ void UDPServer::__remove_client(const udp::endpoint& client) {
 
         std::cerr << "Client disconnected: " << client.address().to_string() << ":" << client.port() << std::endl;
 
-        std::string deconnection_message = "You have been disconnected :(";
-        socket_.async_send_to(boost::asio::buffer(deconnection_message), client,
+        socket_.async_send_to(boost::asio::buffer("You have been disconnected :("), client,
             [client](boost::system::error_code ec, std::size_t) {
                 if (!ec)
-                    std::cerr << "Client " << client.address().to_string() << ":" << client.port() << " is now aware of their disconnection" << std::endl;
+                    std::cerr << "Client " << client << " is now aware of their disconnection" << std::endl;
             }
         );
     }

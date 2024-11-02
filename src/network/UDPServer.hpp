@@ -63,7 +63,6 @@ class UDPServer {
         udp::endpoint remote_endpoint_;
         boost::asio::io_context& io_context_;
         std::array<char, 1024> recv_buffer_;
-        std::size_t size_max;
         std::unordered_map<std::type_index, ComponentInfo> _comps_info;
         std::unordered_map<std::string, std::type_index> __idStringToType;
         std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
@@ -236,8 +235,6 @@ class UDPServer {
                 _comps_info.emplace(idx, ComponentInfo {name, networkId});
                 networkId++;
             }
-
-            size_max = __get_size_max();
         }
 };
 
