@@ -19,20 +19,37 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 void RTypeClient::engineInit()
 {
     std::cerr << "Init Game" << std::endl;
-    send("start");
+    send(std::vector<uint8_t>({0x0}));
+    int receivedFinish = 0;
 
-    uint16_t compNb = receiveUint16();
-    uint8_t compNameMaxSize = receiveUint8();
+    while (receivedFinish < 2)
+    {
+        std::vector<uint8_t> recv_buffer = blockingReceive();
+        interpretServerInitData(recv_buffer, receivedFinish);
+    }
+    
+    send(std::vector<uint8_t>({0x2}));
+}
 
-    std::cerr << "CompNb : " << (int)compNb << "." << std::endl;
-    std::cerr << "CompNameMaxSize : " << (int)compNameMaxSize << "." << std::endl;
-
-    for (uint16_t i = 0; i < compNb; i++) {
-        std::vector<uint8_t> compName = blockingReceive();
-        std::string strCompName = std::string(compName.begin() + 2, compName.end());
-        uint16_t compId = *reinterpret_cast<uint16_t *>(compName.data());
-
-        _compNames[compId] = strCompName;
+void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, int &receivedFinish)
+{
+    if (recv_buffer.size() < 1) {
+        return;
+    }
+    switch (recv_buffer[0]) {
+        case 0x5:
+        {
+            uint16_t compId = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
+            std::string strCompName = std::string(recv_buffer.begin() + 3, recv_buffer.end());
+            _compNames[compId] = strCompName;
+            break;
+        }
+        case 0x6:
+            uint16_t componentsTypesNb = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
+            receivedFinish++;
+            break;
+        default:
+            break;
     }
 }
 

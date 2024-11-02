@@ -44,6 +44,8 @@ class RTypeClient : public UDPConnection
          */
         void engineInit();
 
+        void interpretServerInitData(std::vector<uint8_t> &recv_buffer, int &receivedFinish);
+
         /**
          * @brief Check if data was send from the server
          * 
