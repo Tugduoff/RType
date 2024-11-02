@@ -44,43 +44,45 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
         return;
     }
     bytes_recvd = socket_.receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 0, ec);
-    if (!ec && bytes_recvd > 0) {
-        std::string message(recv_buffer_.data(), bytes_recvd);
-        std::cerr << "Received message from client (" << remote_endpoint_.address().to_string() 
-                    << ":" << remote_endpoint_.port() << "): " << message << std::endl;
+    if (ec || bytes_recvd == 0) {
+        std::cerr << "Could not receive properly from " << remote_endpoint_ << ", ec=" << ec << ", bytes_rcvd=" << bytes_recvd << std::endl;
+        return;
+    }
+    std::string message(recv_buffer_.data(), bytes_recvd);
+    std::cerr << "Received message from client (" << remote_endpoint_.address().to_string() 
+                << ":" << remote_endpoint_.port() << "): " << message << std::endl;
 
-        if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
-            __init_new_client();
-        } else {
-            client_responses[remote_endpoint_] = true;
+    if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
+        __init_new_client();
+    } else {
+        client_responses[remote_endpoint_] = true;
+    }
+    if (message == "start") {
+        __add_new_client();
+    }
+    std::vector<uint8_t> mes(recv_buffer_.begin(), recv_buffer_.begin() + bytes_recvd);
+    if (mes[0] == 0x3) {
+        std::cout << "Received input from client : " << message << std::endl;
+        std::cout << "Message array size : " << message.size() << std::endl;
+        std::cout << "Uint8 vector size : " << mes.size() << std::endl;
+        std::cout << "Uint8 vector : ";
+        for (const auto &byte : mes) {
+            std::cout << "0x" << std::hex << int(byte) << " ";
         }
-        if (message == "start") {
-            __add_new_client();
+        std::cout << std::endl;
+        std::cout << "message array : ";
+        for (const auto &car : message) {
+            std::cout << "0x" << std::hex << int(car) << " ";
         }
-        std::vector<uint8_t> mes(recv_buffer_.begin(), recv_buffer_.begin() + bytes_recvd);
-        if (mes[0] == 0x3) {
-            std::cout << "Received input from client : " << message << std::endl;
-            std::cout << "Message array size : " << message.size() << std::endl;
-            std::cout << "Uint8 vector size : " << mes.size() << std::endl;
-            std::cout << "Uint8 vector : ";
-            for (const auto &byte : mes) {
-                std::cout << "0x" << std::hex << int(byte) << " ";
-            }
-            std::cout << std::endl;
-            std::cout << "message array : ";
-            for (const auto &car : message) {
-                std::cout << "0x" << std::hex << int(car) << " ";
-            }
-            std::cout << std::dec << std::endl;
+        std::cout << std::dec << std::endl;
 
-            receiveUpdateComponent(engine, mes);
-        }
+        receiveUpdateComponent(engine, mes);
+    }
 
-        if (message == "pong") {
-            std::cerr << "Received pong from client: " << remote_endpoint_.address().to_string() 
-                        << ":" << remote_endpoint_.port() << std::endl;
-            client_responses[remote_endpoint_] = true;
-        }
+    if (message == "pong") {
+        std::cerr << "Received pong from client: " << remote_endpoint_.address().to_string() 
+                    << ":" << remote_endpoint_.port() << std::endl;
+        client_responses[remote_endpoint_] = true;
     }
 }
 
