@@ -88,7 +88,6 @@ namespace Components {
                 {Action::BACKWARD, Key::S},
                 {Action::LEFT, Key::Q},
                 {Action::RIGHT, Key::D},
-                // {Action::ENTER, Key::ENTER},
                 {Action::ACTION1, Key::LEFT_CLICK},
                 {Action::ACTION2, Key::RIGHT_CLICK},
                 {Action::ACTION3, Key::MIDDLE_CLICK},

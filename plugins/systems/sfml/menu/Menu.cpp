@@ -213,7 +213,7 @@ void Systems::Menu::init(Engine::GameEngine &engine)
     _titleReachedLeftEdge = false;
     _titleDeployed = false;
     _tmSpawned = false;
-    // attach to entity from componentManager
+
     engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
     engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
     engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");

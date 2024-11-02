@@ -46,7 +46,6 @@ int main()
     engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
     engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
     engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
-    // engine.registerComponent<Components::Text>("./plugins/bin/components/", "Text");
 
     conn.setEngine(&engine);
     conn.engineInit();
