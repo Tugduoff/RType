@@ -266,7 +266,9 @@ void UDPServer::create_entity(const ECS::Entity &entity) {
     _nextNetworkId++;
     _entitiesNetworkId[entity] = networkId;
 
-    __send_entity_created_message(networkId, remote_endpoint_);
+    for (const auto &client_endpoint : client_endpoints) {
+        __send_entity_created_message(networkId, client_endpoint);
+    }
 }
 
 void UDPServer::__send_entity_created_message(
@@ -313,16 +315,18 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
     }
     std::cerr << std::endl;
 
-    socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [networkId](boost::system::error_code ec, std::size_t) {
-            std::cerr << "Sending delete entity message to client for entity: " << ntohl(networkId) << std::endl;
-            if (!ec) {
-                uint32_t id = ntohl(networkId);
-                std::cerr << "Entity " << static_cast<int>(id) << " delete." << std::endl;
+    for (const auto &client_endpoint : client_endpoints) {
+        socket_.async_send_to(
+            boost::asio::buffer(message), client_endpoint,
+            [networkId](boost::system::error_code ec, std::size_t) {
+                std::cerr << "Sending delete entity message to client for entity: " << ntohl(networkId) << std::endl;
+                if (!ec) {
+                    uint32_t id = ntohl(networkId);
+                    std::cerr << "Entity " << static_cast<int>(id) << " delete." << std::endl;
+                }
             }
-        }
-    );
+        );
+    }
 }
 
 // --- Component --- //
@@ -337,7 +341,9 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
 
     uint16_t component_id = _comps_info.at(component).networkId;
 
-    __send_attach_component_message(networkId, component_id, remote_endpoint_);
+    for (const auto &client_endpoint : client_endpoints) {
+        __send_attach_component_message(networkId, component_id, client_endpoint);
+    }
 }
 
 void UDPServer::__send_attach_component_message(
@@ -379,12 +385,14 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
 
     uint16_t component_id = _comps_info.at(type).networkId;
 
-    __send_update_component(
-        networkId,
-        component_id,
-        data,
-        remote_endpoint_
-    );
+    for (const auto &client_endpoint : client_endpoints) {
+        __send_update_component(
+            networkId,
+            component_id,
+            data,
+            client_endpoint
+        );
+    }
 }
 
 void UDPServer::__send_update_component(
@@ -436,16 +444,18 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
     std::memcpy(&message[1], &networkId, sizeof(networkId));
     std::memcpy(&message[5], &component_id, sizeof(component_id));
 
-    socket_.async_send_to(
-        boost::asio::buffer(message), remote_endpoint_,
-        [networkId, component_id](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                uint16_t e_id = ntohl(networkId);
-                uint16_t c_id = ntohs(component_id);
-                std::cerr << "Detach component [" << static_cast<int>(c_id) << "] from entity [" << static_cast<int>(e_id) << "]." << std::endl;
+    for (const auto &client_endpoint : client_endpoints) {
+        socket_.async_send_to(
+            boost::asio::buffer(message), client_endpoint,
+            [networkId, component_id](boost::system::error_code ec, std::size_t) {
+                if (!ec) {
+                    uint16_t e_id = ntohl(networkId);
+                    uint16_t c_id = ntohs(component_id);
+                    std::cerr << "Detach component [" << static_cast<int>(c_id) << "] from entity [" << static_cast<int>(e_id) << "]." << std::endl;
+                }
             }
-        }
-    );
+        );
+    }
 }
 
 uint16_t uint16From2Uint8(uint8_t first, uint8_t second)
@@ -503,11 +513,13 @@ void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::vector<u
 void UDPServer::sendNextFrame()
 {
     std::vector<uint8_t> data = {0xa};
-    socket_.async_send_to(
-        boost::asio::buffer(data), remote_endpoint_,
-        [](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
+    for (const auto &client_endpoint : client_endpoints) {
+        socket_.async_send_to(
+            boost::asio::buffer(data), client_endpoint,
+            [](boost::system::error_code ec, std::size_t) {
+                if (!ec) {
+                }
             }
-        }
-    );
+        );
+    }
 }
