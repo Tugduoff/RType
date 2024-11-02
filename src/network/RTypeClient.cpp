@@ -104,7 +104,9 @@ void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 {
     uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
 
+    lockMutex();
     ECS::Entity entity = engine.getRegistry().entityManager().spawnEntity();
+    unlockMutex();
     _entitiesNetworkId.insert({networkId, entity});
     std::cerr << "Created entity n°" << entity << " in local with network id n°" << networkId << std::endl;
 } 
@@ -116,7 +118,9 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
 
         try {
+            lockMutex();
             engine.getRegistry().killEntity(entity);
+            unlockMutex();
             _entitiesNetworkId.erase(networkId);
             std::cerr << "Deleted entity n°" << entity << " in local" << std::endl;
             std::cerr << "Deleted entity n°" << networkId << " in network" << std::endl;
@@ -145,7 +149,9 @@ void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_
         auto &sparseArray = compInstance->any_cast(
             engine.getRegistry().componentManager().getComponents(compTypeIndex)
         );
+        lockMutex();
         sparseArray.constructAt(entity);
+        unlockMutex();
     }
     catch(const std::exception &) {
 
@@ -174,9 +180,13 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
             std::cerr << "Component " << strCompId << " was not attached for entity n°" << entity << " so created it" << std::endl;
             std::cerr << "\033[0;37m";
 
+            lockMutex();
             sparseArray.constructAt(entity);
+            unlockMutex();
         }
+        lockMutex();
         sparseArray[entity]->deserialize(serializedData);
+        unlockMutex();
     }
     catch(const std::exception &) {
 
@@ -197,7 +207,9 @@ void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_
         auto &sparseArray = compInstance->any_cast(
             engine.getRegistry().componentManager().getComponents(compTypeIndex)
         );
+        lockMutex();
         sparseArray.erase(entity);
+        unlockMutex();
     } catch (std::exception &) {
 
     }
@@ -272,4 +284,12 @@ uint8_t RTypeClient::receiveUint8()
         throw std::runtime_error("Received data is too short to make an uint8");
     }
     return data[0];
+}
+
+void RTypeClient::lockMutex() {
+    _engineMutex.lock();
+}
+
+void RTypeClient::unlockMutex() {
+    _engineMutex.unlock();
 }
