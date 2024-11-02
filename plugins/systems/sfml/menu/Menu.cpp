@@ -137,6 +137,38 @@ void Systems::Menu::run(Engine::GameEngine &engine, sf::RenderWindow &window)
             inputBackward = false;
         }
 
+        if (inputRight) {
+            auto &text = textArr[__controllableTexts[currentIndex]];
+            if (text->textContent.substr(0, 7) == "PLAYERS") {
+                char playerNb = text->textContent[10];
+                int playerNbAsInt = std::stoi(std::string(1, playerNb)) + 1;
+                if (playerNbAsInt > 9)
+                    playerNbAsInt = 1;
+
+                std::string newText = text->textContent;
+                newText[10] = '0' + playerNbAsInt;
+
+                text->setText(newText);
+                inputRight = false;
+            }
+        }
+
+        if (inputLeft) {
+            auto &text = textArr[__controllableTexts[currentIndex]];
+            if (text->textContent.substr(0, 7) == "PLAYERS") {
+                char playerNb = text->textContent[10];
+                int playerNbAsInt = std::stoi(std::string(1, playerNb)) - 1;
+                if (playerNbAsInt < 1)
+                    playerNbAsInt = 9;
+
+                std::string newText = text->textContent;
+                newText[10] = '0' + playerNbAsInt;
+
+                text->setText(newText);
+                inputLeft = false;
+            }
+        }
+
         if (inputEnter) {
             auto &text = textArr[__controllableTexts[currentIndex]];
             if (text->textContent == "PLAY") {
