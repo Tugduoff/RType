@@ -67,7 +67,7 @@ class UDPServer {
         udp::socket socket_;
         udp::endpoint remote_endpoint_;
         boost::asio::io_context& io_context_;
-        std::array<char, 1024> recv_buffer_;
+        std::array<uint8_t, 1024> recv_buffer_;
         std::unordered_map<std::type_index, ComponentInfo> _comps_info;
         std::unordered_map<std::string, std::type_index> __idStringToType;
         std::map<udp::endpoint, bool> client_responses;
