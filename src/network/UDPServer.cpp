@@ -134,12 +134,15 @@ void UDPServer::__add_new_client()
 // --- Client Init --- //
 
 void UDPServer::__send_components() {
+    const uint8_t opcode = 0x5;
+
     for (const auto &[_, info] : _comps_info) {
         const auto &[name, index] = info;
-        std::vector<uint8_t> buffer(2 + name.size());
+        std::vector<uint8_t> buffer(sizeof(opcode) + sizeof(index) + name.size());
 
-        *reinterpret_cast<uint16_t *>(&buffer[0]) = index;
-        std::memcpy(buffer.data() + 2, name.data(), name.size());
+        buffer[0] = opcode;
+        *reinterpret_cast<uint16_t *>(&buffer[1]) = index;
+        std::memcpy(buffer.data() + 3, name.data(), name.size());
 
         __send_message(buffer);
     }
