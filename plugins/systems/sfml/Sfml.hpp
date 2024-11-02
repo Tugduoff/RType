@@ -14,6 +14,7 @@
     #include "systems/ASystem.hpp"
     #include "Display.hpp"
     #include "Input.hpp"
+    #include "menu/Menu.hpp"
 
 namespace Systems {
     /**
@@ -36,6 +37,7 @@ namespace Systems {
 
             Display displaySystem;
             Input inputSystem;
+            Menu menu;
 
         private:
 

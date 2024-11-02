@@ -7,6 +7,8 @@ add_library(Sfml SHARED
     ../../../src/utils/Keys.cpp
     ../../../src/utils/Actions.cpp
     Texture.cpp
+
+    menu/Menu.cpp
 )
 
 CPMAddPackage(
