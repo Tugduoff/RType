@@ -179,6 +179,17 @@ void Systems::Menu::run(Engine::GameEngine &engine, sf::RenderWindow &window)
             }
         }
 
+        if (inputEnter) {
+            auto &text = textArr[__controllableTexts[currentIndex]];
+            if (text->textContent == "EXIT") {
+                std::cout << "END GAME" << std::endl;
+                engine._inMenu = false;
+                destroyEntity(engine);
+                window.close();
+                return;
+            }
+        }
+
     } catch (std::exception &) {}
 
     for (auto entity : __controllableTexts) {
@@ -303,6 +314,12 @@ void Systems::Menu::init(Engine::GameEngine &engine)
     __controllableTexts.push_back(textOptions);
     _entities.push_back(textOptions);
 
+    ECS::Entity textExit = engine.getRegistry().createEntity();
+    manager.addComponent<Components::Position>(textExit, engine.newComponent<Components::Position>(1750, 950, 2));
+    std::unique_ptr<Components::Text> tmpExit = std::make_unique<Components::Text>("EXIT", 50, sf::Color::White);
+    manager.addComponent<Components::Text>(textExit, std::move(tmpExit));
+    __controllableTexts.push_back(textExit);
+    _entities.push_back(textExit);
 
     ECS::Entity controlManager = engine.getRegistry().createEntity();
     manager.addComponent<Components::Controllable>(controlManager, engine.newComponent<Components::Controllable>(keyBindings));
