@@ -222,23 +222,34 @@ void Systems::Menu::init(Engine::GameEngine &engine)
     manager.addComponent<Components::Scale>(Title_TM, engine.newComponent<Components::Scale>(300, 300));
     manager.addComponent<Components::SpriteID>(Title_TM, engine.newComponent<Components::SpriteID>(static_cast<std::string>("title_tm")));
 
-    ECS::Entity textComp = engine.getRegistry().createEntity();
-    manager.addComponent<Components::Position>(textComp, engine.newComponent<Components::Position>(900, 540, 2));
-    std::unique_ptr<Components::Text> tet = std::make_unique<Components::Text>("Hi", 30, sf::Color::Red);
-    manager.addComponent<Components::Text>(textComp, std::move(tet));
+    ECS::Entity textPlayers = engine.getRegistry().createEntity();
+    manager.addComponent<Components::Position>(textPlayers, engine.newComponent<Components::Position>(1500, 300, 2));
+    std::unique_ptr<Components::Text> tmpPlayers = std::make_unique<Components::Text>("PLAYERS < 1 >", 50, sf::Color::White);
+    manager.addComponent<Components::Text>(textPlayers, std::move(tmpPlayers));
+    __controllableTexts.push_back(textPlayers);
 
+    ECS::Entity textPlay = engine.getRegistry().createEntity();
+    manager.addComponent<Components::Position>(textPlay, engine.newComponent<Components::Position>(1500, 450, 2));
+    std::unique_ptr<Components::Text> tmpPlay = std::make_unique<Components::Text>("PLAY", 50, sf::Color::Red);
+    manager.addComponent<Components::Text>(textPlay, std::move(tmpPlay));
+    __controllableTexts.push_back(textPlay);
 
-    ECS::Entity textComp2 = engine.getRegistry().createEntity();
-    manager.addComponent<Components::Position>(textComp2, engine.newComponent<Components::Position>(900, 700, 2));
-    std::unique_ptr<Components::Text> tet2 = std::make_unique<Components::Text>("Ha", 30, sf::Color::White);
-    manager.addComponent<Components::Text>(textComp2, std::move(tet2));
+    ECS::Entity textLevelEditor = engine.getRegistry().createEntity();
+    manager.addComponent<Components::Position>(textLevelEditor, engine.newComponent<Components::Position>(1500, 600, 2));
+    std::unique_ptr<Components::Text> tmpLevelEditor = std::make_unique<Components::Text>("LEVEL EDITOR", 50, sf::Color::White);
+    manager.addComponent<Components::Text>(textLevelEditor, std::move(tmpLevelEditor));
+    __controllableTexts.push_back(textLevelEditor);
+
+    ECS::Entity textOptions = engine.getRegistry().createEntity();
+    manager.addComponent<Components::Position>(textOptions, engine.newComponent<Components::Position>(1500, 750, 2));
+    std::unique_ptr<Components::Text> tmpOptions = std::make_unique<Components::Text>("OPTIONS", 50, sf::Color::White);
+    manager.addComponent<Components::Text>(textOptions, std::move(tmpOptions));
+    __controllableTexts.push_back(textOptions);
 
 
     ECS::Entity controlManager = engine.getRegistry().createEntity();
     manager.addComponent<Components::Controllable>(controlManager, engine.newComponent<Components::Controllable>(keyBindings));
 
-    __controllableTexts.push_back(textComp);
-    __controllableTexts.push_back(textComp2);
-    __selectedText = textComp;
+    __selectedText = textPlay;
     __selectManager = controlManager;
 }
