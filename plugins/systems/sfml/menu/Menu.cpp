@@ -100,12 +100,12 @@ void Systems::Menu::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         if (_titleReachedLeftEdge && _titleDeployed) {
             vel.x = 0;
             if (i <= 5) {
-                vel.y = (pos.y < 700) ? 2 : 0;
+                vel.y = (pos.y < 700) ? 1 : 0;
             }
 
             if (i == TM) {
-                vel.x = (pos.x < 1300) ? 6 : 0;
-                vel.y = (pos.y < 800) ? 2 : 0;
+                vel.x = (pos.x < 1300) ? 3 : 0;
+                vel.y = (pos.y < 800) ? 1 : 0;
             }
         }
     }
