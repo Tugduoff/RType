@@ -8,7 +8,6 @@
 #ifndef CONTROLLABLE_HPP
     #define CONTROLLABLE_HPP
 
-    #include "plugins/components/AComponent.hpp"
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
     #include "utils/Keys.hpp"
@@ -118,8 +117,9 @@ namespace Components {
                 std::string actionKey = "ACTION" + std::to_string(i + 1);
                 std::string actionValue;
 
-                if (!config.lookupValue(actionKey, actionValue))
-                    continue;
+                if (!config.lookupValue(actionKey, actionValue)) {
+                    actionValue = "UNKNOWN";
+                }
 
                 Action action = strToAction.at(actionKey);
                 std::cout << "Action: " << action << " Key: " << actionValue << std::endl;
@@ -136,18 +136,25 @@ namespace Components {
          * @brief Serializes the input states into a byte vector.
          * 
          * Converts the inputs (movement directions and actions) into network byte order for transmission or storage.
+         * Also converts the key bindings into network byte order.
          * 
          * @return A vector of bytes representing the serialized input states.
          */
         std::vector<uint8_t> serialize() override {
             std::vector<uint8_t> serialized;
 
-            serialized.resize(sizeof(__data));
+            serialized.resize(getSize());
+
             for (int i = 0; i < 4; i++) {
                 serialized[i] = static_cast<uint8_t>(inputs[i]);
             }
             for (int i = 4; i <= 14; i++) {
                 serialized[i] = static_cast<uint8_t>(actions[i - 4]);
+            }
+
+            size_t index = sizeof(__data);
+            for (const auto &pair : keyBindings) {
+                serialized[index++] = static_cast<uint8_t>(pair.second);
             }
             return serialized;
         };
@@ -156,23 +163,32 @@ namespace Components {
          * @brief Deserializes the input states from the provided byte vector.
          * 
          * Reads the inputs (forward, backward, left, right) and actions in network byte order.
+         * Also read the key bindings for each actions.
          * 
          * @param data A vector of bytes representing the serialized input states.
          * @throws std::runtime_error If the data size is invalid.
          */
         void deserialize(std::vector<uint8_t> &data) override {
-            if (data.size() != sizeof(__data))
+            if (data.size() != getSize())
                 throw std::runtime_error("Invalid data size for Controllable component");
             std::copy(data.begin(), data.begin() + 4, inputs.begin());
             std::copy(data.begin() + 4, data.end(), actions.begin());
+
+            size_t index = sizeof(__data);
+            for (const auto &pair : keyBindings) {
+                Key key = static_cast<Key>(data[index++]);
+                keyBindings[pair.first] = key;
+            }
         };
 
         /**
          * @brief Gets the size of the serialized data.
          * 
          * @return The size of the data, in bytes.
+         * 
+         * @note the size is equal to the size of the network array plus the number of key bindings rows.
          */
-        size_t getSize() const override { return sizeof(__data); };
+        size_t getSize() const override { return sizeof(__data) + keyBindings.size(); };
 
         /**
          * @brief Adds the Controllable component to an entity.
@@ -241,9 +257,7 @@ namespace Components {
                 Action action = strToAction.at(actionKey);
 
                 if (!config.lookupValue(actionKey, actionValue)) {
-                    newKeyBindings[action] = Key::UNKNOWN;
-                    std::cerr << actionKey << ": UNKNOWN" << std::endl;
-                    continue;
+                    actionValue = "UNKNOWN";
                 }
 
                 newKeyBindings[action] = strToKey.at(actionValue);

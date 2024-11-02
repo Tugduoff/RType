@@ -3,10 +3,13 @@ add_library(Sfml SHARED
     Sfml.cpp
     Display.cpp
     Input.cpp
-    
+    Shader.cpp
+    ActionManager.cpp
+    Texture.cpp
+
     ../../../src/utils/Keys.cpp
     ../../../src/utils/Actions.cpp
-    Texture.cpp
+    ../../../src/utils/EntityActions.cpp
 
     menu/Menu.cpp
 )

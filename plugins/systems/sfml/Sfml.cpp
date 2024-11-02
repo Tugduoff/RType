@@ -14,14 +14,21 @@
 #include "library_entrypoint.hpp"
 
 Systems::Sfml::Sfml(libconfig::Setting &config) :
-    displaySystem(config),
     inputSystem(config),
     menu(config),
+    actionManager(config),
     __music()
 {
     int width;
     int height;
     std::string title;
+
+    try {
+        displaySystem = Systems::Display(config);
+    } catch (std::exception &e) {
+        std::cerr << "Error while creating Display system: " << e.what() << std::endl;
+        exit(84);
+    }
 
     config.lookupValue("width", width);
     config.lookupValue("height", height);
@@ -36,6 +43,7 @@ Systems::Sfml::Sfml() :
     displaySystem(),
     inputSystem(),
     menu(),
+    actionManager(),
     __window(sf::VideoMode(1920, 1080, 32), "RType"),
     __music()
 {
@@ -48,6 +56,7 @@ void Systems::Sfml::init(Engine::GameEngine &engine)
     std::cout << "Init Sfml" << std::endl;
     displaySystem.init(engine);
     inputSystem.init(engine);
+    actionManager.init(engine);
     menu.init(engine);
     std::cout << "Init Sfml done" << std::endl;
     if (!__music.openFromFile("./assets/background.mp3")) {
@@ -64,6 +73,7 @@ void Systems::Sfml::run(Engine::GameEngine &engine)
 {
     displaySystem.run(engine, __window);
     inputSystem.run(engine, __window);
+    actionManager.run(engine);
     menu.run(engine, __window);
     if (!__window.isOpen()) {
         std::cout << "Send exit" << std::endl;

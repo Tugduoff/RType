@@ -13,13 +13,53 @@
 #include "components/scale/Scale.hpp"
 #include "SpriteComponent.hpp"
 #include "Display.hpp"
+#include <iostream>
 
 Systems::Display::Display(libconfig::Setting &config)
+    : __shaders(), __currentShader(nullptr)
 {
-    if (!config.lookupValue("texturesPath", __configFilePath)) {
-        std::cerr << "Error: Could not find configFilePath for all textures in Display config" << std::endl;
-    }
+    libconfig::Config cfg;
+    std::string shadersPath;
+    std::string defaultShader = "default";
+
+    if (!config.lookupValue("texturesPath", __configFilePath))
+        throw("Can't find configFilePath for all textures in Display config");
+    if (!config.lookupValue("shadersPath", shadersPath))
+        throw("Can't find shadersPath in Display config");
+    if (!config.lookupValue("defaultShader", defaultShader))
+        throw("Can't find defaultShader in Display config");
+
     loadConfig(__configFilePath);
+
+    try {
+        cfg.readFile(shadersPath);
+        std::cerr << "\nConfig file loaded: " << shadersPath << std::endl;
+        libconfig::Setting &root = cfg.getRoot();
+
+        libconfig::Setting &shaders = root["shaders"];
+        for (int i = 0; i < shaders.getLength(); ++i) {
+            __shaders.emplace_back(std::make_shared<Shader>(shaders[i]));
+        }
+        if (__shaders.empty()) {
+            std::cerr << "No shaders loaded" << std::endl;
+            return;
+        }
+        std::cerr << "Shaders loaded: " << __shaders.size() << std::endl;
+        if (defaultShader != "default") {
+            for (auto &shader : __shaders) {
+                if (shader->name == defaultShader) {
+                    __currentShader = shader;
+                    break;
+                }
+            }
+        }
+    } catch (libconfig::ParseException &e) {
+        std::string err = "Error while parsing file: " + std::string(e.getFile()) + " in line: " + std::to_string(e.getLine()) + " : " + std::string(e.getError());
+        throw std::runtime_error(err);
+    } catch (libconfig::FileIOException &e) {
+        std::string err = "Error while reading file: " + std::string(e.what()) + "\n" + "File path was: " + shadersPath;
+        throw std::runtime_error(err);
+    }
 }
 
 void Systems::Display::loadConfig(const std::string &filepath)
@@ -130,6 +170,7 @@ void Systems::Display::loadConfig(const std::string &filepath)
 }
 
 Systems::Display::Display()
+    : __shaders()
 {
 }
 
@@ -170,7 +211,13 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                     auto &sprite = spriteComponents[i];
                     sprite->sprite.setPosition(pos.x, pos.y);
                     sprite->update();
-                    window.draw(sprite->sprite);
+
+                    if (__currentShader && __currentShader->shader.isAvailable()) {
+                        window.draw(sprite->sprite, &__currentShader->shader);
+                    } else {
+                        window.draw(sprite->sprite);
+                    }
+
                     try {
                         auto &scale = scaleComponents[i];
                         sprite->sprite.setScale((float)scale->width / 100, (float)scale->height / 100);
