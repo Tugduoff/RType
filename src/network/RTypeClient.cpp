@@ -16,23 +16,25 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 {
 }
 
-void RTypeClient::engineInit()
+void RTypeClient::engineInit(const std::unordered_map<std::string, std::type_index> &idStringToType)
 {
     std::cerr << "Init Game" << std::endl;
     send(std::vector<uint8_t>({0x0}));
-    int receivedFinish = 0;
+    bool finishedInit = false;
 
-    while (receivedFinish < 2)
+    while (!finishedInit)
     {
         std::vector<uint8_t> recv_buffer = blockingReceive();
-        interpretServerInitData(recv_buffer, receivedFinish);
+        interpretServerInitData(recv_buffer, finishedInit, idStringToType);
     }
-    
     send(std::vector<uint8_t>({0x2}));
 }
 
-void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, int &receivedFinish)
+void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, bool &finishedInit,
+    const std::unordered_map<std::string, std::type_index> &idStringToType)
 {
+    static int receivedFinishNb = 0;
+
     if (recv_buffer.size() < 1) {
         return;
     }
@@ -41,13 +43,35 @@ void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, int
         {
             uint16_t compId = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
             std::string strCompName = std::string(recv_buffer.begin() + 3, recv_buffer.end());
-            _compNames[compId] = strCompName;
+            if (idStringToType.contains(strCompName)) {
+                std::cout << "Component " << strCompName <<
+                    " added to client components" << std::endl;
+                _compNames[compId] = strCompName;
+            } else {
+                uint16_t comp_netId = htons(compId);
+                std::vector<uint8_t> message(3);
+                message[0] = 0x1;
+                std::memcpy(&message[1], &comp_netId, sizeof(comp_netId));
+
+                std::cout << "Component " << strCompName <<
+                    " is not needed by the client so removing it" << std::endl;
+                send(message);
+            }
             break;
         }
         case 0x6:
+        {
             uint16_t componentsTypesNb = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
-            receivedFinish++;
+            std::cout << "Received init end from server, ";
+            if (!(componentsTypesNb == idStringToType.size()) && receivedFinishNb >= 2) {
+                finishedInit = true;
+                std::cout << "initialization finished" << std::endl;
+            } else {
+                std::cout << "components not synchronized with client, continuing initialization" << std::endl;
+            }
+            receivedFinishNb += ((receivedFinishNb >= 2) ? 1 : 0);
             break;
+        }
         default:
             break;
     }
