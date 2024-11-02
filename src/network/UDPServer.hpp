@@ -227,7 +227,7 @@ class UDPServer {
         */
         void detach_component(size_t entity, std::type_index component);
 
-        void receiveUpdateComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation);
+        void receiveUpdateComponent(Engine::GameEngine &engine, std::span<const uint8_t> operation);
 
         void updateIdStringToType(std::unordered_map<std::string, std::type_index> &idStringToType) {
             __idStringToType = idStringToType;

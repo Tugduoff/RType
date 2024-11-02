@@ -388,7 +388,7 @@ uint32_t uint32From4Uint8(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t b
     return static_cast<uint32_t>((byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4);
 }
 
-void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
+void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::span<const uint8_t> operation)
 {
     try {
         uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
