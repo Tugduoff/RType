@@ -10,7 +10,6 @@
 
     #include <cstdint>
     #include <functional>
-    #include <map>
     #include <span>
     #include <string>
     #include <typeindex>
@@ -56,12 +55,14 @@ class UDPServer {
          */
         bool gameRunning() const noexcept;
 
-        std::vector<udp::endpoint> client_endpoints;
-
     private:
         struct ComponentInfo {
             std::string name;
             uint16_t networkId;
+        };
+
+        struct ClientInfo {
+            
         };
 
         udp::socket socket_;
@@ -70,8 +71,7 @@ class UDPServer {
         std::array<uint8_t, 1024> recv_buffer_;
         std::unordered_map<std::type_index, ComponentInfo> _comps_info;
         std::unordered_map<std::string, std::type_index> __idStringToType;
-        std::map<udp::endpoint, bool> client_responses;
-        std::map<udp::endpoint, bool> is_disconnected;
+        std::unordered_map<udp::endpoint, ClientInfo> _clients;
 
         std::unordered_map<size_t, uint32_t> _entitiesNetworkId;
         uint32_t _nextNetworkId = 0;

@@ -12,6 +12,7 @@
 #include <typeindex>
 #include <utility>
 #include <vector>
+#include <ranges>
 
 using boost::asio::ip::udp;
 
@@ -49,41 +50,29 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
         std::cerr << "Could not receive properly from " << remote_endpoint_ << ", ec=" << ec << ", bytes_rcvd=" << bytes_recvd << std::endl;
         return;
     }
-    std::string message(recv_buffer_.data(), bytes_recvd);
-    std::cerr << "Received message from client (" << remote_endpoint_.address().to_string() 
-                << ":" << remote_endpoint_.port() << "): " << message << std::endl;
+    switch (recv_buffer_[0]) {
+        case 0x0:
+            // send component list to client
 
-    if (std::find(client_endpoints.begin(), client_endpoints.end(), remote_endpoint_) == client_endpoints.end()) {
-        __init_new_client();
-    } else {
-        client_responses[remote_endpoint_] = true;
-    }
-    if (message == "start") {
-        __add_new_client();
-    }
-    std::vector<uint8_t> mes(recv_buffer_.begin(), recv_buffer_.begin() + bytes_recvd);
-    if (mes[0] == 0x3) {
-        std::cout << "Received input from client : " << message << std::endl;
-        std::cout << "Message array size : " << message.size() << std::endl;
-        std::cout << "Uint8 vector size : " << mes.size() << std::endl;
-        std::cout << "Uint8 vector : ";
-        for (const auto &byte : mes) {
-            std::cout << "0x" << std::hex << int(byte) << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "message array : ";
-        for (const auto &car : message) {
-            std::cout << "0x" << std::hex << int(car) << " ";
-        }
-        std::cout << std::dec << std::endl;
+            // set something to indicate that we should periodically
+            // send number of components to client
+            break;
 
-        receiveUpdateComponent(engine, mes);
-    }
+        case 0x1:
+            // ignore one component type for client
+            break;
 
-    if (message == "pong") {
-        std::cerr << "Received pong from client: " << remote_endpoint_.address().to_string() 
-                    << ":" << remote_endpoint_.port() << std::endl;
-        client_responses[remote_endpoint_] = true;
+        case 0x2:
+            // Start the game: send all existing entities and
+            // components to requesting client
+        
+            _isGameRunning = true;
+            break;
+
+        case 0x3:
+
+            receiveUpdateComponent(engine, recv_buffer_);
+            break;
     }
 }
 
@@ -104,10 +93,8 @@ void UDPServer::__send_message(const std::span<const uint8_t>& message) {
 
 void UDPServer::__init_new_client()
 {
-    client_endpoints.push_back(remote_endpoint_);
+    _clients.try_emplace(remote_endpoint_);
     std::cerr << "New client added: " << remote_endpoint_ << std::endl;
-    client_responses[remote_endpoint_] = true;
-    is_disconnected[remote_endpoint_] = false;
 }
 
 void UDPServer::__add_new_client()
@@ -163,21 +150,17 @@ void UDPServer::__send_components() {
 // --- Client Activity --- //
 
 void UDPServer::__remove_client(const udp::endpoint& client) {
-    if (!is_disconnected[client]) {
-        is_disconnected[client] = true;
-
-        client_endpoints.erase(std::remove(client_endpoints.begin(), client_endpoints.end(), client), client_endpoints.end());
-        client_responses.erase(client);
-
-        std::cerr << "Client disconnected: " << client.address().to_string() << ":" << client.port() << std::endl;
-
-        socket_.async_send_to(boost::asio::buffer("You have been disconnected :("), client,
-            [client](boost::system::error_code ec, std::size_t) {
-                if (!ec)
-                    std::cerr << "Client " << client << " is now aware of their disconnection" << std::endl;
-            }
-        );
+    if (!_clients.erase(client)) {
+        return;
     }
+    std::cerr << "Client disconnected: " << client.address().to_string() << ":" << client.port() << std::endl;
+
+    socket_.async_send_to(boost::asio::buffer("You have been disconnected :("), client,
+        [client](boost::system::error_code ec, std::size_t) {
+            if (!ec)
+                std::cerr << "Client " << client << " is now aware of their disconnection" << std::endl;
+        }
+    );
 }
 
 // --- Entity --- //
@@ -187,7 +170,7 @@ void UDPServer::create_entity(const ECS::Entity &entity) {
     _nextNetworkId++;
     _entitiesNetworkId[entity] = networkId;
 
-    for (const auto &client_endpoint : client_endpoints) {
+    for (const auto &client_endpoint : std::views::keys(_clients)) {
         __send_entity_created_message(networkId, client_endpoint);
     }
 }
@@ -236,7 +219,7 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
     }
     std::cerr << std::endl;
 
-    for (const auto &client_endpoint : client_endpoints) {
+    for (const auto &client_endpoint : std::views::keys(_clients)) {
         socket_.async_send_to(
             boost::asio::buffer(message), client_endpoint,
             [networkId](boost::system::error_code ec, std::size_t) {
@@ -262,7 +245,7 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
 
     uint16_t component_id = _comps_info.at(component).networkId;
 
-    for (const auto &client_endpoint : client_endpoints) {
+    for (const auto &client_endpoint : std::views::keys(_clients)) {
         __send_attach_component_message(networkId, component_id, client_endpoint);
     }
 }
@@ -306,7 +289,7 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
 
     uint16_t component_id = _comps_info.at(type).networkId;
 
-    for (const auto &client_endpoint : client_endpoints) {
+    for (const auto &client_endpoint : std::views::keys(_clients)) {
         __send_update_component(
             networkId,
             component_id,
@@ -365,7 +348,7 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
     std::memcpy(&message[1], &networkId, sizeof(networkId));
     std::memcpy(&message[5], &component_id, sizeof(component_id));
 
-    for (const auto &client_endpoint : client_endpoints) {
+    for (const auto &client_endpoint : std::views::keys(_clients)) {
         socket_.async_send_to(
             boost::asio::buffer(message), client_endpoint,
             [networkId, component_id](boost::system::error_code ec, std::size_t) {
@@ -434,7 +417,7 @@ void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::span<con
 void UDPServer::sendNextFrame()
 {
     std::vector<uint8_t> data = {0xa};
-    for (const auto &client_endpoint : client_endpoints) {
+    for (const auto &client_endpoint : std::views::keys(_clients)) {
         socket_.async_send_to(
             boost::asio::buffer(data), client_endpoint,
             [](boost::system::error_code ec, std::size_t) {
