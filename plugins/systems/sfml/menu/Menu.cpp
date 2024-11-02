@@ -196,7 +196,7 @@ void Systems::Menu::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         try {
             auto &text = textArr[entity];
             if (__selectedText == entity) {
-                text->setColor(sf::Color::Red);
+                text->setColor(sf::Color(89, 241, 215));
             } else {
                 text->setColor(sf::Color::White);
             }
@@ -295,7 +295,7 @@ void Systems::Menu::init(Engine::GameEngine &engine)
 
     ECS::Entity textPlay = engine.getRegistry().createEntity();
     manager.addComponent<Components::Position>(textPlay, engine.newComponent<Components::Position>(1500, 450, 2));
-    std::unique_ptr<Components::Text> tmpPlay = std::make_unique<Components::Text>("PLAY", 50, sf::Color::Red);
+    std::unique_ptr<Components::Text> tmpPlay = std::make_unique<Components::Text>("PLAY", 50, sf::Color(89, 241, 215));
     manager.addComponent<Components::Text>(textPlay, std::move(tmpPlay));
     __controllableTexts.push_back(textPlay);
     _entities.push_back(textPlay);
