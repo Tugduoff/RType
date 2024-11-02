@@ -51,6 +51,11 @@ class UDPServer {
 
         void sendNextFrame();
 
+        /**
+         * @brief Check if any clients requested to start the game
+         */
+        bool gameRunning() const noexcept;
+
         std::vector<udp::endpoint> client_endpoints;
 
     private:

@@ -143,7 +143,7 @@ int main() {
         server.updateIdStringToType(engine.getIdStringToType());
 
         // engine.getRegistry().componentManager().
-        while(server.client_endpoints.empty())
+        while(!server.gameRunning())
             server.start_receive(engine);
 
         std::thread io_thread([&io_context]() { io_context.run(); });

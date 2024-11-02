@@ -443,3 +443,8 @@ void UDPServer::sendNextFrame()
         );
     }
 }
+
+bool UDPServer::gameRunning() const noexcept
+{
+    return !client_endpoints.empty();
+}
