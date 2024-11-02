@@ -65,8 +65,6 @@ class UDPServer {
         std::array<char, 1024> recv_buffer_;
         std::unordered_map<std::type_index, ComponentInfo> _comps_info;
         std::unordered_map<std::string, std::type_index> __idStringToType;
-        std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> client_timers;
-        std::map<udp::endpoint, std::unique_ptr<boost::asio::steady_timer>> pong_timers;
         std::map<udp::endpoint, bool> client_responses;
         std::map<udp::endpoint, bool> is_disconnected;
 

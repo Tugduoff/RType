@@ -161,57 +161,11 @@ void UDPServer::__send_components() {
 
 // --- Client Activity --- //
 
-void UDPServer::__checking_client(const udp::endpoint& client) {
-    std::unique_ptr<boost::asio::steady_timer> timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(60)));
-    timer->async_wait([this, client](const boost::system::error_code& ec) {
-        if (!ec) {
-            if (!client_responses[client] && !is_disconnected[client]) {
-                std::cerr << "Client did not respond to ping, disconnecting: " 
-                            << client.address().to_string() << ":" << client.port() << std::endl;
-                __remove_client(client);
-            } else {
-                client_responses[client] = false;
-                __send_ping(client);
-            }
-            __checking_client(client);
-        }
-    });
-    client_timers[client] = std::move(timer);
-}
-
-void UDPServer::__send_ping(const udp::endpoint& client) {
-    std::string ping_message = "ping";
-    socket_.async_send_to(boost::asio::buffer(ping_message), client,
-        [this, client](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                std::cerr << "Sent ping to client: " << client.address().to_string() << ":" << client.port() << std::endl;
-                __start_pong_timer(client);
-            }
-        }
-    );
-}
-
-void UDPServer::__start_pong_timer(const udp::endpoint& client) {
-    std::unique_ptr<boost::asio::steady_timer> pong_timer(new boost::asio::steady_timer(io_context_, std::chrono::seconds(10)));
-    pong_timer->async_wait([this, client](const boost::system::error_code& ec) {
-        if (!ec) {
-            if (!client_responses[client] && !is_disconnected[client]) {
-                std::cerr << "Client did not respond to ping (no pong), disconnecting: " 
-                            << client.address().to_string() << ":" << client.port() << std::endl;
-                __remove_client(client);
-            }
-        }
-    });
-    pong_timers[client] = std::move(pong_timer);
-}
-
 void UDPServer::__remove_client(const udp::endpoint& client) {
     if (!is_disconnected[client]) {
         is_disconnected[client] = true;
 
         client_endpoints.erase(std::remove(client_endpoints.begin(), client_endpoints.end(), client), client_endpoints.end());
-        client_timers.erase(client);
-        pong_timers.erase(client);
         client_responses.erase(client);
 
         std::cerr << "Client disconnected: " << client.address().to_string() << ":" << client.port() << std::endl;
