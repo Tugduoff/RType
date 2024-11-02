@@ -63,7 +63,7 @@ void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, boo
         {
             uint16_t componentsTypesNb = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
             std::cout << "Received init end from server, ";
-            if (!(componentsTypesNb == idStringToType.size()) && receivedFinishNb >= 2) {
+            if (componentsTypesNb == idStringToType.size() && receivedFinishNb >= 2) {
                 finishedInit = true;
                 std::cout << "initialization finished" << std::endl;
             } else {
