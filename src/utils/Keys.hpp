@@ -17,7 +17,7 @@ enum class Key {
     A = 0, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
     UP_KEY, DOWN_KEY, LEFT_KEY, RIGHT_KEY,
     SPACE, ENTER, ESCAPE, DELETE_KEY, BACKSPACE,
-    NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9,
+    NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9, DOT,
     LEFT_CLICK, RIGHT_CLICK, MIDDLE_CLICK,
     UNKNOWN
 };
@@ -35,7 +35,7 @@ const std::unordered_map<std::string, Key> strToKey = {
     {"BACKSPACE", Key::BACKSPACE},
     {"NUM_0", Key::NUM_0}, {"NUM_1", Key::NUM_1}, {"NUM_2", Key::NUM_2}, {"NUM_3", Key::NUM_3},
     {"NUM_4", Key::NUM_4}, {"NUM_5", Key::NUM_5}, {"NUM_6", Key::NUM_6}, {"NUM_7", Key::NUM_7},
-    {"NUM_8", Key::NUM_8}, {"NUM_9", Key::NUM_9},
+    {"NUM_8", Key::NUM_8}, {"NUM_9", Key::NUM_9}, {"DOT", Key::DOT},
     {"LEFT_CLICK", Key::LEFT_CLICK}, {"RIGHT_CLICK", Key::RIGHT_CLICK}, {"MIDDLE_CLICK", Key::MIDDLE_CLICK},
     {"UNKNOWN", Key::UNKNOWN}
 };

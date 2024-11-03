@@ -61,13 +61,18 @@ namespace Components {
                 {Action::ACTION1, Key::LEFT_CLICK},
                 {Action::ACTION2, Key::RIGHT_CLICK},
                 {Action::ACTION3, Key::MIDDLE_CLICK},
-                {Action::ACTION4, Key::NUM_0},
-                {Action::ACTION5, Key::NUM_1},
-                {Action::ACTION6, Key::NUM_2},
-                {Action::ACTION7, Key::NUM_3},
-                {Action::ACTION8, Key::NUM_4},
-                {Action::ACTION9, Key::NUM_5},
-                {Action::ACTION10, Key::ENTER}
+                {Action::ACTION10, Key::ENTER},
+                {Action::NUM_0, Key::NUM_0},
+                {Action::NUM_1, Key::NUM_1},
+                {Action::NUM_2, Key::NUM_2},
+                {Action::NUM_3, Key::NUM_3},
+                {Action::NUM_4, Key::NUM_4},
+                {Action::NUM_5, Key::NUM_5},
+                {Action::NUM_6, Key::NUM_6},
+                {Action::NUM_7, Key::NUM_7},
+                {Action::NUM_8, Key::NUM_8},
+                {Action::NUM_9, Key::NUM_9},
+                {Action::DOT, Key::DOT}
             }) :
             AComponent("Controllable"),
             inputs{false},
@@ -91,13 +96,18 @@ namespace Components {
                 {Action::ACTION1, Key::LEFT_CLICK},
                 {Action::ACTION2, Key::RIGHT_CLICK},
                 {Action::ACTION3, Key::MIDDLE_CLICK},
-                {Action::ACTION4, Key::NUM_0},
-                {Action::ACTION5, Key::NUM_1},
-                {Action::ACTION6, Key::NUM_2},
-                {Action::ACTION7, Key::NUM_3},
-                {Action::ACTION8, Key::NUM_4},
-                {Action::ACTION9, Key::NUM_5},
-                {Action::ACTION10, Key::ENTER}
+                {Action::ACTION10, Key::ENTER},
+                {Action::NUM_0, Key::NUM_0},
+                {Action::NUM_1, Key::NUM_1},
+                {Action::NUM_2, Key::NUM_2},
+                {Action::NUM_3, Key::NUM_3},
+                {Action::NUM_4, Key::NUM_4},
+                {Action::NUM_5, Key::NUM_5},
+                {Action::NUM_6, Key::NUM_6},
+                {Action::NUM_7, Key::NUM_7},
+                {Action::NUM_8, Key::NUM_8},
+                {Action::NUM_9, Key::NUM_9},
+                {Action::DOT, Key::DOT}
             })
         {
             std::string forward, backward, left, right;
@@ -231,13 +241,18 @@ namespace Components {
                 {Action::ACTION1, Key::LEFT_CLICK},
                 {Action::ACTION2, Key::RIGHT_CLICK},
                 {Action::ACTION3, Key::MIDDLE_CLICK},
-                {Action::ACTION4, Key::NUM_0},
-                {Action::ACTION5, Key::NUM_1},
-                {Action::ACTION6, Key::NUM_2},
-                {Action::ACTION7, Key::NUM_3},
-                {Action::ACTION8, Key::NUM_4},
-                {Action::ACTION9, Key::NUM_5},
-                {Action::ACTION10, Key::ENTER}
+                {Action::ACTION10, Key::ENTER},
+                {Action::NUM_0, Key::NUM_0},
+                {Action::NUM_1, Key::NUM_1},
+                {Action::NUM_2, Key::NUM_2},
+                {Action::NUM_3, Key::NUM_3},
+                {Action::NUM_4, Key::NUM_4},
+                {Action::NUM_5, Key::NUM_5},
+                {Action::NUM_6, Key::NUM_6},
+                {Action::NUM_7, Key::NUM_7},
+                {Action::NUM_8, Key::NUM_8},
+                {Action::NUM_9, Key::NUM_9},
+                {Action::DOT, Key::DOT}
             };
 
             newKeyBindings[Action::FORWARD] = strToKey.at(forward);
