@@ -122,13 +122,13 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<ui
 {
     switch (recv_buffer[0]) {
         case 0x0:
-            std::cerr << "Create Entity n°" << uint32From4Uint8(recv_buffer[1], recv_buffer[2], recv_buffer[3], recv_buffer[4]) << std::endl;
+            std::cerr << "Create Entity n°" << *reinterpret_cast<uint16_t *>(&recv_buffer[1]) << std::endl;
             createEntity(engine, recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x1:
             std::cerr << "Recieved delete instruction!" << std::endl;
-            std::cerr << "Delete Entity n°" << uint32From4Uint8(recv_buffer[1], recv_buffer[2], recv_buffer[3], recv_buffer[4]) << std::endl;
+            std::cerr << "Delete Entity n°" << *reinterpret_cast<uint16_t *>(&recv_buffer[1]) << std::endl;
             deleteEntity(engine, recv_buffer);
             std::cerr << std::endl;
             break;
@@ -139,7 +139,7 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<ui
             break;
         case 0x3:
             std::cerr << "Update Component" << std::endl;
-            std::cerr << "Component n°" << uint16From2Uint8(recv_buffer[5], recv_buffer[6]) << " of Entity n°" << uint32From4Uint8(recv_buffer[1], recv_buffer[2], recv_buffer[3], recv_buffer[4]) << std::endl;
+            std::cerr << "Component n°" << *reinterpret_cast<uint16_t *>(&recv_buffer[5]) << " of Entity n°" << *reinterpret_cast<uint32_t *>(&recv_buffer[1]) << std::endl;
             updateComponent(engine, recv_buffer);
             break;
         case 0x4:
@@ -163,7 +163,7 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<ui
 
 void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
-    uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+    uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
 
     lockMutex();
     ECS::Entity entity = engine.getRegistry().entityManager().spawnEntity();
@@ -175,7 +175,7 @@ void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     try {
-        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
 
         try {
@@ -199,9 +199,9 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     try {
-        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
-        uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
+        uint16_t componentId = *reinterpret_cast<uint16_t *>(&operation[5]);
         std::string &strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
@@ -222,9 +222,9 @@ void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_
 void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     try {
-        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
-        uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
+        uint16_t componentId = *reinterpret_cast<uint16_t *>(&operation[5]);
         std::string strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
@@ -257,9 +257,9 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
 void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     try {
-        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
-        uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
+        uint16_t componentId = *reinterpret_cast<uint16_t *>(&operation[5]);
         std::string strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
@@ -331,8 +331,7 @@ uint16_t RTypeClient::receiveUint16()
     if (data.size() < 2) {
         throw std::runtime_error("Received data is too short to make an uint16");
     }
-    uint16_t result = uint16From2Uint8(data[0], data[1]);
-    return result;
+    return *reinterpret_cast<uint16_t *>(&data[0]);
 }
 
 uint8_t RTypeClient::receiveUint8()

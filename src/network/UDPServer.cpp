@@ -417,22 +417,12 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
     }
 }
 
-uint16_t uint16From2Uint8(uint8_t first, uint8_t second)
-{
-    return static_cast<uint16_t>((second << 8) | static_cast<uint16_t>(first));
-}
-
-uint32_t uint32From4Uint8(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4)
-{
-    return static_cast<uint32_t>((byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1);
-}
-
 void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::span<const uint8_t> operation)
 {
     try {
-        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        uint32_t networkId = *reinterpret_cast<const uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
-        uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
+        uint16_t componentId = *reinterpret_cast<const uint16_t *>(&operation[5]);
 
         auto comp_info_it = std::find_if(
             _comps_info.begin(),
