@@ -61,7 +61,7 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
         case 0x0:
             __send_components();
 
-            client_info.requestedInit = true;
+            client_info.state = ClientInfo::State::INIT;
             break;
 
         case 0x1:

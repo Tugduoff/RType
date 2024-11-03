@@ -65,17 +65,23 @@ class UDPServer {
         };
 
         struct ClientInfo {
-            ClientInfo() : requestedInit(false) {}
-            ClientInfo(bool requestedInit) : requestedInit(requestedInit) {}
+            enum class State {
+                UNKNOWN,
+                INIT,
+                STARTED,
+            };
 
-            ClientInfo(const ComponentsGetter &getter) : requestedInit(false)
+            ClientInfo() : state(State::UNKNOWN) {}
+            ClientInfo(State s) : state(s) {}
+
+            ClientInfo(const ComponentsGetter &getter) : state(State::UNKNOWN)
             {
                 for (auto const &[type, _] : getter) {
                     used_types.insert(type);
                 }
             }
 
-            bool requestedInit;
+            State state;
             std::unordered_set<std::type_index> used_types;
         };
 
