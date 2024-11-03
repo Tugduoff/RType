@@ -172,6 +172,14 @@ class UDPServer {
         void __init_new_client();
 
         /**
+         * @brief Send to the client the number of used components
+         * @brief in the game.
+         *
+         * @note Also indicates that the server is ready to start a game
+         */
+        void __send_nb_components_message(const udp::endpoint &client);
+
+        /**
          * @brief Suppress all notifications about a certain
          * @brief component type for the client
          */

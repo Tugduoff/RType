@@ -8,6 +8,7 @@
 #include "ECS/utilities/Zipper/IndexedZipper.hpp"
 #include "GameEngine/ComponentsGetter.hpp"
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <iostream>
 #include <netinet/in.h>
@@ -121,6 +122,18 @@ void UDPServer::__ignoreComponent(UDPServer::ClientInfo &clientInfo)
         return;
     }
     clientInfo.used_types.erase(compInfo->first);
+}
+
+void UDPServer::__send_nb_components_message(const udp::endpoint &client)
+{
+    const uint8_t opcode = 0x6;
+
+    std::array<uint8_t, 3> msg;
+
+    msg[0] = opcode;
+    *reinterpret_cast<uint16_t *>(&msg[1]) = _clients[client].used_types.size();
+
+    __send_message(msg);
 }
 
 void UDPServer::__add_new_client()
