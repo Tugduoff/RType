@@ -13,6 +13,7 @@
 #include "components/type/Type.hpp"
 #include "components/damage/Damage.hpp"
 #include "components/health/Health.hpp"
+#include "components/sound/Sound.hpp"
 #include "library_entrypoint.hpp"
 #include <iostream>
 #include <stdexcept>
@@ -23,11 +24,9 @@ Systems::Collision::Collision(libconfig::Setting &)
 
 void Systems::Collision::run(Engine::GameEngine &engine)
 {
-    auto &reg = engine.getRegistry();
-
     try {
-        checkPlayerProjectileToEnemyCollision(reg);
-        checkEnemyProjectileToPlayerCollision(reg);
+        checkPlayerProjectileToEnemyCollision(engine);
+        checkEnemyProjectileToPlayerCollision(engine);
     } catch (std::runtime_error &e) {
         std::cerr << "Collision Error: " << e.what() << std::endl;
     }
@@ -54,13 +53,16 @@ Systems::ISystem *entryConfig(libconfig::Setting &config)
     return new Systems::Collision(config);
 }
 
-void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &reg)
+void Systems::Collision::checkPlayerProjectileToEnemyCollision(Engine::GameEngine &engine)
 {
+    auto &reg = engine.getRegistry();
+
     auto &typeArr = reg.componentManager().getComponents<Components::Type>();
     auto &posArr = reg.componentManager().getComponents<Components::Position>();
     auto &colliderArr = reg.componentManager().getComponents<Components::Collider>();
     auto &dmgArr = reg.componentManager().getComponents<Components::Damage>();
     auto &healthArr = reg.componentManager().getComponents<Components::Health>();
+    auto &soundArr = reg.componentManager().getComponents<Components::Sound>();
 
     std::vector<ECS::Entity> enemies;
     std::vector<ECS::Entity> projectiles;
@@ -90,6 +92,23 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
                     enemyHealth->currentHealth -= projDamage->damage;
 
                     std::cerr << "Projectile: " << proj << " hit enemy. Enemy health: " << enemyHealth->currentHealth << std::endl;
+
+                    try {
+                        auto &sound = soundArr[enemy];
+                        std::string toSend;
+
+                        if (enemyHealth->currentHealth <= 0)
+                            toSend = "DEATH";
+                        else
+                            toSend = "HIT";
+                        for (auto &soundInstance : sound->sounds) {
+                            if (std::get<0>(soundInstance) == toSend) {
+                                std::get<5>(soundInstance) = true;
+                                engine.updateComponent((ECS::Entity)enemy, sound->getId(), sound->serialize());
+                            }
+                        }
+                    } catch (std::exception &) {}
+
                     if (enemyHealth->currentHealth <= 0) {
                         reg.killEntity(enemy);
                     }
@@ -102,13 +121,16 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(ECS::Registry &re
     }
 }
 
-void Systems::Collision::checkEnemyProjectileToPlayerCollision(ECS::Registry &reg)
+void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngine &engine)
 {
+    auto &reg = engine.getRegistry();
+
     auto &typeArr = reg.componentManager().getComponents<Components::Type>();
     auto &posArr = reg.componentManager().getComponents<Components::Position>();
     auto &colliderArr = reg.componentManager().getComponents<Components::Collider>();
     auto &dmgArr = reg.componentManager().getComponents<Components::Damage>();
     auto &healthArr = reg.componentManager().getComponents<Components::Health>();
+    auto &soundArr = reg.componentManager().getComponents<Components::Sound>();
 
     std::vector<ECS::Entity> players;
     std::vector<ECS::Entity> projectiles;
@@ -138,6 +160,29 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(ECS::Registry &re
                     playerHealth->currentHealth -= projDamage->damage;
 
                     std::cerr << "Projectile: " << proj << " hit player. Player health: " << playerHealth->currentHealth << std::endl;
+
+                    try {
+                        if (playerHealth->currentHealth <= 0) {
+                            reg.killEntity(player);
+                            reg.killEntity(proj);
+                            continue;
+                        }
+                        auto &sound = soundArr[player];
+
+                        for (auto &soundInstance : sound->sounds) {
+                            if (std::get<0>(soundInstance) == "HIT") {
+                                if (std::get<5>(soundInstance) == true) {
+                                    std::get<5>(soundInstance) = false;
+                                    engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
+                                    playerHealth->currentHealth += projDamage->damage;
+                                    return;
+                                }
+                                std::get<5>(soundInstance) = true;
+                                engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
+                            }
+                        }
+                    } catch (std::exception &) {}
+
                     if (playerHealth->currentHealth <= 0) {
                         reg.killEntity(player);
                     }

@@ -23,6 +23,7 @@
 #include "components/scale/Scale.hpp"
 #include "components/deathRange/DeathRange.hpp"
 #include "components/type/Type.hpp"
+#include "components/sound/Sound.hpp"
 
 
 int main()
@@ -47,6 +48,7 @@ int main()
     engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
     engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
     engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
+    engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
 
     conn.engineInit();
     std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();

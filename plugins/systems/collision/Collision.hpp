@@ -40,7 +40,7 @@ namespace Systems {
              * 
              * @note This function will check the collision between player projectiles and enemies.
              */
-            void checkPlayerProjectileToEnemyCollision(ECS::Registry &reg);
+            void checkPlayerProjectileToEnemyCollision(Engine::GameEngine &engine);
 
             /**
              * @brief Check the collision between enemy projectiles and the player.
@@ -49,7 +49,7 @@ namespace Systems {
              * 
              * @note This function will check the collision between enemy projectiles and the player.
              */
-            void checkEnemyProjectileToPlayerCollision(ECS::Registry &reg);
+            void checkEnemyProjectileToPlayerCollision(Engine::GameEngine &engine);
     };
 };
 

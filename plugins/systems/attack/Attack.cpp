@@ -19,6 +19,7 @@
 #include "components/action/Action.hpp"
 #include "components/position/Position.hpp"
 #include "components/type/Type.hpp"
+#include "components/sound/Sound.hpp"
 #include "library_entrypoint.hpp"
 #include "ECS/utilities/Zipper/IndexedZipper.hpp"
 #include "utils/Projectile.hpp"
@@ -39,6 +40,7 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
         auto &posArr = reg.componentManager().getComponents<Components::Position>();
         auto &typeArr = reg.componentManager().getComponents<Components::Type>();
         auto &actArr = reg.componentManager().getComponents<Components::ActionComponent>();
+        auto &soundArr = reg.componentManager().getComponents<Components::Sound>();
 
         std::vector<std::tuple<
             decltype(Components::Position::x),
@@ -51,8 +53,12 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
         >> projToCreate;
 
         for (auto &&[i, pos, gun, id] : IndexedZipper(posArr, gunArr, typeArr)) {
-            if (gun.chrono.getElapsedTime() < gun.fireRate)
+            if (gun.chrono.getElapsedTime() < gun.fireRate) {
                 continue;
+            }
+            if (id.id == Components::TypeID::ALLY)
+                continue;
+            std::cerr << "Entity: " << i << " is attacking" << std::endl;
             try {
                 auto &entityAction = actArr[i];
 
@@ -66,9 +72,22 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                 continue;
             }
+            try {
+                auto &sound = soundArr[i];
 
-            if (id.id == Components::TypeID::ALLY)
-                continue;
+                for (auto &soundInstance : sound->sounds) {
+                    if (std::get<0>(soundInstance) == "ATTACK") {
+                        if (std::get<5>(soundInstance) == true) {
+                            std::get<5>(soundInstance) = false;
+                            engine.updateComponent((ECS::Entity)i, sound->getId(), sound->serialize());
+                            return;
+                        }
+                        std::get<5>(soundInstance) = true;
+                        engine.updateComponent((ECS::Entity)i, sound->getId(), sound->serialize());
+                    }
+                }
+            } catch (std::exception &) {}
+
             gun.chrono.restart();
 
             projToCreate.emplace_back(
@@ -80,6 +99,8 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 Components::TypeID::ENEMY_PROJECTILE,
                 gun.spriteId
             );
+
+            std::cerr << "Entity: " << i << " fired a shot" << std::endl;
         }
         for (const auto &[posX, posY, bulletVelX, bulletVelY, bulletDmg, typeId, spriteId] : projToCreate) {
             createProjectile(engine, posX, posY, bulletVelX, bulletVelY, 10, 10, bulletDmg, typeId, spriteId);
@@ -100,6 +121,7 @@ void Systems::AttackSystem::init(Engine::GameEngine &engine)
     engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type");
     engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
     engine.registerComponent<Components::ActionComponent>("./plugins/bin/components/", "Action");
+    engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
 }
 
 LIBRARY_ENTRYPOINT
