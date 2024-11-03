@@ -38,17 +38,6 @@ const std::unordered_map<std::string, Action> strToAction = {
     {"ACTION8", Action::ACTION8},
     {"ACTION9", Action::ACTION9},
     {"ACTION10", Action::ACTION10},
-    {"NUM_0", Action::NUM_0},
-    {"NUM_1", Action::NUM_1},
-    {"NUM_2", Action::NUM_2},
-    {"NUM_3", Action::NUM_3},
-    {"NUM_4", Action::NUM_4},
-    {"NUM_5", Action::NUM_5},
-    {"NUM_6", Action::NUM_6},
-    {"NUM_7", Action::NUM_7},
-    {"NUM_8", Action::NUM_8},
-    {"NUM_9", Action::NUM_9},
-    {"DOT", Action::DOT},
     {"UNKNOWN", Action::UNKNOWN}
 };
 
