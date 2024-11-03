@@ -214,7 +214,16 @@ void UDPServer::__send_nb_components_message(const udp::endpoint &client)
     *reinterpret_cast<uint16_t *>(&msg[1]) = htons(_clients[client].used_types.size());
     std::cerr << "Sending nb components message: " << _clients[client].used_types.size() << std::endl;
 
-    __send_message(msg);
+    socket_.async_send_to(
+        boost::asio::buffer(msg), remote_endpoint_,
+        [](boost::system::error_code ec, std::size_t bytes_sent) {
+            if (!ec) {
+                std::cerr << "Sent message of size " << bytes_sent << " bytes." << std::endl;
+            } else {
+                std::cerr << "Error sending message: " << ec.message() << std::endl;
+            }
+        }
+    );
 }
 
 void UDPServer::__add_new_client()
