@@ -172,6 +172,12 @@ class UDPServer {
         void __init_new_client();
 
         /**
+         * @brief Suppress all notifications about a certain
+         * @brief component type for the client
+         */
+        void __ignoreComponent(ClientInfo &info);
+
+        /**
          * @brief Does everything required to set up a new client
          */
         void __add_new_client();

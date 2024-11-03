@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include <netinet/in.h>
 #include <typeindex>
 #include <utility>
 #include <vector>
@@ -63,7 +64,10 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
             break;
 
         case 0x1:
-            // ignore one component type for client
+            if (bytes_recvd < 3) {
+                break;
+            }
+            __ignoreComponent(client_info);
             break;
 
         case 0x2:
@@ -99,6 +103,24 @@ void UDPServer::__init_new_client()
 {
     _clients.try_emplace(remote_endpoint_, _compGetter);
     std::cerr << "New client added: " << remote_endpoint_ << std::endl;
+}
+
+void UDPServer::__ignoreComponent(UDPServer::ClientInfo &clientInfo)
+{
+    uint16_t toIgnore = ntohs(*reinterpret_cast<uint16_t *>(&recv_buffer_[1]));
+
+    auto const &compInfo = std::find_if(
+        _comps_info.begin(),
+        _comps_info.end(),
+        [toIgnore](const std::pair<const std::type_index, UDPServer::ComponentInfo> &a) {
+            return a.second.networkId == toIgnore;
+        }
+    );
+
+    if (compInfo == _comps_info.end()) {
+        return;
+    }
+    clientInfo.used_types.erase(compInfo->first);
 }
 
 void UDPServer::__add_new_client()
