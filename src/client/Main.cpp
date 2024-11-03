@@ -66,7 +66,6 @@ int main()
             if (!conn.nextFrame) {
                  continue;
             }
-            std::cout << "Run systems" << std::endl;
             conn.nextFrame = false;
             conn.lockMutex();
             engine.runSystems();
