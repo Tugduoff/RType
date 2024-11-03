@@ -37,7 +37,7 @@ int main()
 
     conn.engineInit(engine.getIdStringToType());
     conn.asyncReceive(engine);
-    std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();
+    std::unordered_map<uint16_t, std::string> compNames =  conn.getCompNames();
     for (const auto &name : compNames) {
         std::cout << "Commponent n°" << (int)name.first << ": " << name.second << std::endl;
     }

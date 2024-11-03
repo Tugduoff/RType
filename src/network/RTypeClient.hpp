@@ -178,7 +178,7 @@ class RTypeClient : public UDPConnection
          * 
          * @note The _compNames map is a map of the component id received from the network to the string id of the component
          */
-        std::unordered_map<uint8_t, std::string> &getCompNames() { return _compNames; };
+        std::unordered_map<uint16_t, std::string> &getCompNames() { return _compNames; };
 
         /**
          * @brief Lock _engineMutex
@@ -206,7 +206,7 @@ class RTypeClient : public UDPConnection
         // std::mutex _packetQueueMutex;
 
     private:
-        std::unordered_map<uint8_t, std::string> _compNames;
+        std::unordered_map<uint16_t, std::string> _compNames;
         std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
         udp::endpoint _sender_endpoint;
         std::mutex _engineMutex;
