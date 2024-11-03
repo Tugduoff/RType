@@ -35,19 +35,28 @@ int main()
 
     engine.loadSystems("./src/client/configClient.cfg");
 
-    conn.engineInit(engine.getIdStringToType());
     conn.asyncReceive(engine);
+    // conn.engineInit(engine.getIdStringToType());
     std::unordered_map<uint16_t, std::string> compNames =  conn.getCompNames();
     for (const auto &name : compNames) {
         std::cout << "Commponent n°" << (int)name.first << ": " << name.second << std::endl;
     }
 
+    // Creating thread to start asynchronous operations
     std::thread io_thread([&conn]() {
         conn.getIoContext().run();
     });
     std::thread io_thread2([&conn, &engine]() {
         conn.startInterpret(engine);
     });
+
+    // Starting initialization
+    conn.send(std::vector<uint8_t>({0x0}));
+    while (!conn.finishedInit)
+    {
+    }
+    conn.send(std::vector<uint8_t>({0x2}));
+
     try
     {
         // Check that you have the same components here with the map in RTypeClient

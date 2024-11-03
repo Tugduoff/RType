@@ -36,16 +36,16 @@ class RTypeClient : public UDPConnection
          */
         RTypeClient(std::string hostname, std::string port);
 
-        /**
-         * @brief This function gets all the types that will be used during program execution
-         * @brief and stores them in _compNames
-         * 
-         * @param engine : The game engine on which to do modifications
-         */
-        void engineInit(const std::unordered_map<std::string, std::type_index> &idStringToType);
+        // /**
+        //  * @brief This function gets all the types that will be used during program execution
+        //  * @brief and stores them in _compNames
+        //  * 
+        //  * @param engine : The game engine on which to do modifications
+        //  */
+        // void engineInit(const std::unordered_map<std::string, std::type_index> &idStringToType);
 
-        void interpretServerInitData(std::vector<uint8_t> &recv_buffer, bool &finishedInit,
-            const std::unordered_map<std::string, std::type_index> &idStringToType);
+        // void interpretServerInitData(std::vector<uint8_t> &recv_buffer, bool &finishedInit,
+        //     const std::unordered_map<std::string, std::type_index> &idStringToType);
 
         /**
          * @brief Check if data was send from the server
@@ -201,6 +201,7 @@ class RTypeClient : public UDPConnection
     public:
         bool gameEnd;
         std::atomic_bool nextFrame;
+        bool finishedInit;
     
         // std::queue<std::vector<uint8_t>> _packetQueue;
         // std::mutex _packetQueueMutex;
