@@ -64,7 +64,7 @@ std::pair<std::string, std::string> argumentsHandling(int ac, char **av)
         }
     }
 
-    if (!hasHostname || !hasPort || ac != 4) {
+    if (!hasHostname || !hasPort || ac != 5) {
         displayHelpMessage(true, av[0]);
         exit(84);
     }
