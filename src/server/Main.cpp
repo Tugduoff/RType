@@ -120,9 +120,9 @@ int main() {
             [&server](const ECS::Entity &e) { server.delete_entity(e); }
         );
 
-        // engine.getRegistry().componentManager().registerGlobalCreateCallback(
-        //     [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
-        // );
+        engine.getRegistry().componentManager().registerGlobalCreateCallback(
+            [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
+        );
         engine.getRegistry().componentManager().registerGlobalRemoveCallback(
             [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
         );
