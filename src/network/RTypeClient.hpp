@@ -8,6 +8,8 @@
 #ifndef RTYPE_CLIENT_HPP_
     #define RTYPE_CLIENT_HPP_
 
+    #include <SFML/Graphics.hpp>
+    #include <SFML/Window.hpp>
     #include <unordered_map>
     #include <mutex>
     #include "UDPConnection.hpp"
@@ -190,12 +192,16 @@ class RTypeClient : public UDPConnection
 
         boost::asio::io_context &getIoContext() { return _io_context; }
 
+        void menu();
+        void setEngine(Engine::GameEngine *engine) { _engine = engine; }
+
     public:
         bool gameEnd;
     
     private:
         std::unordered_map<uint8_t, std::string> _compNames;
         std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
+        Engine::GameEngine *_engine;
         std::vector<uint8_t> _recv_buffer;
         udp::endpoint _sender_endpoint;
         std::mutex _engineMutex;

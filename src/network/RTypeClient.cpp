@@ -13,9 +13,18 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 {
 }
 
+void RTypeClient::menu() {
+    _engine->_inMenu = true;
+    while (_engine->isInMenu()) {
+        _engine->runSystems();
+    }
+}
+
 void RTypeClient::engineInit()
 {
     std::cerr << "Init Game" << std::endl;
+
+    menu();
     send("start");
 
     uint16_t compNb = receiveUint16();

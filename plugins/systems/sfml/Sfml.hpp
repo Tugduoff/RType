@@ -14,6 +14,7 @@
     #include "systems/ASystem.hpp"
     #include "Display.hpp"
     #include "Input.hpp"
+    #include "menu/Menu.hpp"
     #include "ActionManager.hpp"
     #include "SoundSystem.hpp"
 
@@ -38,6 +39,7 @@ namespace Systems {
 
             Display displaySystem;
             Input inputSystem;
+            Menu menu;
             ActionManager actionManager;
             SoundSystem soundSystem;
 
