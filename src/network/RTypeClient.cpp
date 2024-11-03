@@ -24,8 +24,11 @@ void RTypeClient::engineInit(const std::unordered_map<std::string, std::type_ind
 
     while (!finishedInit)
     {
-        std::vector<uint8_t> recv_buffer = blockingReceive();
-        interpretServerInitData(recv_buffer, finishedInit, idStringToType);
+        std::optional<std::vector<uint8_t>> recv_buffer = nonBlockingReceive();
+        if (recv_buffer.has_value()) {
+            std::cout << "Received something" << std::endl;
+            interpretServerInitData(recv_buffer.value(), finishedInit, idStringToType);
+        }
     }
     send(std::vector<uint8_t>({0x2}));
 }

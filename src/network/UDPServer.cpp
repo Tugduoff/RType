@@ -43,48 +43,52 @@ UDPServer::UDPServer(
 
 // --- Loop --- //
 
-void UDPServer::start_receive(Engine::GameEngine &engine) {
-    boost::system::error_code ec;
-    std::size_t bytes_recvd;
-
-    if (!socket_.available()) {
-        return;
-    }
-    bytes_recvd = socket_.receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 0, ec);
-    if (ec || bytes_recvd == 0) {
-        std::cerr << "Could not receive properly from " << remote_endpoint_ << ", ec=" << ec << ", bytes_rcvd=" << bytes_recvd << std::endl;
-        return;
-    }
-    if (!_clients.contains(remote_endpoint_)) {
-        __init_new_client();
-    }
-    auto &client_info = _clients.at(remote_endpoint_);
-    switch (recv_buffer_[0]) {
-        case 0x0:
-            __send_components();
-
-            client_info.state = ClientInfo::State::INIT;
-            break;
-
-        case 0x1:
-            if (bytes_recvd < 3) {
-                break;
+void UDPServer::start_receive(Engine::GameEngine &engine)
+{
+    socket_.async_receive_from(
+        boost::asio::buffer(recv_buffer_), remote_endpoint_,
+        [this, &engine](const boost::system::error_code &ec, std::size_t bytes_recvd) {
+            if (ec || bytes_recvd == 0) {
+                std::cerr << "Could not receive properly from " << remote_endpoint_ << ", ec=" << ec << ", bytes_rcvd=" << bytes_recvd << std::endl;
+                return;
             }
-            __ignoreComponent(client_info);
-            break;
+            std::cerr << "In the beginning" << std::endl;
+            if (!_clients.contains(remote_endpoint_)) {
+                __init_new_client();
+            }
+            std::cerr << "Step 2" << std::endl;
+            auto &client_info = _clients.at(remote_endpoint_);
+            std::cerr << "Step 3" << std::endl;
+            std::cerr << "recv_buffer_[0] : " << (int)recv_buffer_[0] << std::endl;
+            switch (recv_buffer_[0]) {
+                case 0x0:
+                    client_info.state = ClientInfo::State::INIT;
+                    __send_components();
+                    break;
 
-        case 0x2:
-            client_info.state = ClientInfo::State::STARTED;
-            __add_new_client();
+                case 0x1:
+                    if (bytes_recvd < 3) {
+                        break;
+                    }
+                    __ignoreComponent(client_info);
+                    break;
 
-            _isGameRunning = true;
-            break;
+                case 0x2:
+                    client_info.state = ClientInfo::State::STARTED;
+                    __add_new_client();
 
-        case 0x3:
+                    _isGameRunning = true;
+                    break;
 
-            receiveUpdateComponent(engine, recv_buffer_);
-            break;
-    }
+                case 0x3:
+
+                    receiveUpdateComponent(engine, recv_buffer_);
+                    break;
+            }
+            std::cerr << "End of opearations" << std::endl;
+            start_receive(engine);
+        }
+    );
 }
 
 // --- Helpers --- //
@@ -194,11 +198,11 @@ void UDPServer::__send_component_nb_loop(const udp::endpoint &ep)
     if (!_clients.contains(ep) || _clients.at(ep).state != ClientInfo::State::INIT) {
         return;
     }
-    __send_component_nb_loop(ep);
+    __send_nb_components_message(ep);
     boost::asio::steady_timer t(io_context_, boost::asio::chrono::milliseconds(500));
 
     t.async_wait([this, ep](auto const &) {
-        __send_nb_components_message(ep);
+        __send_component_nb_loop(ep);
     });
 }
 

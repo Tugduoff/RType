@@ -141,10 +141,13 @@ int main() {
         server.updateIdStringToType(engine.getIdStringToType());
 
         // engine.getRegistry().componentManager().
-        while(!server.gameRunning())
-            server.start_receive(engine);
-
+        server.start_receive(engine);
         std::thread io_thread([&io_context]() { io_context.run(); });
+        while(!server.gameRunning()) {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(1ms);
+        }
+
         std::thread io_thread1([&io_context]() { io_context.run(); });
         std::thread io_thread2([&io_context]() { io_context.run(); });
         std::thread io_thread3([&io_context]() { io_context.run(); });
@@ -156,7 +159,6 @@ int main() {
 
         unsigned int i = 1;
         while (true) {
-            server.start_receive(engine);
             if (chrono.getElapsedTime() < 17)
                 continue;
             engine.runSystems();
