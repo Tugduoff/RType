@@ -62,7 +62,9 @@ void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 {
     sf::Event event;
 
-    updateControllable(engine);
+    if (!engine.isInMenu()) {
+        updateControllable(engine);
+    }
 
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {

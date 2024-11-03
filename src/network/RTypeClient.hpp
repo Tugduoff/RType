@@ -8,6 +8,8 @@
 #ifndef RTYPE_CLIENT_HPP_
     #define RTYPE_CLIENT_HPP_
 
+    #include <SFML/Graphics.hpp>
+    #include <SFML/Window.hpp>
     #include <unordered_map>
     #include <queue>
     #include <mutex>
@@ -197,6 +199,10 @@ class RTypeClient : public UDPConnection
         void unlockMutex();
 
         boost::asio::io_context &getIoContext() { return _io_context; }
+
+        
+        void menu(Engine::GameEngine *engine);
+        // void setEngine(Engine::GameEngine *engine) { _engine = engine; }
 
     public:
         std::atomic_bool gameEnd;

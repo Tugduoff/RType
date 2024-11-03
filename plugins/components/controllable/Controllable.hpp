@@ -67,7 +67,7 @@ namespace Components {
                 {Action::ACTION7, Key::NUM_3},
                 {Action::ACTION8, Key::NUM_4},
                 {Action::ACTION9, Key::NUM_5},
-                {Action::ACTION10, Key::NUM_6}
+                {Action::ACTION10, Key::ENTER}
             }) :
             AComponent("Controllable"),
             inputs{false},
@@ -97,7 +97,7 @@ namespace Components {
                 {Action::ACTION7, Key::NUM_3},
                 {Action::ACTION8, Key::NUM_4},
                 {Action::ACTION9, Key::NUM_5},
-                {Action::ACTION10, Key::NUM_6}
+                {Action::ACTION10, Key::ENTER}
             })
         {
             std::string forward, backward, left, right;
@@ -237,7 +237,7 @@ namespace Components {
                 {Action::ACTION7, Key::NUM_3},
                 {Action::ACTION8, Key::NUM_4},
                 {Action::ACTION9, Key::NUM_5},
-                {Action::ACTION10, Key::NUM_6}
+                {Action::ACTION10, Key::ENTER}
             };
 
             newKeyBindings[Action::FORWARD] = strToKey.at(forward);

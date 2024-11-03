@@ -10,17 +10,20 @@
 #include <stdlib.h>
 #include <thread>
 #include "RTypeClient.hpp"
+#include "GameEngine/GameEngine.hpp"
 
 RTypeClient::RTypeClient(std::string hostname, std::string port)
 : UDPConnection(hostname, port), gameEnd(false), nextFrame(false), finishedInit(false)
 {
 }
 
-// void RTypeClient::engineInit(const std::unordered_map<std::string, std::type_index> &idStringToType)
-// {
-//     std::cerr << "Init Game" << std::endl;
-//     send(std::vector<uint8_t>({0x0}));
-//     bool finishedInit = false;
+
+void RTypeClient::menu(Engine::GameEngine *engine) {
+    engine->_inMenu = true;
+    while (engine->isInMenu()) {
+        engine->runSystems();
+    }
+}
 
 //     while (!finishedInit)
 //     {
