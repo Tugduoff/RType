@@ -18,6 +18,15 @@
 #include <utility>
 #include <vector>
 #include <ranges>
+#include "components/position/Position.hpp"
+#include "components/velocity/Velocity.hpp"
+#include "components/collider/Collider.hpp"
+#include "components/damage/Damage.hpp"
+#include "components/type/Type.hpp"
+#include "components/spriteId/SpriteID.hpp"
+#include "components/acceleration/Acceleration.hpp"
+#include "components/deathRange/DeathRange.hpp"
+#include "components/controllable/Controllable.hpp"
 
 using boost::asio::ip::udp;
 
@@ -43,6 +52,58 @@ UDPServer::UDPServer(
 
 // --- Loop --- //
 
+void UDPServer::createNewEntity(Engine::GameEngine &engine, const udp::endpoint &client)
+{
+    ECS::Entity entity = engine.getRegistry().createEntity();
+    std::cerr << "New entity created with ID: " << entity << std::endl;
+
+    create_entity(entity);
+
+    attachAndUpdateComponent<Components::Position>(engine, entity, 50, 540, 1);
+    attachAndUpdateComponent<Components::Velocity>(engine, entity, 0, 0, 100);
+    attachAndUpdateComponent<Components::Collider>(engine, entity, 50, 50);
+    attachAndUpdateComponent<Components::Damage>(engine, entity, 50);
+    attachAndUpdateComponent<Components::Type>(engine, entity, Components::TypeID::ALLY);
+    attachAndUpdateComponent<Components::SpriteID>(engine, entity, "player");
+    attachAndUpdateComponent<Components::Acceleration>(engine, entity, -5, 5, -5, 5);
+
+    std::map<enum Action, enum Key> keyBindings = {
+        {Action::FORWARD, Key::UNKNOWN},
+        {Action::BACKWARD, Key::UNKNOWN},
+        {Action::LEFT, Key::UNKNOWN},
+        {Action::RIGHT, Key::UNKNOWN},
+        {Action::ACTION1, Key::UNKNOWN},
+        {Action::ACTION2, Key::UNKNOWN},
+        {Action::ACTION3, Key::UNKNOWN},
+        {Action::ACTION4, Key::UNKNOWN},
+        {Action::ACTION5, Key::UNKNOWN},
+        {Action::ACTION6, Key::UNKNOWN},
+        {Action::ACTION7, Key::UNKNOWN},
+        {Action::ACTION8, Key::UNKNOWN},
+        {Action::ACTION9, Key::UNKNOWN},
+        {Action::ACTION10, Key::UNKNOWN}
+    };
+
+    std::unique_ptr<Components::Controllable> component = std::make_unique<Components::Controllable>(keyBindings);
+    std::vector<uint8_t> data = component->serialize();
+
+    engine.getRegistry().componentManager().addComponent(entity, std::move(component));
+
+    uint32_t networkId = _entitiesNetworkId.at(entity);
+
+    const std::type_index &type = __idStringToType.at("Controllable");
+
+    uint16_t component_id = _comps_info.at(type).networkId;
+
+    __send_update_component(
+        networkId,
+        component_id,
+        data,
+        client
+    );
+    std::cerr << "Sent controllable component to client" << std::endl;
+}
+
 void UDPServer::start_receive(Engine::GameEngine &engine)
 {
     socket_.async_receive_from(
@@ -55,6 +116,7 @@ void UDPServer::start_receive(Engine::GameEngine &engine)
             std::cerr << "In the beginning" << std::endl;
             if (!_clients.contains(remote_endpoint_)) {
                 __init_new_client();
+                createNewEntity(engine, remote_endpoint_);
             }
             std::cerr << "Step 2" << std::endl;
             auto &client_info = _clients.at(remote_endpoint_);
@@ -198,11 +260,11 @@ void UDPServer::__send_component_nb_loop(const udp::endpoint &ep)
     if (!_clients.contains(ep) || _clients.at(ep).state != ClientInfo::State::INIT) {
         return;
     }
-    __send_nb_components_message(ep);
+    __send_component_nb_loop(ep);
     boost::asio::steady_timer t(io_context_, boost::asio::chrono::milliseconds(500));
 
     t.async_wait([this, ep](auto const &) {
-        __send_component_nb_loop(ep);
+        __send_nb_components_message(ep);
     });
 }
 

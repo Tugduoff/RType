@@ -69,18 +69,20 @@ class UDPServer {
                 STARTED,
             };
 
-            ClientInfo() : state(State::UNKNOWN) {}
-            ClientInfo(State s) : state(s) {}
+            ClientInfo() : state(State::UNKNOWN), entity(0) {}
+            ClientInfo(State s) : state(s), entity(0) {}
 
-            ClientInfo(const ComponentsGetter &getter) : state(State::UNKNOWN)
+            ClientInfo(const ComponentsGetter &getter) : state(State::UNKNOWN), entity(0)
             {
                 for (auto const &[type, _] : getter) {
                     used_types.insert(type);
                 }
             }
+            void setEntity(ECS::Entity entity) { this->entity = entity; }
 
             State state;
             std::unordered_set<std::type_index> used_types;
+            ECS::Entity entity;
         };
 
         udp::socket socket_;
@@ -101,6 +103,13 @@ class UDPServer {
 
 
         // --- Helpers --- //
+
+        /**
+         * @brief Create a new player entity when a new client connects
+         * 
+         * @param engine The game engine
+         */
+        void createNewEntity(Engine::GameEngine &engine, const udp::endpoint &client);
 
         /**
         * @brief Retrieves the maximum size of component names.

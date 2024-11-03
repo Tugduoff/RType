@@ -10,6 +10,7 @@
 #include "components/spriteId/SpriteID.hpp"
 #include "components/action/Action.hpp"
 #include "Input.hpp"
+#include "ECS/utilities/Zipper/IndexedZipper.hpp"
 
 Systems::Input::Input(libconfig::Setting &)
 {
@@ -27,9 +28,38 @@ void Systems::Input::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Action component in system SFML Input" << std::endl;
 }
 
+void Systems::Input::updateControllable(Engine::GameEngine &engine)
+{
+    auto &manager = engine.getRegistry().componentManager();
+
+    auto &controllableComponents = manager.getComponents<Components::Controllable>();
+    for (auto [i, ctrl] : IndexedZipper(controllableComponents)) {
+        std::map<enum Action, enum Key> keyBindings = {
+            {Action::FORWARD, Key::A},
+            {Action::BACKWARD, Key::B},
+            {Action::LEFT, Key::C},
+            {Action::RIGHT, Key::D},
+            {Action::ACTION1, Key::SPACE},
+            {Action::ACTION2, Key::RIGHT_CLICK},
+            {Action::ACTION3, Key::MIDDLE_CLICK},
+            {Action::ACTION4, Key::NUM_0},
+            {Action::ACTION5, Key::NUM_1},
+            {Action::ACTION6, Key::NUM_2},
+            {Action::ACTION7, Key::NUM_3},
+            {Action::ACTION8, Key::NUM_4},
+            {Action::ACTION9, Key::NUM_5},
+            {Action::ACTION10, Key::NUM_6}
+        };
+        ctrl.keyBindings = keyBindings;
+        engine.updateComponent((ECS::Entity)i, ctrl.getId(), ctrl.serialize());
+    }
+}
+
 void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 {
     sf::Event event;
+
+    updateControllable(engine);
 
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
