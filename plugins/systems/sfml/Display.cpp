@@ -178,7 +178,7 @@ void Systems::Display::init(Engine::GameEngine &engine)
     engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
     engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
     engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
-    
+
     auto &manager = engine.getRegistry().componentManager();
     auto ctor = []() -> Components::SpriteComponent * { return new Components::SpriteComponent(); };
     manager.registerComponent<Components::SpriteComponent>(ctor);
@@ -198,7 +198,7 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 
         for (unsigned l = 0; l < 10; l++) {
             for (auto &&[i, pos, spriteId] : IndexedZipper(posComponents, spriteIdComponents)) {
-                if (pos.layer != l) {
+                if (pos.layer != l || spriteId.id.empty()) {
                     continue;
                 }
 

@@ -31,6 +31,9 @@
 #include "components/damage/Damage.hpp"
 #include "components/scale/Scale.hpp"
 #include "components/deathRange/DeathRange.hpp"
+#include "components/sound/Sound.hpp"
+#include "components/destruction/Destruction.hpp"
+#include "components/Ai/Ai.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -97,6 +100,7 @@ int main() {
         typeid(Components::Gun),
         typeid(Components::Damage),
         typeid(Components::DeathRange),
+        typeid(Components::Ai),
         // typeid(Components::Scale),
     };
 
@@ -127,6 +131,8 @@ int main() {
         engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
         engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
         engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
+        engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
+        engine.registerComponent<Components::Destruction>("./plugins/bin/components/", "Destruction");
 
         engine.loadSystems("./src/server/configServer.cfg");
 

@@ -14,6 +14,7 @@
 #include "components/controllable/Controllable.hpp"
 #include "components/gun/Gun.hpp"
 #include "components/position/Position.hpp"
+#include "components/sound/Sound.hpp"
 #include "components/collider/Collider.hpp"
 #include "library_entrypoint.hpp"
 #include "utils/Projectile.hpp"
@@ -26,6 +27,7 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
     
     try {
         auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
+        auto &soundArr = reg.componentManager().getComponents<Components::Sound>();
         auto &gun = gunComponents[entityIndex];
 
         if (!gun) {
@@ -39,13 +41,29 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
 
             int projectilePosX = position->x;
             int projectilePosY = position->y;
-            int projectileVelX = gun->bulletVelocity;
-            int projectileVelY = 0;
+            int projectileVelX = gun->bulletVelocityX;
+            int projectileVelY = gun->bulletVelocityY;
             int projectileColliderWidth = 10;
             int projectileColliderHeight = 10;
             int projectileDamage = gun->bulletDamage;
             enum Components::TypeID type = Components::TypeID::ALLY_PROJECTILE;
             std::string spriteId = gun->spriteId;
+
+            try {
+                auto &sound = soundArr[entityIndex];
+
+                for (auto &soundInstance : sound->sounds) {
+                    if (std::get<0>(soundInstance) == "ATTACK") {
+                        if (std::get<5>(soundInstance) == true) {
+                            std::get<5>(soundInstance) = false;
+                            engine.updateComponent((ECS::Entity)entityIndex, sound->getId(), sound->serialize());
+                            return;
+                        }
+                        std::get<5>(soundInstance) = true;
+                        engine.updateComponent((ECS::Entity)entityIndex, sound->getId(), sound->serialize());
+                    }
+                }
+            } catch (std::exception &) {}
 
             createProjectile(engine, projectilePosX, projectilePosY,
                 projectileVelX, projectileVelY,

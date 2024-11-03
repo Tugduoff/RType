@@ -13,50 +13,20 @@
     #include <cstdint>
     #include <libconfig.h++>
 
-enum Difficulty {
-    PEACEFUL,
-    EASY,
-    MEDIUM,
-    HARD,
-    IMPOSSIBLE,
-    GODLIKE,
-    NIGHTMARE,
-    UNREAL
-};
-
-const std::unordered_map<std::string, Difficulty> difficultyFromString = {
-    {"PEACEFUL", PEACEFUL},
-    {"EASY", EASY},
-    {"MEDIUM", MEDIUM},
-    {"HARD", HARD},
-    {"IMPOSSIBLE", IMPOSSIBLE},
-    {"GODLIKE", GODLIKE},
-    {"NIGHTMARE", NIGHTMARE},
-    {"UNREAL", UNREAL}
-};
-
 struct Component {
     std::string id;
     libconfig::Setting &args;
 };
 
 struct ConfigStruct {
-    // Level information
-    struct Level {
-        std::string name;
-        std::string description; // Description of the level
-        std::string goal; // Sub description of the level > Acts as the goal
-        enum Difficulty difficulty; // As an enum
-        std::string backgroundMusic; // Filepath to background music
-        int cellSize;
-        struct { int x, y; } mapSize; // Size of the map in cells
-        struct { int x, y; } viewPort; // Size of the viewport in pixels
-        uint32_t levelSpeed; // Speed of the level in cells / seconds
-    } level;
-
-    std::vector<std::string> components; // List of components that will be loaded when their position is close to the viewport
-    std::vector<std::string> systems; // List of systems that need to be loaded at the start of the level
-
+    /**
+     * @brief Entity template structure
+     * 
+     * This structure is used to store the entity templates that will be used to create entities
+     * 
+     * @param name The name of the template
+     * @param components The list of components that the entity will have
+     */
     struct EntityTemplate {
         std::string name;
         std::vector<Component> components;

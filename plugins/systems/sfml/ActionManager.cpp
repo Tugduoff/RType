@@ -54,8 +54,6 @@ void Systems::ActionManager::run(Engine::GameEngine &engine)
                     enum EntityAction nextAction = stringToEntityAction(sprite->nextTexture);
 
                     if (currentAction != actionComponent->action && nextAction != actionComponent->action) {
-                        std::cerr << "Action changed for entity: " << i << std::endl;
-                        std::cerr << "Current action: " << actionToString(actionComponent->action) << " action before: " << currentAction << std::endl;
                         sprite->loadTextureForAction(actionToString(actionComponent->action));
                     }
 

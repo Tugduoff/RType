@@ -23,7 +23,8 @@
 #include "components/scale/Scale.hpp"
 #include "components/deathRange/DeathRange.hpp"
 #include "components/type/Type.hpp"
-
+#include "components/sound/Sound.hpp"
+#include "components/destruction/Destruction.hpp"
 
 int main()
 {
@@ -31,6 +32,7 @@ int main()
     Engine::GameEngine engine(
         [&conn](size_t id, std::string name, std::vector<uint8_t> data) { conn.sendUpdateComponent(id, name, data); }
     );
+    Chrono chrono;
 
     engine.loadSystems("./src/client/configClient.cfg");
     // Hard coded register for now
@@ -46,6 +48,8 @@ int main()
     engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
     engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
     engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
+    engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
+    engine.registerComponent<Components::Destruction>("./plugins/bin/components/", "Destruction");
 
     conn.engineInit();
     std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();
@@ -61,7 +65,12 @@ int main()
     {
         // Check that you have the same components here with the map in RTypeClient
         while (conn.gameEnd != true) {
+            if (chrono.getElapsedTime() < 17)
+                continue;
+            conn.lockMutex();
             engine.runSystems();
+            conn.unlockMutex();
+            chrono.restart();
         }
     }
     catch(const std::exception& e)
