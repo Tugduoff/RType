@@ -54,6 +54,7 @@ UDPServer::UDPServer(
 
 void UDPServer::createNewEntity(Engine::GameEngine &engine, const udp::endpoint &client)
 {
+    lockMutex();
     ECS::Entity entity = engine.getRegistry().createEntity();
     std::cerr << "New entity created with ID: " << entity << std::endl;
 
@@ -88,6 +89,7 @@ void UDPServer::createNewEntity(Engine::GameEngine &engine, const udp::endpoint 
     std::vector<uint8_t> data = component->serialize();
 
     engine.getRegistry().componentManager().addComponent(entity, std::move(component));
+    unlockMutex();
 
     uint32_t networkId = _entitiesNetworkId.at(entity);
 
@@ -533,4 +535,12 @@ void UDPServer::sendNextFrame()
 bool UDPServer::gameRunning() const noexcept
 {
     return _isGameRunning;
+}
+
+void UDPServer::lockMutex() {
+    _engineMutex.lock();
+}
+
+void UDPServer::unlockMutex() {
+    _engineMutex.unlock();
 }

@@ -56,6 +56,22 @@ class UDPServer {
          */
         bool gameRunning() const noexcept;
 
+        /**
+         * @brief Lock _engineMutex
+         * 
+         * @note This function has to be called whenever there are modifications made to the engine
+         * 
+         * @note This function is a blocking call until the mutex is unlocked
+         */
+        void lockMutex();
+
+        /**
+         * @brief Unlock _engineMutex
+         * 
+         * @note Be sure that the mutex is locked beforehand
+         */
+        void unlockMutex();
+
     private:
         struct ComponentInfo {
             std::string name;
@@ -100,6 +116,8 @@ class UDPServer {
         ComponentsGetter _compGetter;
 
         bool _isGameRunning;
+
+        std::mutex _engineMutex;
 
 
         // --- Helpers --- //

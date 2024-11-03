@@ -161,7 +161,9 @@ int main() {
         while (true) {
             if (chrono.getElapsedTime() < 17)
                 continue;
+            server.lockMutex();
             engine.runSystems();
+            server.unlockMutex();
             server.sendNextFrame();
             // displayPolymorphic(engine, types.begin(), types.end());
             std::cout << "####################################### iteration: " << i++ << "\n" << std::endl;
