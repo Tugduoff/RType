@@ -19,6 +19,8 @@
     #include "components/type/Type.hpp"
     #include <unordered_map>
 
+    #define DEG_TO_RAD 0.017453292519943295769236907684886
+
 namespace Engine {
     class GameEngine;
 }

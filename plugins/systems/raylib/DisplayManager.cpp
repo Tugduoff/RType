@@ -20,8 +20,6 @@
 #include <rlgl.h>
 #include <cmath>
 
-constexpr float DEG_TO_RAD = PI / 180.0f;
-
 float toRadians2(float degrees) {
     return degrees * DEG_TO_RAD;
 }

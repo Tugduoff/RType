@@ -15,6 +15,11 @@
     #include <memory>
 
 namespace Components {
+    /**
+     * @class ModelComponent
+     * 
+     * @brief Component class from Components that represents a model in the game
+     */
     class ModelComponent {
         public:
 

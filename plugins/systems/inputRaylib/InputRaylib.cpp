@@ -18,8 +18,6 @@ Systems::InputRaylibSystem::InputRaylibSystem(libconfig::Setting &)
 {
 }
 
-constexpr float DEG_TO_RAD = 3.14159265358979323846f / 180.0f;
-
 inline float toRadians(float degrees) {
     return degrees * DEG_TO_RAD;
 }

@@ -16,7 +16,15 @@
     #include <unordered_map>
     #include <memory>
 
+    #define DEG_TO_RAD 0.017453292519943295769236907684886
+    #define RAD_TO_DEG 57.295779513082320876798154814105
+
 namespace Systems {
+    /**
+     * @class InputManager
+     * 
+     * @brief System class from Systems that manages the input of the game MarioQuartz
+     */
     class InputManager {
         public:
 
@@ -29,8 +37,27 @@ namespace Systems {
 
         private:
 
+            /**
+             * @brief Update the cameras in the scene
+             * 
+             * @param componentManager : the component manager
+             */
             void updateCameras(ECS::ComponentManager &componentManager);
+
+            /**
+             * @brief Check for missing camera components in the scene
+             * 
+             * @param componentManager : the component manager
+             * 
+             * @note If the camera component is missing, but a controllable component exists for this entity, it will be added to the scene
+             */
             void checkForMissingCameraComponent(ECS::ComponentManager &componentManager);
+
+            /**
+             * @brief Retrieve the inputs from the user
+             * 
+             * @param engine : the game engine
+             */
             void retrieveInputs(Engine::GameEngine &engine);
 
             const std::unordered_map<int, enum Key> __intToKey = {
@@ -46,6 +73,13 @@ namespace Systems {
                 {104, Key::NUM_8}, {105, Key::NUM_9},
                 {-1, Key::LEFT_CLICK}, {-2, Key::RIGHT_CLICK}, {-3, Key::MIDDLE_CLICK}, {-4, Key::UNKNOWN}
             };
+            /**
+             * @brief Convert a key to an integer
+             * 
+             * @param key : the key to convert
+             * 
+             * @return The integer corresponding to the key
+             */
             int keyToInt(Key &key);
     };
 };

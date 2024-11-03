@@ -14,23 +14,20 @@
 #include <raymath.h>
 #include <cmath>
 
-Systems::InputManager::InputManager()
-{
-}
-
-Systems::InputManager::InputManager(libconfig::Setting &)
-{
-}
-
-constexpr float RAD_TO_DEG = 180.0f / PI;
-constexpr float DEG_TO_RAD = PI / 180.0f;
-
 float toDegrees(float radians) {
     return radians * RAD_TO_DEG;
 }
 
 float toRadians(float degrees) {
     return degrees * DEG_TO_RAD;
+}
+
+Systems::InputManager::InputManager()
+{
+}
+
+Systems::InputManager::InputManager(libconfig::Setting &)
+{
 }
 
 void Systems::InputManager::init(Engine::GameEngine &engine)
