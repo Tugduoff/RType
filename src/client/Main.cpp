@@ -25,10 +25,26 @@
 #include "components/type/Type.hpp"
 #include "components/sound/Sound.hpp"
 #include "components/destruction/Destruction.hpp"
+#include <iostream>
+#include <string>
+#include <stdexcept>
 
-int main()
+int main(int ac, char **av)
 {
-    RTypeClient conn("127.0.0.1", "8080");
+    std::string hostname;
+    std::string port;
+
+    for (int i = 1; i < ac; ++i) {
+        if (std::string(av[i]) == "-h" && i + 1 < ac) {
+            hostname = av[i + 1];
+            i++;
+        } else if (std::string(av[i]) == "-p" && i + 1 < ac) {
+            port = av[i + 1];
+            i++;
+        }
+    }
+
+    RTypeClient conn(hostname, port);
     Engine::GameEngine engine(
         [&conn](size_t id, std::string name, std::vector<uint8_t> data) { conn.sendUpdateComponent(id, name, data); }
     );
