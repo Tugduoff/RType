@@ -27,9 +27,11 @@ namespace Systems {
 
             void run(Engine::GameEngine &engine, sf::RenderWindow &window);
             void init(Engine::GameEngine &engine);
+            void initIpAndPortScreen(Engine::GameEngine &engine);
 
             size_t getIndexInVector(std::vector<size_t> &vec, size_t &e);
-            void destroyEntity(Engine::GameEngine &engine);
+            void destroyEntityMainMenu(Engine::GameEngine &engine);
+            void destroyEntityIpAndPort(Engine::GameEngine &engine);
 
             std::vector<ECS::Entity> _entities;
         
@@ -37,8 +39,11 @@ namespace Systems {
             bool _titleReachedLeftEdge;
             bool _titleDeployed;
             bool _tmSpawned;
+            bool _ipAndPortScreen;
+            size_t _ipAndPortSelectorPosition;
             std::vector<size_t> __controllableTexts;
             size_t __selectedText;
+            size_t __ipAndPortText;
             size_t __selectManager;
     };
 };

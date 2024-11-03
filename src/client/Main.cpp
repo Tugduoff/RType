@@ -31,6 +31,7 @@ int main()
     RTypeClient conn("127.0.0.1", "8080");
     Engine::GameEngine engine(
         [&conn](size_t id, std::string name, std::vector<uint8_t> data) { conn.sendUpdateComponent(id, name, data); }
+        // [&conn](size_t id, std::string name, std::vector<uint8_t> data) { [](const auto &_, const auto &__, const auto &___) {} }
     );
     Chrono chrono;
 

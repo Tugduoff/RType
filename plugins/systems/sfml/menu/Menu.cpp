@@ -40,8 +40,14 @@ size_t Systems::Menu::getIndexInVector(std::vector<size_t> &vec, size_t &e) {
     return -1;
 }
 
-void Systems::Menu::destroyEntity(Engine::GameEngine &engine) {
-    for (size_t i =0; i < 12; i++) {
+void Systems::Menu::destroyEntityMainMenu(Engine::GameEngine &engine) {
+    for (size_t i = 0; i < 12; i++) {
+        engine.getRegistry().killEntity(static_cast<ECS::Entity>(i));
+    }
+}
+
+void Systems::Menu::destroyEntityIpAndPort(Engine::GameEngine &engine) {
+    for (size_t i = 0; i < 15; i++) {
         engine.getRegistry().killEntity(static_cast<ECS::Entity>(i));
     }
 }
@@ -113,83 +119,171 @@ void Systems::Menu::run(Engine::GameEngine &engine, sf::RenderWindow &window)
     try {
         auto &ctrl = controllableArr[__selectManager];
 
-        bool &inputForward = ctrl->inputs[(int)Action::FORWARD];
-        bool &inputBackward = ctrl->inputs[(int)Action::BACKWARD];
+        bool &inputUp = ctrl->inputs[(int)Action::FORWARD];
+        bool &inputDown = ctrl->inputs[(int)Action::BACKWARD];
         bool &inputRight = ctrl->inputs[(int)Action::RIGHT];
         bool &inputLeft = ctrl->inputs[(int)Action::LEFT];
         bool &inputEnter = ctrl->inputs[(int)Action::ACTION10];
 
         size_t currentIndex = getIndexInVector(__controllableTexts, __selectedText);
+        size_t ipAndPortIndex = getIndexInVector(__controllableTexts, __ipAndPortText);
+        
+        if (!_ipAndPortScreen) {
 
-        if (inputForward) {
-            if (currentIndex != 0)
-                __selectedText = __controllableTexts[currentIndex - 1];
-            else 
-                __selectedText = __controllableTexts[__controllableTexts.size() - 1];
-            inputForward = false;
-        }
+            if (inputUp) {
+                if (currentIndex != 0)
+                    __selectedText = __controllableTexts[currentIndex - 1];
+                else 
+                    __selectedText = __controllableTexts[__controllableTexts.size() - 1];
+                inputUp = false;
+            }
 
-        if (inputBackward) {
-            if (currentIndex != __controllableTexts.size() - 1)
-                __selectedText = __controllableTexts[currentIndex + 1];
-            else
-                __selectedText = __controllableTexts[0];
-            inputBackward = false;
-        }
+            if (inputDown) {
+                if (currentIndex != __controllableTexts.size() - 1)
+                    __selectedText = __controllableTexts[currentIndex + 1];
+                else
+                    __selectedText = __controllableTexts[0];
+                inputDown = false;
+            }
 
-        if (inputRight) {
-            auto &text = textArr[__controllableTexts[currentIndex]];
-            if (text->textContent.substr(0, 7) == "PLAYERS") {
-                char playerNb = text->textContent[10];
-                int playerNbAsInt = std::stoi(std::string(1, playerNb)) + 1;
-                if (playerNbAsInt > 9)
-                    playerNbAsInt = 1;
+            if (inputRight) {
+                auto &text = textArr[__controllableTexts[currentIndex]];
+                if (text->textContent.substr(0, 7) == "PLAYERS") {
+                    char playerNb = text->textContent[10];
+                    int playerNbAsInt = std::stoi(std::string(1, playerNb)) + 1;
+                    if (playerNbAsInt > 9)
+                        playerNbAsInt = 1;
+
+                    std::string newText = text->textContent;
+                    newText[10] = '0' + playerNbAsInt;
+
+                    text->setText(newText);
+                    inputRight = false;
+                }
+            }
+
+            if (inputLeft) {
+                auto &text = textArr[__controllableTexts[currentIndex]];
+                if (text->textContent.substr(0, 7) == "PLAYERS") {
+                    char playerNb = text->textContent[10];
+                    int playerNbAsInt = std::stoi(std::string(1, playerNb)) - 1;
+                    if (playerNbAsInt < 1)
+                        playerNbAsInt = 9;
+
+                    std::string newText = text->textContent;
+                    newText[10] = '0' + playerNbAsInt;
+
+                    text->setText(newText);
+                    inputLeft = false;
+                }
+            }
+
+            if (inputEnter) {
+                auto &text = textArr[__controllableTexts[currentIndex]];
+                if (text->textContent == "PLAY") {
+                    std::cout << "SELECT IP AND PORT" << std::endl;
+                    destroyEntityMainMenu(engine);
+                    initIpAndPortScreen(engine);
+                    _ipAndPortScreen = true;
+                    inputEnter = false;
+
+                } else if (text->textContent == "EXIT") {
+                    std::cout << "END GAME" << std::endl;
+                    engine._inMenu = false;
+                    destroyEntityMainMenu(engine);
+                    window.close();
+                    return;
+                }
+            }
+
+        } else {
+
+            if (inputRight) {
+                auto &text = textArr[__controllableTexts[currentIndex]];
+                if (_ipAndPortSelectorPosition < 38) {
+
+                    std::string newText = text->textContent;
+                    newText[_ipAndPortSelectorPosition] = ' ';
+                    _ipAndPortSelectorPosition += 2;
+                    newText[_ipAndPortSelectorPosition] = '_';
+
+                    text->setText(newText);
+                    inputRight = false;
+                }
+            }
+
+            if (inputLeft) {
+                auto &text = textArr[__controllableTexts[currentIndex]];
+                if (_ipAndPortSelectorPosition > 0) {
+
+                    std::string newText = text->textContent;
+                    newText[_ipAndPortSelectorPosition] = ' ';
+                    _ipAndPortSelectorPosition -= 2;
+                    newText[_ipAndPortSelectorPosition] = '_';
+
+                    text->setText(newText);
+                    inputLeft = false;
+                }
+            }
+
+            if (inputUp) {
+                auto &text = textArr[__controllableTexts[ipAndPortIndex]];
+                char charNum = text->textContent[_ipAndPortSelectorPosition];
+                if (charNum == '-')
+                    charNum = '0';
+                int charNumAsInt = std::stoi(std::string(1, charNum)) + 1;
+                if (charNumAsInt > 9)
+                    charNumAsInt = 0;
 
                 std::string newText = text->textContent;
-                newText[10] = '0' + playerNbAsInt;
+                newText[_ipAndPortSelectorPosition] = '0' + charNumAsInt;
+                if (charNumAsInt == 0)
+                    newText[_ipAndPortSelectorPosition] = '-';
 
                 text->setText(newText);
-                inputRight = false;
+                inputUp = false;
             }
-        }
 
-        if (inputLeft) {
-            auto &text = textArr[__controllableTexts[currentIndex]];
-            if (text->textContent.substr(0, 7) == "PLAYERS") {
-                char playerNb = text->textContent[10];
-                int playerNbAsInt = std::stoi(std::string(1, playerNb)) - 1;
-                if (playerNbAsInt < 1)
-                    playerNbAsInt = 9;
+            if (inputDown) {
+                auto &text = textArr[__controllableTexts[ipAndPortIndex]];
+                char charNum = text->textContent[_ipAndPortSelectorPosition];
+                int charNumAsInt;
+                if (charNum == '-') {
+                    charNumAsInt = 9;
+                } else {
+                    charNumAsInt = std::stoi(std::string(1, charNum)) - 1;
+                }
+                if (charNumAsInt < 1)
+                    charNumAsInt = 0;
 
                 std::string newText = text->textContent;
-                newText[10] = '0' + playerNbAsInt;
+                newText[_ipAndPortSelectorPosition] = '0' + charNumAsInt;
+                if (charNumAsInt == 0)
+                    newText[_ipAndPortSelectorPosition] = '-';
 
                 text->setText(newText);
-                inputLeft = false;
+                inputDown = false;
             }
-        }
 
-        if (inputEnter) {
-            auto &text = textArr[__controllableTexts[currentIndex]];
-            if (text->textContent == "PLAY") {
-                std::cout << "START GAME" << std::endl;
+            if (inputEnter) {
+                auto &text = textArr[__controllableTexts[ipAndPortIndex]];
+
+                size_t colonPos = text->textContent.find(':');
+                if (colonPos != std::string::npos) {
+                    engine._hostname = text->textContent.substr(0, colonPos);
+                    engine._port = text->textContent.substr(colonPos + 1);
+                } else {
+                    engine._hostname = "";
+                    engine._port = "";
+                }
+                destroyEntityIpAndPort(engine);
+                _ipAndPortScreen = false;
                 engine._inMenu = false;
-                destroyEntity(engine);
+                inputEnter = false;
                 return;
             }
-        }
 
-        if (inputEnter) {
-            auto &text = textArr[__controllableTexts[currentIndex]];
-            if (text->textContent == "EXIT") {
-                std::cout << "END GAME" << std::endl;
-                engine._inMenu = false;
-                destroyEntity(engine);
-                window.close();
-                return;
-            }
         }
-
     } catch (std::exception &) {}
 
     for (auto entity : __controllableTexts) {
@@ -205,6 +299,55 @@ void Systems::Menu::run(Engine::GameEngine &engine, sf::RenderWindow &window)
     }
 }
 
+void Systems::Menu::initIpAndPortScreen(Engine::GameEngine &engine)
+{
+    auto &manager = engine.getRegistry().componentManager();
+
+    _ipAndPortSelectorPosition = 0;
+
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable");
+
+    std::map<enum Action, enum Key> keyBindings = {
+        {Action::FORWARD, Key::Z},
+        {Action::BACKWARD, Key::S},
+        {Action::LEFT, Key::Q},
+        {Action::RIGHT, Key::D},
+        {Action::ACTION1, Key::LEFT_CLICK},
+        {Action::ACTION2, Key::RIGHT_CLICK},
+        {Action::ACTION3, Key::MIDDLE_CLICK},
+        {Action::ACTION4, Key::NUM_0},
+        {Action::ACTION5, Key::NUM_1},
+        {Action::ACTION6, Key::NUM_2},
+        {Action::ACTION7, Key::NUM_3},
+        {Action::ACTION8, Key::NUM_4},
+        {Action::ACTION9, Key::NUM_5},
+        {Action::ACTION10, Key::ENTER}
+    };
+
+    ECS::Entity text = engine.getRegistry().createEntity();
+    manager.addComponent<Components::Position>(text, engine.newComponent<Components::Position>(700, 540, 2));
+    std::unique_ptr<Components::Text> tmp = std::make_unique<Components::Text>("- - - . - - - . - - - . - - - : - - - -", 50, sf::Color::White);
+    manager.addComponent<Components::Text>(text, std::move(tmp));
+    __controllableTexts.push_back(text);
+    _entities.push_back(text);
+
+    ECS::Entity characterSelected = engine.getRegistry().createEntity();
+    manager.addComponent<Components::Position>(characterSelected, engine.newComponent<Components::Position>(700, 560, 2));
+    std::unique_ptr<Components::Text> tmpcharacterSelected = std::make_unique<Components::Text>("_                                      ", 50, sf::Color::White);
+    manager.addComponent<Components::Text>(characterSelected, std::move(tmpcharacterSelected));
+    __controllableTexts.push_back(characterSelected);
+    _entities.push_back(characterSelected);
+
+    ECS::Entity controlManager = engine.getRegistry().createEntity();
+    manager.addComponent<Components::Controllable>(controlManager, engine.newComponent<Components::Controllable>(keyBindings));
+    _entities.push_back(controlManager);
+
+    __selectedText = characterSelected;
+    __ipAndPortText = text;
+    __selectManager = controlManager;
+}
+
 void Systems::Menu::init(Engine::GameEngine &engine)
 {
     auto &manager = engine.getRegistry().componentManager();
@@ -213,6 +356,7 @@ void Systems::Menu::init(Engine::GameEngine &engine)
     _titleReachedLeftEdge = false;
     _titleDeployed = false;
     _tmSpawned = false;
+    _ipAndPortScreen = false;
 
     engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
     engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
