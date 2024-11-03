@@ -99,7 +99,7 @@ class UDPServer {
             }
             void setEntity(ECS::Entity entity) { this->entity = entity; }
 
-            State state;
+            std::atomic<State> state;
             std::unordered_set<std::type_index> used_types;
             ECS::Entity entity;
             boost::asio::steady_timer timer;

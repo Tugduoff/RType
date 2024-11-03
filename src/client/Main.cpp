@@ -56,6 +56,7 @@ int main()
     {
     }
     conn.send(std::vector<uint8_t>({0x2}));
+    conn._compNamesByNetwork.clear();
 
     try
     {

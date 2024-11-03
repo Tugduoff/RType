@@ -123,7 +123,7 @@ void RTypeClient::startInterpret(Engine::GameEngine &engine)
 
 void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<uint8_t> &recv_buffer)
 {
-    static int receivedFinishNb = 0;
+    static std::atomic_int receivedFinishNb = 0;
 
     if (recv_buffer.size() < 1) {
         return;
@@ -202,8 +202,8 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<ui
                     std::cerr << "Component " << strCompName <<
                         " is not needed by the client so removing it" << std::endl;
                     send(message);
-                    receivedFinishNb = 0;
                 }
+                receivedFinishNb = 0;
             }
             receivedFinishNb += ((receivedFinishNb < 6) ? 1 : 0);
             break;
