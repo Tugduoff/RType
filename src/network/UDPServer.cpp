@@ -126,7 +126,6 @@ void UDPServer::start_receive(Engine::GameEngine &engine)
             std::cerr << "In the beginning" << std::endl;
             if (!_clients.contains(remote_endpoint_)) {
                 __init_new_client();
-                createNewEntity(engine, remote_endpoint_);
             }
             std::cerr << "Step 2" << std::endl;
             auto &client_info = _clients.at(remote_endpoint_);
@@ -151,6 +150,7 @@ void UDPServer::start_receive(Engine::GameEngine &engine)
 
                 case 0x2:
                     client_info.state = ClientInfo::State::STARTED;
+                    createNewEntity(engine, remote_endpoint_);
                     __add_new_client();
 
                     _isGameRunning = true;
@@ -220,7 +220,7 @@ void UDPServer::__send_nb_components_message(const udp::endpoint &client)
     std::cerr << "Sending nb components message: " << _clients[client].used_types.size() << std::endl;
 
     socket_.async_send_to(
-        boost::asio::buffer(msg), remote_endpoint_,
+        boost::asio::buffer(msg), client,
         [](boost::system::error_code ec, std::size_t bytes_sent) {
             if (!ec) {
                 std::cerr << "Sent message of size " << bytes_sent << " bytes." << std::endl;
@@ -239,7 +239,8 @@ void UDPServer::__add_new_client()
             remote_endpoint_
         );
     }
-    const auto &used_types = _clients.at(remote_endpoint_).used_types;
+    auto used_types = _clients.at(remote_endpoint_).used_types;
+    used_types.erase(typeid(Components::Controllable));
 
     for (const auto &typeIdx : used_types) {
         uint16_t comp_netId = _comps_info.at(typeIdx).networkId;
