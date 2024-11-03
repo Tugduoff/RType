@@ -97,6 +97,78 @@ Each entity has the following structure:
   - **fireRate**: *(integer)* Rate of fire in milliseconds.
   - **bulletVelocityX**: *(integer)* Horizontal bullet speed.
 
+## Syntax Example
+
+Below is an example of the configuration file format, demonstrating how to structure the `level`, `templates`, and `entities` sections.
+
+example.cfg:
+
+level = {
+    name = "Forest Adventure",
+    description = "A peaceful forest area with simple enemies to introduce basic game mechanics.",
+    difficulty = "EASY",
+    backgroundMusic = "./assets/background.mp3",
+    cell_size = 30,
+    map_size = { x = 1000, y = 10 },
+    view_port = { x = 1920, y = 1080 },
+    goal = "Reach the exit while avoiding enemy patrols."
+}
+
+templates = (
+    {
+        name = "Enemy",
+        components = (
+            {
+                name = "Position",
+                args = {
+                    x = 1000,
+                    y = 500,
+                    layer = 2
+                }
+            },
+            {
+                name = "Velocity",
+                args = {
+                    x = -1,
+                    y = 0,
+                    factor = 100
+                }
+            },
+            // Additional components...
+        )
+    }
+    // Additional template...
+)
+
+entities = (
+    {
+        name = "Player",
+        spawnTime = 0,
+        components = (
+            {
+                name = "Position",
+                args = {
+                    x = 250,
+                    y = 500,
+                    layer = 2
+                }
+            },
+            {
+                name = "Controllable",
+                args = {
+                    FORWARD = "D",
+                    BACKWARD = "Q",
+                    LEFT = "Z",
+                    RIGHT = "S",
+                    ACTION1 = "SPACE"
+                }
+            },
+            // Additional components...
+        )
+    }
+    // Additional entities...
+)
+
 ## Notes
 
 - **File Paths**: Paths are relative to the project root unless otherwise specified.
