@@ -67,52 +67,8 @@ void Systems::ConfigLoader::run(Engine::GameEngine &engine)
     }
 }
 
-std::string Systems::ConfigLoader::difficultyToString(enum Difficulty difficulty)
-{
-    switch (difficulty) {
-        case PEACEFUL:
-            return "PEACEFUL";
-        case EASY:
-            return "EASY";
-        case MEDIUM:
-            return "MEDIUM";
-        case HARD:
-            return "HARD";
-        case IMPOSSIBLE:
-            return "IMPOSSIBLE";
-        case GODLIKE:
-            return "GODLIKE";
-        case NIGHTMARE:
-            return "NIGHTMARE";
-        case UNREAL:
-            return "UNREAL";
-    }
-    return "";
-}
-
 void Systems::ConfigLoader::displayConfig()
 {
-    std::cout << "Level name: " << config.level.name << std::endl;
-    std::cout << "Level description: " << config.level.description << std::endl;
-    std::cout << "Level difficulty: " << difficultyToString(config.level.difficulty) << std::endl;
-    std::cout << "Level background music: " << config.level.backgroundMusic << std::endl;
-    std::cout << "Level map size: " << config.level.mapSize.x << "x" << config.level.mapSize.y << std::endl;
-    std::cout << "Level view port: " << config.level.viewPort.x << "x" << config.level.viewPort.y << std::endl;
-    std::cout << "Level cell size: " << config.level.cellSize << std::endl;
-    std::cout << "Level goal: " << config.level.goal << std::endl;
-
-    std::cout << "Components: ";
-    for (const auto &component : config.components) {
-        std::cout << component << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Systems: ";
-    for (const auto &system : config.systems) {
-        std::cout << system << " ";
-    }
-    std::cout << std::endl;
-
     std::cout << "Entity templates: " << std::endl;
     for (const auto &entityTemplate : config.entityTemplates) {
         std::cout << "Template: " << entityTemplate.first << std::endl;
@@ -153,35 +109,6 @@ void Systems::ConfigLoader::loadConfig(const std::string &filepath)
 
 void Systems::ConfigLoader::extractConfig(libconfig::Setting &root)
 {
-    if (root.exists("level")) {
-        libconfig::Setting &level = root["level"];
-        level.lookupValue("name", config.level.name);
-        level.lookupValue("description", config.level.description);
-        std::string difficultyString;
-        level.lookupValue("difficulty", difficultyString);
-        try {
-            config.level.difficulty = difficultyFromString.at(difficultyString);
-        } catch (std::exception &) {
-            std::cerr << "ERROR: Invalid difficulty setting : " << difficultyString <<
-            ". Defaulting to EASY." << std::endl;
-            config.level.difficulty = Difficulty::EASY;
-        }
-        level.lookupValue("background_music", config.level.backgroundMusic);
-
-        libconfig::Setting &map_size = level["map_size"];
-        map_size.lookupValue("x", config.level.mapSize.x);
-        map_size.lookupValue("y", config.level.mapSize.y);
-
-        libconfig::Setting &view_port = level["view_port"];
-        view_port.lookupValue("x", config.level.viewPort.x);
-        view_port.lookupValue("y", config.level.viewPort.y);
-
-        level.lookupValue("cell_size", config.level.cellSize);
-        level.lookupValue("goal", config.level.goal);
-
-        std::cout << "\nLevel: " << config.level.name << " loaded!" << std::endl;
-    }
-
     if (root.exists("templates")) {
         libconfig::Setting &templates = root["templates"];
         for (int i = 0; i < templates.getLength(); ++i) {
@@ -226,7 +153,7 @@ void Systems::ConfigLoader::extractConfig(libconfig::Setting &root)
 
                 entity.components.push_back({componentName, args});
             }
-            if (entity.type != "") {
+            if (entity.type != "" && entity.type != "Unknown") {
                 std::cerr << "Entity type: " << entity.type << " name: " << entity.name << " loaded!" << std::endl;
                 for (const auto &component : config.entityTemplates.at(entity.type).components) {
                     bool alreadyLoaded = false;

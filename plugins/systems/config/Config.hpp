@@ -42,7 +42,6 @@ namespace Systems {
             void loadConfig(const std::string &filepath);
             void extractConfig(libconfig::Setting &root);
             void displayConfig();
-            std::string difficultyToString(enum Difficulty difficulty);
 
             ConfigStruct config;
             libconfig::Config cfg;
