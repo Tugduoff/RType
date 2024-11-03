@@ -17,6 +17,7 @@
     #include <vector>
     #include "ECS/entity/Entity.hpp"
     #include "../GameEngine/GameEngine.hpp"
+#include "GameEngine/ComponentsGetter.hpp"
     #include "boost/asio/ip/udp.hpp"
     #include "boost/asio/steady_timer.hpp"
 
@@ -38,7 +39,7 @@ class UDPServer {
             short port,
             std::unordered_map<std::string, std::type_index> &idStringToType,
             std::function<const std::vector<ECS::Entity> &()> entityLister,
-            std::function<std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>>()> componentLister
+            ComponentsGetter compGetter
         );
 
         /**
@@ -77,7 +78,7 @@ class UDPServer {
         uint32_t _nextNetworkId = 0;
 
         std::function<const std::vector<ECS::Entity> &()> _listEntities;
-        std::function<std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>>()> _listComponents;
+        ComponentsGetter _compGetter;
 
         bool _isGameRunning;
 

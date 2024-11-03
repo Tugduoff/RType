@@ -6,6 +6,7 @@
 */
 #include "UDPServer.hpp"
 #include "ECS/utilities/Zipper/IndexedZipper.hpp"
+#include "GameEngine/ComponentsGetter.hpp"
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
@@ -23,12 +24,12 @@ UDPServer::UDPServer(
     short port,
     std::unordered_map<std::string, std::type_index> &idStringToType,
     std::function<const std::vector<ECS::Entity> &()> entityLister,
-    std::function<std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>>()> componentLister
+    ComponentsGetter compGetter
 )
 :   socket_(io_context, udp::endpoint(udp::v4(),port)),
     io_context_(io_context),
     _listEntities(std::move(entityLister)),
-    _listComponents(std::move(componentLister)),
+    _compGetter(std::move(compGetter)),
     _isGameRunning(false)
 {
     this->updateIdStringToType(idStringToType);
@@ -108,15 +109,14 @@ void UDPServer::__add_new_client()
             remote_endpoint_
         );
     }
-    auto components = _listComponents();
-    for (const auto &[typeIdx, compArr] : components) {
+    for (const auto &[typeIdx, compArr] : _compGetter) {
         uint16_t comp_netId = _comps_info.at(typeIdx).networkId;
         for (auto &&[i, _] : IndexedZipper(compArr)) {
             uint32_t entity_netId = _entitiesNetworkId.at(i);
             __send_attach_component_message(entity_netId, comp_netId, remote_endpoint_);
         }
     }
-    for (const auto &[typeIdx, compArr] : components) {
+    for (const auto &[typeIdx, compArr] : _compGetter) {
         uint16_t comp_netId = _comps_info.at(typeIdx).networkId;
         for (auto &&[i, comp] : IndexedZipper(compArr)) {
             uint32_t entity_netId = _entitiesNetworkId.at(i);

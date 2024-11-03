@@ -110,9 +110,7 @@ int main() {
             [&engine]() -> const std::vector<ECS::Entity> & {
                 return engine.getRegistry().entityManager().viewEntities();
             },
-            [&engine]() -> std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>> {
-                return engine.getAllComponents();
-            }
+            ComponentsGetter(engine)
         );
 
         engine.getRegistry().addEntityCreateCallback(
