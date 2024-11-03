@@ -109,16 +109,18 @@ void UDPServer::__add_new_client()
             remote_endpoint_
         );
     }
-    for (const auto &[typeIdx, compArr] : _compGetter) {
+    const auto &used_types = _clients.at(remote_endpoint_).used_types;
+
+    for (const auto &typeIdx : used_types) {
         uint16_t comp_netId = _comps_info.at(typeIdx).networkId;
-        for (auto &&[i, _] : IndexedZipper(compArr)) {
+        for (auto &&[i, _] : IndexedZipper(_compGetter[typeIdx])) {
             uint32_t entity_netId = _entitiesNetworkId.at(i);
             __send_attach_component_message(entity_netId, comp_netId, remote_endpoint_);
         }
     }
-    for (const auto &[typeIdx, compArr] : _compGetter) {
+    for (const auto &typeIdx : used_types) {
         uint16_t comp_netId = _comps_info.at(typeIdx).networkId;
-        for (auto &&[i, comp] : IndexedZipper(compArr)) {
+        for (auto &&[i, comp] : IndexedZipper(_compGetter[typeIdx])) {
             uint32_t entity_netId = _entitiesNetworkId.at(i);
 
             __send_update_component(
@@ -246,8 +248,11 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
 
     uint16_t component_id = _comps_info.at(component).networkId;
 
-    for (const auto &client_endpoint : std::views::keys(_clients)) {
-        __send_attach_component_message(networkId, component_id, client_endpoint);
+    for (const auto &[endpoint, info] : _clients) {
+        if (!info.used_types.contains(component)) {
+            continue;
+        }
+        __send_attach_component_message(networkId, component_id, endpoint);
     }
 }
 
@@ -290,12 +295,15 @@ void UDPServer::update_component(size_t entity, std::string name, std::vector<ui
 
     uint16_t component_id = _comps_info.at(type).networkId;
 
-    for (const auto &client_endpoint : std::views::keys(_clients)) {
+    for (const auto &[endpoint, info] : _clients) {
+        if (!info.used_types.contains(type)) {
+            continue;
+        }
         __send_update_component(
             networkId,
             component_id,
             data,
-            client_endpoint
+            endpoint
         );
     }
 }
@@ -349,9 +357,12 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
     std::memcpy(&message[1], &networkId, sizeof(networkId));
     std::memcpy(&message[5], &component_id, sizeof(component_id));
 
-    for (const auto &client_endpoint : std::views::keys(_clients)) {
+    for (const auto &[endpoint, info] : _clients) {
+        if (!info.used_types.contains(component)) {
+            continue;
+        }
         socket_.async_send_to(
-            boost::asio::buffer(message), client_endpoint,
+            boost::asio::buffer(message), endpoint,
             [networkId, component_id](boost::system::error_code ec, std::size_t) {
                 if (!ec) {
                     uint16_t e_id = ntohl(networkId);
