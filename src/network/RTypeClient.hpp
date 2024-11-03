@@ -42,7 +42,10 @@ class RTypeClient : public UDPConnection
          * 
          * @param engine : The game engine on which to do modifications
          */
-        void engineInit();
+        void engineInit(const std::unordered_map<std::string, std::type_index> &idStringToType);
+
+        void interpretServerInitData(std::vector<uint8_t> &recv_buffer, bool &finishedInit,
+            const std::unordered_map<std::string, std::type_index> &idStringToType);
 
         /**
          * @brief Check if data was send from the server
