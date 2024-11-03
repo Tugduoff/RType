@@ -6,6 +6,7 @@ add_library(Sfml SHARED
     Shader.cpp
     ActionManager.cpp
     Texture.cpp
+    SoundSystem.cpp
 
     ../../../src/utils/Keys.cpp
     ../../../src/utils/Actions.cpp

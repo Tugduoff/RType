@@ -28,7 +28,6 @@ namespace Components {
         }
 
         void loadTextureForAction(const std::string &action) {
-            std::cerr << "Loading texture for action: " << action << std::endl;
             if (currentTexture.getAction() == action) {
                 nextTexture = "";  // If the current texture is the same, do nothing
                 return;
@@ -57,12 +56,7 @@ namespace Components {
                         break;
                     }
                 }
-
-                if (!textureFound) {
-                    std::cerr << "Error: Could not find texture for action: " << action << std::endl;
-                }
             } else {
-                // std::cerr << "INIT END for action: " << currentTexture.getAction() << std::endl;
                 currentTexture.initEnd();
                 nextTexture = action;  // Set the next texture to be loaded later
             }

@@ -37,6 +37,8 @@ namespace Components {
 
     class Gun : public AComponent<Gun> {
     public:
+        static constexpr std::size_t MAX_ID_SIZE = 20; // Fixed size for network
+
         Gun(
             uint32_t bulletDamage = 10,
             uint32_t fireRate = 500,
@@ -62,6 +64,7 @@ namespace Components {
                 bulletVelocityY = 0;
             if (!config.lookupValue("spriteId", spriteId))
                 spriteId = "shot1";
+
             chrono.restart();
         }
 
@@ -73,7 +76,7 @@ namespace Components {
          * @return A vector of bytes representing the serialized gun data.
          */
         std::vector<uint8_t> serialize() override {
-            std::vector<uint8_t> data(20);
+            std::vector<uint8_t> data(getSize());
 
             // Serialize bulletDamage, fireRate, and bulletVelocityX/Y with endianness conversion
             uint32_t netBulletDamage = htonl(bulletDamage);
@@ -87,9 +90,9 @@ namespace Components {
             std::memcpy(&data[8], &netBulletVelocityX, sizeof(uint32_t));
             std::memcpy(&data[12], &netBulletVelocityY, sizeof(uint32_t));
 
-            // Limit spriteId to a maximum of 4 characters to fit within remaining space
-            std::string spriteIdLimited = spriteId.substr(0, 4);
-            std::memcpy(&data[16], spriteIdLimited.c_str(), spriteIdLimited.size());
+            std::string spriteIdLimited = std::string('\0', MAX_ID_SIZE);
+            std::copy(spriteId.begin(), spriteId.end(), spriteIdLimited.begin());
+            std::memcpy(&data[16], spriteIdLimited.c_str(), MAX_ID_SIZE);
 
             return data;
         }
@@ -101,7 +104,7 @@ namespace Components {
          * @throws std::runtime_error If the data size is invalid.
          */
         void deserialize(std::vector<uint8_t> &data) override {
-            if (data.size() != 20)
+            if (data.size() != getSize())
                 throw std::runtime_error("Invalid data size for Gun component");
 
             // Deserialize bulletDamage, fireRate, and bulletVelocityX with endianness conversion
@@ -117,8 +120,12 @@ namespace Components {
             std::memcpy(&bulletVelocityY, &data[12], sizeof(uint32_t));
             bulletVelocityY = ntohl(bulletVelocityY);
 
-            // Deserialize the spriteId (limited to 4 characters)
-            spriteId = std::string(data.begin() + 16, data.end());
+            // Deserialize the spriteId
+            char spriteIdBuffer[MAX_ID_SIZE + 1];
+            std::memcpy(spriteIdBuffer, &data[16], MAX_ID_SIZE);
+            spriteIdBuffer[MAX_ID_SIZE] = '\0';
+
+            spriteId = std::string(spriteIdBuffer);
         }
 
         /**
@@ -127,7 +134,7 @@ namespace Components {
          * @return The size of the data, in bytes.
          */
         size_t getSize() const override {
-            return 20; // 16 bytes for 4 uint32_t fields and 4 bytes for spriteId
+            return MAX_ID_SIZE + 16; // 16 bytes for 4 uint32_t fields
         }
 
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
@@ -141,7 +148,12 @@ namespace Components {
             std::string spriteId = std::any_cast<std::string>(args[4]);
 
             engine.getRegistry().componentManager().addComponent<Components::Gun>(
-                to, engine.newComponent<Components::Gun>(bulletDamage, fireRate, bulletVelocityX, bulletVelocityY, spriteId));
+                to, engine.newComponent<Components::Gun>(
+                    bulletDamage,
+                    fireRate,
+                    bulletVelocityX,
+                    bulletVelocityY,
+                    spriteId));
         }
 
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, libconfig::Setting &config) override {
@@ -178,6 +190,7 @@ namespace Components {
         uint32_t bulletVelocityY;
         std::string spriteId;
         Chrono chrono;
+
     };
 }
 
