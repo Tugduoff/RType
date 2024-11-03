@@ -35,11 +35,11 @@ void Systems::Input::updateControllable(Engine::GameEngine &engine)
     auto &controllableComponents = manager.getComponents<Components::Controllable>();
     for (auto [i, ctrl] : IndexedZipper(controllableComponents)) {
         std::map<enum Action, enum Key> keyBindings = {
-            {Action::FORWARD, Key::A},
-            {Action::BACKWARD, Key::B},
-            {Action::LEFT, Key::C},
-            {Action::RIGHT, Key::D},
-            {Action::ACTION1, Key::SPACE},
+            {Action::FORWARD, Key::Q},
+            {Action::BACKWARD, Key::D},
+            {Action::LEFT, Key::S},
+            {Action::RIGHT, Key::Z},
+            {Action::ACTION1, Key::LEFT_CLICK},
             {Action::ACTION2, Key::RIGHT_CLICK},
             {Action::ACTION3, Key::MIDDLE_CLICK},
             {Action::ACTION4, Key::NUM_0},
@@ -50,6 +50,9 @@ void Systems::Input::updateControllable(Engine::GameEngine &engine)
             {Action::ACTION9, Key::NUM_5},
             {Action::ACTION10, Key::NUM_6}
         };
+        if (ctrl.keyBindings == keyBindings)
+            continue;
+        std::cerr << "Updating controllable component with id: " << i << std::endl;
         ctrl.keyBindings = keyBindings;
         engine.updateComponent((ECS::Entity)i, ctrl.getId(), ctrl.serialize());
     }

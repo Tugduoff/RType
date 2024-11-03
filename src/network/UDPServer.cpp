@@ -27,6 +27,8 @@
 #include "components/acceleration/Acceleration.hpp"
 #include "components/deathRange/DeathRange.hpp"
 #include "components/controllable/Controllable.hpp"
+#include "components/gun/Gun.hpp"
+#include "components/scale/Scale.hpp"
 
 using boost::asio::ip::udp;
 
@@ -58,18 +60,18 @@ void UDPServer::createNewEntity(Engine::GameEngine &engine, const udp::endpoint 
     ECS::Entity entity = engine.getRegistry().createEntity();
     std::cerr << "New entity created with ID: " << entity << std::endl;
 
-    create_entity(entity);
-
     srand(time(NULL));
     int posY = rand() % 1080;
 
-    attachAndUpdateComponent<Components::Position>(engine, entity, 50, posY, 1);
+    attachAndUpdateComponent<Components::Position>(engine, entity, 50, posY, 2);
     attachAndUpdateComponent<Components::Velocity>(engine, entity, 0, 0, 100);
-    attachAndUpdateComponent<Components::Collider>(engine, entity, 50, 50);
+    attachAndUpdateComponent<Components::Collider>(engine, entity, 30, 30);
     attachAndUpdateComponent<Components::Damage>(engine, entity, 50);
     attachAndUpdateComponent<Components::Type>(engine, entity, Components::TypeID::ALLY);
     attachAndUpdateComponent<Components::SpriteID>(engine, entity, "player");
     attachAndUpdateComponent<Components::Acceleration>(engine, entity, -5, 5, -5, 5);
+    attachAndUpdateComponent<Components::Gun>(engine, entity, 50, 500, 8, "shot1");
+    attachAndUpdateComponent<Components::Scale>(engine, entity, 300, 300);
 
     std::map<enum Action, enum Key> keyBindings = {
         {Action::FORWARD, Key::UNKNOWN},
@@ -155,7 +157,7 @@ void UDPServer::start_receive(Engine::GameEngine &engine)
                     break;
 
                 case 0x3:
-
+                    std::cerr << "Received update component" << std::endl;
                     receiveUpdateComponent(engine, recv_buffer_);
                     break;
             }
@@ -314,6 +316,8 @@ void UDPServer::create_entity(const ECS::Entity &entity) {
     uint32_t networkId = _nextNetworkId;
     _nextNetworkId++;
     _entitiesNetworkId[entity] = networkId;
+
+    std::cerr << "Created entity n°" << entity << " in local with network id n°" << networkId << std::endl;
 
     for (const auto &client_endpoint : std::views::keys(_clients)) {
         __send_entity_created_message(networkId, client_endpoint);
@@ -503,6 +507,7 @@ void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::span<con
     try {
         uint32_t networkId = *reinterpret_cast<const uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
+        std::cerr << "Entity network id: " << networkId << std::endl;
         uint16_t componentId = *reinterpret_cast<const uint16_t *>(&operation[5]);
 
         auto comp_info_it = std::find_if(
@@ -527,7 +532,13 @@ void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::span<con
         std::vector<uint8_t> serializedData = std::vector<uint8_t>(operation.begin() + 7, operation.end());
 
         try {
+            std::cerr << "Updating component: " << comp_info_it->second.name << " with ID: " << entity << std::endl;
+            for (auto data : serializedData) {
+                std::cerr << (int)data << " ";
+            }
+            std::cerr << std::endl;
             sparseArray[entity]->deserialize(serializedData);
+            std::cerr << "Updated component: " << comp_info_it->second.name << " with ID: " << entity << std::endl;
         } catch (const std::exception &e) {
             std::cerr << "\033[0;35m";
             std::cerr << "Component " << comp_info_it->second.name << " was not attached for entity n°" << entity << ": " << e.what() << std::endl;

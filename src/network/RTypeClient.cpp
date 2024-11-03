@@ -313,6 +313,8 @@ void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vect
     std::memcpy(&message[5], &component_id, sizeof(component_id));
     std::memcpy(&message[7], data.data(), component_size);
 
+    std::cerr << "Sending update component n°" << component_id << ": " << name << " of entity n°" << entity << std::endl;
+
     send(message);
 }
 
