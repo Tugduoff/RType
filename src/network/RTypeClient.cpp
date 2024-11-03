@@ -26,7 +26,7 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 //     {
 //         std::optional<std::vector<uint8_t>> recv_buffer = nonBlockingReceive();
 //         if (recv_buffer.has_value()) {
-//             // std::cout << "Received something" << std::endl;
+//             // std::cerr << "Received something" << std::endl;
 //             interpretServerInitData(recv_buffer.value(), finishedInit, idStringToType);
 //         }
 //     }
@@ -47,7 +47,7 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 //             uint16_t compId = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
 //             std::string strCompName = std::string(recv_buffer.begin() + 3, recv_buffer.end());
 //             if (idStringToType.contains(strCompName)) {
-//                 std::cout << "Component " << strCompName <<
+//                 std::cerr << "Component " << strCompName <<
 //                     " added to client components" << std::endl;
 //                 _compNames[compId] = strCompName;
 //             } else {
@@ -55,7 +55,7 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 //                 message[0] = 0x1;
 //                 std::memcpy(&message[1], &compId, sizeof(compId));
 
-//                 std::cout << "Component " << strCompName <<
+//                 std::cerr << "Component " << strCompName <<
 //                     " is not needed by the client so removing it" << std::endl;
 //                 send(message);
 //             }
@@ -64,12 +64,12 @@ RTypeClient::RTypeClient(std::string hostname, std::string port)
 //         case 0x6:
 //         {
 //             uint16_t componentsTypesNb = ntohs(*reinterpret_cast<uint16_t *>(recv_buffer.data() + 1));
-//             std::cout << "Received init end from server, ";
+//             std::cerr << "Received init end from server, ";
 //             if (componentsTypesNb == idStringToType.size() && receivedFinishNb >= 2) {
 //                 finishedInit = true;
-//                 std::cout << "initialization finished" << std::endl;
+//                 std::cerr << "initialization finished" << std::endl;
 //             } else {
-//                 std::cout << "components not synchronized with client, continuing initialization: "
+//                 std::cerr << "components not synchronized with client, continuing initialization: "
 //                     << componentsTypesNb << " != " << idStringToType.size() << "; recvd " << receivedFinishNb << std::endl;
 //             }
 //             receivedFinishNb += ((receivedFinishNb < 2) ? 1 : 0);
@@ -163,8 +163,9 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<ui
         {
             uint16_t compId = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
             std::string strCompName = std::string(recv_buffer.begin() + 3, recv_buffer.end());
+            _compNamesByNetwork.push_back({strCompName, compId});
             if (engine.getIdStringToType().contains(strCompName)) {
-                std::cout << "Component " << strCompName <<
+                std::cerr << "Component " << strCompName <<
                     " added to client components" << std::endl;
                 _compNames[compId] = strCompName;
             } else {
@@ -172,7 +173,7 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<ui
                 message[0] = 0x1;
                 std::memcpy(&message[1], &compId, sizeof(compId));
 
-                std::cout << "Component " << strCompName <<
+                std::cerr << "Component " << strCompName <<
                     " is not needed by the client so removing it" << std::endl;
                 send(message);
             }
@@ -181,15 +182,30 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<ui
         case 0x6:
         {
             uint16_t componentsTypesNb = ntohs(*reinterpret_cast<uint16_t *>(recv_buffer.data() + 1));
-            std::cout << "Received init end from server, ";
+            std::cerr << "Received init end from server, ";
             if (componentsTypesNb == engine.getIdStringToType().size() && receivedFinishNb >= 2) {
                 finishedInit = true;
-                std::cout << "initialization finished" << std::endl;
+                std::cerr << "initialization finished" << std::endl;
             } else {
-                std::cout << "components not synchronized with client, continuing initialization: "
+                std::cerr << "components not synchronized with client, continuing initialization: "
                     << componentsTypesNb << " != " << engine.getIdStringToType().size() << "; recvd " << receivedFinishNb << std::endl;
             }
-            receivedFinishNb += ((receivedFinishNb < 2) ? 1 : 0);
+            if (receivedFinishNb > 5) {
+                for (const auto &[strCompName, compId] : _compNamesByNetwork) {
+                    if (engine.getIdStringToType().contains(strCompName)) {
+                        continue;
+                    }
+                    std::vector<uint8_t> message(3);
+                    message[0] = 0x1;
+                    std::memcpy(&message[1], &compId, sizeof(compId));
+
+                    std::cerr << "Component " << strCompName <<
+                        " is not needed by the client so removing it" << std::endl;
+                    send(message);
+                    receivedFinishNb = 0;
+                }
+            }
+            receivedFinishNb += ((receivedFinishNb < 6) ? 1 : 0);
             break;
         }
         default:

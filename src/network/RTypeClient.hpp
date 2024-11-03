@@ -199,9 +199,9 @@ class RTypeClient : public UDPConnection
         boost::asio::io_context &getIoContext() { return _io_context; }
 
     public:
-        bool gameEnd;
+        std::atomic_bool gameEnd;
         std::atomic_bool nextFrame;
-        bool finishedInit;
+        std::atomic_bool finishedInit;
     
         // std::queue<std::vector<uint8_t>> _packetQueue;
         // std::mutex _packetQueueMutex;
@@ -214,6 +214,8 @@ class RTypeClient : public UDPConnection
 
         std::queue<std::vector<uint8_t>> _packetQueue;
         std::mutex _packetQueueMutex;
+
+        std::vector<std::pair<std::string, uint16_t>> _compNamesByNetwork;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */
