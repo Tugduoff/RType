@@ -19,7 +19,10 @@
     #include "ECS/entity/Entity.hpp"
     #include "../GameEngine/GameEngine.hpp"
     #include "GameEngine/ComponentsGetter.hpp"
+    #include "boost/asio/detail/chrono.hpp"
+    #include "boost/asio/io_context.hpp"
     #include "boost/asio/ip/udp.hpp"
+    #include "boost/asio/steady_timer.hpp"
 
 using boost::asio::ip::udp;
 
@@ -85,10 +88,10 @@ class UDPServer {
                 STARTED,
             };
 
-            ClientInfo() : state(State::UNKNOWN), entity(0) {}
-            ClientInfo(State s) : state(s), entity(0) {}
+            ClientInfo(boost::asio::io_context &ctx) : state(State::UNKNOWN), entity(0), timer(ctx, boost::asio::chrono::milliseconds(500)) {}
+            ClientInfo(boost::asio::io_context &ctx, State s) : state(s), entity(0), timer(ctx, boost::asio::chrono::milliseconds(500)) {}
 
-            ClientInfo(const ComponentsGetter &getter) : state(State::UNKNOWN), entity(0)
+            ClientInfo(boost::asio::io_context &ctx, const ComponentsGetter &getter) : state(State::UNKNOWN), entity(0), timer(ctx, boost::asio::chrono::milliseconds(500))
             {
                 for (auto const &[type, _] : getter) {
                     used_types.insert(type);
@@ -99,6 +102,7 @@ class UDPServer {
             State state;
             std::unordered_set<std::type_index> used_types;
             ECS::Entity entity;
+            boost::asio::steady_timer timer;
         };
 
         udp::socket socket_;

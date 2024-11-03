@@ -184,7 +184,7 @@ void UDPServer::__send_message(const std::span<const uint8_t>& message) {
 
 void UDPServer::__init_new_client()
 {
-    _clients.try_emplace(remote_endpoint_, _compGetter);
+    _clients.try_emplace(remote_endpoint_, io_context_, _compGetter);
     std::cerr << "New client added: " << remote_endpoint_ << std::endl;
 }
 
@@ -216,8 +216,8 @@ void UDPServer::__send_nb_components_message(const udp::endpoint &client)
     std::array<uint8_t, 3> msg;
 
     msg[0] = opcode;
-    *reinterpret_cast<uint16_t *>(&msg[1]) = htons(_clients[client].used_types.size());
-    std::cerr << "Sending nb components message: " << _clients[client].used_types.size() << std::endl;
+    *reinterpret_cast<uint16_t *>(&msg[1]) = htons(_clients.at(client).used_types.size());
+    std::cerr << "Sending nb components message: " << _clients.at(client).used_types.size() << std::endl;
 
     socket_.async_send_to(
         boost::asio::buffer(msg), client,
@@ -287,10 +287,12 @@ void UDPServer::__send_component_nb_loop(const udp::endpoint &ep)
     if (!_clients.contains(ep) || _clients.at(ep).state != ClientInfo::State::INIT) {
         return;
     }
-    __send_nb_components_message(ep);
-    boost::asio::steady_timer t(io_context_, boost::asio::chrono::milliseconds(500));
+    auto &client = _clients.at(ep);
 
-    t.async_wait([this, ep](auto const &) {
+    __send_nb_components_message(ep);
+
+    client.timer.expires_at(client.timer.expiry() + boost::asio::chrono::milliseconds(500));
+    client.timer.async_wait([this, ep](auto const &) {
         __send_component_nb_loop(ep);
     });
 }
