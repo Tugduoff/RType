@@ -60,7 +60,10 @@ void UDPServer::createNewEntity(Engine::GameEngine &engine, const udp::endpoint 
 
     create_entity(entity);
 
-    attachAndUpdateComponent<Components::Position>(engine, entity, 50, 540, 1);
+    srand(time(NULL));
+    int posY = rand() % 1080;
+
+    attachAndUpdateComponent<Components::Position>(engine, entity, 50, posY, 1);
     attachAndUpdateComponent<Components::Velocity>(engine, entity, 0, 0, 100);
     attachAndUpdateComponent<Components::Collider>(engine, entity, 50, 50);
     attachAndUpdateComponent<Components::Damage>(engine, entity, 50);
