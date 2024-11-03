@@ -22,12 +22,8 @@ namespace Components {
             Text(const std::string &text = "Hello World", unsigned int size = 30, const sf::Color &color = sf::Color::White)
                 : textContent(text), textSize(size), textColor(color)
             {
-                #ifdef _WIN32
-                    const std::string fontPath = "assets\\font.ttf";
-                #else
-                    const std::string fontPath = "assets/font.ttf";
-                #endif
-
+                const std::string fontPath = "assets/font.ttf";
+                
                 if (!font.loadFromFile(fontPath))
                     std::cerr << "Error loading font from path: " << fontPath << std::endl;
 
