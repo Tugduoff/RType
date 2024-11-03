@@ -87,14 +87,14 @@ namespace Components {
             if (args.size() < 1) {
                 throw std::runtime_error("Invalid number of arguments for SpriteID component");
             }
-            std::string id = std::any_cast<std::string>(args[0]);
-            if (id.size() > MAX_ID_SIZE) {
-                id.resize(MAX_ID_SIZE);  // Truncate if longer than 20
+            std::string idVal = std::any_cast<std::string>(args[0]);
+            if (idVal.size() > MAX_ID_SIZE) {
+                idVal.resize(MAX_ID_SIZE);  // Truncate if longer than 20
             }
-            engine
-                .getRegistry()
-                .componentManager()
-                .addComponent(to, std::make_unique<SpriteID>(id));
+            attachAndUpdateComponent<Components::SpriteID>(
+                engine, to,
+                idVal
+            );
         }
 
         virtual void addTo(

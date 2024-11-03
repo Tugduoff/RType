@@ -23,7 +23,8 @@
 #include "components/scale/Scale.hpp"
 #include "components/deathRange/DeathRange.hpp"
 #include "components/type/Type.hpp"
-
+#include "components/sound/Sound.hpp"
+#include "components/destruction/Destruction.hpp"
 
 int main()
 {
