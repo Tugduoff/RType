@@ -46,53 +46,67 @@ bool RTypeClient::dataFromServer()
     return false;
 }
 
-void RTypeClient::interpretServerData(Engine::GameEngine &engine)
+void RTypeClient::asyncReceive(Engine::GameEngine &engine)
 {
-    std::vector<uint8_t> operation = blockingReceive();
+    _recv_buffer.resize(CLIENT_BUFFER_FIXED_SIZE);
+    _socket.async_receive_from(
+        boost::asio::buffer(_recv_buffer), _sender_endpoint,
+        [this, &engine](const boost::system::error_code &ec, std::size_t bytes_recvd) {
+            if (!ec && _sender_endpoint == _server_endpoint) {
+                this->interpretServerData(engine, bytes_recvd);
+            }
+        }
+    );
+}
 
-    switch (operation[0]) {
+void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::size_t bytes_recvd)
+{
+    _recv_buffer.resize(bytes_recvd);
+    switch (_recv_buffer[0]) {
         case 0x0:
-            std::cerr << "Create Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
-            createEntity(engine, operation);
+            std::cerr << "Create Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
+            createEntity(engine, _recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x1:
             std::cerr << "Recieved delete instruction!" << std::endl;
-            std::cerr << "Delete Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
-            deleteEntity(engine, operation);
+            std::cerr << "Delete Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
+            deleteEntity(engine, _recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x2:
             std::cerr << "Attach Component" << std::endl;
-            attachComponent(engine, operation);
+            attachComponent(engine, _recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x3:
             // std::cerr << "Update Component" << std::endl;
-            // std::cerr << "Component n°" << uint16From2Uint8(operation[5], operation[6]) << " of Entity n°" << uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]) << std::endl;
-            updateComponent(engine, operation);
+            // std::cerr << "Component n°" << uint16From2Uint8(_recv_buffer[5], _recv_buffer[6]) << " of Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
+            updateComponent(engine, _recv_buffer);
             break;
         case 0x4:
             std::cerr << "Detach Component" << std::endl;
-            detachComponent(engine, operation);
+            detachComponent(engine, _recv_buffer);
             std::cerr << std::endl;
             break;
         default:
-            std::cerr << "Error: Unknown opcode : " << int(operation[0]) << ". Full command is : " << std::endl;
-            std::cerr << binaryToStr(operation) << std::endl;
-            if (binaryToStr(operation).find("You have been disconnected :(") != std::string::npos) {
+            std::cerr << "Error: Unknown opcode : " << int(_recv_buffer[0]) << ". Full command is : " << std::endl;
+            std::cerr << binaryToStr(_recv_buffer) << std::endl;
+            if (binaryToStr(_recv_buffer).find("You have been disconnected :(") != std::string::npos) {
                 gameEnd = true;
             }
-            return;
+            break;
     }
-    // std::cerr << std::endl;
+    asyncReceive(engine);
 }
 
 void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
 
+    lockMutex();
     ECS::Entity entity = engine.getRegistry().entityManager().spawnEntity();
+    unlockMutex();
     _entitiesNetworkId.insert({networkId, entity});
     std::cerr << "Created entity n°" << entity << " in local with network id n°" << networkId << std::endl;
 } 
@@ -104,7 +118,9 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
 
         try {
+            lockMutex();
             engine.getRegistry().killEntity(entity);
+            unlockMutex();
             _entitiesNetworkId.erase(networkId);
             std::cerr << "Deleted entity n°" << entity << " in local" << std::endl;
             std::cerr << "Deleted entity n°" << networkId << " in network" << std::endl;
@@ -133,7 +149,9 @@ void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_
         auto &sparseArray = compInstance->any_cast(
             engine.getRegistry().componentManager().getComponents(compTypeIndex)
         );
+        lockMutex();
         sparseArray.constructAt(entity);
+        unlockMutex();
     }
     catch(const std::exception &) {
 
@@ -162,9 +180,13 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
             std::cerr << "Component " << strCompId << " was not attached for entity n°" << entity << " so created it" << std::endl;
             std::cerr << "\033[0;37m";
 
+            lockMutex();
             sparseArray.constructAt(entity);
+            unlockMutex();
         }
+        lockMutex();
         sparseArray[entity]->deserialize(serializedData);
+        unlockMutex();
     }
     catch(const std::exception &) {
 
@@ -185,7 +207,9 @@ void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_
         auto &sparseArray = compInstance->any_cast(
             engine.getRegistry().componentManager().getComponents(compTypeIndex)
         );
+        lockMutex();
         sparseArray.erase(entity);
+        unlockMutex();
     } catch (std::exception &) {
 
     }
@@ -260,4 +284,12 @@ uint8_t RTypeClient::receiveUint8()
         throw std::runtime_error("Received data is too short to make an uint8");
     }
     return data[0];
+}
+
+void RTypeClient::lockMutex() {
+    _engineMutex.lock();
+}
+
+void RTypeClient::unlockMutex() {
+    _engineMutex.unlock();
 }

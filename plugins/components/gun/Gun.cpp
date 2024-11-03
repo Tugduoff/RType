@@ -20,10 +20,11 @@ LIBRARY_ENTRYPOINT
 Components::IComponent *buildWithParams(
     uint32_t bulletDamage,
     uint32_t fireRate,
-    uint32_t bulletVelocity,
+    uint32_t bulletVelocityX,
+    uint32_t bulletVelocityY,
     std::string spriteId)
 {
-    return new Components::Gun(bulletDamage, fireRate, bulletVelocity, spriteId);
+    return new Components::Gun(bulletDamage, fireRate, bulletVelocityX, bulletVelocityY, spriteId);
 }
 
 LIBRARY_ENTRYPOINT

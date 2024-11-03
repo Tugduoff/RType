@@ -32,6 +32,7 @@
 #include "components/scale/Scale.hpp"
 #include "components/deathRange/DeathRange.hpp"
 #include "components/sound/Sound.hpp"
+#include "components/Ai/Ai.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -98,6 +99,7 @@ int main() {
         typeid(Components::Gun),
         typeid(Components::Damage),
         typeid(Components::DeathRange),
+        typeid(Components::Ai),
         // typeid(Components::Scale),
     };
 

@@ -32,6 +32,7 @@ int main()
     Engine::GameEngine engine(
         [&conn](size_t id, std::string name, std::vector<uint8_t> data) { conn.sendUpdateComponent(id, name, data); }
     );
+    Chrono chrono;
 
     engine.loadSystems("./src/client/configClient.cfg");
     // Hard coded register for now
@@ -55,14 +56,20 @@ int main()
         std::cout << "Commponent n°" << (int)name.first << ": " << name.second << std::endl;
     }
 
+    conn.asyncReceive(engine);
+    std::thread io_thread([&conn]() {
+        conn.getIoContext().run();
+    });
     try
     {
         // Check that you have the same components here with the map in RTypeClient
         while (conn.gameEnd != true) {
-            if (conn.dataFromServer()) {
-                conn.interpretServerData(engine);
-            }
+            if (chrono.getElapsedTime() < 17)
+                continue;
+            conn.lockMutex();
             engine.runSystems();
+            conn.unlockMutex();
+            chrono.restart();
         }
     }
     catch(const std::exception& e)
