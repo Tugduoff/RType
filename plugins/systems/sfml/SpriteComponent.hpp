@@ -57,7 +57,6 @@ namespace Components {
                     }
                 }
             } else {
-                // std::cerr << "INIT END for action: " << currentTexture.getAction() << std::endl;
                 currentTexture.initEnd();
                 nextTexture = action;  // Set the next texture to be loaded later
             }
