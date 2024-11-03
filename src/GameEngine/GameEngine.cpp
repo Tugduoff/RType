@@ -50,6 +50,23 @@ void Engine::GameEngine::loadSystems(const std::string &systemsConfigFile)
     }
 }
 
+std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>> Engine::GameEngine::getAllComponents()
+{
+    std::vector<std::pair<std::type_index, SparseArray<Components::IComponent> &>> components;
+
+    for (auto const &[type_idx, comp] : __components) {
+        components.push_back(
+            {
+                type_idx,
+                comp->any_cast(
+                   getRegistry().componentManager().getComponents(type_idx)
+                )
+            }
+        );
+    }
+    return components;
+}
+
 void Engine::GameEngine::initSystems()
 {
     __registry.systemManager().initSystems(*this);

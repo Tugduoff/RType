@@ -42,7 +42,7 @@ namespace Components {
          * Initializes the Action component.
          */
         ActionComponent() :
-            AComponent("Action") {};
+            AComponent("Action"), action(EntityAction::IDLE) {};
 
         /**
          * @brief Constructor with configuration settings.

@@ -8,12 +8,13 @@
 
 #include <exception>
 #include <iostream>
+#include <thread>
 #include <typeindex>
 #include <vector>
+#include "ECS/entity/Entity.hpp"
 #include "network/UDPServer.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
-#include "ECS/utilities/SparseArray.hpp"
 #include "utils/Chrono.hpp"
 
 #include "network/UDPServer.hpp"
@@ -21,7 +22,6 @@
 #include "components/IComponent.hpp"
 #include "components/position/Position.hpp"
 #include "components/velocity/Velocity.hpp"
-#include "components/spriteId/SpriteID.hpp"
 #include "components/controllable/Controllable.hpp"
 #include "components/visible/Visible.hpp"
 #include "components/health/Health.hpp"
@@ -107,7 +107,15 @@ int main() {
     try {
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
-        UDPServer server(io_context, 8080, engine.getIdStringToType());
+        UDPServer server(
+            io_context,
+            8080,
+            engine.getIdStringToType(),
+            [&engine]() -> const std::vector<ECS::Entity> & {
+                return engine.getRegistry().entityManager().viewEntities();
+            },
+            ComponentsGetter(engine)
+        );
 
         engine.getRegistry().addEntityCreateCallback(
             [&server](const ECS::Entity &e) { server.create_entity(e); }
@@ -139,10 +147,13 @@ int main() {
         server.updateIdStringToType(engine.getIdStringToType());
 
         // engine.getRegistry().componentManager().
-        while(server.client_endpoints.empty())
-            server.start_receive(engine);
-
+        server.start_receive(engine);
         std::thread io_thread([&io_context]() { io_context.run(); });
+        while(!server.gameRunning()) {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(1ms);
+        }
+
         std::thread io_thread1([&io_context]() { io_context.run(); });
         std::thread io_thread2([&io_context]() { io_context.run(); });
         std::thread io_thread3([&io_context]() { io_context.run(); });
@@ -154,10 +165,12 @@ int main() {
 
         unsigned int i = 1;
         while (true) {
-            server.start_receive(engine);
             if (chrono.getElapsedTime() < 17)
                 continue;
+            server.lockMutex();
             engine.runSystems();
+            server.unlockMutex();
+            server.sendNextFrame();
             // displayPolymorphic(engine, types.begin(), types.end());
             std::cout << "####################################### iteration: " << i++ << "\n" << std::endl;
             chrono.restart();

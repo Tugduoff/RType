@@ -11,6 +11,7 @@
     #include <SFML/Graphics.hpp>
     #include <SFML/Window.hpp>
     #include <unordered_map>
+    #include <queue>
     #include <mutex>
     #include "UDPConnection.hpp"
     #include "GameEngine/GameEngine.hpp"
@@ -37,11 +38,16 @@ class RTypeClient : public UDPConnection
          */
         RTypeClient(std::string hostname, std::string port);
 
-        /**
-         * @brief This function gets all the types that will be used during program execution
-         * @brief and stores them in _compNames
-         */
-        void engineInit();
+        // /**
+        //  * @brief This function gets all the types that will be used during program execution
+        //  * @brief and stores them in _compNames
+        //  * 
+        //  * @param engine : The game engine on which to do modifications
+        //  */
+        // void engineInit(const std::unordered_map<std::string, std::type_index> &idStringToType);
+
+        // void interpretServerInitData(std::vector<uint8_t> &recv_buffer, bool &finishedInit,
+        //     const std::unordered_map<std::string, std::type_index> &idStringToType);
 
         /**
          * @brief Check if data was send from the server
@@ -60,6 +66,8 @@ class RTypeClient : public UDPConnection
          */
         void asyncReceive(Engine::GameEngine &engine);
 
+        void startInterpret(Engine::GameEngine &engine);
+
         /**
          * @brief Read data sent from the server and act accordingly
          * 
@@ -69,7 +77,7 @@ class RTypeClient : public UDPConnection
          * @note This function receive the data, read the opcode and call one those functions accordingly : 
          * @note createEntity, deleteEntity, attachComponent, updateComponent, detachComponent
          */
-        void interpretServerData(Engine::GameEngine &engine, std::size_t bytes_recvd);
+        void interpretServerData(Engine::GameEngine &engine, std::vector<uint8_t> &recv_buffer);
 
         /**
          * @brief Create a new entity
@@ -172,7 +180,7 @@ class RTypeClient : public UDPConnection
          * 
          * @note The _compNames map is a map of the component id received from the network to the string id of the component
          */
-        std::unordered_map<uint8_t, std::string> &getCompNames() { return _compNames; };
+        std::unordered_map<uint16_t, std::string> &getCompNames() { return _compNames; };
 
         /**
          * @brief Lock _engineMutex
@@ -192,19 +200,27 @@ class RTypeClient : public UDPConnection
 
         boost::asio::io_context &getIoContext() { return _io_context; }
 
-        void menu();
-        void setEngine(Engine::GameEngine *engine) { _engine = engine; }
+        
+        void menu(Engine::GameEngine *engine);
+        // void setEngine(Engine::GameEngine *engine) { _engine = engine; }
 
     public:
-        bool gameEnd;
-    
+        std::atomic_bool gameEnd;
+        std::atomic_bool nextFrame;
+        std::atomic_bool finishedInit;
+
+        std::vector<std::pair<std::string, uint16_t>> _compNamesByNetwork;
+        // std::queue<std::vector<uint8_t>> _packetQueue;
+        // std::mutex _packetQueueMutex;
+
     private:
-        std::unordered_map<uint8_t, std::string> _compNames;
+        std::unordered_map<uint16_t, std::string> _compNames;
         std::unordered_map<uint32_t, size_t> _entitiesNetworkId;
-        Engine::GameEngine *_engine;
-        std::vector<uint8_t> _recv_buffer;
         udp::endpoint _sender_endpoint;
         std::mutex _engineMutex;
+
+        std::queue<std::vector<uint8_t>> _packetQueue;
+        std::mutex _packetQueueMutex;
 };
 
 #endif /* !RTYPE_CLIENT_HPP_ */

@@ -17,14 +17,25 @@ UDPConnection::UDPConnection(std::string hostname, std::string port)
 
 void UDPConnection::send(const std::vector<uint8_t>& data)
 {
-    _socket.send_to(boost::asio::buffer(data), _server_endpoint);
+    _socket.async_send_to(
+        boost::asio::buffer(data), _server_endpoint,
+        [](boost::system::error_code ec, std::size_t) {
+            if (!ec) {
+            }
+        }
+    );
 }
 
 void UDPConnection::send(const std::string &data)
 {
-    _socket.send_to(boost::asio::buffer(strToBinary(data)), _server_endpoint);
+    _socket.async_send_to(
+        boost::asio::buffer(strToBinary(data)), _server_endpoint,
+        [](boost::system::error_code ec, std::size_t) {
+            if (!ec) {
+            }
+        }
+    );
 }
-
 std::vector<uint8_t> UDPConnection::blockingReceive()
 {
     std::vector<uint8_t> recv_buffer(1024);

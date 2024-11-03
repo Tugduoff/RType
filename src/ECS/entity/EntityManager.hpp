@@ -60,6 +60,10 @@ namespace ECS {
                 __entities.erase(std::remove(__entities.begin(), __entities.end(), e), __entities.end());
             }
 
+            auto const &viewEntities() const {
+                return __entities;
+            }
+
         private:
 
             std::vector<Entity> __entities;

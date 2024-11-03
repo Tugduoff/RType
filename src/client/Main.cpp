@@ -7,7 +7,6 @@
 
 #include <SFML/Graphics.hpp>
 #include "Window.hpp"
-#include "network/RTypeClient.hpp"
 #include "GameEngine/GameEngine.hpp"
 #include "components/IComponent.hpp"
 #include "components/position/Position.hpp"
@@ -25,6 +24,7 @@
 #include "components/type/Type.hpp"
 #include "components/sound/Sound.hpp"
 #include "components/destruction/Destruction.hpp"
+#include "network/RTypeClient.hpp"
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -83,39 +83,41 @@ int main(int ac, char **av)
     Chrono chrono;
 
     engine.loadSystems("./src/client/configClient.cfg");
-    // Hard coded register for now
-    engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
-    engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
-    engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
-    engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
-    engine.registerComponent<Components::Acceleration>("./plugins/bin/components/", "Acceleration");
-    engine.registerComponent<Components::Damage>("./plugins/bin/components/", "Damage");
-    engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable");
-    engine.registerComponent<Components::Gun>("./plugins/bin/components/", "Gun");
-    engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type");
-    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
-    engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
-    engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
-    engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
-    engine.registerComponent<Components::Destruction>("./plugins/bin/components/", "Destruction");
 
-    conn.setEngine(&engine);
-    conn.engineInit();
-    std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();
+    conn.menu(&engine);
+
+    conn.asyncReceive(engine);
+    // conn.engineInit(engine.getIdStringToType());
+    std::unordered_map<uint16_t, std::string> compNames =  conn.getCompNames();
     for (const auto &name : compNames) {
         std::cout << "Commponent n°" << (int)name.first << ": " << name.second << std::endl;
     }
 
-    conn.asyncReceive(engine);
+    // Creating thread to start asynchronous operations
     std::thread io_thread([&conn]() {
         conn.getIoContext().run();
     });
+    std::thread io_thread2([&conn, &engine]() {
+        conn.startInterpret(engine);
+    });
+
+    // Starting initialization
+    conn.send(std::vector<uint8_t>({0x0}));
+    while (!conn.finishedInit)
+    {
+    }
+    conn.send(std::vector<uint8_t>({0x2}));
+    conn._compNamesByNetwork.clear();
+
     try
     {
         // Check that you have the same components here with the map in RTypeClient
         while (conn.gameEnd != true) {
-            if (chrono.getElapsedTime() < 17)
-                continue;
+            // std::cout << "Packet queue size: " << conn._packetQueue.size() << std::endl;
+            if (!conn.nextFrame) {
+                 continue;
+            }
+            conn.nextFrame = false;
             conn.lockMutex();
             engine.runSystems();
             conn.unlockMutex();
