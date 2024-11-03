@@ -168,10 +168,10 @@ namespace Components {
          * @throws std::runtime_error If the data size is invalid.
          */
         void deserialize(std::vector<uint8_t> &data) override {
-            if (data.size() != getSize())
+            if (data.size() < getSize())
                 throw std::runtime_error("Invalid data size for Controllable component");
             std::copy(data.begin(), data.begin() + 4, inputs.begin());
-            std::copy(data.begin() + 4, data.end(), actions.begin());
+            std::copy(data.begin() + 4, data.begin() + 14, actions.begin());
 
             size_t index = sizeof(__data);
             for (const auto &pair : keyBindings) {
