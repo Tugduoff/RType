@@ -13,7 +13,7 @@ include_directories(./build/_deps/raylib-src/src)
 CPMAddPackage(
     NAME Raylib
     GIT_REPOSITORY "https://github.com/raysan5/raylib.git"
-    GIT_TAG "5.0"
+    GIT_TAG "3.7.0"
     OPTIONS
     "BUILD_EXAMPLES OFF"
     "BUILD_GAMES OFF"
