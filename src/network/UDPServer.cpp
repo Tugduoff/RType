@@ -70,7 +70,7 @@ void UDPServer::createNewEntity(Engine::GameEngine &engine, const udp::endpoint 
     attachAndUpdateComponent<Components::Type>(engine, entity, Components::TypeID::ALLY);
     attachAndUpdateComponent<Components::SpriteID>(engine, entity, "player");
     attachAndUpdateComponent<Components::Acceleration>(engine, entity, -5, 5, -5, 5);
-    attachAndUpdateComponent<Components::Gun>(engine, entity, 50, 500, 8, "shot1");
+    attachAndUpdateComponent<Components::Gun>(engine, entity, 50, 500, 8, 0, "shot1");
     attachAndUpdateComponent<Components::Scale>(engine, entity, 300, 300);
 
     std::map<enum Action, enum Key> keyBindings = {
