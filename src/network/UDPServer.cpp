@@ -44,7 +44,7 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
                             << ":" << remote_endpoint_.port() << std::endl;
                 client_responses[remote_endpoint_] = true;
                 is_disconnected[remote_endpoint_] = false;
-                checking_client(remote_endpoint_);
+                // checking_client(remote_endpoint_);
                 send_components_infos();
             }
         } else {

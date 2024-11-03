@@ -45,7 +45,8 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
         std::vector<std::tuple<
             decltype(Components::Position::x),
             decltype(Components::Position::y),
-            decltype(Components::Gun::bulletVelocity),
+            decltype(Components::Gun::bulletVelocityX),
+            decltype(Components::Gun::bulletVelocityY),
             decltype(Components::Gun::bulletDamage),
             Components::TypeID,
             decltype(Components::Gun::spriteId)
@@ -90,7 +91,8 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
             projToCreate.emplace_back(
                 pos.x,
                 pos.y,
-                gun.bulletVelocity,
+                gun.bulletVelocityX,
+                gun.bulletVelocityY,
                 gun.bulletDamage,
                 Components::TypeID::ENEMY_PROJECTILE,
                 gun.spriteId
@@ -110,13 +112,8 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
 
             std::cerr << "Entity: " << i << " fired a shot" << std::endl;
         }
-
-        for (const auto &[posX, posY, bulletVel, bulletDmg, typeId, spriteId] : projToCreate) {
-            createProjectile(
-                engine,
-                posX, posY,
-                bulletVel, 0, 10, 10, bulletDmg,
-                typeId, spriteId);
+        for (const auto &[posX, posY, bulletVelX, bulletVelY, bulletDmg, typeId, spriteId] : projToCreate) {
+            createProjectile(engine, posX, posY, bulletVelX, bulletVelY, 10, 10, bulletDmg, typeId, spriteId);
         }
     } catch (std::runtime_error &e) {
         std::cerr << "Attack Error: " << e.what() << std::endl;

@@ -28,10 +28,10 @@ target_link_libraries(client
     sfml-window
     sfml-graphics
     sfml-network
-    ${LIBCONFIG_LIB_NAME}
     Boost::asio
+    raylib
+    ${LIBCONFIG_LIB_NAME}
 )
-
 
 # if(SFML_ADDED)
 #     add_library(SFML INTERFACE IMPORTED)
