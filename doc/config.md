@@ -103,6 +103,7 @@ Below is an example of the configuration file format, demonstrating how to struc
 
 example.cfg:
 
+```cfg
 level = {
     name = "Forest Adventure",
     description = "A peaceful forest area with simple enemies to introduce basic game mechanics.",
@@ -166,8 +167,9 @@ entities = (
             // Additional components...
         )
     }
-    // Additional entities...
+    // Additional entities
 )
+```
 
 ## Notes
 
