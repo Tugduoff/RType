@@ -67,9 +67,10 @@ void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, boo
                 finishedInit = true;
                 std::cout << "initialization finished" << std::endl;
             } else {
-                std::cout << "components not synchronized with client, continuing initialization" << std::endl;
+                std::cout << "components not synchronized with client, continuing initialization: "
+                    << componentsTypesNb << " != " << idStringToType.size() << "; recvd " << receivedFinishNb << std::endl;
             }
-            receivedFinishNb += ((receivedFinishNb >= 2) ? 1 : 0);
+            receivedFinishNb += ((receivedFinishNb < 2) ? 1 : 0);
             break;
         }
         default:
