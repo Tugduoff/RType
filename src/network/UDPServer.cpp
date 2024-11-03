@@ -97,7 +97,7 @@ void UDPServer::__send_message(const std::span<const uint8_t>& message) {
 
 void UDPServer::__init_new_client()
 {
-    _clients.try_emplace(remote_endpoint_);
+    _clients.try_emplace(remote_endpoint_, _compGetter);
     std::cerr << "New client added: " << remote_endpoint_ << std::endl;
 }
 

@@ -14,10 +14,12 @@
     #include <string>
     #include <typeindex>
     #include <unordered_map>
+    #include <unordered_set>
     #include <vector>
+    #include <ranges>
     #include "ECS/entity/Entity.hpp"
     #include "../GameEngine/GameEngine.hpp"
-#include "GameEngine/ComponentsGetter.hpp"
+    #include "GameEngine/ComponentsGetter.hpp"
     #include "boost/asio/ip/udp.hpp"
     #include "boost/asio/steady_timer.hpp"
 
@@ -63,7 +65,18 @@ class UDPServer {
         };
 
         struct ClientInfo {
+            ClientInfo() : requestedInit(false) {}
+            ClientInfo(bool requestedInit) : requestedInit(requestedInit) {}
+
+            ClientInfo(const ComponentsGetter &getter) : requestedInit(false)
+            {
+                for (auto const &[type, _] : getter) {
+                    used_types.insert(type);
+                }
+            }
+
             bool requestedInit;
+            std::unordered_set<std::type_index> used_types;
         };
 
         udp::socket socket_;
