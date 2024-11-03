@@ -127,6 +127,11 @@ class UDPServer {
         void __send_components_infos();
 
         /**
+         * @brief Call asynchronously __send_nb_components_message periodically
+         */
+        void __send_component_nb_loop(const udp::endpoint &ep);
+
+        /**
         * @brief Sends the total number of components to the client.
         */
         void __send_total_components();

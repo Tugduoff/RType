@@ -7,6 +7,8 @@
 #include "UDPServer.hpp"
 #include "ECS/utilities/Zipper/IndexedZipper.hpp"
 #include "GameEngine/ComponentsGetter.hpp"
+#include "boost/asio/detail/chrono.hpp"
+#include "boost/asio/steady_timer.hpp"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -122,6 +124,7 @@ void UDPServer::__ignoreComponent(UDPServer::ClientInfo &clientInfo)
         return;
     }
     clientInfo.used_types.erase(compInfo->first);
+    __send_nb_components_message(remote_endpoint_);
 }
 
 void UDPServer::__send_nb_components_message(const udp::endpoint &client)
@@ -183,6 +186,20 @@ void UDPServer::__send_components() {
 
         __send_message(buffer);
     }
+    __send_component_nb_loop(remote_endpoint_);
+}
+
+void UDPServer::__send_component_nb_loop(const udp::endpoint &ep)
+{
+    if (!_clients.contains(ep) || _clients.at(ep).state != ClientInfo::State::INIT) {
+        return;
+    }
+    __send_component_nb_loop(ep);
+    boost::asio::steady_timer t(io_context_, boost::asio::chrono::milliseconds(500));
+
+    t.async_wait([this, ep](auto const &_) {
+        __send_nb_components_message(ep);
+    });
 }
 
 // --- Client Activity --- //
