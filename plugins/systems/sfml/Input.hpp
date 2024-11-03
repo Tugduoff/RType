@@ -76,6 +76,8 @@ namespace Systems {
             EntityAction determinePressedShootAction(bool forwardInput, bool backwardInput, bool rightInput, bool leftInput);
             EntityAction determineReleasedShootAction(bool forwardInput, bool backwardInput, bool rightInput, bool leftInput, Action action);
 
+            void updateControllable(Engine::GameEngine &engine);
+
             const std::unordered_map<sf::Keyboard::Key, enum Key> __sfmlToKey = {
                 {sf::Keyboard::Key::Z, Key::Z}, {sf::Keyboard::Key::Q, Key::Q}, {sf::Keyboard::Key::S, Key::S}, {sf::Keyboard::Key::D, Key::D},
                 {sf::Keyboard::Key::Escape, Key::ESCAPE}, {sf::Keyboard::Key::Space, Key::SPACE}, {sf::Keyboard::Key::Enter, Key::ENTER},

@@ -5,38 +5,83 @@
 ** RTypeClient.cpp
 */
 
+#include <cstdint>
+#include <netinet/in.h>
 #include <stdlib.h>
+#include <thread>
 #include "RTypeClient.hpp"
+#include "GameEngine/GameEngine.hpp"
 
 RTypeClient::RTypeClient(std::string hostname, std::string port)
-: UDPConnection(hostname, port), gameEnd(false)
+: UDPConnection(hostname, port), gameEnd(false), nextFrame(false), finishedInit(false)
 {
 }
 
-void RTypeClient::engineInit()
-{
-    std::cerr << "Init Game" << std::endl;
-    send("start");
 
-    uint16_t compNb = receiveUint16();
-    uint8_t compNameMaxSize = receiveUint8();
-
-    std::cerr << "CompNb : " << (int)compNb << "." << std::endl;
-    std::cerr << "CompNameMaxSize : " << (int)compNameMaxSize << "." << std::endl;
-
-    for (uint16_t i = 0; i < compNb; i++) {
-        std::vector<uint8_t> compName = blockingReceive();
-        std::string strCompName = std::string(compName.begin() + 1, compName.end());
-        // uint16_t CompId = (static_cast<uint16_t>(compName[0]) << 8) | static_cast<uint16_t>(compName[1]);
-
-        _compNames[compName[0]] = std::string(compName.begin() + 1, compName.end());
+void RTypeClient::menu(Engine::GameEngine *engine) {
+    engine->_inMenu = true;
+    while (engine->isInMenu()) {
+        engine->runSystems();
     }
-    // uint16_t endIndicator = receiveUint16();
-    // if (endIndicator != 0xffff) {
-    //     std::cerr << "End Indicator : " << (int) endIndicator << std::endl;
-    //     throw std::runtime_error("Did not find the end indicator for network init");
-    // }
 }
+
+//     while (!finishedInit)
+//     {
+//         std::optional<std::vector<uint8_t>> recv_buffer = nonBlockingReceive();
+//         if (recv_buffer.has_value()) {
+//             // std::cerr << "Received something" << std::endl;
+//             interpretServerInitData(recv_buffer.value(), finishedInit, idStringToType);
+//         }
+//     }
+//     send(std::vector<uint8_t>({0x2}));
+// }
+
+// void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, bool &finishedInit,
+//     const std::unordered_map<std::string, std::type_index> &idStringToType)
+// {
+//     static int receivedFinishNb = 0;
+
+//     if (recv_buffer.size() < 1) {
+//         return;
+//     }
+//     switch (recv_buffer[0]) {
+//         case 0x5:
+//         {
+//             uint16_t compId = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
+//             std::string strCompName = std::string(recv_buffer.begin() + 3, recv_buffer.end());
+//             if (idStringToType.contains(strCompName)) {
+//                 std::cerr << "Component " << strCompName <<
+//                     " added to client components" << std::endl;
+//                 _compNames[compId] = strCompName;
+//             } else {
+//                 std::vector<uint8_t> message(3);
+//                 message[0] = 0x1;
+//                 std::memcpy(&message[1], &compId, sizeof(compId));
+
+//                 std::cerr << "Component " << strCompName <<
+//                     " is not needed by the client so removing it" << std::endl;
+//                 send(message);
+//             }
+//             break;
+//         }
+//         case 0x6:
+//         {
+//             uint16_t componentsTypesNb = ntohs(*reinterpret_cast<uint16_t *>(recv_buffer.data() + 1));
+//             std::cerr << "Received init end from server, ";
+//             if (componentsTypesNb == idStringToType.size() && receivedFinishNb >= 2) {
+//                 finishedInit = true;
+//                 std::cerr << "initialization finished" << std::endl;
+//             } else {
+//                 std::cerr << "components not synchronized with client, continuing initialization: "
+//                     << componentsTypesNb << " != " << idStringToType.size() << "; recvd " << receivedFinishNb << std::endl;
+//             }
+//             receivedFinishNb += ((receivedFinishNb < 2) ? 1 : 0);
+//             break;
+//         }
+//         default:
+//             break;
+//     }
+// }
 
 bool RTypeClient::dataFromServer()
 {
@@ -48,61 +93,137 @@ bool RTypeClient::dataFromServer()
 
 void RTypeClient::asyncReceive(Engine::GameEngine &engine)
 {
-    _recv_buffer.resize(CLIENT_BUFFER_FIXED_SIZE);
+    std::unique_ptr<std::vector<uint8_t>> recv_buffer = std::make_unique<std::vector<uint8_t>>(CLIENT_BUFFER_FIXED_SIZE);
+    auto buffer_ptr = recv_buffer.get();
     _socket.async_receive_from(
-        boost::asio::buffer(_recv_buffer), _sender_endpoint,
-        [this, &engine](const boost::system::error_code &ec, std::size_t bytes_recvd) {
+        boost::asio::buffer(*buffer_ptr), _sender_endpoint,
+        [this, &engine, _recv_buffer = std::move(recv_buffer)](const boost::system::error_code &ec, std::size_t bytes_recvd) {
             if (!ec && _sender_endpoint == _server_endpoint) {
-                this->interpretServerData(engine, bytes_recvd);
+                _recv_buffer.get()->resize(bytes_recvd);
+                this->_packetQueueMutex.lock();
+                this->_packetQueue.push(*_recv_buffer.get());
+                this->_packetQueueMutex.unlock();
+                asyncReceive(engine);
             }
         }
     );
 }
 
-void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::size_t bytes_recvd)
+void RTypeClient::startInterpret(Engine::GameEngine &engine)
 {
-    _recv_buffer.resize(bytes_recvd);
-    switch (_recv_buffer[0]) {
+    while (true)
+    {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1us);
+        if (!_packetQueue.empty()) {
+            interpretServerData(engine, _packetQueue.front());
+            _packetQueueMutex.lock();
+            _packetQueue.pop();
+            _packetQueueMutex.unlock();
+        }
+    }
+}
+
+void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<uint8_t> &recv_buffer)
+{
+    static std::atomic_int receivedFinishNb = 0;
+
+    if (recv_buffer.size() < 1) {
+        return;
+    }
+    switch (recv_buffer[0]) {
         case 0x0:
-            std::cerr << "Create Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
-            createEntity(engine, _recv_buffer);
+            std::cerr << "Create Entity n°" << *reinterpret_cast<uint16_t *>(&recv_buffer[1]) << std::endl;
+            createEntity(engine, recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x1:
             std::cerr << "Recieved delete instruction!" << std::endl;
-            std::cerr << "Delete Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
-            deleteEntity(engine, _recv_buffer);
+            std::cerr << "Delete Entity n°" << *reinterpret_cast<uint16_t *>(&recv_buffer[1]) << std::endl;
+            deleteEntity(engine, recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x2:
             std::cerr << "Attach Component" << std::endl;
-            attachComponent(engine, _recv_buffer);
+            attachComponent(engine, recv_buffer);
             std::cerr << std::endl;
             break;
         case 0x3:
-            // std::cerr << "Update Component" << std::endl;
-            // std::cerr << "Component n°" << uint16From2Uint8(_recv_buffer[5], _recv_buffer[6]) << " of Entity n°" << uint32From4Uint8(_recv_buffer[1], _recv_buffer[2], _recv_buffer[3], _recv_buffer[4]) << std::endl;
-            updateComponent(engine, _recv_buffer);
+            std::cerr << "Update Component" << std::endl;
+            std::cerr << "Component n°" << *reinterpret_cast<uint16_t *>(&recv_buffer[5]) << " of Entity n°" << *reinterpret_cast<uint32_t *>(&recv_buffer[1]) << std::endl;
+            updateComponent(engine, recv_buffer);
             break;
         case 0x4:
             std::cerr << "Detach Component" << std::endl;
-            detachComponent(engine, _recv_buffer);
+            detachComponent(engine, recv_buffer);
             std::cerr << std::endl;
             break;
+        case 0xa:
+            nextFrame = true;
+            std::cerr << "Next frame" << std::endl;
+            break;
+        case 0x5:
+        {
+            uint16_t compId = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
+            std::string strCompName = std::string(recv_buffer.begin() + 3, recv_buffer.end());
+            _compNamesByNetwork.push_back({strCompName, compId});
+            if (engine.getIdStringToType().contains(strCompName)) {
+                std::cerr << "Component " << strCompName <<
+                    " added to client components" << std::endl;
+                _compNames[compId] = strCompName;
+            } else {
+                std::vector<uint8_t> message(3);
+                message[0] = 0x1;
+                std::memcpy(&message[1], &compId, sizeof(compId));
+
+                std::cerr << "Component " << strCompName <<
+                    " is not needed by the client so removing it" << std::endl;
+                send(message);
+            }
+            break;
+        }
+        case 0x6:
+        {
+            uint16_t componentsTypesNb = ntohs(*reinterpret_cast<uint16_t *>(recv_buffer.data() + 1));
+            std::cerr << "Received init end from server, ";
+            if (componentsTypesNb == engine.getIdStringToType().size() && receivedFinishNb >= 2) {
+                finishedInit = true;
+                std::cerr << "initialization finished" << std::endl;
+            } else {
+                std::cerr << "components not synchronized with client, continuing initialization: "
+                    << componentsTypesNb << " != " << engine.getIdStringToType().size() << "; recvd " << receivedFinishNb << std::endl;
+            }
+            if (receivedFinishNb > 5) {
+                for (const auto &[strCompName, compId] : _compNamesByNetwork) {
+                    if (engine.getIdStringToType().contains(strCompName)) {
+                        continue;
+                    }
+                    std::vector<uint8_t> message(3);
+                    message[0] = 0x1;
+                    std::memcpy(&message[1], &compId, sizeof(compId));
+
+                    std::cerr << "Component " << strCompName <<
+                        " is not needed by the client so removing it" << std::endl;
+                    send(message);
+                }
+                receivedFinishNb = 0;
+            }
+            receivedFinishNb += ((receivedFinishNb < 6) ? 1 : 0);
+            break;
+        }
         default:
-            std::cerr << "Error: Unknown opcode : " << int(_recv_buffer[0]) << ". Full command is : " << std::endl;
-            std::cerr << binaryToStr(_recv_buffer) << std::endl;
-            if (binaryToStr(_recv_buffer).find("You have been disconnected :(") != std::string::npos) {
+            std::cerr << "Error: Unknown opcode : " << int(recv_buffer[0]) << ". Full command is : " << std::endl;
+            std::cerr << binaryToStr(recv_buffer) << std::endl;
+            if (binaryToStr(recv_buffer).find("You have been disconnected :(") != std::string::npos) {
                 gameEnd = true;
             }
             break;
     }
-    asyncReceive(engine);
 }
 
 void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
-    uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+    uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
 
     lockMutex();
     ECS::Entity entity = engine.getRegistry().entityManager().spawnEntity();
@@ -114,7 +235,7 @@ void RTypeClient::createEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     try {
-        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
 
         try {
@@ -136,11 +257,11 @@ void RTypeClient::deleteEntity(Engine::GameEngine &engine, std::vector<uint8_t> 
 }
 
 void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
-{    
+{
     try {
-        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
-        uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
+        uint16_t componentId = *reinterpret_cast<uint16_t *>(&operation[5]);
         std::string &strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
@@ -161,9 +282,9 @@ void RTypeClient::attachComponent(Engine::GameEngine &engine, std::vector<uint8_
 void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     try {
-        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
-        uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
+        uint16_t componentId = *reinterpret_cast<uint16_t *>(&operation[5]);
         std::string strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
@@ -196,9 +317,9 @@ void RTypeClient::updateComponent(Engine::GameEngine &engine, std::vector<uint8_
 void RTypeClient::detachComponent(Engine::GameEngine &engine, std::vector<uint8_t> operation)
 {
     try {
-        uint32_t networkId = uint32From4Uint8(operation[1], operation[2], operation[3], operation[4]);
+        uint32_t networkId = *reinterpret_cast<uint32_t *>(&operation[1]);
         ECS::Entity entity = static_cast<ECS::Entity>(_entitiesNetworkId.at(networkId));
-        uint16_t componentId = uint16From2Uint8(operation[5], operation[6]);
+        uint16_t componentId = *reinterpret_cast<uint16_t *>(&operation[5]);
         std::string strCompId = _compNames[componentId];
         std::type_index compTypeIndex = engine.getTypeIndexFromString(strCompId);
         
@@ -226,7 +347,6 @@ void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vect
         });
     if (entity_it != _entitiesNetworkId.end()) {
         networkId = entity_it->first;
-        networkId = htonl(networkId);
     } else {
         std::cerr << "The entity n°" << entity << " does not have a network id" << std::endl;
         return;
@@ -241,9 +361,7 @@ void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vect
         return;
     }
 
-    uint8_t index = it->first;
-    uint16_t component_id = index;
-    component_id = htons(component_id);
+    uint16_t component_id = it->first;
     size_t component_size = data.size();
 
     std::vector<uint8_t> message(7 + component_size);
@@ -252,17 +370,19 @@ void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vect
     std::memcpy(&message[5], &component_id, sizeof(component_id));
     std::memcpy(&message[7], data.data(), component_size);
 
+    std::cerr << "Sending update component n°" << component_id << ": " << name << " of entity n°" << entity << std::endl;
+
     send(message);
 }
 
 uint16_t RTypeClient::uint16From2Uint8(uint8_t first, uint8_t second)
 {
-    return static_cast<uint16_t>((first << 8) | static_cast<uint16_t>(second));
+    return static_cast<uint16_t>((second << 8) | static_cast<uint16_t>(first));
 }
 
 uint32_t RTypeClient::uint32From4Uint8(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4)
 {
-    return static_cast<uint32_t>((byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4);
+    return static_cast<uint32_t>((byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1);
 }
 
 uint16_t RTypeClient::receiveUint16()
@@ -272,8 +392,7 @@ uint16_t RTypeClient::receiveUint16()
     if (data.size() < 2) {
         throw std::runtime_error("Received data is too short to make an uint16");
     }
-    uint16_t result = uint16From2Uint8(data[0], data[1]);
-    return result;
+    return *reinterpret_cast<uint16_t *>(&data[0]);
 }
 
 uint8_t RTypeClient::receiveUint8()

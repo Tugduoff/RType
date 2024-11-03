@@ -9,6 +9,7 @@
 #define NOMINMAX
 #include "components/position/Position.hpp"
 #include "components/spriteId/SpriteID.hpp"
+#include "Text.hpp"
 #include "components/scale/Scale.hpp"
 #include "SpriteComponent.hpp"
 #include "Display.hpp"
@@ -178,10 +179,13 @@ void Systems::Display::init(Engine::GameEngine &engine)
     engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
     engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
     engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
-    
+
     auto &manager = engine.getRegistry().componentManager();
     auto ctor = []() -> Components::SpriteComponent * { return new Components::SpriteComponent(); };
     manager.registerComponent<Components::SpriteComponent>(ctor);
+
+    auto ctorText = []() -> Components::Text * { return new Components::Text(); };
+    manager.registerComponent<Components::Text>(ctorText);
 }
 
 void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
@@ -195,10 +199,11 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         auto &spriteComponents = reg.componentManager().getComponents<Components::SpriteComponent>();
         auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteID>();
         auto &scaleComponents = reg.componentManager().getComponents<Components::Scale>();
+        auto &textComponents = reg.componentManager().getComponents<Components::Text>();
 
         for (unsigned l = 0; l < 10; l++) {
             for (auto &&[i, pos, spriteId] : IndexedZipper(posComponents, spriteIdComponents)) {
-                if (pos.layer != l) {
+                if (pos.layer != l || spriteId.id.empty()) {
                     continue;
                 }
 
@@ -233,6 +238,14 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                     }
                     reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
                 }
+            }
+
+            for (auto &&[i, pos, text] : IndexedZipper(posComponents, textComponents)) {
+                if (pos.layer != l) {
+                    continue;
+                }
+                text.setPosition(pos.x, pos.y);
+                window.draw(text.sfText);
             }
         }
     } catch (std::runtime_error &e) {

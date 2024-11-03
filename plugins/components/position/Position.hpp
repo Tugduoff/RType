@@ -113,7 +113,11 @@ namespace Components {
             uint32_t x = std::any_cast<uint32_t>(args[0]);
             uint32_t y = std::any_cast<uint32_t>(args[1]);
             uint32_t layer = std::any_cast<uint32_t>(args[2]);
-            engine.getRegistry().componentManager().addComponent<Components::Position>(to, engine.newComponent<Components::Position>(x, y, layer));
+
+            attachAndUpdateComponent<Components::Position>(
+                engine, to,
+                x, y, layer
+            );
         };
 
         /**

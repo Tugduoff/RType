@@ -10,6 +10,7 @@
 #include "components/spriteId/SpriteID.hpp"
 #include "components/action/Action.hpp"
 #include "Input.hpp"
+#include "ECS/utilities/Zipper/IndexedZipper.hpp"
 
 Systems::Input::Input(libconfig::Setting &)
 {
@@ -27,9 +28,43 @@ void Systems::Input::init(Engine::GameEngine &engine)
         std::cerr << "Error: Could not register Action component in system SFML Input" << std::endl;
 }
 
+void Systems::Input::updateControllable(Engine::GameEngine &engine)
+{
+    auto &manager = engine.getRegistry().componentManager();
+
+    auto &controllableComponents = manager.getComponents<Components::Controllable>();
+    for (auto [i, ctrl] : IndexedZipper(controllableComponents)) {
+        std::map<enum Action, enum Key> keyBindings = {
+            {Action::FORWARD, Key::Q},
+            {Action::BACKWARD, Key::D},
+            {Action::LEFT, Key::S},
+            {Action::RIGHT, Key::Z},
+            {Action::ACTION1, Key::LEFT_CLICK},
+            {Action::ACTION2, Key::RIGHT_CLICK},
+            {Action::ACTION3, Key::MIDDLE_CLICK},
+            {Action::ACTION4, Key::NUM_0},
+            {Action::ACTION5, Key::NUM_1},
+            {Action::ACTION6, Key::NUM_2},
+            {Action::ACTION7, Key::NUM_3},
+            {Action::ACTION8, Key::NUM_4},
+            {Action::ACTION9, Key::NUM_5},
+            {Action::ACTION10, Key::NUM_6}
+        };
+        if (ctrl.keyBindings == keyBindings)
+            continue;
+        std::cerr << "Updating controllable component with id: " << i << std::endl;
+        ctrl.keyBindings = keyBindings;
+        engine.updateComponent((ECS::Entity)i, ctrl.getId(), ctrl.serialize());
+    }
+}
+
 void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 {
     sf::Event event;
+
+    if (!engine.isInMenu()) {
+        updateControllable(engine);
+    }
 
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
@@ -186,62 +221,121 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
     auto &entityActionComponents = engine.getRegistry().componentManager().getComponents<Components::ActionComponent>();
 
     if (event.type == sf::Event::KeyPressed) {
-        for (size_t i = 0; i < ctrlComponents.size(); i++) {
+        for (auto &&[i, ctrl] : IndexedZipper(ctrlComponents)) {
+            Key key = Key::UNKNOWN;
             try {
-                auto &ctrl = ctrlComponents[i];
-                Key key = Key::UNKNOWN;
-                try {
-                    key = __sfmlToKey.at(event.key.code);
-                } catch (std::exception &e) {
-                    std::cerr << "Key not handled" << std::endl;
-                }
-                int index = 0;
-                for (auto &[action, actionKey] : ctrl->keyBindings) {
-                    if (actionKey == key) {
-                        handleInputPressed(ctrl->inputs, ctrl->actions, index);
-                        engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
-                        try {
-                            auto &entityAction = entityActionComponents[i];
-                        } catch (std::exception &e) {
-                            std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
-                            engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                            std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
-                        };
-                        auto &entityAction = entityActionComponents[i];
-
-                        bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
-                        bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
-                        bool rightInput = ctrl->inputs[(int)Action::RIGHT];
-                        bool leftInput = ctrl->inputs[(int)Action::LEFT];
-                        bool action1Input = ctrl->inputs[(int)Action::ACTION1];
-
-                        EntityAction newAction = determinePressedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
-                        std::cerr << "New action initialized : " << newAction << std::endl;
-                        entityAction->action = newAction;
-                        return;
-                    }
-                    index++;
-                }
+                key = __sfmlToKey.at(event.key.code);
             } catch (std::exception &e) {
-                continue;
+                std::cerr << "Key not handled" << std::endl;
+            }
+            int index = 0;
+            for (auto &[action, actionKey] : ctrl.keyBindings) {
+                if (actionKey == key) {
+                    handleInputPressed(ctrl.inputs, ctrl.actions, index);
+                    engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
+                    try {
+                        auto &entityAction = entityActionComponents[i];
+                    } catch (std::exception &e) {
+                        std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
+                        engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
+                        std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                    };
+                    auto &entityAction = entityActionComponents[i];
+
+                    bool forwardInput = ctrl.inputs[(int)Action::FORWARD];
+                    bool backwardInput = ctrl.inputs[(int)Action::BACKWARD];
+                    bool rightInput = ctrl.inputs[(int)Action::RIGHT];
+                    bool leftInput = ctrl.inputs[(int)Action::LEFT];
+                    bool action1Input = ctrl.inputs[(int)Action::ACTION1];
+
+                    EntityAction newAction = determinePressedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
+                    std::cerr << "New action initialized : " << newAction << std::endl;
+                    entityAction->action = newAction;
+                    return;
+                }
+                index++;
             }
         }
     }
     if (event.type == sf::Event::KeyReleased) {
-        for (size_t i = 0; i < ctrlComponents.size(); i++) {
+        for (auto &&[i, ctrl] : IndexedZipper(ctrlComponents)) {
+            Key key = Key::UNKNOWN;
             try {
-                auto &ctrl = ctrlComponents[i];
-                Key key = Key::UNKNOWN;
-                try {
-                    key = __sfmlToKey.at(event.key.code);
-                } catch (std::exception &e) {
-                    std::cerr << "Key not handled" << std::endl;
+                key = __sfmlToKey.at(event.key.code);
+            } catch (std::exception &e) {
+                std::cerr << "Key not handled" << std::endl;
+            }
+            int index = 0;
+            for (auto &[action, actionKey] : ctrl.keyBindings) {
+                if (actionKey == key) {
+                    handleInputReleased(ctrl.inputs, ctrl.actions, index);
+                    engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
+                    try {
+                        auto &entityAction = entityActionComponents[i];
+                    } catch (std::exception &e) {
+                        std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
+                        engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
+                        std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                    };
+
+                    auto &entityAction = entityActionComponents[i];
+
+                    bool forwardInput = ctrl.inputs[(int)Action::FORWARD];
+                    bool backwardInput = ctrl.inputs[(int)Action::BACKWARD];
+                    bool rightInput = ctrl.inputs[(int)Action::RIGHT];
+                    bool leftInput = ctrl.inputs[(int)Action::LEFT];
+                    bool action1Input = ctrl.inputs[(int)Action::ACTION1];
+
+                    EntityAction newAction = determineReleasedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
+                    entityAction->action = newAction;
+                    return;
                 }
-                int index = 0;
-                for (auto &[action, actionKey] : ctrl->keyBindings) {
-                    if (actionKey == key) {
-                        handleInputReleased(ctrl->inputs, ctrl->actions, index);
-                        engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
+                index++;
+            }
+        }
+    }
+    if (event.type == sf::Event::MouseButtonPressed) {
+        for (auto &&[i, ctrl] : IndexedZipper(ctrlComponents)) {
+            int index = 0;
+            for (auto &[action, actionKey] : ctrl.keyBindings) {
+                if ((actionKey == Key::LEFT_CLICK && event.mouseButton.button == sf::Mouse::Left) ||
+                    (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
+                    (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
+                        handleInputPressed(ctrl.inputs, ctrl.actions, index);
+                        engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
+                        try {
+                            auto &entityAction = entityActionComponents[i];
+                        } catch (std::exception &e) {
+                            std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
+                            engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
+                            std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                        };
+
+                        auto &entityAction = entityActionComponents[i];
+                            
+                        bool forwardInput = ctrl.inputs[(int)Action::FORWARD];
+                        bool backwardInput = ctrl.inputs[(int)Action::BACKWARD];
+                        bool rightInput = ctrl.inputs[(int)Action::RIGHT];
+                        bool leftInput = ctrl.inputs[(int)Action::LEFT];
+                        bool action1Input = ctrl.inputs[(int)Action::ACTION1];
+
+                        EntityAction newAction = determinePressedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
+                        entityAction->action = newAction;
+                        return;
+                }
+                index++;
+            }
+        }
+    }
+    if (event.type == sf::Event::MouseButtonReleased) {
+        for (auto &&[i, ctrl] : IndexedZipper(ctrlComponents)) {
+            int index = 0;
+            for (auto &[action, actionKey] : ctrl.keyBindings) {
+                if ((actionKey == Key::LEFT_CLICK && event.mouseButton.button == sf::Mouse::Left) ||
+                    (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
+                    (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
+                        handleInputReleased(ctrl.inputs, ctrl.actions, index);
+                        engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
                         try {
                             auto &entityAction = entityActionComponents[i];
                         } catch (std::exception &e) {
@@ -252,96 +346,17 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
 
                         auto &entityAction = entityActionComponents[i];
 
-                        bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
-                        bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
-                        bool rightInput = ctrl->inputs[(int)Action::RIGHT];
-                        bool leftInput = ctrl->inputs[(int)Action::LEFT];
-                        bool action1Input = ctrl->inputs[(int)Action::ACTION1];
+                        bool forwardInput = ctrl.inputs[(int)Action::FORWARD];
+                        bool backwardInput = ctrl.inputs[(int)Action::BACKWARD];
+                        bool rightInput = ctrl.inputs[(int)Action::RIGHT];
+                        bool leftInput = ctrl.inputs[(int)Action::LEFT];
+                        bool action1Input = ctrl.inputs[(int)Action::ACTION1];
 
                         EntityAction newAction = determineReleasedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
                         entityAction->action = newAction;
                         return;
-                    }
-                    index++;
                 }
-            } catch (std::exception &e) {
-                continue;
-            }
-        }
-    }
-    if (event.type == sf::Event::MouseButtonPressed) {
-        for (size_t i = 0; i < ctrlComponents.size(); i++) {
-            try {
-                auto &ctrl = ctrlComponents[i];
-                int index = 0;
-                for (auto &[action, actionKey] : ctrl->keyBindings) {
-                    if ((actionKey == Key::LEFT_CLICK && event.mouseButton.button == sf::Mouse::Left) ||
-                        (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
-                        (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
-                            handleInputPressed(ctrl->inputs, ctrl->actions, index);
-                            engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
-                            try {
-                                auto &entityAction = entityActionComponents[i];
-                            } catch (std::exception &e) {
-                                std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
-                                engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                                std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
-                            };
-
-                            auto &entityAction = entityActionComponents[i];
-                                
-                            bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
-                            bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
-                            bool rightInput = ctrl->inputs[(int)Action::RIGHT];
-                            bool leftInput = ctrl->inputs[(int)Action::LEFT];
-                            bool action1Input = ctrl->inputs[(int)Action::ACTION1];
-
-                            EntityAction newAction = determinePressedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
-                            entityAction->action = newAction;
-                            return;
-                    }
-                    index++;
-                }
-            } catch (std::exception &e) {
-                continue;
-            }
-        }
-    }
-    if (event.type == sf::Event::MouseButtonReleased) {
-        for (size_t i = 0; i < ctrlComponents.size(); i++) {
-            try {
-                auto &ctrl = ctrlComponents[i];
-                int index = 0;
-                for (auto &[action, actionKey] : ctrl->keyBindings) {
-                    if ((actionKey == Key::LEFT_CLICK && event.mouseButton.button == sf::Mouse::Left) ||
-                        (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
-                        (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
-                            handleInputReleased(ctrl->inputs, ctrl->actions, index);
-                            engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
-                            try {
-                                auto &entityAction = entityActionComponents[i];
-                            } catch (std::exception &e) {
-                                std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
-                                engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                                std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
-                            };
-
-                            auto &entityAction = entityActionComponents[i];
-
-                            bool forwardInput = ctrl->inputs[(int)Action::FORWARD];
-                            bool backwardInput = ctrl->inputs[(int)Action::BACKWARD];
-                            bool rightInput = ctrl->inputs[(int)Action::RIGHT];
-                            bool leftInput = ctrl->inputs[(int)Action::LEFT];
-                            bool action1Input = ctrl->inputs[(int)Action::ACTION1];
-
-                            EntityAction newAction = determineReleasedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
-                            entityAction->action = newAction;
-                            return;
-                    }
-                    index++;
-                }
-            } catch (std::exception &e) {
-                continue;
+                index++;
             }
         }
     }

@@ -14,7 +14,9 @@
     #include "systems/ASystem.hpp"
     #include "Display.hpp"
     #include "Input.hpp"
+    #include "menu/Menu.hpp"
     #include "ActionManager.hpp"
+    #include "SoundSystem.hpp"
 
 namespace Systems {
     /**
@@ -37,12 +39,13 @@ namespace Systems {
 
             Display displaySystem;
             Input inputSystem;
+            Menu menu;
             ActionManager actionManager;
+            SoundSystem soundSystem;
 
         private:
 
             sf::RenderWindow __window;
-            sf::Music __music;
 
     };
 };

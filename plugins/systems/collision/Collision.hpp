@@ -10,6 +10,8 @@
 
     #include <libconfig.h++>
     #include "systems/ASystem.hpp"
+    #include "ECS/entity/Entity.hpp"
+    #include "utils/Chrono.hpp"
 
 namespace Engine {
     class GameEngine;
@@ -40,7 +42,7 @@ namespace Systems {
              * 
              * @note This function will check the collision between player projectiles and enemies.
              */
-            void checkPlayerProjectileToEnemyCollision(ECS::Registry &reg);
+            void checkPlayerProjectileToEnemyCollision(Engine::GameEngine &engine);
 
             /**
              * @brief Check the collision between enemy projectiles and the player.
@@ -49,7 +51,21 @@ namespace Systems {
              * 
              * @note This function will check the collision between enemy projectiles and the player.
              */
-            void checkEnemyProjectileToPlayerCollision(ECS::Registry &reg);
+            void checkEnemyProjectileToPlayerCollision(Engine::GameEngine &engine);
+
+            /**
+             * @brief Spawn the death effect of an entity.
+             * 
+             * @param engine The game engine
+             * @param entity The entity to spawn the death effect for
+             * 
+             * @note This function will spawn the death effect of an entity.
+             */
+            void spawnDeathEffect(Engine::GameEngine &engine, ECS::Entity entity);
+
+            void checkChronos(Engine::GameEngine &engine);
+
+            std::vector<std::tuple<ECS::Entity, Chrono, unsigned int>> __deathEffectsCooldown;
     };
 };
 
