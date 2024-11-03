@@ -60,7 +60,7 @@ protected:
      */
     const underlying_map &_components;
 
-    value_type _mapValue(const underlying_map::value_type &pair)
+    value_type _mapValue(const underlying_map::value_type &pair) const
     {
         const auto &[type_idx, comp] = pair;
         return {
@@ -77,27 +77,27 @@ protected:
         using value_type = ComponentsGetter::value_type;
 
         friend class ComponentsGetter;
-        ComponentsGetterIterator(iterator src, ComponentsGetter &compGetter) : iterator(std::move(src)), _compGetter(compGetter) {}
+        ComponentsGetterIterator(iterator src, const ComponentsGetter &compGetter) : iterator(std::move(src)), _compGetter(compGetter) {}
 
     public:
-        value_type operator*()  const
+        value_type operator*() const
         {
             return _compGetter._mapValue(iterator::operator*());
         }
 
     protected:
-        ComponentsGetter &_compGetter;
+        const ComponentsGetter &_compGetter;
     };
 
 public:    
 
     using const_iterator = ComponentsGetterIterator;
 
-    const_iterator begin() { return const_iterator(_components.begin(), *this); }
-    const_iterator cbegin() { return begin(); }
+    const_iterator begin() const { return const_iterator(_components.begin(), *this); }
+    const_iterator cbegin() const { return begin(); }
 
-    const_iterator end() { return const_iterator(_components.end(), *this); }
-    const_iterator cend() { return const_iterator(_components.end(), *this); }
+    const_iterator end() const { return const_iterator(_components.end(), *this); }
+    const_iterator cend() const { return const_iterator(_components.end(), *this); }
 
     mapped_type at(const std::type_index &type) const
     {
@@ -109,17 +109,17 @@ public:
         return this->at(type);
     }
 
-    auto count(const key_type &key)
+    auto count(const key_type &key) const noexcept
     {
         return _components.count(key);
     }
 
-    auto contains(const key_type &key)
+    auto contains(const key_type &key) const noexcept
     {
         return _components.contains(key);
     }
 
-    auto find(const key_type &key)
+    auto find(const key_type &key) const noexcept
     {
         return _mapValue(*_components.find(key));
     }
