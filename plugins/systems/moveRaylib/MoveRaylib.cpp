@@ -21,6 +21,7 @@ Systems::MoveRaylib::MoveRaylib(libconfig::Setting &)
 
 void Systems::MoveRaylib::run(Engine::GameEngine &engine)
 {
+    std::cerr << "Running MoveRaylib" << std::endl;
     auto &reg = engine.getRegistry();
 
     try {
@@ -61,6 +62,7 @@ void Systems::MoveRaylib::run(Engine::GameEngine &engine)
 
 void Systems::MoveRaylib::init(Engine::GameEngine &engine)
 {
+    std::cerr << "Initializing MoveRaylib" << std::endl;
     engine.registerComponent<Components::Position3d>("./plugins/bin/components/", "Position3d");
     engine.registerComponent<Components::Velocity3d>("./plugins/bin/components/", "Velocity3d");
     engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");

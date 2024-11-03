@@ -56,6 +56,7 @@ Vector3 calculateRightDirection(const Components::Rotation &rot) {
 }
 
 void Systems::InputRaylibSystem::run(Engine::GameEngine &engine) {
+    std::cerr << "Running InputRaylibSystem" << std::endl;
     auto &reg = engine.getRegistry();
 
     auto &controllableArr = reg.componentManager().getComponents<Components::Controllable>();
@@ -105,6 +106,7 @@ void Systems::InputRaylibSystem::run(Engine::GameEngine &engine) {
 
 void Systems::InputRaylibSystem::init(Engine::GameEngine &engine)
 {
+    std::cerr << "Initializing InputRaylibSystem" << std::endl;
     engine.registerComponent<Components::Acceleration>("./plugins/bin/components/", "Acceleration");
     engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable");
     engine.registerComponent<Components::Velocity3d>("./plugins/bin/components/", "Velocity3d");

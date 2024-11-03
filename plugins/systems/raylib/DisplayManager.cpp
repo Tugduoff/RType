@@ -150,9 +150,7 @@ void Systems::DisplayManager::run(Engine::GameEngine &engine)
             for (auto &&[i, model] : IndexedZipper(modelComponents)) {
                 if (model.pos.x == 0 && model.pos.y == 0 && model.pos.z == 0)
                     continue;
-                DrawText(TextFormat("Model position: %f %f %f", model.pos.x, model.pos.y, model.pos.z), 10, 60, 20, WHITE);
             }
-            DrawText(TextFormat("Camera position: %f %f %f", camera.camera.position.x, camera.camera.position.y, camera.camera.position.z), 10, 40, 20, WHITE);
         }
         EndBlendMode();
     EndDrawing();

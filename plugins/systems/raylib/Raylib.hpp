@@ -8,7 +8,7 @@
 #ifndef RAYLIB_HPP
     #define RAYLIB_HPP
 
-    #include <raylib.h>
+    #include "raylib.h"
     #include <libconfig.h++>
     #include "systems/ASystem.hpp"
     #include "DisplayManager.hpp"

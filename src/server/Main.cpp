@@ -34,6 +34,7 @@
 #include "components/sound/Sound.hpp"
 #include "components/destruction/Destruction.hpp"
 #include "components/Ai/Ai.hpp"
+#include "components/modelId/ModelId.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -133,6 +134,7 @@ int main() {
         engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
         engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
         engine.registerComponent<Components::Destruction>("./plugins/bin/components/", "Destruction");
+        engine.registerComponent<Components::ModelId>("./plugins/bin/components/", "ModelId");
 
         engine.loadSystems("./src/server/configServer.cfg");
 
@@ -148,7 +150,7 @@ int main() {
         std::thread io_thread3([&io_context]() { io_context.run(); });
         std::thread io_thread4([&io_context]() { io_context.run(); });
 
-        displayPolymorphic(engine, types.begin(), types.end());
+        // displayPolymorphic(engine, types.begin(), types.end());
 
         std::cout << "####################################### iteration 0\n" << std::endl;
 

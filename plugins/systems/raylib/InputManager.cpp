@@ -65,7 +65,6 @@ void Systems::InputManager::run(Engine::GameEngine &engine)
 
         // Roll (rot.z) can be set to zero or controlled separately, depending on the requirements
         rot.z = 0.0f;
-        DrawText(TextFormat("Yaw: %f Pitch: %f", rot.y, rot.x), 10, 80, 20, WHITE);
         engine.updateComponent(i, rot.getId(), rot.serialize());
     }
 }
@@ -81,13 +80,11 @@ void Systems::InputManager::retrieveInputs(Engine::GameEngine &engine)
                 std::cerr << "Key down: " << ctrl.keyBindings[(Action)j] << std::endl;
                 ctrl.inputs[j] = true;
                 engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
-                DrawText(TextFormat("Key down: %d", ctrl.keyBindings[(Action)j]), 10, 100, 20, WHITE);
             }
             if (IsKeyUp(keyToInt(ctrl.keyBindings[(Action)j])) && ctrl.inputs[j] == true) {
                 std::cerr << "Key up: " << ctrl.keyBindings[(Action)j] << std::endl;
                 ctrl.inputs[j] = false;
                 engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
-                DrawText(TextFormat("Key up: %d", ctrl.keyBindings[(Action)j]), 10, 100, 20, WHITE);
             }
         }
 

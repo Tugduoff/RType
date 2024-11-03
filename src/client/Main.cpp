@@ -25,6 +25,7 @@
 #include "components/type/Type.hpp"
 #include "components/sound/Sound.hpp"
 #include "components/destruction/Destruction.hpp"
+#include "components/modelId/ModelId.hpp"
 
 int main()
 {
@@ -35,6 +36,8 @@ int main()
     Chrono chrono;
 
     engine.loadSystems("./src/client/configClient.cfg");
+    std::cerr << "Systems loaded" << std::endl;
+
     // Hard coded register for now
     engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
     engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
@@ -50,6 +53,7 @@ int main()
     engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
     engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
     engine.registerComponent<Components::Destruction>("./plugins/bin/components/", "Destruction");
+    engine.registerComponent<Components::ModelId>("./plugins/bin/components/", "ModelId");
 
     conn.engineInit();
     std::unordered_map<uint8_t, std::string> compNames =  conn.getCompNames();
