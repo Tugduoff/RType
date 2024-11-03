@@ -74,9 +74,9 @@ void UDPServer::start_receive(Engine::GameEngine &engine) {
             break;
 
         case 0x2:
-            // Start the game: send all existing entities and
-            // components to requesting client
-        
+            client_info.state = ClientInfo::State::STARTED;
+            __add_new_client();
+
             _isGameRunning = true;
             break;
 
