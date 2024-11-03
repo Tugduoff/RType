@@ -60,7 +60,7 @@ void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, boo
         }
         case 0x6:
         {
-            uint16_t componentsTypesNb = /*~~~ntohs~~~*/(*reinterpret_cast<uint16_t *>(recv_buffer.data() + 1));
+            uint16_t componentsTypesNb = ntohs(*reinterpret_cast<uint16_t *>(recv_buffer.data() + 1));
             std::cout << "Received init end from server, ";
             if (componentsTypesNb == idStringToType.size() && receivedFinishNb >= 2) {
                 finishedInit = true;
@@ -287,7 +287,6 @@ void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vect
         });
     if (entity_it != _entitiesNetworkId.end()) {
         networkId = entity_it->first;
-        networkId = /*~~~htonl~~~*/(networkId);
     } else {
         std::cerr << "The entity n°" << entity << " does not have a network id" << std::endl;
         return;

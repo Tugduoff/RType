@@ -134,7 +134,7 @@ void UDPServer::__send_nb_components_message(const udp::endpoint &client)
     std::array<uint8_t, 3> msg;
 
     msg[0] = opcode;
-    *reinterpret_cast<uint16_t *>(&msg[1]) = /*~~~htons~~~*/(_clients[client].used_types.size());
+    *reinterpret_cast<uint16_t *>(&msg[1]) = htons(_clients[client].used_types.size());
 
     __send_message(msg);
 }
@@ -223,7 +223,7 @@ void UDPServer::__remove_client(const udp::endpoint& client) {
 void UDPServer::create_entity(const ECS::Entity &entity) {
     uint32_t networkId = _nextNetworkId;
     _nextNetworkId++;
-    _entitiesNetworkId[entity] = /*~~~htonl~~~*/(networkId);
+    _entitiesNetworkId[entity] = networkId;
 
     for (const auto &client_endpoint : std::views::keys(_clients)) {
         __send_entity_created_message(networkId, client_endpoint);
@@ -245,7 +245,7 @@ void UDPServer::__send_entity_created_message(
         boost::asio::buffer(message), client,
         [ networkId](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint32_t id = /*~~~ntohl~~~*/(networkId);
+                uint32_t id = networkId;
                 std::cerr << "Entity " << static_cast<int>(id) << " created." << std::endl;
             }
         }
@@ -276,9 +276,9 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
         socket_.async_send_to(
             boost::asio::buffer(message), client_endpoint,
             [networkId](boost::system::error_code ec, std::size_t) {
-                std::cerr << "Sending delete entity message to client for entity: " << /*~~~ntohl~~~*/(networkId) << std::endl;
+                std::cerr << "Sending delete entity message to client for entity: " << networkId << std::endl;
                 if (!ec) {
-                    uint32_t id = /*~~~ntohl~~~*/(networkId);
+                    uint32_t id = networkId;
                     std::cerr << "Entity " << static_cast<int>(id) << " delete." << std::endl;
                 }
             }
@@ -322,9 +322,7 @@ void UDPServer::__send_attach_component_message(
         boost::asio::buffer(message), client,
         [entity_netId, comp_netId](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t e_id = /*~~~ntohl~~~*/(entity_netId);
-                uint16_t c_id = /*~~~ntohs~~~*/(comp_netId);
-                std::cerr << "Attach component [" << static_cast<int>(c_id) << "] to entity [" << static_cast<int>(e_id) << "]." << std::endl;
+                std::cerr << "Attach component [" << comp_netId << "] to entity [" << entity_netId << "]." << std::endl;
             }
         }
     );
@@ -374,11 +372,7 @@ void UDPServer::__send_update_component(
     socket_.async_send_to(
         boost::asio::buffer(message), client,
         [](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                // uint16_t e_id = /*~~~ntohl~~~*/(networkId);
-                // uint16_t c_id = /*~~~ntohs~~~*/(component_id);
-                // std::cerr << "Updated component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
-            }
+            if (!ec) {}
         }
     );
 }
@@ -393,7 +387,6 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
     }
 
     uint16_t component_id = _comps_info.at(component).networkId;
-    component_id = /*~~~htons~~~*/(component_id);
 
     std::array<uint8_t, 7> message;
     message[0] = opcode;
@@ -408,9 +401,7 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
             boost::asio::buffer(message), endpoint,
             [networkId, component_id](boost::system::error_code ec, std::size_t) {
                 if (!ec) {
-                    uint16_t e_id = /*~~~ntohl~~~*/(networkId);
-                    uint16_t c_id = /*~~~ntohs~~~*/(component_id);
-                    std::cerr << "Detach component [" << static_cast<int>(c_id) << "] from entity [" << static_cast<int>(e_id) << "]." << std::endl;
+                    std::cerr << "Detach component [" << component_id << "] from entity [" << networkId << "]." << std::endl;
                 }
             }
         );

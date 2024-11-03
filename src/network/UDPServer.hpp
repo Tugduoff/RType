@@ -274,7 +274,7 @@ class UDPServer {
             _comps_info.clear();
             uint16_t networkId = 0;
             for (const auto &[name, idx] : idStringToType) {
-                _comps_info.emplace(idx, ComponentInfo {name, /*~~~htons~~~*/(networkId)});
+                _comps_info.emplace(idx, ComponentInfo {name, networkId});
                 networkId++;
             }
         }
