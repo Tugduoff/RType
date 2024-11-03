@@ -110,7 +110,7 @@ void UDPServer::__init_new_client()
 
 void UDPServer::__ignoreComponent(UDPServer::ClientInfo &clientInfo)
 {
-    uint16_t toIgnore = ntohs(*reinterpret_cast<uint16_t *>(&recv_buffer_[1]));
+    uint16_t toIgnore = *reinterpret_cast<uint16_t *>(&recv_buffer_[1]);
 
     auto const &compInfo = std::find_if(
         _comps_info.begin(),
@@ -134,7 +134,7 @@ void UDPServer::__send_nb_components_message(const udp::endpoint &client)
     std::array<uint8_t, 3> msg;
 
     msg[0] = opcode;
-    *reinterpret_cast<uint16_t *>(&msg[1]) = _clients[client].used_types.size();
+    *reinterpret_cast<uint16_t *>(&msg[1]) = /*~~~htons~~~*/(_clients[client].used_types.size());
 
     __send_message(msg);
 }
@@ -197,7 +197,7 @@ void UDPServer::__send_component_nb_loop(const udp::endpoint &ep)
     __send_component_nb_loop(ep);
     boost::asio::steady_timer t(io_context_, boost::asio::chrono::milliseconds(500));
 
-    t.async_wait([this, ep](auto const &_) {
+    t.async_wait([this, ep](auto const &) {
         __send_nb_components_message(ep);
     });
 }
@@ -223,7 +223,7 @@ void UDPServer::__remove_client(const udp::endpoint& client) {
 void UDPServer::create_entity(const ECS::Entity &entity) {
     uint32_t networkId = _nextNetworkId;
     _nextNetworkId++;
-    _entitiesNetworkId[entity] = networkId;
+    _entitiesNetworkId[entity] = /*~~~htonl~~~*/(networkId);
 
     for (const auto &client_endpoint : std::views::keys(_clients)) {
         __send_entity_created_message(networkId, client_endpoint);
@@ -236,7 +236,6 @@ void UDPServer::__send_entity_created_message(
 )
 {
     uint8_t opcode = 0x0;
-    networkId = htonl(networkId);
 
     std::array<uint8_t, 5> message;
     message[0] = opcode;
@@ -246,7 +245,7 @@ void UDPServer::__send_entity_created_message(
         boost::asio::buffer(message), client,
         [ networkId](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint32_t id = ntohl(networkId);
+                uint32_t id = /*~~~ntohl~~~*/(networkId);
                 std::cerr << "Entity " << static_cast<int>(id) << " created." << std::endl;
             }
         }
@@ -261,7 +260,6 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
     std::cerr << "Entity network id: " << networkId << std::endl;
 
     _entitiesNetworkId.erase(entity);
-    networkId = htonl(networkId);
 
     std::cerr << "Entity " << entity << " deleted. Now sending infos to the client" << std::endl;
 
@@ -278,9 +276,9 @@ void UDPServer::delete_entity(const ECS::Entity &entity) {
         socket_.async_send_to(
             boost::asio::buffer(message), client_endpoint,
             [networkId](boost::system::error_code ec, std::size_t) {
-                std::cerr << "Sending delete entity message to client for entity: " << ntohl(networkId) << std::endl;
+                std::cerr << "Sending delete entity message to client for entity: " << /*~~~ntohl~~~*/(networkId) << std::endl;
                 if (!ec) {
-                    uint32_t id = ntohl(networkId);
+                    uint32_t id = /*~~~ntohl~~~*/(networkId);
                     std::cerr << "Entity " << static_cast<int>(id) << " delete." << std::endl;
                 }
             }
@@ -294,7 +292,6 @@ void UDPServer::attach_component(size_t entity, std::type_index component) {
     uint32_t networkId = _entitiesNetworkId.at(entity);
 
     if (!_comps_info.contains(component)) {
-        std::cerr << "Error 0x2: Component '" << component.name() << "' not found." << std::endl;
         return;
     }
 
@@ -316,8 +313,6 @@ void UDPServer::__send_attach_component_message(
 {
     uint8_t opcode = 0x2;
 
-    entity_netId = htonl(entity_netId);
-    comp_netId = htons(comp_netId);
     std::array<uint8_t, 7> message;
     message[0] = opcode;
     std::memcpy(&message[1], &entity_netId, sizeof(entity_netId));
@@ -327,8 +322,8 @@ void UDPServer::__send_attach_component_message(
         boost::asio::buffer(message), client,
         [entity_netId, comp_netId](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                uint16_t e_id = ntohl(entity_netId);
-                uint16_t c_id = ntohs(comp_netId);
+                uint16_t e_id = /*~~~ntohl~~~*/(entity_netId);
+                uint16_t c_id = /*~~~ntohs~~~*/(comp_netId);
                 std::cerr << "Attach component [" << static_cast<int>(c_id) << "] to entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
         }
@@ -368,9 +363,6 @@ void UDPServer::__send_update_component(
 )
 {
     uint8_t opcode = 0x3;
-
-    entity_netId = htonl(entity_netId);
-    comp_netId = htons(comp_netId);
     size_t component_size = data.size();
 
     std::vector<uint8_t> message(7 + component_size);
@@ -383,8 +375,8 @@ void UDPServer::__send_update_component(
         boost::asio::buffer(message), client,
         [](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                // uint16_t e_id = ntohl(networkId);
-                // uint16_t c_id = ntohs(component_id);
+                // uint16_t e_id = /*~~~ntohl~~~*/(networkId);
+                // uint16_t c_id = /*~~~ntohs~~~*/(component_id);
                 // std::cerr << "Updated component [" << static_cast<int>(c_id) << "] of entity [" << static_cast<int>(e_id) << "]." << std::endl;
             }
         }
@@ -394,7 +386,6 @@ void UDPServer::__send_update_component(
 void UDPServer::detach_component(size_t entity, std::type_index component) {
     uint8_t opcode = 0x4;
     uint32_t networkId = _entitiesNetworkId.at(entity);
-    networkId = htonl(networkId);
 
     if (!_comps_info.contains(component)) {
         std::cerr << "Error 0x4: Component '" << component.name() << "' not found." << std::endl;
@@ -402,7 +393,7 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
     }
 
     uint16_t component_id = _comps_info.at(component).networkId;
-    component_id = htons(component_id);
+    component_id = /*~~~htons~~~*/(component_id);
 
     std::array<uint8_t, 7> message;
     message[0] = opcode;
@@ -417,8 +408,8 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
             boost::asio::buffer(message), endpoint,
             [networkId, component_id](boost::system::error_code ec, std::size_t) {
                 if (!ec) {
-                    uint16_t e_id = ntohl(networkId);
-                    uint16_t c_id = ntohs(component_id);
+                    uint16_t e_id = /*~~~ntohl~~~*/(networkId);
+                    uint16_t c_id = /*~~~ntohs~~~*/(component_id);
                     std::cerr << "Detach component [" << static_cast<int>(c_id) << "] from entity [" << static_cast<int>(e_id) << "]." << std::endl;
                 }
             }
@@ -428,12 +419,12 @@ void UDPServer::detach_component(size_t entity, std::type_index component) {
 
 uint16_t uint16From2Uint8(uint8_t first, uint8_t second)
 {
-    return static_cast<uint16_t>((first << 8) | static_cast<uint16_t>(second));
+    return static_cast<uint16_t>((second << 8) | static_cast<uint16_t>(first));
 }
 
 uint32_t uint32From4Uint8(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4)
 {
-    return static_cast<uint32_t>((byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4);
+    return static_cast<uint32_t>((byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1);
 }
 
 void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::span<const uint8_t> operation)
@@ -466,9 +457,9 @@ void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::span<con
 
         try {
             sparseArray[entity]->deserialize(serializedData);
-        } catch (std::exception &e) {
+        } catch (const std::exception &e) {
             std::cerr << "\033[0;35m";
-            std::cerr << "Component " << comp_info_it->second.name << " was not attached for entity n°" << entity << std::endl;
+            std::cerr << "Component " << comp_info_it->second.name << " was not attached for entity n°" << entity << ": " << e.what() << std::endl;
             std::cerr << "\033[0;37m";
 
             return;

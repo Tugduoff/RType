@@ -48,10 +48,9 @@ void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, boo
                     " added to client components" << std::endl;
                 _compNames[compId] = strCompName;
             } else {
-                uint16_t comp_netId = htons(compId);
                 std::vector<uint8_t> message(3);
                 message[0] = 0x1;
-                std::memcpy(&message[1], &comp_netId, sizeof(comp_netId));
+                std::memcpy(&message[1], &compId, sizeof(compId));
 
                 std::cout << "Component " << strCompName <<
                     " is not needed by the client so removing it" << std::endl;
@@ -61,7 +60,7 @@ void RTypeClient::interpretServerInitData(std::vector<uint8_t> &recv_buffer, boo
         }
         case 0x6:
         {
-            uint16_t componentsTypesNb = *reinterpret_cast<uint16_t *>(recv_buffer.data() + 1);
+            uint16_t componentsTypesNb = /*~~~ntohs~~~*/(*reinterpret_cast<uint16_t *>(recv_buffer.data() + 1));
             std::cout << "Received init end from server, ";
             if (componentsTypesNb == idStringToType.size() && receivedFinishNb >= 2) {
                 finishedInit = true;
@@ -139,8 +138,8 @@ void RTypeClient::interpretServerData(Engine::GameEngine &engine, std::vector<ui
             std::cerr << std::endl;
             break;
         case 0x3:
-            // std::cerr << "Update Component" << std::endl;
-            // std::cerr << "Component n°" << uint16From2Uint8(recv_buffer[5], recv_buffer[6]) << " of Entity n°" << uint32From4Uint8(recv_buffer[1], recv_buffer[2], recv_buffer[3], recv_buffer[4]) << std::endl;
+            std::cerr << "Update Component" << std::endl;
+            std::cerr << "Component n°" << uint16From2Uint8(recv_buffer[5], recv_buffer[6]) << " of Entity n°" << uint32From4Uint8(recv_buffer[1], recv_buffer[2], recv_buffer[3], recv_buffer[4]) << std::endl;
             updateComponent(engine, recv_buffer);
             break;
         case 0x4:
@@ -288,7 +287,7 @@ void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vect
         });
     if (entity_it != _entitiesNetworkId.end()) {
         networkId = entity_it->first;
-        networkId = htonl(networkId);
+        networkId = /*~~~htonl~~~*/(networkId);
     } else {
         std::cerr << "The entity n°" << entity << " does not have a network id" << std::endl;
         return;
@@ -303,9 +302,7 @@ void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vect
         return;
     }
 
-    uint8_t index = it->first;
-    uint16_t component_id = index;
-    component_id = htons(component_id);
+    uint16_t component_id = it->first;
     size_t component_size = data.size();
 
     std::vector<uint8_t> message(7 + component_size);
@@ -319,12 +316,12 @@ void RTypeClient::sendUpdateComponent(size_t entity, std::string name, std::vect
 
 uint16_t RTypeClient::uint16From2Uint8(uint8_t first, uint8_t second)
 {
-    return static_cast<uint16_t>((first << 8) | static_cast<uint16_t>(second));
+    return static_cast<uint16_t>((second << 8) | static_cast<uint16_t>(first));
 }
 
 uint32_t RTypeClient::uint32From4Uint8(uint8_t byte1, uint8_t byte2, uint8_t byte3, uint8_t byte4)
 {
-    return static_cast<uint32_t>((byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4);
+    return static_cast<uint32_t>((byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1);
 }
 
 uint16_t RTypeClient::receiveUint16()
