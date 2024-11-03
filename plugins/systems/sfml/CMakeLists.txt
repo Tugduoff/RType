@@ -11,6 +11,8 @@ add_library(Sfml SHARED
     ../../../src/utils/Keys.cpp
     ../../../src/utils/Actions.cpp
     ../../../src/utils/EntityActions.cpp
+
+    menu/Menu.cpp
 )
 
 CPMAddPackage(

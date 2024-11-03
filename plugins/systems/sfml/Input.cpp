@@ -202,6 +202,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
                         try {
                             auto &entityAction = entityActionComponents[i];
+                            (void) entityAction;
                         } catch (std::exception &e) {
                             std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                             engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
@@ -244,6 +245,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
                         try {
                             auto &entityAction = entityActionComponents[i];
+                            (void) entityAction;
                         } catch (std::exception &e) {
                             std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                             engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
@@ -282,6 +284,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                             engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
                             try {
                                 auto &entityAction = entityActionComponents[i];
+                                (void) entityAction;
                             } catch (std::exception &e) {
                                 std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                                 engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
@@ -320,6 +323,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                             engine.updateComponent(i, ctrl->getId(), ctrl->serialize());
                             try {
                                 auto &entityAction = entityActionComponents[i];
+                                (void) entityAction;
                             } catch (std::exception &e) {
                                 std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                                 engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));

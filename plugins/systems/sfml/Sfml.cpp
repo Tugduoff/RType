@@ -15,6 +15,7 @@
 
 Systems::Sfml::Sfml(libconfig::Setting &config) :
     inputSystem(config),
+    menu(config),
     actionManager(config),
     soundSystem(config)
 {
@@ -41,6 +42,7 @@ Systems::Sfml::Sfml(libconfig::Setting &config) :
 Systems::Sfml::Sfml() :
     displaySystem(),
     inputSystem(),
+    menu(),
     actionManager(),
     soundSystem(),
     __window(sf::VideoMode(1920, 1080, 32), "RType")
@@ -54,6 +56,7 @@ void Systems::Sfml::init(Engine::GameEngine &engine)
     displaySystem.init(engine);
     inputSystem.init(engine);
     actionManager.init(engine);
+    menu.init(engine);
     soundSystem.init(engine);
 }
 
@@ -62,6 +65,7 @@ void Systems::Sfml::run(Engine::GameEngine &engine)
     displaySystem.run(engine, __window);
     inputSystem.run(engine, __window);
     actionManager.run(engine);
+    menu.run(engine, __window);
     soundSystem.run(engine);
 
     if (!__window.isOpen()) {
