@@ -103,6 +103,9 @@ void UDPServer::createNewEntity(Engine::GameEngine &engine, const udp::endpoint 
         data,
         client
     );
+
+    _clients.at(client).setEntity(entity);
+
     std::cerr << "Sent controllable component to client" << std::endl;
 }
 
@@ -131,8 +134,12 @@ void UDPServer::start_receive(Engine::GameEngine &engine)
                     break;
 
                 case 0x1:
+                    std::cerr << "Received component to ignore" << std::endl;
                     if (bytes_recvd < 3) {
                         break;
+                    }
+                    for (auto type : client_info.used_types) {
+                        std::cerr << "Type used by client: " << remote_endpoint_ << " : " << type.name() << std::endl;
                     }
                     __ignoreComponent(client_info);
                     break;
@@ -178,6 +185,7 @@ void UDPServer::__init_new_client()
 
 void UDPServer::__ignoreComponent(UDPServer::ClientInfo &clientInfo)
 {
+    std::cerr << "In function ignoreComponent" << std::endl;
     uint16_t toIgnore = *reinterpret_cast<uint16_t *>(&recv_buffer_[1]);
 
     auto const &compInfo = std::find_if(
@@ -193,6 +201,7 @@ void UDPServer::__ignoreComponent(UDPServer::ClientInfo &clientInfo)
     }
     clientInfo.used_types.erase(compInfo->first);
     __send_nb_components_message(remote_endpoint_);
+    std::cerr << "Component " << compInfo->first.name() << " ignored" << std::endl;
 }
 
 void UDPServer::__send_nb_components_message(const udp::endpoint &client)
@@ -203,6 +212,7 @@ void UDPServer::__send_nb_components_message(const udp::endpoint &client)
 
     msg[0] = opcode;
     *reinterpret_cast<uint16_t *>(&msg[1]) = htons(_clients[client].used_types.size());
+    std::cerr << "Sending nb components message: " << _clients[client].used_types.size() << std::endl;
 
     __send_message(msg);
 }
@@ -262,11 +272,11 @@ void UDPServer::__send_component_nb_loop(const udp::endpoint &ep)
     if (!_clients.contains(ep) || _clients.at(ep).state != ClientInfo::State::INIT) {
         return;
     }
-    __send_component_nb_loop(ep);
+    __send_nb_components_message(ep);
     boost::asio::steady_timer t(io_context_, boost::asio::chrono::milliseconds(500));
 
     t.async_wait([this, ep](auto const &) {
-        __send_nb_components_message(ep);
+        __send_component_nb_loop(ep);
     });
 }
 
@@ -515,7 +525,7 @@ void UDPServer::receiveUpdateComponent(Engine::GameEngine &engine, std::span<con
         }
     }
     catch(const std::exception &) {
-    }    
+    }
 }
 
 void UDPServer::sendNextFrame()
