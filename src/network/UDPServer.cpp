@@ -54,7 +54,7 @@ UDPServer::UDPServer(
 
 // --- Loop --- //
 
-void UDPServer::createNewEntity(Engine::GameEngine &engine, const udp::endpoint &client)
+void UDPServer::createNewEntity(Engine::GameEngine &engine)
 {
     lockMutex();
     ECS::Entity entity = engine.getRegistry().createEntity();
@@ -102,14 +102,14 @@ void UDPServer::createNewEntity(Engine::GameEngine &engine, const udp::endpoint 
 
     uint16_t component_id = _comps_info.at(type).networkId;
 
-    __send_update_component(
-        networkId,
-        component_id,
-        data,
-        client
-    );
+    // __send_update_component(
+    //     networkId,
+    //     component_id,
+    //     data,
+    //     client
+    // );
 
-    _clients.at(client).setEntity(entity);
+    // _clients.at(client).setEntity(entity);
 
     std::cerr << "Sent controllable component to client" << std::endl;
 }
@@ -150,7 +150,7 @@ void UDPServer::start_receive(Engine::GameEngine &engine)
 
                 case 0x2:
                     client_info.state = ClientInfo::State::STARTED;
-                    createNewEntity(engine, remote_endpoint_);
+                    createNewEntity(engine);
                     __add_new_client();
 
                     _isGameRunning = true;

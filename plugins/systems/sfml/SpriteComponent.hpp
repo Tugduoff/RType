@@ -40,7 +40,7 @@ namespace Components {
 
             // Check if the current texture is done before switching
             if (currentTexture.isDone()) {
-                std::cerr << "Current texture is done for action: " << currentTexture.getAction() << std::endl;
+                // std::cerr << "Current texture is done for action: " << currentTexture.getAction() << std::endl;
 
                 // Find the texture corresponding to the new action
                 bool textureFound = false;
@@ -50,7 +50,7 @@ namespace Components {
                         currentAction = action;
                         sprite.setTexture(currentTexture.getTexture());
                         currentTexture.restartChrono();
-                        std::cerr << "Loaded texture for action: " << action << std::endl;
+                        // std::cerr << "Loaded texture for action: " << action << std::endl;
                         nextTexture = "";  // Clear the next texture
                         textureFound = true;
                         break;

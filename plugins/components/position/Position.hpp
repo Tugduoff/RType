@@ -148,8 +148,8 @@ namespace Components {
                 layerVal = 1;
             }
 
-            std::cout << "x: " << xVal << " y: " << yVal << " layer: " << layerVal << std::endl;
-            std::cout << std::endl;
+            // std::cout << "x: " << xVal << " y: " << yVal << " layer: " << layerVal << std::endl;
+            // std::cout << std::endl;
 
             attachAndUpdateComponent<Components::Position>(
                 engine, to,

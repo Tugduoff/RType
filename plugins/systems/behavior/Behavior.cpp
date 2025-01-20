@@ -29,7 +29,7 @@ void Systems::BehaviorSystem::yAxisLoop(Engine::GameEngine &engine, size_t i, st
         vel->floatY *= factor;
         vel->y = (int)vel->floatY;
     }
-    engine.updateComponent(i, vel->getId(), vel->serialize());
+    // engine.updateComponent(i, vel->getId(), vel->serialize());
     return;
 }
 
@@ -50,7 +50,7 @@ void Systems::BehaviorSystem::yZigZag(Engine::GameEngine &engine, size_t i, std:
         vel->floatY *= factor;
         vel->y = (int)vel->floatY;
     }
-    engine.updateComponent(i, vel->getId(), vel->serialize());
+    // engine.updateComponent(i, vel->getId(), vel->serialize());
     return;
 }
 
@@ -62,7 +62,7 @@ void Systems::BehaviorSystem::xAxisLoop(Engine::GameEngine &engine, size_t i, st
     vel->y = 0;
     if (gun->bulletVelocityY == 0) {
         gun->bulletVelocityY = 8;
-        engine.updateComponent(i, gun->getId(), gun->serialize());
+        // engine.updateComponent(i, gun->getId(), gun->serialize());
     }
     if (pos->x < deathRange->minX + 50) {
         vel->floatX = 5;
@@ -77,7 +77,7 @@ void Systems::BehaviorSystem::xAxisLoop(Engine::GameEngine &engine, size_t i, st
         vel->floatX *= factor;
         vel->x = (int)vel->floatX;
     }
-    engine.updateComponent(i, vel->getId(), vel->serialize());
+    // engine.updateComponent(i, vel->getId(), vel->serialize());
     return;
 }
 
@@ -87,7 +87,7 @@ void Systems::BehaviorSystem::xZigZag(Engine::GameEngine &engine, size_t i, std:
 {
     if (gun->bulletVelocityY == 0) {
         gun->bulletVelocityY = 8;
-        engine.updateComponent(i, gun->getId(), gun->serialize());
+        // engine.updateComponent(i, gun->getId(), gun->serialize());
     }
     if (pos->x < deathRange->minX + minValue) {
         vel->floatX = 3;
@@ -102,7 +102,7 @@ void Systems::BehaviorSystem::xZigZag(Engine::GameEngine &engine, size_t i, std:
         vel->floatX *= factor;
         vel->x = (int)vel->floatX;
     }
-    engine.updateComponent(i, vel->getId(), vel->serialize());
+    // engine.updateComponent(i, vel->getId(), vel->serialize());
     return;
 }
 

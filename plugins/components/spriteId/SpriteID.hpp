@@ -33,7 +33,7 @@ namespace Components {
         :   AComponent("SpriteID"),
             id(id)
         {
-            std::cerr << "Creating SpriteID component with ID: " << id << std::endl;
+            // std::cerr << "Creating SpriteID component with ID: " << id << std::endl;
             if (this->id.size() > MAX_ID_SIZE) {
                 this->id.resize(MAX_ID_SIZE);  // Truncate if longer than 20
             }
@@ -111,7 +111,7 @@ namespace Components {
                 spriteId.resize(MAX_ID_SIZE);  // Truncate if longer than 20
             }
 
-            std::cerr << "Adding SpriteID component to entity: " << to << " with ID: " << spriteId << std::endl;
+            // std::cerr << "Adding SpriteID component to entity: " << to << " with ID: " << spriteId << std::endl;
 
             attachAndUpdateComponent<Components::SpriteID>(
                 engine, to,

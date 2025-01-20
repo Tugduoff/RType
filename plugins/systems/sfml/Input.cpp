@@ -54,7 +54,7 @@ void Systems::Input::updateControllable(Engine::GameEngine &engine)
             continue;
         std::cerr << "Updating controllable component with id: " << i << std::endl;
         ctrl.keyBindings = keyBindings;
-        engine.updateComponent((ECS::Entity)i, ctrl.getId(), ctrl.serialize());
+        // engine.updateComponent((ECS::Entity)i, ctrl.getId(), ctrl.serialize());
     }
 }
 
@@ -68,12 +68,12 @@ void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-            std::cerr << "Window closed" << std::endl;
+            // std::cerr << "Window closed" << std::endl;
             window.close();
         }
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Escape) {
-                std::cerr << "Escape pressed" << std::endl;
+                // std::cerr << "Escape pressed" << std::endl;
                 window.close();
             }
         }
@@ -82,7 +82,7 @@ void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         } catch (std::exception &e) {
             std::cerr << "Input handleInput Error: " << e.what() << std::endl;
         }
-        std::cout << std::endl;
+        // std::cout << std::endl;
     }
 }
 
@@ -232,13 +232,13 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
             for (auto &[action, actionKey] : ctrl.keyBindings) {
                 if (actionKey == key) {
                     handleInputPressed(ctrl.inputs, ctrl.actions, index);
-                    engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
+                    // engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
                     try {
                         auto &entityAction = entityActionComponents[i];
                     } catch (std::exception &e) {
                         std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                         engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                        std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                        // std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                     };
                     auto &entityAction = entityActionComponents[i];
 
@@ -249,7 +249,7 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     bool action1Input = ctrl.inputs[(int)Action::ACTION1];
 
                     EntityAction newAction = determinePressedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
-                    std::cerr << "New action initialized : " << newAction << std::endl;
+                    // std::cerr << "New action initialized : " << newAction << std::endl;
                     entityAction->action = newAction;
                     return;
                 }
@@ -269,13 +269,13 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
             for (auto &[action, actionKey] : ctrl.keyBindings) {
                 if (actionKey == key) {
                     handleInputReleased(ctrl.inputs, ctrl.actions, index);
-                    engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
+                    // engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
                     try {
                         auto &entityAction = entityActionComponents[i];
                     } catch (std::exception &e) {
                         std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                         engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                        std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                        // std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                     };
 
                     auto &entityAction = entityActionComponents[i];
@@ -302,13 +302,13 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
                     (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
                         handleInputPressed(ctrl.inputs, ctrl.actions, index);
-                        engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
+                        // engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
                         try {
                             auto &entityAction = entityActionComponents[i];
                         } catch (std::exception &e) {
                             std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                             engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                            std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                            // std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                         };
 
                         auto &entityAction = entityActionComponents[i];
@@ -335,13 +335,13 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     (actionKey == Key::RIGHT_CLICK && event.mouseButton.button == sf::Mouse::Right) ||
                     (actionKey == Key::MIDDLE_CLICK && event.mouseButton.button == sf::Mouse::Middle)) {
                         handleInputReleased(ctrl.inputs, ctrl.actions, index);
-                        engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
+                        // engine.updateComponent(i, ctrl.getId(), ctrl.serialize());
                         try {
                             auto &entityAction = entityActionComponents[i];
                         } catch (std::exception &e) {
                             std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                             engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                            std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                            // std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                         };
 
                         auto &entityAction = entityActionComponents[i];

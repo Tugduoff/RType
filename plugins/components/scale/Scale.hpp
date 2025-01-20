@@ -136,8 +136,8 @@ namespace Components {
                 height = 1;
             }
 
-            std::cout << "width: " << width << " height: " << height << std::endl;
-            std::cout << std::endl;
+            // std::cout << "width: " << width << " height: " << height << std::endl;
+            // std::cout << std::endl;
 
             attachAndUpdateComponent<Components::Scale>(
                 engine, to,

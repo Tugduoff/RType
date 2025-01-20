@@ -142,8 +142,8 @@ namespace Components {
                 maxVal = 100;
             }
 
-            std::cout << "currentVal: " << currentVal << " maxVal: " << maxVal << std::endl;
-            std::cout << std::endl;
+            // std::cout << "currentVal: " << currentVal << " maxVal: " << maxVal << std::endl;
+            // std::cout << std::endl;
 
             attachAndUpdateComponent<Components::Health>(
                 engine, to,

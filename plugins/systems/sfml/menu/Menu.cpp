@@ -209,7 +209,8 @@ void Systems::Menu::init(Engine::GameEngine &engine)
 {
     auto &manager = engine.getRegistry().componentManager();
 
-    engine._inMenu = true;
+    engine._inMenu = false;
+    return;
     _titleReachedLeftEdge = false;
     _titleDeployed = false;
     _tmSpawned = false;

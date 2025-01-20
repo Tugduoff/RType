@@ -34,13 +34,15 @@
 #include "components/sound/Sound.hpp"
 #include "components/destruction/Destruction.hpp"
 #include "components/Ai/Ai.hpp"
+#include "components/type/Type.hpp"
+#include "components/spriteId/SpriteID.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
 {
     int i = 0;
 
-    std::cout << std::endl;
+    // std::cout << std::endl;
     for (auto it = begin; it != end; ++it) {
         std::type_index &idx = *it;
 
@@ -65,7 +67,7 @@ void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
             }
             std::cout << "}" << std::endl;
         }
-        std::cout << std::endl;
+        // std::cout << std::endl;
     }
 }
 
@@ -85,7 +87,7 @@ void updateComponent(size_t id, std::string name, std::vector<uint8_t> data)
 
 int main() {
     Engine::GameEngine engine(
-        []([[maybe_unused]]size_t id, [[maybe_unused]]std::string name, [[maybe_unused]]std::vector<uint8_t> data) { std::cout << "Empty update component" << std::endl; }
+        []([[maybe_unused]]size_t id, [[maybe_unused]]std::string name, [[maybe_unused]]std::vector<uint8_t> data) {  }
     );
     Chrono chrono;
 
@@ -107,33 +109,33 @@ int main() {
     try {
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
-        UDPServer server(
-            io_context,
-            8080,
-            engine.getIdStringToType(),
-            [&engine]() -> const std::vector<ECS::Entity> & {
-                return engine.getRegistry().entityManager().viewEntities();
-            },
-            ComponentsGetter(engine)
-        );
+        // UDPServer server(
+        //     io_context,
+        //     8080,
+        //     engine.getIdStringToType(),
+        //     [&engine]() -> const std::vector<ECS::Entity> & {
+        //         return engine.getRegistry().entityManager().viewEntities();
+        //     },
+        //     ComponentsGetter(engine)
+        // );
 
-        engine.getRegistry().addEntityCreateCallback(
-            [&server](const ECS::Entity &e) { server.create_entity(e); }
-        );
-        engine.getRegistry().addEntityKillCallback(
-            [&server](const ECS::Entity &e) { server.delete_entity(e); }
-        );
+        // engine.getRegistry().addEntityCreateCallback(
+        //     [&server](const ECS::Entity &e) { server.create_entity(e); }
+        // );
+        // engine.getRegistry().addEntityKillCallback(
+        //     [&server](const ECS::Entity &e) { server.delete_entity(e); }
+        // );
 
         // engine.getRegistry().componentManager().registerGlobalCreateCallback(
         //     [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
         // );
-        engine.getRegistry().componentManager().registerGlobalRemoveCallback(
-            [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
-        );
+        // engine.getRegistry().componentManager().registerGlobalRemoveCallback(
+        //     [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
+        // );
 
-        engine.setUpdateComponent(
-            [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
-        );
+        // engine.setUpdateComponent(
+        //     [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
+        // );
 
         engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
         engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
@@ -144,15 +146,15 @@ int main() {
 
         engine.loadSystems("./src/server/configServer.cfg");
 
-        server.updateIdStringToType(engine.getIdStringToType());
+        // server.updateIdStringToType(engine.getIdStringToType());
 
         // engine.getRegistry().componentManager().
-        server.start_receive(engine);
+        // server.start_receive(engine);
         std::thread io_thread([&io_context]() { io_context.run(); });
-        while(!server.gameRunning()) {
-            using namespace std::chrono_literals;
-            std::this_thread::sleep_for(1ms);
-        }
+        // while(!server.gameRunning()) {
+        //     using namespace std::chrono_literals;
+        //     std::this_thread::sleep_for(1ms);
+        // }
 
         std::thread io_thread1([&io_context]() { io_context.run(); });
         std::thread io_thread2([&io_context]() { io_context.run(); });
@@ -160,19 +162,56 @@ int main() {
         std::thread io_thread4([&io_context]() { io_context.run(); });
 
         displayPolymorphic(engine, types.begin(), types.end());
+        ECS::Entity entity = engine.getRegistry().createEntity();
+        std::cerr << "New entity created with ID: " << entity << std::endl;
 
-        std::cout << "####################################### iteration 0\n" << std::endl;
+        srand(time(NULL));
+        int posY = rand() % 1080;
+
+        attachAndUpdateComponent<Components::Position>(engine, entity, 50, posY, 2);
+        attachAndUpdateComponent<Components::Velocity>(engine, entity, 0, 0, 100);
+        attachAndUpdateComponent<Components::Collider>(engine, entity, 30, 30);
+        attachAndUpdateComponent<Components::Damage>(engine, entity, 50);
+        attachAndUpdateComponent<Components::Type>(engine, entity, Components::TypeID::ALLY);
+        attachAndUpdateComponent<Components::SpriteID>(engine, entity, "player");
+        attachAndUpdateComponent<Components::Acceleration>(engine, entity, -5, 5, -5, 5);
+        attachAndUpdateComponent<Components::Gun>(engine, entity, 50, 500, 8, 0, "shot1");
+        attachAndUpdateComponent<Components::Scale>(engine, entity, 300, 300);
+
+        std::map<enum Action, enum Key> keyBindings = {
+            {Action::FORWARD, Key::UNKNOWN},
+            {Action::BACKWARD, Key::UNKNOWN},
+            {Action::LEFT, Key::UNKNOWN},
+            {Action::RIGHT, Key::UNKNOWN},
+            {Action::ACTION1, Key::UNKNOWN},
+            {Action::ACTION2, Key::UNKNOWN},
+            {Action::ACTION3, Key::UNKNOWN},
+            {Action::ACTION4, Key::UNKNOWN},
+            {Action::ACTION5, Key::UNKNOWN},
+            {Action::ACTION6, Key::UNKNOWN},
+            {Action::ACTION7, Key::UNKNOWN},
+            {Action::ACTION8, Key::UNKNOWN},
+            {Action::ACTION9, Key::UNKNOWN},
+            {Action::ACTION10, Key::UNKNOWN}
+        };
+
+        std::unique_ptr<Components::Controllable> component = std::make_unique<Components::Controllable>(keyBindings);
+        std::vector<uint8_t> data = component->serialize();
+
+        engine.getRegistry().componentManager().addComponent(entity, std::move(component));
+
+        // std::cout << "####################################### iteration 0\n" << std::endl;
 
         unsigned int i = 1;
         while (true) {
             if (chrono.getElapsedTime() < 17)
                 continue;
-            server.lockMutex();
+            // server.lockMutex();
             engine.runSystems();
-            server.unlockMutex();
-            server.sendNextFrame();
+            // server.unlockMutex();
+            // server.sendNextFrame();
             // displayPolymorphic(engine, types.begin(), types.end());
-            std::cout << "####################################### iteration: " << i++ << "\n" << std::endl;
+            // std::cout << "####################################### iteration: " << i++ << "\n" << std::endl;
             chrono.restart();
        }
 
