@@ -60,12 +60,12 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
 
                 if (entityAction->action == EntityAction::SHOOT_FORWARD && gun.chrono.getElapsedTime() > gun.fireRate / 2) {
                     entityAction->action = EntityAction::IDLE;
-                    engine.updateComponent((ECS::Entity)i, entityAction->getId(), entityAction->serialize());
+                    // engine.updateComponent((ECS::Entity)i, entityAction->getId(), entityAction->serialize());
                 }
             } catch (std::exception &e) {
                 std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                 engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                // std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                 continue;
             }
             if (gun.chrono.getElapsedTime() < gun.fireRate)
@@ -77,11 +77,11 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                     if (std::get<0>(soundInstance) == "ATTACK") {
                         if (std::get<5>(soundInstance) == true) {
                             std::get<5>(soundInstance) = false;
-                            engine.updateComponent((ECS::Entity)i, sound->getId(), sound->serialize());
+                            // engine.updateComponent((ECS::Entity)i, sound->getId(), sound->serialize());
                             return;
                         }
                         std::get<5>(soundInstance) = true;
-                        engine.updateComponent((ECS::Entity)i, sound->getId(), sound->serialize());
+                        // engine.updateComponent((ECS::Entity)i, sound->getId(), sound->serialize());
                     }
                 }
             } catch (std::exception &) {}
@@ -102,15 +102,15 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
                 auto &entityAction = actArr[i];
 
                 entityAction->action = EntityAction::SHOOT_FORWARD;
-                engine.updateComponent((ECS::Entity)i, entityAction->getId(), entityAction->serialize());
+                // engine.updateComponent((ECS::Entity)i, entityAction->getId(), entityAction->serialize());
             } catch (std::exception &e) {
                 std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                 engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
+                // std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                 continue;
             }
 
-            std::cerr << "Entity: " << i << " fired a shot" << std::endl;
+            // std::cerr << "Entity: " << i << " fired a shot" << std::endl;
         }
         for (const auto &[posX, posY, bulletVelX, bulletVelY, bulletDmg, typeId, spriteId] : projToCreate) {
             createProjectile(engine, posX, posY, bulletVelX, bulletVelY, 10, 10, bulletDmg, typeId, spriteId);

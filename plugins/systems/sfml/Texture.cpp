@@ -66,7 +66,7 @@ void Texture::update(sf::Sprite &sprite) {
                     __rect.left -= __rect.width;  // Stop at the last frame
                 }
                 __actionDone = true;
-                std::cerr << "Action " << __action << " done" << std::endl;
+                // std::cerr << "Action " << __action << " done" << std::endl;
             }
         }
     }

@@ -157,7 +157,7 @@ namespace Components {
                 factor = 0;
             }
 
-            std::cout << "x: " << xVal << " y: " << yVal << " factor: " << factor << std::endl;
+            // std::cout << "x: " << xVal << " y: " << yVal << " factor: " << factor << std::endl;
 
             uint8_t diminishingFactor = static_cast<uint8_t>(factor);
 

@@ -34,7 +34,7 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
             return;
         }
         if (gun->chrono.getElapsedTime() >= gun->fireRate) {
-            std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
+            // std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
             gun->chrono.restart();
             auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
             auto &position = positionComponents[entityIndex];
@@ -56,11 +56,11 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
                     if (std::get<0>(soundInstance) == "ATTACK") {
                         if (std::get<5>(soundInstance) == true) {
                             std::get<5>(soundInstance) = false;
-                            engine.updateComponent((ECS::Entity)entityIndex, sound->getId(), sound->serialize());
+                            // engine.updateComponent((ECS::Entity)entityIndex, sound->getId(), sound->serialize());
                             return;
                         }
                         std::get<5>(soundInstance) = true;
-                        engine.updateComponent((ECS::Entity)entityIndex, sound->getId(), sound->serialize());
+                        // engine.updateComponent((ECS::Entity)entityIndex, sound->getId(), sound->serialize());
                     }
                 }
             } catch (std::exception &) {}
@@ -98,27 +98,27 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
 
             if (inputForward && !inputBackward) {
                 vel.x = accel.forward;
-                std::cout << "Forward triggered" << std::endl;
+                // std::cout << "Forward triggered" << std::endl;
                 // engine.updateComponent(i, vel.getId(), vel.serialize());
             }
             if (inputBackward && !inputForward) {
                 vel.x = accel.backward;
-                std::cout << "Backward triggered" << std::endl;
+                // std::cout << "Backward triggered" << std::endl;
                 // engine.updateComponent(i, vel.getId(), vel.serialize());
             }
             if (inputRight && !inputLeft) {
                 vel.y = accel.right;
-                std::cout << "Right triggered" << std::endl;
+                // std::cout << "Right triggered" << std::endl;
                 // engine.updateComponent(i, vel.getId(), vel.serialize());
             }
             if (inputLeft && !inputRight) {
                 vel.y = accel.left;
-                std::cout << "Left triggered" << std::endl;
+                // std::cout << "Left triggered" << std::endl;
                 // engine.updateComponent(i, vel.getId(), vel.serialize());
             }
             for (int j = 0; j < 10; j++) {
                 if (controllable.actions[j]) {
-                    std::cout << "Action " << j + 1 << " triggered" << std::endl;
+                    // std::cout << "Action " << j + 1 << " triggered" << std::endl;
                     if (j == 0) {
                         shootAction(engine, i);
                     } else {

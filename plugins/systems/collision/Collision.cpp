@@ -123,12 +123,12 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(Engine::GameEngin
                             if (std::get<0>(soundInstance) == "HIT") {
                                 if (std::get<5>(soundInstance) == true) {
                                     std::get<5>(soundInstance) = false;
-                                    engine.updateComponent((ECS::Entity)enemy, sound->getId(), sound->serialize());
+                                    // engine.updateComponent((ECS::Entity)enemy, sound->getId(), sound->serialize());
                                     enemyHealth->currentHealth += projDamage->damage;
                                     return;
                                 }
                                 std::get<5>(soundInstance) = true;
-                                engine.updateComponent((ECS::Entity)enemy, sound->getId(), sound->serialize());
+                                // engine.updateComponent((ECS::Entity)enemy, sound->getId(), sound->serialize());
                             }
                         }
                     } catch (std::exception &) {}
@@ -199,12 +199,12 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
                             if (std::get<0>(soundInstance) == "HIT") {
                                 if (std::get<5>(soundInstance) == true) {
                                     std::get<5>(soundInstance) = false;
-                                    engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
+                                    // engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
                                     playerHealth->currentHealth += projDamage->damage;
                                     return;
                                 }
                                 std::get<5>(soundInstance) = true;
-                                engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
+                                // engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
                             }
                         }
                     } catch (std::exception &) {}

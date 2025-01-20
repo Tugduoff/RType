@@ -32,7 +32,7 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
         for (auto &&[i, pos, vel] : IndexedZipper(posArr, velArr)) {
             pos.x += vel.x;
             pos.y += vel.y;
-            engine.updateComponent(i, pos.getId(), pos.serialize());
+            // engine.updateComponent(i, pos.getId(), pos.serialize());
             if (vel.diminishingFactor == 0)
                 continue;
             float factor = (float)vel.diminishingFactor / 100;
@@ -40,13 +40,13 @@ void Systems::MoveSystem::run(Engine::GameEngine &engine)
             vel.floatY *= factor;
             vel.x = (int)vel.floatX;
             vel.y = (int)vel.floatY;
-            engine.updateComponent(i, vel.getId(), vel.serialize());
+            // engine.updateComponent(i, vel.getId(), vel.serialize());
         }
         for (auto &&[i, pos, drange] : IndexedZipper(posArr, dRangeArr)) {
             if (pos.x > drange.maxX || pos.x < drange.minX ||
                 pos.y > drange.maxY || pos.y < drange.minY) {
                 reg.killEntity((ECS::Entity)i);
-                std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
+                // std::cerr << "Entity " << i << " has been killed due to death range" << std::endl;
             }
         }
     } catch (std::runtime_error &e) {

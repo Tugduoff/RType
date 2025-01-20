@@ -27,7 +27,7 @@ void createProjectile(
     auto &reg = engine.getRegistry();
     ECS::Entity projectileEntity = reg.createEntity();
 
-    std::cerr << "Created new projectileEntity with id: " << projectileEntity << std::endl;
+    // std::cerr << "Created new projectileEntity with id: " << projectileEntity << std::endl;
 
     attachAndUpdateComponent<Components::Position>(engine, projectileEntity, posX, posY, 1);
     attachAndUpdateComponent<Components::Velocity>(engine, projectileEntity, velX, velY, 100);

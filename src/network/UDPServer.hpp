@@ -75,6 +75,13 @@ class UDPServer {
          */
         void unlockMutex();
 
+        /**
+         * @brief Create a new player entity when a new client connects
+         * 
+         * @param engine The game engine
+         */
+        void createNewEntity(Engine::GameEngine &engine);
+
     private:
         struct ComponentInfo {
             std::string name;
@@ -125,13 +132,6 @@ class UDPServer {
 
 
         // --- Helpers --- //
-
-        /**
-         * @brief Create a new player entity when a new client connects
-         * 
-         * @param engine The game engine
-         */
-        void createNewEntity(Engine::GameEngine &engine, const udp::endpoint &client);
 
         /**
         * @brief Retrieves the maximum size of component names.
