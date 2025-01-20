@@ -108,7 +108,7 @@ int main() {
 
     try {
         // we'll probably have to move it elsewhere
-        boost::asio::io_context io_context;
+        // boost::asio::io_context io_context;
         // UDPServer server(
         //     io_context,
         //     8080,
@@ -150,16 +150,16 @@ int main() {
 
         // engine.getRegistry().componentManager().
         // server.start_receive(engine);
-        std::thread io_thread([&io_context]() { io_context.run(); });
+        // std::thread io_thread([&io_context]() { io_context.run(); });
         // while(!server.gameRunning()) {
         //     using namespace std::chrono_literals;
         //     std::this_thread::sleep_for(1ms);
         // }
 
-        std::thread io_thread1([&io_context]() { io_context.run(); });
-        std::thread io_thread2([&io_context]() { io_context.run(); });
-        std::thread io_thread3([&io_context]() { io_context.run(); });
-        std::thread io_thread4([&io_context]() { io_context.run(); });
+        // std::thread io_thread1([&io_context]() { io_context.run(); });
+        // std::thread io_thread2([&io_context]() { io_context.run(); });
+        // std::thread io_thread3([&io_context]() { io_context.run(); });
+        // std::thread io_thread4([&io_context]() { io_context.run(); });
 
         displayPolymorphic(engine, types.begin(), types.end());
         ECS::Entity entity = engine.getRegistry().createEntity();
