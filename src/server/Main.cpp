@@ -177,6 +177,7 @@ int main() {
         attachAndUpdateComponent<Components::Acceleration>(engine, entity, -5, 5, -5, 5);
         attachAndUpdateComponent<Components::Gun>(engine, entity, 50, 500, 8, 0, "shot1");
         attachAndUpdateComponent<Components::Scale>(engine, entity, 300, 300);
+        attachAndUpdateComponent<Components::Health>(engine, entity, 100);
 
         std::map<enum Action, enum Key> keyBindings = {
             {Action::FORWARD, Key::UNKNOWN},
