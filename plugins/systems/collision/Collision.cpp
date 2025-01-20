@@ -167,6 +167,15 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
             projectiles.push_back((ECS::Entity)i);
         }
     }
+
+    // for (auto &player : players) {
+    //     std::cerr << "Player: " << player << std::endl;
+    // }
+
+    // for (auto &proj : projectiles) {
+    //     std::cerr << "Projectile: " << proj << std::endl;
+    // }
+
     for (auto &proj : projectiles) {
         for (auto &player : players) {
             try {
@@ -175,10 +184,14 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
                 auto &playerPos = posArr[player];
                 auto &playerCollider = colliderArr[player];
 
+                // std::cerr << "Projectile: " << proj << " x: " << projPos->x << " y: " << projPos->y << std::endl;
+                // std::cerr << "Player: " << player << " x: " << playerPos->x << " y: " << playerPos->y << std::endl;
+
                 if (projPos->x - projCollider->width / 2 < playerPos->x + playerCollider->width / 2 &&
                     projPos->x + projCollider->width / 2 > playerPos->x - playerCollider->width / 2 &&
                     projPos->y - projCollider->height / 2 < playerPos->y + playerCollider->height / 2 &&
                     projPos->y + projCollider->height / 2 > playerPos->y - playerCollider->height / 2) {
+                    
                     auto &projDamage = dmgArr[proj];
                     auto &playerHealth = healthArr[player];
 
@@ -216,6 +229,7 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
                     reg.killEntity(proj);
                 }
             } catch (std::exception &e) {
+                std::cerr << "Error checking enemy projectile to player collision: " << e.what() << std::endl;
                 continue;
             }
         }
