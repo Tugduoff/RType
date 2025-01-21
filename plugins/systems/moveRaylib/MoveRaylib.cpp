@@ -11,6 +11,8 @@
 #include "components/position3d/Position3d.hpp"
 #include "components/velocity3d/Velocity3d.hpp"
 #include "components/deathRange/DeathRange.hpp"
+#include "components/acceleration/Acceleration.hpp"
+#include "components/maxAcceleration/MaxAcceleration.hpp"
 #include "library_entrypoint.hpp"
 #include <iostream>
 #include <stdexcept>
@@ -21,7 +23,6 @@ Systems::MoveRaylib::MoveRaylib(libconfig::Setting &)
 
 void Systems::MoveRaylib::run(Engine::GameEngine &engine)
 {
-    std::cerr << "Running MoveRaylib" << std::endl;
     auto &reg = engine.getRegistry();
 
     try {
@@ -46,7 +47,6 @@ void Systems::MoveRaylib::run(Engine::GameEngine &engine)
             pos.y = (int)pos.floatY;
             pos.z = (int)pos.floatZ;
             engine.updateComponent(i, pos.getId(), pos.serialize());
-            std::cerr << "######### POSITION: " << std::setw(5) << pos.x << " " << std::setw(5) << pos.y << " " << std::setw(5) << pos.z << std::endl;
         }
         for (auto &&[i, pos, drange] : IndexedZipper(posArr, dRangeArr)) {
             if (pos.x > drange.maxX || pos.x < drange.minX ||

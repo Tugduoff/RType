@@ -186,6 +186,7 @@ namespace Components {
         float floatX;
         float floatY;
         float floatZ;
+        float currentVal = 0.0f;
         uint8_t diminishingFactor;
 
     private:

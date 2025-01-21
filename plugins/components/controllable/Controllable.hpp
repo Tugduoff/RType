@@ -54,10 +54,10 @@ namespace Components {
          * Initializes the Controllable component with the provided key bindings.
          */
         Controllable(std::map<enum Action, enum Key> keyBindings = {
-                {Action::FORWARD, Key::Z},
-                {Action::BACKWARD, Key::S},
-                {Action::LEFT, Key::Q},
-                {Action::RIGHT, Key::D},
+                {Action::FORWARD, Key::D},
+                {Action::BACKWARD, Key::Q},
+                {Action::LEFT, Key::Z},
+                {Action::RIGHT, Key::S},
                 {Action::ACTION1, Key::LEFT_CLICK},
                 {Action::ACTION2, Key::RIGHT_CLICK},
                 {Action::ACTION3, Key::MIDDLE_CLICK},

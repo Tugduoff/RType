@@ -123,12 +123,10 @@ void Systems::DisplayManager::run(Engine::GameEngine &engine)
         BeginBlendMode(BLEND_ALPHA);
         ClearBackground(SKYBLUE);
 
-        std::cerr << "Mode Drawing started" << std::endl;
         for (auto &&[camera] : Zipper(cameraComponents)) {
             // std::cerr << "Camera position: " << camera.camera.position.x << " " << camera.camera.position.y << " " << camera.camera.position.z << std::endl;
             BeginMode3D(camera.camera);
 
-                std::cerr << "Mode 3D started" << std::endl;
                 for (auto &&[i, pos, model] : IndexedZipper(posComponents, modelComponents)) {
                     if (!model.isLoaded) {
                         std::cerr << "Model not loaded" << std::endl;
@@ -136,12 +134,9 @@ void Systems::DisplayManager::run(Engine::GameEngine &engine)
                     }
 
                     // std::cerr << "Model position: " << pos.x << " " << pos.y << " " << pos.z << std::endl;
-                    model.pos.x = static_cast<float>(pos.x);
-                    model.pos.y = static_cast<float>(pos.y);
-                    model.pos.z = static_cast<float>(pos.z);
-
-                    std::cerr << "######### POSITION: " << std::setw(10) << std::setprecision(5) << model.pos.x << " " << std::setw(10) << std::setprecision(5) << model.pos.y << " " << std::setw(10) << std::setprecision(5) << model.pos.z << std::endl;
-                    std::cerr << "######### POSITION: " << std::setw(10) << std::setprecision(5) << pos.x << " " << std::setw(10) << std::setprecision(5) << pos.y << " " << std::setw(10) << std::setprecision(5) << pos.z << std::endl;
+                    model.pos.x = static_cast<float>(pos.floatX);
+                    model.pos.y = static_cast<float>(pos.floatY);
+                    model.pos.z = static_cast<float>(pos.floatZ);
 
                     DrawModel(model.model, model.pos, 1.0f, WHITE);
                 }
@@ -163,9 +158,9 @@ void Systems::DisplayManager::rotateModels(ECS::ComponentManager &componentManag
 
     for (auto &&[i, rot, model] : IndexedZipper(rotationComponents, modelComponents)) {
         // Convert rotation angles from degrees to radians
-        float x = toRadians2(rot.x); // Pitch
-        float y = toRadians2(rot.y); // Yaw
-        float z = toRadians2(rot.z); // Roll
+        float x = toRadians2(rot.floatX); // Pitch
+        float y = toRadians2(rot.floatY); // Yaw
+        float z = toRadians2(rot.floatZ); // Roll
 
         // Start with the identity matrix to clear previous transformations
         Matrix rotationMatrix = MatrixIdentity();

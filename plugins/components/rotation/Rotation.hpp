@@ -159,6 +159,9 @@ namespace Components {
         int32_t x;
         int32_t y;
         int32_t z;
+        float floatX;
+        float floatY;
+        float floatZ;
 
     private:
         union {

@@ -30,14 +30,12 @@ void Systems::Raylib::init(Engine::GameEngine &engine)
 
 void Systems::Raylib::run(Engine::GameEngine &engine)
 {
-    std::cerr << "Raylib run" << std::endl;
     if (WindowShouldClose()) {
         displayManager.freeAll(engine);
         exit(0);
     }
     inputManager.run(engine);
     displayManager.run(engine);
-    std::cerr << "Raylib run end" << std::endl;
 }
 
 LIBRARY_ENTRYPOINT

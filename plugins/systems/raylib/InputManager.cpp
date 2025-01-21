@@ -53,18 +53,30 @@ void Systems::InputManager::run(Engine::GameEngine &engine)
     for (auto &&[i, camera, rot] : IndexedZipper(cameraComponents, rotationComponents)) {
         // Update the rotation component accordingly to the camera
         rot.y = toDegrees(camera.mouseDelta.first);  // Yaw
+        rot.floatY = toDegrees(camera.mouseDelta.first);  // Yaw
         rot.x = toDegrees(camera.mouseDelta.second); // Pitch
+        rot.floatX = toDegrees(camera.mouseDelta.second); // Pitch
 
-        rot.y = rot.y % 360;
-        rot.x = rot.x % 360;
+        // Integer modulo for rotation, ensuring values stay within [0, 360)
+        rot.y = ((rot.y % 360) + 360) % 360;
+        rot.x = ((rot.x % 360) + 360) % 360;
+
+        // Floating-point modulo for rotation, ensuring values stay within [0, 360)
+        rot.floatY = fmod(fmod(rot.floatY, 360.0f) + 360.0f, 360.0f);
+        rot.floatX = fmod(fmod(rot.floatX, 360.0f) + 360.0f, 360.0f);
 
         if (rot.x < 0)
             rot.x += 360;
+        if (rot.floatX < 0)
+            rot.floatX += 360;
         if (rot.y < 0)
             rot.y += 360;
+        if (rot.floatY < 0)
+            rot.floatY += 360;
 
         // Roll (rot.z) can be set to zero or controlled separately, depending on the requirements
         rot.z = 0.0f;
+        rot.floatZ = 0.0f;
         engine.updateComponent(i, rot.getId(), rot.serialize());
     }
 }
@@ -109,7 +121,7 @@ void Systems::InputManager::updateCameras(ECS::ComponentManager &componentManage
     for (auto &&[i, camera, pos] : IndexedZipper(cameraComponents, positionComponents)) {
         const float sensitivity = 0.0001f;
         const float moveSpeed = 0.2f;
-        const float pitchLimit = PI / 2.0f - 0.1f;
+        const float pitchLimit = 0.1f * (PI / 2.0f);
 
         float &yaw = camera.mouseDelta.first;
         float &pitch = camera.mouseDelta.second;
@@ -124,9 +136,9 @@ void Systems::InputManager::updateCameras(ECS::ComponentManager &componentManage
         Vector3 forward = { cosf(pitch) * sinf(yaw), sinf(pitch), cosf(pitch) * cosf(yaw) };
         camera.camera.target = Vector3Add(camera.camera.position, forward);
 
-        camera.camera.position.x = pos.x;
-        camera.camera.position.y = pos.y + 0.5;
-        camera.camera.position.z = pos.z;
+        camera.camera.position.x = pos.floatX;
+        camera.camera.position.y = pos.floatY + 0.5;
+        camera.camera.position.z = pos.floatZ;
 
         camera.camera.target = Vector3Add(camera.camera.position, forward);
 
