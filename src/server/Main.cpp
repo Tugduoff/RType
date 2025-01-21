@@ -32,6 +32,7 @@
 #include "components/Ai/Ai.hpp"
 #include "components/type/Type.hpp"
 #include "components/spriteId/SpriteID.hpp"
+#include "components/modelId/ModelId.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -107,6 +108,7 @@ int main() {
         engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
         engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
         engine.registerComponent<Components::Destruction>("./plugins/bin/components/", "Destruction");
+        engine.registerComponent<Components::ModelId>("./plugins/bin/components/", "ModelId");
 
         engine.loadSystems("./src/server/configServer.cfg");
 
