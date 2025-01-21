@@ -125,7 +125,7 @@ namespace Components {
                 .getRegistry()
                 .componentManager()
                 .addComponent<Components::ActionComponent>(to, std::move(ctrl));
-            // engine.updateComponent(to, comp->getId(), comp->serialize());
+            engine.updateComponent(to, comp->getId(), comp->serialize());
         };
 
         enum EntityAction action; // Holds the current action state
