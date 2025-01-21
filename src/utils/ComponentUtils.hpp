@@ -27,7 +27,7 @@ void attachAndUpdateComponent(Engine::GameEngine &engine, ECS::Entity entity, Ar
     std::unique_ptr<Component> component = std::make_unique<Component>(std::forward<Args>(args)...);
     Components::IComponent *rawComponent = component.get();
     engine.getRegistry().componentManager().addComponent(entity, std::move(component));
-    // engine.updateComponent(entity, rawComponent->getId(), rawComponent->serialize());
+    engine.updateComponent(entity, rawComponent->getId(), rawComponent->serialize());
 }
 
 #endif // COMPONENT_UTILS_HPP
