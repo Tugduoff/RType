@@ -103,6 +103,7 @@ int main() {
 
     try {
         engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
+        // engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
         engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
         engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
         engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
@@ -112,23 +113,23 @@ int main() {
 
         engine.loadSystems("./src/server/configServer.cfg");
 
-        displayPolymorphic(engine, types.begin(), types.end());
-        ECS::Entity entity = engine.getRegistry().createEntity();
-        std::cerr << "New entity created with ID: " << entity << std::endl;
+        // displayPolymorphic(engine, types.begin(), types.end());
+        // ECS::Entity entity = engine.getRegistry().createEntity();
+        // std::cerr << "New entity created with ID: " << entity << std::endl;
 
-        srand(time(NULL));
-        int posY = rand() % 1080;
+        // srand(time(NULL));
+        // int posY = rand() % 1080;
 
-        attachAndUpdateComponent<Components::Position>(engine, entity, 50, posY, 2);
-        attachAndUpdateComponent<Components::Velocity>(engine, entity, 0, 0, 100);
-        attachAndUpdateComponent<Components::Collider>(engine, entity, 30, 30);
-        attachAndUpdateComponent<Components::Damage>(engine, entity, 50);
-        attachAndUpdateComponent<Components::Type>(engine, entity, Components::TypeID::ALLY);
-        attachAndUpdateComponent<Components::SpriteID>(engine, entity, "player");
-        attachAndUpdateComponent<Components::Acceleration>(engine, entity, -5, 5, -5, 5);
-        attachAndUpdateComponent<Components::Gun>(engine, entity, 50, 500, 8, 0, "shot1");
-        attachAndUpdateComponent<Components::Scale>(engine, entity, 300, 300);
-        attachAndUpdateComponent<Components::Health>(engine, entity, 100);
+        // attachAndUpdateComponent<Components::Position>(engine, entity, 50, posY, 2);
+        // attachAndUpdateComponent<Components::Velocity>(engine, entity, 0, 0, 100);
+        // attachAndUpdateComponent<Components::Collider>(engine, entity, 30, 30);
+        // attachAndUpdateComponent<Components::Damage>(engine, entity, 50);
+        // attachAndUpdateComponent<Components::Type>(engine, entity, Components::TypeID::ALLY);
+        // attachAndUpdateComponent<Components::SpriteID>(engine, entity, "player");
+        // attachAndUpdateComponent<Components::Acceleration>(engine, entity, -5, 5, -5, 5);
+        // attachAndUpdateComponent<Components::Gun>(engine, entity, 50, 500, 8, 0, "shot1");
+        // attachAndUpdateComponent<Components::Scale>(engine, entity, 300, 300);
+        // attachAndUpdateComponent<Components::Health>(engine, entity, 100);
 
         std::map<enum Action, enum Key> keyBindings = {
             {Action::FORWARD, Key::UNKNOWN},
@@ -150,7 +151,7 @@ int main() {
         std::unique_ptr<Components::Controllable> component = std::make_unique<Components::Controllable>(keyBindings);
         std::vector<uint8_t> data = component->serialize();
 
-        engine.getRegistry().componentManager().addComponent(entity, std::move(component));
+        // engine.getRegistry().componentManager().addComponent(entity, std::move(component));
 
         while (true) {
             if (chrono.getElapsedTime() < 17)
