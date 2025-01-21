@@ -46,8 +46,6 @@ namespace Components {
                 sound->setPitch(pitch);
                 sound->setLoop(loop);
 
-                // std::cerr << "Adding sound: " << id << std::endl;
-
                 __sounds.emplace_back(id, sound, buff, volume, pitch, loop, false);
             }
 

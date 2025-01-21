@@ -113,7 +113,6 @@ int main(int ac, char **av)
     {
         // Check that you have the same components here with the map in RTypeClient
         while (conn.gameEnd != true) {
-            // std::cout << "Packet queue size: " << conn._packetQueue.size() << std::endl;
             if (!conn.nextFrame) {
                  continue;
             }

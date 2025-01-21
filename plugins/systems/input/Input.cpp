@@ -24,7 +24,7 @@
 void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entityIndex)
 {
     auto &reg = engine.getRegistry();
-    
+
     try {
         auto &gunComponents = reg.componentManager().getComponents<Components::Gun>();
         auto &soundArr = reg.componentManager().getComponents<Components::Sound>();
@@ -34,7 +34,6 @@ void Systems::InputSystem::shootAction(Engine::GameEngine &engine, size_t entity
             return;
         }
         if (gun->chrono.getElapsedTime() >= gun->fireRate) {
-            // std::cerr << "Entity " << entityIndex << " fired a shot!" << std::endl;
             gun->chrono.restart();
             auto &positionComponents = reg.componentManager().getComponents<Components::Position>();
             auto &position = positionComponents[entityIndex];
@@ -98,27 +97,22 @@ void Systems::InputSystem::run(Engine::GameEngine &engine)
 
             if (inputForward && !inputBackward) {
                 vel.x = accel.forward;
-                // std::cout << "Forward triggered" << std::endl;
                 // engine.updateComponent(i, vel.getId(), vel.serialize());
             }
             if (inputBackward && !inputForward) {
                 vel.x = accel.backward;
-                // std::cout << "Backward triggered" << std::endl;
                 // engine.updateComponent(i, vel.getId(), vel.serialize());
             }
             if (inputRight && !inputLeft) {
                 vel.y = accel.right;
-                // std::cout << "Right triggered" << std::endl;
                 // engine.updateComponent(i, vel.getId(), vel.serialize());
             }
             if (inputLeft && !inputRight) {
                 vel.y = accel.left;
-                // std::cout << "Left triggered" << std::endl;
                 // engine.updateComponent(i, vel.getId(), vel.serialize());
             }
             for (int j = 0; j < 10; j++) {
                 if (controllable.actions[j]) {
-                    // std::cout << "Action " << j + 1 << " triggered" << std::endl;
                     if (j == 0) {
                         shootAction(engine, i);
                     } else {

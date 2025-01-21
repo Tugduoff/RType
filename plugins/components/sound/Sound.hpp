@@ -118,11 +118,6 @@ namespace Components {
                 // Copy the state into the next byte
                 data[offset + MAX_SOUND_SIZE + MAX_ID_SIZE + 3] = state;
             }
-            // std::cerr << "Serialized Sound:" << std::endl;
-            // for (auto &byte : data) {
-            //     std::cerr << (unsigned)byte << " ";
-            // }
-            // std::cerr << std::endl;
             return data;
         }
 
@@ -135,14 +130,7 @@ namespace Components {
          * @throws std::runtime_error If the data size is invalid.
          */
         void deserialize(std::vector<uint8_t> &data) override {
-            // std::cerr << "Deserializing Sound" << std::endl;
             std::vector<std::tuple<std::string, std::string, uint8_t, uint8_t, bool, bool>> newSounds;
-
-            // std::cerr << "Deserialized Sound:" << std::endl;
-            // for (auto &byte : data) {
-            //     std::cerr << (unsigned)byte << " ";
-            // }
-            // std::cerr << std::endl;
             uint8_t size = data[0];
 
             for (int i = 0; i < size; i++) {
@@ -214,8 +202,6 @@ namespace Components {
                 sound.lookupValue("volume", volumeVal);
                 sound.lookupValue("pitch", pitchVal);
                 sound.lookupValue("loop", loopVal);
-
-                // std::cerr << "Sound before process: " << soundIdVal << " " << pathVal << " " << volumeVal << " " << pitchVal << " " << loopVal << std::endl;
 
                 soundsVec.push_back(std::make_tuple(soundIdVal, pathVal, volumeVal, pitchVal, loopVal, false));
 

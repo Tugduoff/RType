@@ -10,12 +10,9 @@
 
     #include "GameEngine/GameEngine.hpp"
     #include "components/AComponent.hpp"
-    #include "components/spriteId/SpriteID.hpp"
-    #include "components/scale/Scale.hpp"
     #include "utils/ComponentUtils.hpp"
     #include <libconfig.h++>
     #include <iostream>
-    #include <memory>
     #include <string>
     #include <vector>
 
@@ -33,7 +30,6 @@ namespace Components {
         :   AComponent("SpriteID"),
             id(id)
         {
-            // std::cerr << "Creating SpriteID component with ID: " << id << std::endl;
             if (this->id.size() > MAX_ID_SIZE) {
                 this->id.resize(MAX_ID_SIZE);  // Truncate if longer than 20
             }
@@ -110,8 +106,6 @@ namespace Components {
             if (spriteId.size() > MAX_ID_SIZE) {
                 spriteId.resize(MAX_ID_SIZE);  // Truncate if longer than 20
             }
-
-            // std::cerr << "Adding SpriteID component to entity: " << to << " with ID: " << spriteId << std::endl;
 
             attachAndUpdateComponent<Components::SpriteID>(
                 engine, to,
