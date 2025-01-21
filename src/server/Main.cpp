@@ -108,25 +108,25 @@ int main() {
     try {
         // we'll probably have to move it elsewhere
         boost::asio::io_context io_context;
-        UDPServer server(io_context, 8080, engine.getIdStringToType());
+        // UDPServer server(io_context, 8080, engine.getIdStringToType());
 
-        engine.getRegistry().addEntityCreateCallback(
-            [&server](const ECS::Entity &e) { server.create_entity(e); }
-        );
-        engine.getRegistry().addEntityKillCallback(
-            [&server](const ECS::Entity &e) { server.delete_entity(e); }
-        );
-
-        // engine.getRegistry().componentManager().registerGlobalCreateCallback(
-        //     [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
+        // engine.getRegistry().addEntityCreateCallback(
+        //     [&server](const ECS::Entity &e) { server.create_entity(e); }
         // );
-        engine.getRegistry().componentManager().registerGlobalRemoveCallback(
-            [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
-        );
+        // engine.getRegistry().addEntityKillCallback(
+        //     [&server](const ECS::Entity &e) { server.delete_entity(e); }
+        // );
 
-        engine.setUpdateComponent(
-            [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
-        );
+        // // engine.getRegistry().componentManager().registerGlobalCreateCallback(
+        // //     [&server](std::type_index type, size_t index) { server.attach_component(index, type); }
+        // // );
+        // engine.getRegistry().componentManager().registerGlobalRemoveCallback(
+        //     [&server](std::type_index type, size_t index) { server.detach_component(index, type); }
+        // );
+
+        // engine.setUpdateComponent(
+        //     [&server](size_t id, std::string name, std::vector<uint8_t> data) { server.update_component(id, name, data); }
+        // );
 
         engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
         engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
@@ -138,11 +138,11 @@ int main() {
 
         engine.loadSystems("./src/server/configServer.cfg");
 
-        server.updateIdStringToType(engine.getIdStringToType());
+        // server.updateIdStringToType(engine.getIdStringToType());
 
         // engine.getRegistry().componentManager().
-        while(server.client_endpoints.empty())
-            server.start_receive(engine);
+        // while(server.client_endpoints.empty())
+        //     server.start_receive(engine);
 
         std::thread io_thread([&io_context]() { io_context.run(); });
         std::thread io_thread1([&io_context]() { io_context.run(); });
@@ -156,7 +156,7 @@ int main() {
 
         unsigned int i = 1;
         while (true) {
-            server.start_receive(engine);
+            // server.start_receive(engine);
             if (chrono.getElapsedTime() < 17)
                 continue;
             engine.runSystems();

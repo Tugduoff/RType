@@ -107,7 +107,7 @@ void Systems::InputManager::updateCameras(ECS::ComponentManager &componentManage
     auto &positionComponents = componentManager.getComponents<Components::Position3d>();
 
     for (auto &&[i, camera, pos] : IndexedZipper(cameraComponents, positionComponents)) {
-        const float sensitivity = 0.001f;
+        const float sensitivity = 0.0001f;
         const float moveSpeed = 0.2f;
         const float pitchLimit = PI / 2.0f - 0.1f;
 
