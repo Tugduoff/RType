@@ -225,7 +225,6 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                         sprite->sprite.setScale(1, 1);
                     }
                 } catch (std::exception &) {
-                    // std::cerr << "Error: Sprite component not found for entity: " << i << " spriteID: " << spriteId.id << std::endl;
                     std::unique_ptr<Components::SpriteComponent> spriteComp = std::make_unique<Components::SpriteComponent>();
                     for (auto &texture : __textures[spriteId.id]) {
                         spriteComp->addTexture(texture);

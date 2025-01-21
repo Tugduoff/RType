@@ -61,7 +61,6 @@ void Systems::ActionManager::run(Engine::GameEngine &engine)
                     // Handle the case where the action component does not exist or is invalid
                     std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                     engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                    // std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                     continue;
                 }
             } catch (std::exception &) {
