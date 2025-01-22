@@ -53,7 +53,7 @@ void Systems::ConfigLoader::run(Engine::GameEngine &engine)
                 for (auto &soundInstance : sound->sounds) {
                     if (std::get<0>(soundInstance) == "SPAWN" || std::get<0>(soundInstance) == "AMBIENT") {
                         std::get<5>(soundInstance) = true;
-                        // engine.updateComponent((ECS::Entity)newEntity, sound->getId(), sound->serialize());
+                        engine.updateComponent((ECS::Entity)newEntity, sound->getId(), sound->serialize());
                     }
                 }
             } catch (std::exception &) {}
