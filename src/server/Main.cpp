@@ -64,9 +64,7 @@ void updateComponent(size_t id, std::string name, std::vector<uint8_t> data)
 }
 
 int main() {
-    Engine::GameEngine engine(
-        []([[maybe_unused]]size_t id, [[maybe_unused]]std::string name, [[maybe_unused]]std::vector<uint8_t> data) {}
-    );
+    Engine::GameEngine engine;
     Chrono chrono;
 
     try {

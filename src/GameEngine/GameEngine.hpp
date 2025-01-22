@@ -32,7 +32,10 @@ namespace Engine {
     class GameEngine {
         public:
 
-            GameEngine(std::function<void(size_t, std::string, std::vector<uint8_t>)> updateComponent) : __updateComponent(updateComponent) {};
+            GameEngine(
+                std::function<void(size_t, std::string, std::vector<uint8_t>)>
+                updateComponent = [](size_t, std::string, std::vector<uint8_t>) {}
+            ) : __updateComponent(updateComponent) {};
 
             /**
              * @brief Register a component
