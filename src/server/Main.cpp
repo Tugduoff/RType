@@ -12,28 +12,8 @@
 #include <vector>
 #include "GameEngine/GameEngine.hpp"
 #include "ECS/registry/Registry.hpp"
-#include "ECS/utilities/SparseArray.hpp"
 #include "utils/Chrono.hpp"
-
-#include "network/UDPServer.hpp"
-
 #include "components/IComponent.hpp"
-#include "components/position/Position.hpp"
-#include "components/velocity/Velocity.hpp"
-#include "components/spriteId/SpriteID.hpp"
-#include "components/controllable/Controllable.hpp"
-#include "components/visible/Visible.hpp"
-#include "components/health/Health.hpp"
-#include "components/collider/Collider.hpp"
-#include "components/acceleration/Acceleration.hpp"
-#include "components/gun/Gun.hpp"
-#include "components/damage/Damage.hpp"
-#include "components/scale/Scale.hpp"
-#include "components/deathRange/DeathRange.hpp"
-#include "components/sound/Sound.hpp"
-#include "components/destruction/Destruction.hpp"
-#include "components/Ai/Ai.hpp"
-#include "components/modelId/ModelId.hpp"
 
 template<typename It>
 void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
@@ -89,30 +69,7 @@ int main() {
     );
     Chrono chrono;
 
-    std::vector<std::type_index> types = {
-        typeid(Components::Velocity),
-        typeid(Components::Position),
-        typeid(Components::Controllable),
-        typeid(Components::Visible),
-        typeid(Components::Health),
-        typeid(Components::Collider),
-        typeid(Components::Acceleration),
-        typeid(Components::Gun),
-        typeid(Components::Damage),
-        typeid(Components::DeathRange),
-        typeid(Components::Ai),
-    };
-
     try {
-        engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
-        // engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
-        engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
-        engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
-        engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
-        engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
-        engine.registerComponent<Components::Destruction>("./plugins/bin/components/", "Destruction");
-        engine.registerComponent<Components::ModelId>("./plugins/bin/components/", "ModelId");
-
         engine.loadSystems("./src/server/configServer.cfg");
 
         while (true) {
