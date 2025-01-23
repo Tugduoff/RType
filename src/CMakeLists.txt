@@ -71,5 +71,4 @@ else()
 endif (WIN32)
 
 # Include the subdirectories for client and server
-# add_subdirectory(client)
 add_subdirectory(server)

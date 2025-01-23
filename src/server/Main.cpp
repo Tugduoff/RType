@@ -20,7 +20,6 @@ void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
 {
     int i = 0;
 
-    std::cout << std::endl;
     for (auto it = begin; it != end; ++it) {
         std::type_index &idx = *it;
 
@@ -45,7 +44,6 @@ void displayPolymorphic(Engine::GameEngine &engine, It begin, It end)
             }
             std::cout << "}" << std::endl;
         }
-        std::cout << std::endl;
     }
 }
 
