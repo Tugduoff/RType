@@ -11,7 +11,7 @@ This document provides guidelines for creating plugins for the ECS-based game en
 5. [Creating a Component](#creating-a-component)
     - [Component Header file](#component-header-file)
     - [Component Implementation](#component-implementation)
-6. [Exemple: Position Component](#exemple-position-component)
+6. [Example: Position Component](#example-position-component)
 7. [Provided Components](#provided-components)
     - [Acceleration Components](#acceleration-component)
     - [Action Components](#action-component)
@@ -19,7 +19,7 @@ This document provides guidelines for creating plugins for the ECS-based game en
     - [Collider Components](#collider-component)
     - [Controllable Components](#controllable-component)
     - [Damage Components](#damage-component)
-    - [Death Range Components](#deathrange-component)
+    - [Death Range Components](#death-range-component)
     - [Destruction Components](#destruction-component)
     - [Gun Components](#gun-component)
     - [Health Components](#health-component)
@@ -109,7 +109,7 @@ namespace Components {
 
 Define the behavior of your component, including serialization, deserialization, and how it is added to entities.
 
-## Exemple: Position Component
+## Example: Position Component
 
 ### Position.hpp:
 ```hpp
