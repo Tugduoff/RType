@@ -24,7 +24,7 @@
 #include "components/type/Type.hpp"
 #include "components/sound/Sound.hpp"
 #include "components/destruction/Destruction.hpp"
-#include "network/RTypeClient.hpp"
+#include "components/modelId/ModelId.hpp"
 #include <iostream>
 #include <string>
 #include <stdexcept>
@@ -83,6 +83,24 @@ int main(int ac, char **av)
     Chrono chrono;
 
     engine.loadSystems("./src/client/configClient.cfg");
+    std::cerr << "Systems loaded" << std::endl;
+
+    // Hard coded register for now
+    engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
+    engine.registerComponent<Components::Health>("./plugins/bin/components/", "Health");
+    engine.registerComponent<Components::Collider>("./plugins/bin/components/", "Collider");
+    engine.registerComponent<Components::Velocity>("./plugins/bin/components/", "Velocity");
+    engine.registerComponent<Components::Acceleration>("./plugins/bin/components/", "Acceleration");
+    engine.registerComponent<Components::Damage>("./plugins/bin/components/", "Damage");
+    engine.registerComponent<Components::Controllable>("./plugins/bin/components/", "Controllable");
+    engine.registerComponent<Components::Gun>("./plugins/bin/components/", "Gun");
+    engine.registerComponent<Components::Type>("./plugins/bin/components/", "Type");
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
+    engine.registerComponent<Components::DeathRange>("./plugins/bin/components/", "DeathRange");
+    engine.registerComponent<Components::Sound>("./plugins/bin/components/", "Sound");
+    engine.registerComponent<Components::Destruction>("./plugins/bin/components/", "Destruction");
+    engine.registerComponent<Components::ModelId>("./plugins/bin/components/", "ModelId");
 
     conn.menu(&engine);
 

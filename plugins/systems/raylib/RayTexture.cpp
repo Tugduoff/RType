@@ -2,12 +2,12 @@
 ** EPITECH PROJECT, 2024
 ** RType
 ** File description:
-** Texture.cpp file
+** RayTexture.cpp file
 */
 
-#include "Texture.hpp"
+#include "RayTexture.hpp"
 
-Texture::Texture(
+RayTexture::RayTexture(
     unsigned updateRate,
     unsigned width,
     unsigned height,
@@ -17,7 +17,7 @@ Texture::Texture(
     bool resetBeforeEnd) :
     __chrono(Chrono()),
     __updateRate(updateRate),
-    __rect(sf::IntRect(0, 0, width, height)),
+    __rect({0, 0, (float)width, (float)height}),
     __action(action),
     __repeat(repeat),
     __actionDone(false),
@@ -25,27 +25,26 @@ Texture::Texture(
     __isEnd(false),
     __fullyDone(false)
 {
-    if (!__texture.loadFromFile(texturePath)) {
-        std::cerr << "Error: Could not load texture from path: " << texturePath << std::endl;
-    }
+    __texture = LoadTexture(texturePath.c_str());
 }
 
-void Texture::update(sf::Sprite &sprite) {
+void RayTexture::update(Texture2D &texture)
+{
     if (__fullyDone) {
         return;
     }
-    if (sprite.getTexture() != &__texture)
-        sprite.setTexture(__texture);  // Ensure correct texture is set
+    if (texture.id != __texture.id)
+        texture = __texture;  // Ensure correct texture is set
 
     if (__isEnd && __resetBeforeEnd) {
         if (__chrono.getElapsedTime() > (size_t)__updateRate) {
             __chrono.restart();
-            if (__rect.left > 0) {
-                __rect.left -= __rect.width;
+            if (__rect.x > 0) {
+                __rect.x -= __rect.width;
             } else {
                 __isEnd = false;
                 __actionDone = false;
-                __rect.left = 0;
+                __rect.x = 0;
                 __fullyDone = true;
                 std::cerr << "Animation fully done" << std::endl;
             }
@@ -58,19 +57,16 @@ void Texture::update(sf::Sprite &sprite) {
     if (!__isEnd && (__updateRate != 0 || __repeat || (!__repeat && !__actionDone))) {
         if (__chrono.getElapsedTime() > (size_t)__updateRate) {
             __chrono.restart();
-            __rect.left += __rect.width;
-            if ((unsigned)__rect.left >= __texture.getSize().x) {
+            if (__rect.x < __texture.width - __rect.width) {
+                __rect.x += __rect.width;
+            } else {
                 if (__repeat) {
-                    __rect.left = 0;  // Loop back to the beginning
+                    __rect.x = 0;
                 } else {
-                    __rect.left -= __rect.width;  // Stop at the last frame
+                    __isEnd = true;
+                    __actionDone = true;
                 }
-                __actionDone = true;
             }
         }
     }
-
-    // Update sprite's texture rectangle
-    sprite.setTextureRect(__rect);
-    sprite.setOrigin(__rect.width / 2, __rect.height / 2);
 }
