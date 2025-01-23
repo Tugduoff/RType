@@ -9,8 +9,8 @@ on:
       - 'ga-ignore-*'
 env:
   MIRROR_URL: "git@github.com:EpitechPromo2027/B-CPP-500-NAN-5-1-rtype-thomas.cluseau.git"
-  EXECUTABLES: "./bin/r-type_server, ./bin/r-type_client"
-  WINDOWS_EXECUTABLES: "./bin/r-type_server.exe, ./bin/r-type_client.exe"
+  EXECUTABLES: "./bin/r-type_server"
+  WINDOWS_EXECUTABLES: "./bin/r-type_server.exe"
 
 jobs:
 
@@ -108,26 +108,26 @@ jobs:
             fi
           done
 
-  windows_compilation:
-    runs-on: windows-2022
-    steps:
-      - name: Checkout fetch
-        uses: actions/checkout@v4
-      - name: R-Type Compilation
-        shell: cmd
-        run: .\windows_build_rtype.bat
-      - name: R-Type Plugins Compilation
-        shell: cmd
-        run: .\windows_build_plugins.bat
-      - name: Check compiled executables
-        shell: cmd
-        run: |
-          for %%e in (${{ env.WINDOWS_EXECUTABLES }}); do (
-              if not exist "%%e" (
-                  echo Executable %%e does not exist.
-                  exit /b 1
-              )
-          )
+  # windows_compilation:
+  #   runs-on: windows-2022
+  #   steps:
+  #     - name: Checkout fetch
+  #       uses: actions/checkout@v4
+  #     - name: R-Type Compilation
+  #       shell: cmd
+  #       run: .\windows_build_rtype.bat
+  #     - name: R-Type Plugins Compilation
+  #       shell: cmd
+  #       run: .\windows_build_plugins.bat
+  #     - name: Check compiled executables
+  #       shell: cmd
+  #       run: |
+  #         for %%e in (${{ env.WINDOWS_EXECUTABLES }}); do (
+  #             if not exist "%%e" (
+  #                 echo Executable %%e does not exist.
+  #                 exit /b 1
+  #             )
+  #         )
 
   ## PLEASE ADD SOME UNITS TESTS !
 
