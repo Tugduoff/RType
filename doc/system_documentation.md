@@ -11,8 +11,23 @@ This document provides guidelines for creating plugins for the ECS-based game en
 5. [Creating a System](#creating-a-system)
     - [System Header file](#system-header-file)
     - [System Implementation](#system-implementation)
-6. [Exemple: Position System](#exemple-position-system)
+6. [Example: Position System](#example-position-system)
 7. [Provided Systems](#provided-systems)
+    - [Attack System](#attack-system)
+    - [Behavior System](#behavior-system)
+    - [Collision System](#collision-system)
+    - [Config System](#config-system)
+    - [Input System](#input-system)
+    - [Move System](#move-system)
+    - [Action Manager System](#action-manager-system)
+    - [Display System](#display-system)
+    - [Input System (SFML)](#input-system-1)
+    - [SFML System](#sfml-system-1)
+    - [Shader System](#shader-system)
+    - [Sound System](#sound-system)
+    - [Sprite Component System](#sprite-component-system)
+    - [Text System](#text-system)
+    - [Texture System](#texture-system)
 
 ## Introduction
 
@@ -40,7 +55,7 @@ ISystem Methods:
     void init(Engine::GameEngine &engine) // Initializes the system. Use this method to register required components and perform setup tasks.
 ```
 
-Exemple: ISystem.hpp
+Example: ISystem.hpp
 ```cpp
 namespace Systems {
     class ISystem {
@@ -57,7 +72,7 @@ namespace Systems {
 
 The ASystem abstract class inherits from ISystem and serves as a base for implementing systems. While it does not add any new functionality, it provides a standard structure for all systems.
 
-Exemple: ASystem.hpp
+Example: ASystem.hpp
 ```cpp
 namespace Systems {
     class ASystem : public ISystem {
@@ -71,7 +86,7 @@ namespace Systems {
 ### System Header File
 Each system is defined in its own header file, which declares the system class, its constructors, and overrides the run and init methods.
 
-Exemple: Move System Header
+Example: Move System Header
 ```cpp
 namespace Systems {
     class MoveSystem : public ASystem {
