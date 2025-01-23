@@ -11,6 +11,8 @@
 #include "components/spriteId/SpriteID.hpp"
 #include "Text.hpp"
 #include "components/scale/Scale.hpp"
+#include "components/health/Health.hpp"
+#include "components/type/Type.hpp"
 #include "SpriteComponent.hpp"
 #include "Display.hpp"
 #include <iostream>
@@ -200,6 +202,15 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteID>();
         auto &scaleComponents = reg.componentManager().getComponents<Components::Scale>();
         auto &textComponents = reg.componentManager().getComponents<Components::Text>();
+        auto &typeArr = reg.componentManager().getComponents<Components::Type>();
+        auto &healthComponents = reg.componentManager().getComponents<Components::Health>();
+
+        std::vector<ECS::Entity> players;
+        for (auto &&[i, type] : IndexedZipper(typeArr)) {
+            if (type.id == Components::TypeID::ALLY) {
+                players.push_back((ECS::Entity)i);
+            }
+        }
 
         for (unsigned l = 0; l < 10; l++) {
             for (auto &&[i, pos, spriteId] : IndexedZipper(posComponents, spriteIdComponents)) {
@@ -236,6 +247,28 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                         spriteComp->sprite.setScale(1, 1);
                     }
                     reg.componentManager().addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(spriteComp));
+                }
+            }
+
+            for (size_t index = 0; index < players.size(); ++index) {
+                try {
+                    auto &player = players[index];
+                    auto &playerHealth = healthComponents[player];
+
+                    std::string healthBar(playerHealth->currentHealth, '-');
+
+                    float xPosition = 450;
+                    float yPosition = window.getSize().y - (index + 1) * 5;
+
+                    Components::Text healthText;
+                    healthText.setText(healthBar);
+                    healthText.setSize(40);
+                    healthText.setColor(sf::Color::Red);
+                    healthText.setPosition(xPosition, yPosition);
+
+                    window.draw(healthText.sfText);
+                } catch (std::exception &e) {
+                    std::cerr << "Error displaying health bar for player: " << e.what() << std::endl;
                 }
             }
 
