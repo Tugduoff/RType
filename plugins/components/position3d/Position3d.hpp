@@ -45,6 +45,11 @@ namespace Components {
             if (!config.lookupValue("x", x)) x = 0;
             if (!config.lookupValue("y", y)) y = 0;
             if (!config.lookupValue("z", z)) z = 1;
+            floatX = x;
+            floatY = y;
+            floatZ = z;
+
+            std::cerr << "######### POSITION: " << std::setw(5) << x << " " << std::setw(5) << y << " " << std::setw(5) << z << std::endl;
         }
 
         /**
@@ -55,7 +60,7 @@ namespace Components {
          * @param x The X coordinate of the position.
          * @param y The Y coordinate of the position.
          */
-        Position3d(int32_t x, int32_t y, int32_t z) : AComponent("Position3d"), x(x), y(y), z(z), floatX(0), floatY(0), floatZ(0) {};
+        Position3d(int32_t x, int32_t y, int32_t z) : AComponent("Position3d"), x(x), y(y), z(z), floatX(x), floatY(y), floatZ(z) {};
 
         /**
          * @brief Default destructor for the Position3d component.
@@ -90,8 +95,11 @@ namespace Components {
             x = ntohl(*reinterpret_cast<int32_t *>(data.data()));
             y = ntohl(*reinterpret_cast<int32_t *>(data.data() + 4));
             z = ntohl(*reinterpret_cast<int32_t *>(data.data() + 8));
+            floatX = x;
+            floatY = y;
+            floatZ = z;
 
-            // std::cerr << "######### POSITION: " << std::setw(5) << x << " " << std::setw(5) << y << " " << std::setw(5) << z << std::endl;
+            std::cerr << "######### POSITION: " << std::setw(5) << x << " " << std::setw(5) << y << " " << std::setw(5) << z << std::endl;
         };
 
         /**

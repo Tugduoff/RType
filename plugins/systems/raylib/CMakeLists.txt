@@ -4,6 +4,7 @@ add_library(RaylibSystem SHARED
     DisplayManager.cpp
     ModelComponent.cpp
     InputManager.cpp
+    RayTexture.cpp
 
     ../../../src/utils/Keys.cpp
     ../../../src/utils/Actions.cpp

@@ -7,9 +7,15 @@
 
 #include "DisplayManager.hpp"
 #include "components/position3d/Position3d.hpp"
+#include "components/position/Position.hpp"
 #include "components/modelId/ModelId.hpp"
 #include "components/scale/Scale.hpp"
 #include "components/rotation/Rotation.hpp"
+#include "components/text/Text.hpp"
+#include "components/score/Score.hpp"
+#include "components/marioType/MarioType.hpp"
+#include "RaySprite.hpp"
+#include "components/spriteId/SpriteID.hpp"
 #include "ModelComponent.hpp"
 #include "CameraComponent.hpp"
 #include "ECS/utilities/Zipper/IndexedZipper.hpp"
@@ -32,8 +38,12 @@ Systems::DisplayManager::DisplayManager()
     DisableCursor();
 
     SetMousePosition(GetScreenWidth() / 2, GetScreenHeight() / 2);
+
+    std::cerr << GetMousePosition().x << " " << GetMousePosition().y << std::endl;
     rlDisableBackfaceCulling();
     rlEnableDepthTest();
+
+    __configFilePath = "./config/assets/textures.cfg";
 }
 
 Systems::DisplayManager::DisplayManager(libconfig::Setting &config)
@@ -45,6 +55,9 @@ Systems::DisplayManager::DisplayManager(libconfig::Setting &config)
     std::string modelsPath = config.lookup("modelsPath");
     unsigned int fps = config.lookup("fps");
     bool disableCursor = config.lookup("disableCursor");
+
+    if (!config.lookupValue("texturesPath", __configFilePath))
+        throw("Can't find configFilePath for all textures in Display config");
 
     InitWindow(width, height, title.c_str());
 
@@ -59,6 +72,7 @@ Systems::DisplayManager::DisplayManager(libconfig::Setting &config)
     // SetTargetFPS(fps);
 
     SetMousePosition(GetScreenWidth() / 2, GetScreenHeight() / 2);
+    std::cerr << GetMousePosition().x << " " << GetMousePosition().y << std::endl;
     rlDisableBackfaceCulling();
 }
 
@@ -99,22 +113,39 @@ void Systems::DisplayManager::init(Engine::GameEngine &engine)
 {
     engine.registerComponent<Components::ModelId>("./plugins/bin/components/", "ModelId");
     engine.registerComponent<Components::Position3d>("./plugins/bin/components/", "Position3d");
+    engine.registerComponent<Components::Position>("./plugins/bin/components/", "Position");
+    engine.registerComponent<Components::Rotation>("./plugins/bin/components/", "Rotation");
     engine.registerComponent<Components::Scale>("./plugins/bin/components/", "Scale");
+    engine.registerComponent<Components::SpriteID>("./plugins/bin/components/", "SpriteID");
+    engine.registerComponent<Components::Text>("./plugins/bin/components/", "Text");
+    engine.registerComponent<Components::Score>("./plugins/bin/components/", "Score");
+    engine.registerComponent<Components::MarioType>("./plugins/bin/components/", "MarioType");
 
     auto &componentManager = engine.getRegistry().componentManager();
     auto ctor = []() -> Components::ModelComponent * { return new Components::ModelComponent(); };
     componentManager.registerComponent<Components::ModelComponent>(ctor);
     auto ctor2 = []() -> Components::CameraComponent * { return new Components::CameraComponent(); };
     componentManager.registerComponent<Components::CameraComponent>(ctor2);
+    auto ctor3 = []() -> Components::SpriteComponent * { return new Components::SpriteComponent(); };
+    componentManager.registerComponent<Components::SpriteComponent>(ctor3);
+
+    loadConfig(__configFilePath);
 }
 
 void Systems::DisplayManager::run(Engine::GameEngine &engine)
 {
     ECS::ComponentManager &componentManager = engine.getRegistry().componentManager();
 
-    auto &posComponents = componentManager.getComponents<Components::Position3d>();
+    auto &posComponents3d = componentManager.getComponents<Components::Position3d>();
+    auto &posComponents = componentManager.getComponents<Components::Position>();
     auto &modelComponents = componentManager.getComponents<Components::ModelComponent>();
+    auto &spriteComponents = componentManager.getComponents<Components::SpriteComponent>();
     auto &cameraComponents = componentManager.getComponents<Components::CameraComponent>();
+    auto &spriteIdComponents = componentManager.getComponents<Components::SpriteID>();
+    auto &scaleComponents = componentManager.getComponents<Components::Scale>();
+    auto &textComponents = componentManager.getComponents<Components::Text>();
+    auto &scoreComponents = componentManager.getComponents<Components::Score>();
+    auto &marioTypeComponents = componentManager.getComponents<Components::MarioType>();
 
     checkForMissingModelComponent(componentManager);
     rotateModels(componentManager);
@@ -127,13 +158,13 @@ void Systems::DisplayManager::run(Engine::GameEngine &engine)
             // std::cerr << "Camera position: " << camera.camera.position.x << " " << camera.camera.position.y << " " << camera.camera.position.z << std::endl;
             BeginMode3D(camera.camera);
 
-                for (auto &&[i, pos, model] : IndexedZipper(posComponents, modelComponents)) {
+                for (auto &&[i, pos, model] : IndexedZipper(posComponents3d, modelComponents)) {
                     if (!model.isLoaded) {
                         std::cerr << "Model not loaded" << std::endl;
                         continue;
                     }
 
-                    // std::cerr << "Model position: " << pos.x << " " << pos.y << " " << pos.z << std::endl;
+                    // std::cerr << "Model position: " << pos.floatX << " " << pos.floatY << " " << pos.floatZ << " and raw pos: " << pos.x << " " << pos.y << " " << pos.z << std::endl;
                     model.pos.x = static_cast<float>(pos.floatX);
                     model.pos.y = static_cast<float>(pos.floatY);
                     model.pos.z = static_cast<float>(pos.floatZ);
@@ -142,13 +173,192 @@ void Systems::DisplayManager::run(Engine::GameEngine &engine)
                 }
 
             EndMode3D();
-            for (auto &&[i, model] : IndexedZipper(modelComponents)) {
-                if (model.pos.x == 0 && model.pos.y == 0 && model.pos.z == 0)
-                    continue;
+        }
+
+        // std::cerr << posComponents.size() << " " << spriteIdComponents.size() << " " << spriteComponents.size() << std::endl;
+        for (auto &&[i, pos, spriteId] : IndexedZipper(posComponents, spriteIdComponents)) {
+            if (spriteId.id.empty()) {
+                continue;
+            }
+
+            Vector2 texturePos = {static_cast<float>(pos.x), static_cast<float>(pos.y)};
+            Texture2D texture = GetTexture(spriteId.id.c_str());
+
+            try {
+                auto &sprite = spriteComponents[i];
+                sprite->position = texturePos;
+                sprite->update();
+
+                // std::cerr << "Drawing entity: " << i << " at position: " << pos.x << ", " << pos.y << std::endl;
+
+                try {
+                    auto &scale = scaleComponents[i];
+
+                    float scaleRatio = (scale->width != 0 ? scale->width : 100.0f) / 100.0f;
+
+                    DrawTextureEx(texture, texturePos, 0, scaleRatio, WHITE);
+                } catch (std::exception &e) {
+                    // no scale component
+                    DrawTextureRec(texture, sprite->rect, texturePos, WHITE);
+                }
+
+                // std::cerr << "Drawing entity: " << i << " at position: " << pos.x << ", " << pos.y << std::endl;
+            } catch (std::exception &) {
+                std::cerr << "Error: Sprite component not found for entity: " << i << " spriteID: " << spriteId.id << std::endl;
+                std::unique_ptr<Components::SpriteComponent> sprite = std::make_unique<Components::SpriteComponent>();
+                for (auto &texture : __textures[spriteId.id]) {
+                    sprite->addTexture(texture);
+                }
+
+                try {
+                    auto &scale = scaleComponents[i];
+
+                    float scaleRatio = 100.0f / scale->width;
+
+                    DrawTextureEx(texture, texturePos, 0, scaleRatio, WHITE);
+                } catch (std::exception &e) {
+                    // no scale component
+                    DrawTextureRec(texture, sprite->rect, texturePos, WHITE);
+                }
+                componentManager.addComponent<Components::SpriteComponent>((ECS::Entity)i, std::move(sprite));
             }
         }
+
+        // get the score.
+        int scoreVal = 0;
+
+        for (auto &&[i, type, score] : IndexedZipper(marioTypeComponents, scoreComponents)) {
+            if (type.id == Components::MarioTypeID::PLAYER) {
+                std::cerr << i << " " << score.value << std::endl;
+                scoreVal = score.value;
+            }
+        }
+
+        std::cerr << "Score: " << scoreVal << std::endl;
+
+        for (auto &&[i, pos, text] : IndexedZipper(posComponents, textComponents)) {
+            std::string textToDraw = text.value;
+
+            if (text.id == Components::TextID::SCORE) {
+                // find where the $ is and replace it with score.
+                size_t pos = textToDraw.find("$");
+                textToDraw.replace(pos, 1, std::to_string(scoreVal));
+            }
+
+            DrawText(textToDraw.c_str(), pos.x, pos.y, 20, WHITE);
+        }
+
         EndBlendMode();
     EndDrawing();
+}
+
+Texture2D Systems::DisplayManager::GetTexture(const std::string &filepath)
+{
+    return __textures[filepath].at(0).getTexture();
+}
+
+void Systems::DisplayManager::loadConfig(const std::string &filepath)
+{
+    libconfig::Config cfg;
+
+    try {
+        cfg.readFile(filepath);
+        std::cout << "\nConfig file loaded: " << filepath << std::endl;
+        libconfig::Setting &root = cfg.getRoot();
+        libconfig::Setting &textures = root["textures"];
+        for (int i = 0; i < textures.getLength(); i++) {
+            std::string type;
+            std::string texturePath;
+            std::string textureName;
+            std::string actionName;
+            unsigned updateRate = 0;
+            unsigned rectX = 0;
+            unsigned rectY = 0;
+
+            textures[i].lookupValue("type", type);
+            textures[i].lookupValue("name", textureName);
+            if (type == "static") {
+                textures[i].lookupValue("path", texturePath);
+
+                std::vector<RayTexture> textures;
+
+                Texture2D tempTexture;
+                tempTexture = LoadTexture(texturePath.c_str());
+
+                RayTexture texture(0, tempTexture.width, tempTexture.height, texturePath, "IDLE", false, false);
+                textures.push_back(texture);
+                __textures.insert({textureName, textures});
+                continue;
+            }
+            if (type == "animated") {
+                bool repeat = false;
+                bool resetBeforeEnd = false;
+
+                textures[i].lookupValue("path", texturePath);
+                textures[i].lookupValue("updateRate", updateRate);
+                textures[i].lookupValue("repeat", repeat);
+                textures[i].lookupValue("resetBeforeEnd", resetBeforeEnd);
+
+                libconfig::Setting &rectSetting = textures[i]["textureRect"];
+                rectSetting.lookupValue("x", rectX);
+                rectSetting.lookupValue("y", rectY);
+
+                std::vector<RayTexture> textures;
+                RayTexture texture(updateRate, rectX, rectY, texturePath, "IDLE", repeat, resetBeforeEnd);
+                textures.push_back(texture);
+                __textures.insert({textureName, textures});
+                continue;
+            }
+            if (type == "actions") {
+                libconfig::Setting &actions = textures[i]["actions"];
+                std::vector<RayTexture> textures;
+
+                for (int j = 0; j < actions.getLength(); j++) {
+                    libconfig::Setting &action = actions[j];
+                    action.lookupValue("type", type);
+
+                    if (type == "static") {
+                        action.lookupValue("path", texturePath);
+                        action.lookupValue("action", actionName);
+
+                        Texture2D tempTexture;
+                        tempTexture = LoadTexture(texturePath.c_str());
+
+                        RayTexture texture(0, tempTexture.width, tempTexture.height, texturePath, actionName, false, false);
+                        textures.push_back(texture);
+                        continue;
+                    } else if (type == "animated") {
+                        bool repeat = false;
+                        bool resetBeforeEnd = false;
+
+                        action.lookupValue("path", texturePath);
+                        action.lookupValue("action", actionName);
+                        action.lookupValue("updateRate", updateRate);
+                        action.lookupValue("repeat", repeat);
+                        action.lookupValue("resetBeforeEnd", resetBeforeEnd);
+
+                        libconfig::Setting &rectSetting = action["textureRect"];
+                        rectSetting.lookupValue("x", rectX);
+                        rectSetting.lookupValue("y", rectY);
+                        RayTexture texture(updateRate, rectX, rectY, texturePath, actionName, repeat, resetBeforeEnd);
+                        textures.push_back(texture);
+                        std::cerr << "Successfully loaded texture: " << textureName << " for action: " << actionName << std::endl;
+                        continue;
+                    }
+                }
+                __textures.insert({textureName, textures});
+            }
+        }
+    } catch (libconfig::ParseException &e) {
+        std::cerr << "Error while parsing file: "
+            << e.getFile() << " in line: "
+            << e.getLine() << " : "
+            << e.getError() << std::endl;
+    } catch (libconfig::FileIOException &e) {
+        std::cerr << "Error while reading file: "
+            << e.what() << std::endl;
+        std::cerr << "File path was: " << filepath << std::endl;
+    }
 }
 
 void Systems::DisplayManager::rotateModels(ECS::ComponentManager &componentManager)

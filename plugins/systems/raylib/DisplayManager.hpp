@@ -14,6 +14,7 @@
     #include <libconfig.h++>
     #include <unordered_map>
     #include <memory>
+    #include "RayTexture.hpp"
 
     #define DEG_TO_RAD 0.017453292519943295769236907684886
 
@@ -63,8 +64,14 @@ namespace Systems {
              */
             void checkForMissingModelComponent(ECS::ComponentManager &componentManager);
 
+            void loadConfig(const std::string &filepath);
+            Texture2D GetTexture(const std::string &textureName);
+
             // First is modelId, second is modelPath
             std::unordered_map<std::string, std::string> __models;
+
+            std::string __configFilePath;
+            std::unordered_map<std::string, std::vector<RayTexture>> __textures;
 
     };
 };
