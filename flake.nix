@@ -32,7 +32,6 @@
           xorg.libXi
           xorg.libXfixes
           glfw
-          raylib
           libGLU
           libudev-zero
           openal
