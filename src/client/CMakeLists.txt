@@ -29,7 +29,6 @@ target_link_libraries(client
     sfml-graphics
     sfml-network
     Boost::asio
-    raylib
     ${LIBCONFIG_LIB_NAME}
 )
 

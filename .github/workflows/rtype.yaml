@@ -108,26 +108,26 @@ jobs:
             fi
           done
 
-  # windows_compilation:
-  #   runs-on: windows-2022
-  #   steps:
-  #     - name: Checkout fetch
-  #       uses: actions/checkout@v4
-  #     - name: R-Type Compilation
-  #       shell: cmd
-  #       run: .\windows_build_rtype.bat
-  #     - name: R-Type Plugins Compilation
-  #       shell: cmd
-  #       run: .\windows_build_plugins.bat
-  #     - name: Check compiled executables
-  #       shell: cmd
-  #       run: |
-  #         for %%e in (${{ env.WINDOWS_EXECUTABLES }}); do (
-  #             if not exist "%%e" (
-  #                 echo Executable %%e does not exist.
-  #                 exit /b 1
-  #             )
-  #         )
+  windows_compilation:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout fetch
+        uses: actions/checkout@v4
+      - name: R-Type Compilation
+        shell: cmd
+        run: .\windows_build_rtype.bat
+      - name: R-Type Plugins Compilation
+        shell: cmd
+        run: .\windows_build_plugins.bat
+      - name: Check compiled executables
+        shell: cmd
+        run: |
+          for %%e in (${{ env.WINDOWS_EXECUTABLES }}); do (
+              if not exist "%%e" (
+                  echo Executable %%e does not exist.
+                  exit /b 1
+              )
+          )
 
   ## PLEASE ADD SOME UNITS TESTS !
 
