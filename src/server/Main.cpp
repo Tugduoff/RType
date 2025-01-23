@@ -95,8 +95,8 @@ std::vector<std::string> getCfgFilesInDirectory(const std::string& directoryPath
     return cfgFiles;
 }
 
-std::string menu() {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Menu");
+std::string fileSelector() {
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "File Selector");
     std::string directory = "./src/server";
 
     std::vector<std::string> cfgFiles = getCfgFilesInDirectory(directory);
@@ -184,7 +184,7 @@ int main() {
         // typeid(Components::Scale),
     };
 
-    std::string selectedConfigfile = menu();
+    std::string selectedConfigfile = fileSelector();
 
     // TODO :  edit configServer to edit the config file used to ahve the game
 
