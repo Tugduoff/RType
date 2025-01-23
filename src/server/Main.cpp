@@ -4,7 +4,7 @@
 ** File description:
 ** Main.cpp file
 */
-
+#include <SFML/Graphics.hpp>
 
 #include <exception>
 #include <iostream>
@@ -79,6 +79,90 @@ void updateComponent(size_t id, std::string name, std::vector<uint8_t> data)
     std::cout << "}" << std::endl;
 }
 
+#include <filesystem>
+
+std::vector<std::string> getCfgFilesInDirectory(const std::string& directoryPath) {
+    std::vector<std::string> cfgFiles;
+    try {
+        for (const auto& entry : std::filesystem::directory_iterator(directoryPath)) {
+            if (entry.is_regular_file() && entry.path().extension() == ".cfg") {
+                cfgFiles.push_back(entry.path().filename().string());
+            }
+        }
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+    return cfgFiles;
+}
+
+std::string menu() {
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Menu");
+    std::string directory = "./src/server";
+
+    std::vector<std::string> cfgFiles = getCfgFilesInDirectory(directory);
+
+    sf::Font font;
+    if (!font.loadFromFile("./assets/font.ttf")) {
+        std::cerr << "Error: Failed to load font" << std::endl;
+        return "";
+    }
+
+    std::vector<sf::Text> fileTexts;
+    for (size_t i = 0; i < cfgFiles.size(); i++) {
+        sf::Text text;
+        text.setFont(font);
+        text.setString(cfgFiles[i]);
+        text.setCharacterSize(24);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(70.f, 50.f + i * 30.f);
+        fileTexts.push_back(text);
+    }
+
+    int selectIndex = 0;
+    std::string selectedConfigfile = cfgFiles[selectIndex];
+
+    sf::Text cursor;
+    cursor.setFont(font);
+    cursor.setString(">");
+    cursor.setCharacterSize(24);
+    cursor.setFillColor(sf::Color::White);
+    cursor.setPosition(50.f, 50.f + selectIndex * 30.f);
+
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+            if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Enter) {
+                    selectedConfigfile.clear();
+                    selectedConfigfile = cfgFiles[selectIndex];
+                    // selectedConfigfile += ".cfg";
+                    window.close();
+                }
+                if (event.key.code == sf::Keyboard::Up && selectIndex > 0) {
+                    selectIndex--;
+                } else if (event.key.code == sf::Keyboard::Down && selectIndex < static_cast<int>(cfgFiles.size()) - 1) {
+                    selectIndex++;
+                }
+                cursor.setPosition(50.f, 50.f + selectIndex * 30.f);
+            }
+        }
+
+        window.clear(sf::Color::Black);
+
+        window.draw(cursor);
+        for (const auto& text : fileTexts) {
+            window.draw(text);
+        }
+
+        window.display();
+    }
+    std::cout << cfgFiles[selectIndex] << " - " << (50.f + selectIndex * 30.f) << std::endl;
+    return cfgFiles[selectIndex];
+}
+
 int main() {
     Engine::GameEngine engine(
         []([[maybe_unused]]size_t id, [[maybe_unused]]std::string name, [[maybe_unused]]std::vector<uint8_t> data) {  }
@@ -99,6 +183,10 @@ int main() {
         typeid(Components::Ai),
         // typeid(Components::Scale),
     };
+
+    std::string selectedConfigfile = menu();
+
+    // TODO :  edit configServer to edit the config file used to ahve the game
 
     try {
         engine.registerComponent<Components::Visible>("./plugins/bin/components/", "Visible");
