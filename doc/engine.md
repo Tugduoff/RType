@@ -22,4 +22,13 @@ Components are mainly accessed by [systems](#systems), the last key element of a
 
 Systems are where you define code that will be run against entities and components, defining the logic of your game or program. In essence, a system is just a function which has access to entities and components and is able to mutate however you want to apply your logic on the ECS.
 
+## Our game engine
 
+In our game engine, each part the ECS is a plug-in, represented by a shared library in the filesystem. This facilitates the reuse of components and systems.
+
+Components can be loaded individually by using the `Engine::registerComponent` method, which takes as parameter a path to a shared library. It will dynamically open the library using our Dynamic Libray Loader, making this component ready to use. In particular, this allows systems to create instances of components by calling any exposed function in the component shared library.
+
+
+Systems get access by mutable reference to the entire `GameEngine` class in their `run` method, so they can really do anything on the ECS as a whole. This is by design, to give the most power to developers implementing systems for our engine.
+
+This namely allowed us to create a `Config` system which reads a config file describing a list of systems, and loads these systems in the engine dynamically.
