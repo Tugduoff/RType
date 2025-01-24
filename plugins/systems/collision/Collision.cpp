@@ -91,6 +91,9 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(Engine::GameEngin
             projectiles.push_back((ECS::Entity)i);
         }
     }
+
+    int enemyCount = static_cast<int>(enemies.size());
+
     for (auto &proj : projectiles) {
         for (auto &enemy : enemies) {
             try {
@@ -115,6 +118,7 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(Engine::GameEngin
                             spawnDeathEffect(engine, enemy);
                             reg.killEntity(enemy);
                             reg.killEntity(proj);
+                            enemyCount--;
                             continue;
                         }
                         auto &sound = soundArr[enemy];
@@ -142,6 +146,11 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(Engine::GameEngin
             } catch (std::exception &e) {
                 continue;
             }
+        }
+        if (enemyCount <= 0) {
+            engine._gameEnd = true;
+            engine._victory = true;
+            return;
         }
     }
 }
@@ -176,6 +185,8 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
     //     std::cerr << "Projectile: " << proj << std::endl;
     // }
 
+    int playerCount = static_cast<int>(players.size());
+
     for (auto &proj : projectiles) {
         for (auto &player : players) {
             try {
@@ -200,6 +211,7 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
                             spawnDeathEffect(engine, player);
                             reg.killEntity(player);
                             reg.killEntity(proj);
+                            playerCount--;
                             continue;
                         }
                         auto &sound = soundArr[player];
@@ -228,6 +240,11 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
                 std::cerr << "Error checking enemy projectile to player collision: " << e.what() << std::endl;
                 continue;
             }
+        }
+        if (playerCount <= 0) {
+            engine._gameEnd = true;
+            engine._victory = false;
+            return;
         }
     }
 }

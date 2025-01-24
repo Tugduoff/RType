@@ -9,7 +9,7 @@
 #define NOMINMAX
 #include "components/position/Position.hpp"
 #include "components/spriteId/SpriteID.hpp"
-#include "Text.hpp"
+#include "SfmlText.hpp"
 #include "components/scale/Scale.hpp"
 #include "components/health/Health.hpp"
 #include "components/type/Type.hpp"
@@ -186,8 +186,8 @@ void Systems::Display::init(Engine::GameEngine &engine)
     auto ctor = []() -> Components::SpriteComponent * { return new Components::SpriteComponent(); };
     manager.registerComponent<Components::SpriteComponent>(ctor);
 
-    auto ctorText = []() -> Components::Text * { return new Components::Text(); };
-    manager.registerComponent<Components::Text>(ctorText);
+    auto ctorText = []() -> Components::SfmlText * { return new Components::SfmlText(); };
+    manager.registerComponent<Components::SfmlText>(ctorText);
 }
 
 void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
@@ -201,7 +201,7 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         auto &spriteComponents = reg.componentManager().getComponents<Components::SpriteComponent>();
         auto &spriteIdComponents = reg.componentManager().getComponents<Components::SpriteID>();
         auto &scaleComponents = reg.componentManager().getComponents<Components::Scale>();
-        auto &textComponents = reg.componentManager().getComponents<Components::Text>();
+        auto &textComponents = reg.componentManager().getComponents<Components::SfmlText>();
         auto &typeArr = reg.componentManager().getComponents<Components::Type>();
         auto &healthComponents = reg.componentManager().getComponents<Components::Health>();
 
@@ -210,6 +210,24 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
             if (type.id == Components::TypeID::ALLY) {
                 players.push_back((ECS::Entity)i);
             }
+        }
+
+        if (engine._gameEnd == true) {
+            Components::SfmlText endQuote;
+            endQuote.setSize(40);
+            endQuote.setPosition(1920/2-80, 1080/2); // x,y
+
+            if (engine._victory == true) {
+                endQuote.setText("You win !");
+                endQuote.setColor(sf::Color::White);
+            } else if (engine._victory == false) {
+                endQuote.setText("You lose...");
+                endQuote.setColor(sf::Color::Red);
+            }
+
+            window.draw(endQuote.sfText);
+            window.display();
+            return;
         }
 
         for (unsigned l = 0; l < 10; l++) {
@@ -260,7 +278,7 @@ void Systems::Display::run(Engine::GameEngine &engine, sf::RenderWindow &window)
                     float xPosition = 450;
                     float yPosition = window.getSize().y - (index + 1) * 5;
 
-                    Components::Text healthText;
+                    Components::SfmlText healthText;
                     healthText.setText(healthBar);
                     healthText.setSize(40);
                     healthText.setColor(sf::Color::Red);
