@@ -65,7 +65,6 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
             } catch (std::exception &e) {
                 std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                 engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                 continue;
             }
             if (gun.chrono.getElapsedTime() < gun.fireRate)
@@ -106,11 +105,8 @@ void Systems::AttackSystem::run(Engine::GameEngine &engine)
             } catch (std::exception &e) {
                 std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                 engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                 continue;
             }
-
-            std::cerr << "Entity: " << i << " fired a shot" << std::endl;
         }
         for (const auto &[posX, posY, bulletVelX, bulletVelY, bulletDmg, typeId, spriteId] : projToCreate) {
             createProjectile(engine, posX, posY, bulletVelX, bulletVelY, 10, 10, bulletDmg, typeId, spriteId);

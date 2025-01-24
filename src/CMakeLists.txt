@@ -59,20 +59,10 @@ CPMAddPackage(
 )
 
 include_directories(./build/_deps/raylib-src/src)
-CPMAddPackage(
-    NAME Raylib
-    GIT_REPOSITORY "https://github.com/raysan5/raylib.git"
-    GIT_TAG "5.0"
-    OPTIONS
-    "BUILD_EXAMPLES OFF"
-    "BUILD_GAMES OFF"
-    "BUILD_TEST OFF"
-    "BUILD_DOCS OFF"
-)
+include_directories(./build/_deps/raylib-build/raylib/include)
 
 # set(RAYLIB_LIBRARY_NAME "libraylib.a")
 # link_directories(./build/_deps/raylib-build/raylib/)
-include_directories(./build/_deps/raylib-build/raylib/include)
 
 if (WIN32)
     set(LIBCONFIG_LIB_NAME libconfig libconfig++)
@@ -81,5 +71,4 @@ else()
 endif (WIN32)
 
 # Include the subdirectories for client and server
-add_subdirectory(client)
 add_subdirectory(server)

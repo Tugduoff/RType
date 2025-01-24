@@ -111,7 +111,7 @@ namespace Components {
         void addTo(ECS::Entity &to, Engine::GameEngine &engine, std::vector<std::any> args) override {
             if (args.size() != 2)
                 throw std::runtime_error("Invalid number of arguments for Health component");
-            
+
             uint32_t currentHealth = std::any_cast<uint32_t>(args[0]);
             uint32_t maxHealth = std::any_cast<uint32_t>(args[1]);
 
@@ -136,14 +136,11 @@ namespace Components {
                 std::cerr << "Warning: 'currentVal' not found in config. Using default value: 1.0f\n";
                 currentVal = 100;
             }
-            
+
             if (!config.lookupValue("maxVal", maxVal)) {
                 std::cerr << "Warning: 'maxVal' not found in config. Using default value: 1.0f\n";
                 maxVal = 100;
             }
-
-            std::cout << "currentVal: " << currentVal << " maxVal: " << maxVal << std::endl;
-            std::cout << std::endl;
 
             attachAndUpdateComponent<Components::Health>(
                 engine, to,

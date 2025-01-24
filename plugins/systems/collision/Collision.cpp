@@ -91,6 +91,9 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(Engine::GameEngin
             projectiles.push_back((ECS::Entity)i);
         }
     }
+
+    int enemyCount = static_cast<int>(enemies.size());
+
     for (auto &proj : projectiles) {
         for (auto &enemy : enemies) {
             try {
@@ -115,6 +118,7 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(Engine::GameEngin
                             spawnDeathEffect(engine, enemy);
                             reg.killEntity(enemy);
                             reg.killEntity(proj);
+                            enemyCount--;
                             continue;
                         }
                         auto &sound = soundArr[enemy];
@@ -143,6 +147,11 @@ void Systems::Collision::checkPlayerProjectileToEnemyCollision(Engine::GameEngin
                 continue;
             }
         }
+        if (enemyCount <= 0) {
+            engine._gameEnd = true;
+            engine._victory = true;
+            return;
+        }
     }
 }
 
@@ -167,6 +176,17 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
             projectiles.push_back((ECS::Entity)i);
         }
     }
+
+    // for (auto &player : players) {
+    //     std::cerr << "Player: " << player << std::endl;
+    // }
+
+    // for (auto &proj : projectiles) {
+    //     std::cerr << "Projectile: " << proj << std::endl;
+    // }
+
+    int playerCount = static_cast<int>(players.size());
+
     for (auto &proj : projectiles) {
         for (auto &player : players) {
             try {
@@ -174,11 +194,11 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
                 auto &projCollider = colliderArr[proj];
                 auto &playerPos = posArr[player];
                 auto &playerCollider = colliderArr[player];
-
                 if (projPos->x - projCollider->width / 2 < playerPos->x + playerCollider->width / 2 &&
                     projPos->x + projCollider->width / 2 > playerPos->x - playerCollider->width / 2 &&
                     projPos->y - projCollider->height / 2 < playerPos->y + playerCollider->height / 2 &&
                     projPos->y + projCollider->height / 2 > playerPos->y - playerCollider->height / 2) {
+
                     auto &projDamage = dmgArr[proj];
                     auto &playerHealth = healthArr[player];
 
@@ -191,6 +211,7 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
                             spawnDeathEffect(engine, player);
                             reg.killEntity(player);
                             reg.killEntity(proj);
+                            playerCount--;
                             continue;
                         }
                         auto &sound = soundArr[player];
@@ -199,12 +220,12 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
                             if (std::get<0>(soundInstance) == "HIT") {
                                 if (std::get<5>(soundInstance) == true) {
                                     std::get<5>(soundInstance) = false;
-                                    engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
+                                    // engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
                                     playerHealth->currentHealth += projDamage->damage;
                                     return;
                                 }
                                 std::get<5>(soundInstance) = true;
-                                engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
+                                // engine.updateComponent((ECS::Entity)player, sound->getId(), sound->serialize());
                             }
                         }
                     } catch (std::exception &) {}
@@ -216,8 +237,14 @@ void Systems::Collision::checkEnemyProjectileToPlayerCollision(Engine::GameEngin
                     reg.killEntity(proj);
                 }
             } catch (std::exception &e) {
+                std::cerr << "Error checking enemy projectile to player collision: " << e.what() << std::endl;
                 continue;
             }
+        }
+        if (playerCount <= 0) {
+            engine._gameEnd = true;
+            engine._victory = false;
+            return;
         }
     }
 }

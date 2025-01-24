@@ -131,8 +131,6 @@ namespace Components {
                 height = 1;
             }
 
-            std::cout << "width: " << width << " height: " << height << std::endl;
-
             attachAndUpdateComponent<Components::Collider>(
                 engine, to,
                 static_cast<uint32_t>(width),

@@ -122,11 +122,6 @@ namespace Components {
                 reinterpret_cast<uint8_t *>(&networkScaleHeight) + sizeof(networkScaleHeight),
                 data.begin() + offset + sizeof(networkScaleWidth) + 3);
 
-            std::cerr << "Serialized Destruction:" << std::endl;
-            for (auto &byte : data) {
-                std::cerr << (unsigned)byte << " ";
-            }
-            std::cerr << std::endl;
             return data;
         }
 
@@ -141,12 +136,6 @@ namespace Components {
         void deserialize(std::vector<uint8_t> &data) override {
             if (data.size() != getSize())
                 throw std::runtime_error("Invalid data size for Destruction component");
-
-            std::cerr << "Deserialized Destruction:" << std::endl;
-            for (auto &byte : data) {
-                std::cerr << (unsigned)byte << " ";
-            }
-            std::cerr << std::endl;
 
             uint32_t networkDuration = *reinterpret_cast<uint32_t *>(data.data());
             duration = ntohl(networkDuration);

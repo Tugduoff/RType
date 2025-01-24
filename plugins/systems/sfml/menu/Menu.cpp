@@ -18,7 +18,7 @@
 #include "library_entrypoint.hpp"
 #include <iostream>
 #include <stdexcept>
-#include "../Text.hpp"
+#include "../SfmlText.hpp"
 
 #define TM 6
 #define letter_R 5
@@ -54,7 +54,7 @@ void Systems::Menu::run(Engine::GameEngine &engine, sf::RenderWindow &window)
     auto &reg = engine.getRegistry();
     auto &posArr = reg.componentManager().getComponents<Components::Position>();
     auto &velArr = reg.componentManager().getComponents<Components::Velocity>();
-    auto &textArr = reg.componentManager().getComponents<Components::Text>();
+    auto &textArr = reg.componentManager().getComponents<Components::SfmlText>();
 
     auto &controllableArr = reg.componentManager().getComponents<Components::Controllable>();
 
@@ -209,7 +209,8 @@ void Systems::Menu::init(Engine::GameEngine &engine)
 {
     auto &manager = engine.getRegistry().componentManager();
 
-    engine._inMenu = true;
+    engine._inMenu = false;
+    return;
     _titleReachedLeftEdge = false;
     _titleDeployed = false;
     _tmSpawned = false;
@@ -288,36 +289,36 @@ void Systems::Menu::init(Engine::GameEngine &engine)
 
     ECS::Entity textPlayers = engine.getRegistry().createEntity();
     manager.addComponent<Components::Position>(textPlayers, engine.newComponent<Components::Position>(1500, 300, 2));
-    std::unique_ptr<Components::Text> tmpPlayers = std::make_unique<Components::Text>("PLAYERS < 1 >", 50, sf::Color::White);
-    manager.addComponent<Components::Text>(textPlayers, std::move(tmpPlayers));
+    std::unique_ptr<Components::SfmlText> tmpPlayers = std::make_unique<Components::SfmlText>("PLAYERS < 1 >", 50, sf::Color::White);
+    manager.addComponent<Components::SfmlText>(textPlayers, std::move(tmpPlayers));
     __controllableTexts.push_back(textPlayers);
     _entities.push_back(textPlayers);
 
     ECS::Entity textPlay = engine.getRegistry().createEntity();
     manager.addComponent<Components::Position>(textPlay, engine.newComponent<Components::Position>(1500, 450, 2));
-    std::unique_ptr<Components::Text> tmpPlay = std::make_unique<Components::Text>("PLAY", 50, sf::Color(89, 241, 215));
-    manager.addComponent<Components::Text>(textPlay, std::move(tmpPlay));
+    std::unique_ptr<Components::SfmlText> tmpPlay = std::make_unique<Components::SfmlText>("PLAY", 50, sf::Color(89, 241, 215));
+    manager.addComponent<Components::SfmlText>(textPlay, std::move(tmpPlay));
     __controllableTexts.push_back(textPlay);
     _entities.push_back(textPlay);
 
     ECS::Entity textLevelEditor = engine.getRegistry().createEntity();
     manager.addComponent<Components::Position>(textLevelEditor, engine.newComponent<Components::Position>(1500, 600, 2));
-    std::unique_ptr<Components::Text> tmpLevelEditor = std::make_unique<Components::Text>("LEVEL EDITOR", 50, sf::Color::White);
-    manager.addComponent<Components::Text>(textLevelEditor, std::move(tmpLevelEditor));
+    std::unique_ptr<Components::SfmlText> tmpLevelEditor = std::make_unique<Components::SfmlText>("LEVEL EDITOR", 50, sf::Color::White);
+    manager.addComponent<Components::SfmlText>(textLevelEditor, std::move(tmpLevelEditor));
     __controllableTexts.push_back(textLevelEditor);
     _entities.push_back(textLevelEditor);
 
     ECS::Entity textOptions = engine.getRegistry().createEntity();
     manager.addComponent<Components::Position>(textOptions, engine.newComponent<Components::Position>(1500, 750, 2));
-    std::unique_ptr<Components::Text> tmpOptions = std::make_unique<Components::Text>("OPTIONS", 50, sf::Color::White);
-    manager.addComponent<Components::Text>(textOptions, std::move(tmpOptions));
+    std::unique_ptr<Components::SfmlText> tmpOptions = std::make_unique<Components::SfmlText>("OPTIONS", 50, sf::Color::White);
+    manager.addComponent<Components::SfmlText>(textOptions, std::move(tmpOptions));
     __controllableTexts.push_back(textOptions);
     _entities.push_back(textOptions);
 
     ECS::Entity textExit = engine.getRegistry().createEntity();
     manager.addComponent<Components::Position>(textExit, engine.newComponent<Components::Position>(1750, 950, 2));
-    std::unique_ptr<Components::Text> tmpExit = std::make_unique<Components::Text>("EXIT", 50, sf::Color::White);
-    manager.addComponent<Components::Text>(textExit, std::move(tmpExit));
+    std::unique_ptr<Components::SfmlText> tmpExit = std::make_unique<Components::SfmlText>("EXIT", 50, sf::Color::White);
+    manager.addComponent<Components::SfmlText>(textExit, std::move(tmpExit));
     __controllableTexts.push_back(textExit);
     _entities.push_back(textExit);
 

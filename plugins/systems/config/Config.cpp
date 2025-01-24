@@ -35,12 +35,9 @@ void Systems::ConfigLoader::run(Engine::GameEngine &engine)
         auto &entity = *it;
 
         if ((size_t)entity.spawnTime <= __chrono.getElapsedTime()) {
-            std::cerr << "Spawning entity of type: " << entity.type << " with name: " << entity.name << std::endl;
             ECS::Entity newEntity = engine.getRegistry().createEntity();
-            std::cerr << "New entity created with ID: " << newEntity << std::endl;
 
             for (const auto &component : entity.components) {
-                std::cerr << "Adding component: \"" << component.id << "\" to entity ID: " << newEntity << std::endl;
                 try {
                     std::unique_ptr<Components::IComponent> &comp = engine.getComponentFromId(component.id);
                     comp->addTo(newEntity, engine, component.args);
@@ -56,7 +53,7 @@ void Systems::ConfigLoader::run(Engine::GameEngine &engine)
                 for (auto &soundInstance : sound->sounds) {
                     if (std::get<0>(soundInstance) == "SPAWN" || std::get<0>(soundInstance) == "AMBIENT") {
                         std::get<5>(soundInstance) = true;
-                        engine.updateComponent((ECS::Entity)newEntity, sound->getId(), sound->serialize());
+                        // engine.updateComponent((ECS::Entity)newEntity, sound->getId(), sound->serialize());
                     }
                 }
             } catch (std::exception &) {}

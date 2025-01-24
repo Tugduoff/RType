@@ -68,12 +68,10 @@ void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
 
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-            std::cerr << "Window closed" << std::endl;
             window.close();
         }
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Escape) {
-                std::cerr << "Escape pressed" << std::endl;
                 window.close();
             }
         }
@@ -82,7 +80,6 @@ void Systems::Input::run(Engine::GameEngine &engine, sf::RenderWindow &window)
         } catch (std::exception &e) {
             std::cerr << "Input handleInput Error: " << e.what() << std::endl;
         }
-        std::cout << std::endl;
     }
 }
 
@@ -238,7 +235,6 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     } catch (std::exception &e) {
                         std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                         engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                        std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                     };
                     auto &entityAction = entityActionComponents[i];
 
@@ -249,7 +245,6 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     bool action1Input = ctrl.inputs[(int)Action::ACTION1];
 
                     EntityAction newAction = determinePressedAction(forwardInput, backwardInput, rightInput, leftInput, action1Input, action);
-                    std::cerr << "New action initialized : " << newAction << std::endl;
                     entityAction->action = newAction;
                     return;
                 }
@@ -275,7 +270,6 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                     } catch (std::exception &e) {
                         std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                         engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                        std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                     };
 
                     auto &entityAction = entityActionComponents[i];
@@ -308,11 +302,10 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         } catch (std::exception &e) {
                             std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                             engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                            std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                         };
 
                         auto &entityAction = entityActionComponents[i];
-                            
+
                         bool forwardInput = ctrl.inputs[(int)Action::FORWARD];
                         bool backwardInput = ctrl.inputs[(int)Action::BACKWARD];
                         bool rightInput = ctrl.inputs[(int)Action::RIGHT];
@@ -341,7 +334,6 @@ void Systems::Input::handleInput(Engine::GameEngine &engine, sf::Event &event)
                         } catch (std::exception &e) {
                             std::unique_ptr<Components::ActionComponent> actionComp = std::make_unique<Components::ActionComponent>();
                             engine.getRegistry().componentManager().addComponent<Components::ActionComponent>((ECS::Entity)i, std::move(actionComp));
-                            std::cerr << "Set default action for entity: " << i << " in ActionManager." << std::endl;
                         };
 
                         auto &entityAction = entityActionComponents[i];
