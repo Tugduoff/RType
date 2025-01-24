@@ -2,11 +2,11 @@
 ** EPITECH PROJECT, 2024
 ** RType
 ** File description:
-** Text.hpp file
+** SfmlText.hpp file
 */
 
-#ifndef TEXT_HPP
-    #define TEXT_HPP
+#ifndef SFMLTEXT_HPP
+    #define SFMLTEXT_HPP
 
     #include "plugins/components/AComponent.hpp"
     #include <SFML/Graphics/Text.hpp>
@@ -17,9 +17,9 @@
 
 namespace Components {
 
-    class Text {
+    class SfmlText {
         public:
-            Text(const std::string &text = "Hello World", unsigned int size = 30, const sf::Color &color = sf::Color::White)
+            SfmlText(const std::string &text = "Hello World", unsigned int size = 30, const sf::Color &color = sf::Color::White)
                 : textContent(text), textSize(size), textColor(color)
             {
                 const std::string fontPath = "assets/font.ttf";
@@ -60,4 +60,4 @@ namespace Components {
     };
 }
 
-#endif // TEXT_HPP
+#endif // SFMLTEXT_HPP
