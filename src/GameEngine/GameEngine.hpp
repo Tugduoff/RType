@@ -205,6 +205,8 @@ namespace Engine {
             std::unordered_map<std::type_index, std::unique_ptr<Components::IComponent>> &getComponents() { return __components; }
             std::unordered_map<std::string, std::type_index> &getIdStringToType() { return __idStringToType; }
             bool _inMenu;
+            bool _gameEnd;
+            bool _victory;
 
         private:
 
