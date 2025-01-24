@@ -62,6 +62,7 @@ namespace Components {
          */
         virtual std::vector<uint8_t> serialize() override {
             // no need
+            return {};
         }
 
         /**
